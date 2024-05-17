@@ -9,7 +9,7 @@
 
 # ----- 作业调度 测试环境配置 -----
 lianjia-schedule:
-  enabled: true
+  enabled: false
   env: official_offline_3
   token: xxxxxxxxxxxxxxxx
 lianjia:
@@ -53,6 +53,6 @@ ribbon:
 # ----- 日志级别配置 测试环境 -----
 logging:
   level:
-    root: DEBUG
+    root: INFO
     org:
-      springframework: DEBUG
+      springframework: INFO

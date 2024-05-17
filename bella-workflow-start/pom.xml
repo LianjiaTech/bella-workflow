@@ -13,14 +13,21 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <version>3.1.0</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>com.ke.bella.workflow</groupId>
             <artifactId>bella-workflow-service</artifactId>
             <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.101tec</groupId>
-            <artifactId>zkclient</artifactId>
-            <version>0.10</version>
         </dependency>
         <dependency>
             <groupId>com.lianjia.hawk</groupId>
@@ -45,6 +52,10 @@
         <dependency>
             <groupId>com.lianjia.infrastructure</groupId>
             <artifactId>spring-boot-starter-discovery</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.lianjia.infrastructure</groupId>
+            <artifactId>spring-boot-starter-datasource</artifactId>
         </dependency>
         <dependency>
             <groupId>com.lianjia.infrastructure</groupId>

@@ -9,7 +9,7 @@
 
 # ----- 作业调度 生产环境配置 -----
 lianjia-schedule:
-  enabled: true
+  enabled: false
   env: official_prod
   token: xxxxxxxxxxxxxxxx
 lianjia:

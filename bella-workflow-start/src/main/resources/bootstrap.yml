@@ -15,7 +15,7 @@ spring:
   config:
     apollo:
       server: http://example.com
-      environment: DEV
+      environment: TEST
       auto-update-injected: true
   discovery:
     client:

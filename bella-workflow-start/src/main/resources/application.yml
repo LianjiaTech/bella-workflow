@@ -37,3 +37,15 @@ api:
     feign:
       keychains:
         example: { access-key-id: 123, access-key-secret: 456 }
+datasource:
+  use-dynamic: true
+  dynamic-default: master
+  pool:
+    master:
+      url: ${DATASOURCE_POOL_MASTER_URL}
+      username: ${DATASOURCE_POOL_MASTER_USERNAME}
+      password: ${DATASOURCE_POOL_MASTER_PASSWORD}
+    slave:
+      url: ${DATASOURCE_POOL_SLAVE_URL}
+      username: ${DATASOURCE_POOL_SLAVE_USERNAME}
+      password: ${DATASOURCE_POOL_SLAVE_PASSWORD}

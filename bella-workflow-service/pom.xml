@@ -13,13 +13,17 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.ke.bella.workflow</groupId>
             <artifactId>bella-workflow-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>com.ke.bella.workflow</groupId>
-            <artifactId>bella-workflow-dao</artifactId>
+            <artifactId>bella-workflow-db</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>

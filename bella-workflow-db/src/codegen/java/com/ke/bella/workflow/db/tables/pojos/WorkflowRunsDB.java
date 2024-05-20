@@ -197,7 +197,7 @@ API
     }
 
     /**
-     * Getter for <code>workflow_runs.status</code>. RUNNING = 'running'
+     * Getter for <code>workflow_runs.status</code>.     RUNNING = 'running'
     SUCCEEDED = 'succeeded'
     FAILED = 'failed'
     STOPPED = 'stopped'
@@ -208,7 +208,7 @@ API
     }
 
     /**
-     * Setter for <code>workflow_runs.status</code>. RUNNING = 'running'
+     * Setter for <code>workflow_runs.status</code>.     RUNNING = 'running'
     SUCCEEDED = 'succeeded'
     FAILED = 'failed'
     STOPPED = 'stopped'

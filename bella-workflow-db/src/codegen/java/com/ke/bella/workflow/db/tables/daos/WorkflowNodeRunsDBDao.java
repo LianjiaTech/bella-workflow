@@ -202,6 +202,20 @@ public class WorkflowNodeRunsDBDao extends DAOImpl<WorkflowNodeRunsRecord, Workf
     }
 
     /**
+     * Fetch records that have <code>actived_target_handles BETWEEN lowerInclusive AND upperInclusive</code>
+     */
+    public List<WorkflowNodeRunsDB> fetchRangeOfActivedTargetHandles(String lowerInclusive, String upperInclusive) {
+        return fetchRange(WorkflowNodeRuns.WORKFLOW_NODE_RUNS.ACTIVED_TARGET_HANDLES, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>actived_target_handles IN (values)</code>
+     */
+    public List<WorkflowNodeRunsDB> fetchByActivedTargetHandles(String... values) {
+        return fetch(WorkflowNodeRuns.WORKFLOW_NODE_RUNS.ACTIVED_TARGET_HANDLES, values);
+    }
+
+    /**
      * Fetch records that have <code>status BETWEEN lowerInclusive AND upperInclusive</code>
      */
     public List<WorkflowNodeRunsDB> fetchRangeOfStatus(String lowerInclusive, String upperInclusive) {

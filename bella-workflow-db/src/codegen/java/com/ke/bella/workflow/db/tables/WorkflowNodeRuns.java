@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row19;
+import org.jooq.Row20;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -59,32 +59,32 @@ public class WorkflowNodeRuns extends TableImpl<WorkflowNodeRunsRecord> {
     /**
      * The column <code>workflow_node_runs.tenant_id</code>.
      */
-    public final TableField<WorkflowNodeRunsRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(32).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowNodeRunsRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(32).nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_runs.workflow_id</code>.
      */
-    public final TableField<WorkflowNodeRunsRecord, String> WORKFLOW_ID = createField(DSL.name("workflow_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowNodeRunsRecord, String> WORKFLOW_ID = createField(DSL.name("workflow_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_runs.workflow_run_id</code>.
      */
-    public final TableField<WorkflowNodeRunsRecord, String> WORKFLOW_RUN_ID = createField(DSL.name("workflow_run_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowNodeRunsRecord, String> WORKFLOW_RUN_ID = createField(DSL.name("workflow_run_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_runs.node_id</code>.
      */
-    public final TableField<WorkflowNodeRunsRecord, String> NODE_ID = createField(DSL.name("node_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowNodeRunsRecord, String> NODE_ID = createField(DSL.name("node_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_runs.node_type</code>.
      */
-    public final TableField<WorkflowNodeRunsRecord, String> NODE_TYPE = createField(DSL.name("node_type"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowNodeRunsRecord, String> NODE_TYPE = createField(DSL.name("node_type"), SQLDataType.VARCHAR(64).nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_runs.title</code>.
      */
-    public final TableField<WorkflowNodeRunsRecord, String> TITLE = createField(DSL.name("title"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowNodeRunsRecord, String> TITLE = createField(DSL.name("title"), SQLDataType.VARCHAR(128), this, "");
 
     /**
      * The column <code>workflow_node_runs.inputs</code>.
@@ -107,9 +107,14 @@ public class WorkflowNodeRuns extends TableImpl<WorkflowNodeRunsRecord> {
     public final TableField<WorkflowNodeRunsRecord, String> PROCESS_DATA = createField(DSL.name("process_data"), SQLDataType.CLOB, this, "");
 
     /**
+     * The column <code>workflow_node_runs.actived_target_handles</code>.
+     */
+    public final TableField<WorkflowNodeRunsRecord, String> ACTIVED_TARGET_HANDLES = createField(DSL.name("actived_target_handles"), SQLDataType.VARCHAR(1024).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
      * The column <code>workflow_node_runs.status</code>.
      */
-    public final TableField<WorkflowNodeRunsRecord, String> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR(32).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowNodeRunsRecord, String> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR(32), this, "");
 
     /**
      * The column <code>workflow_node_runs.elapsed_time</code>.
@@ -129,7 +134,7 @@ public class WorkflowNodeRuns extends TableImpl<WorkflowNodeRunsRecord> {
     /**
      * The column <code>workflow_node_runs.ctime</code>.
      */
-    public final TableField<WorkflowNodeRunsRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<WorkflowNodeRunsRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_runs.muid</code>.
@@ -144,7 +149,7 @@ public class WorkflowNodeRuns extends TableImpl<WorkflowNodeRunsRecord> {
     /**
      * The column <code>workflow_node_runs.mtime</code>.
      */
-    public final TableField<WorkflowNodeRunsRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<WorkflowNodeRunsRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
 
     private WorkflowNodeRuns(Name alias, Table<WorkflowNodeRunsRecord> aliased) {
         this(alias, aliased, null);
@@ -231,11 +236,11 @@ public class WorkflowNodeRuns extends TableImpl<WorkflowNodeRunsRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row19 type methods
+    // Row20 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row19<Long, String, String, String, String, String, String, String, String, String, String, String, Long, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row19) super.fieldsRow();
+    public Row20<Long, String, String, String, String, String, String, String, String, String, String, String, String, Long, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
+        return (Row20) super.fieldsRow();
     }
 }

@@ -64,7 +64,7 @@ public class Workflows extends TableImpl<WorkflowsRecord> {
     /**
      * The column <code>workflows.workflow_id</code>.
      */
-    public final TableField<WorkflowsRecord, String> WORKFLOW_ID = createField(DSL.name("workflow_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowsRecord, String> WORKFLOW_ID = createField(DSL.name("workflow_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
 
     /**
      * The column <code>workflows.graph</code>. 工作流DAG配置
@@ -89,7 +89,7 @@ public class Workflows extends TableImpl<WorkflowsRecord> {
     /**
      * The column <code>workflows.ctime</code>.
      */
-    public final TableField<WorkflowsRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<WorkflowsRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
 
     /**
      * The column <code>workflows.muid</code>.
@@ -104,7 +104,7 @@ public class Workflows extends TableImpl<WorkflowsRecord> {
     /**
      * The column <code>workflows.mtime</code>.
      */
-    public final TableField<WorkflowsRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<WorkflowsRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
 
     private Workflows(Name alias, Table<WorkflowsRecord> aliased) {
         this(alias, aliased, null);

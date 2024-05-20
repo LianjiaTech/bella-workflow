@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
-import org.jooq.Identity;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Row9;
@@ -52,17 +51,17 @@ public class Tenants extends TableImpl<TenantsRecord> {
     /**
      * The column <code>tenants.id</code>.
      */
-    public final TableField<TenantsRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false).identity(true), this, "");
+    public final TableField<TenantsRecord, Long> ID = createField(DSL.name("id"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>tenants.tenant_id</code>.
      */
-    public final TableField<TenantsRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(32).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<TenantsRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(32).nullable(false), this, "");
 
     /**
      * The column <code>tenants.tenant_name</code>.
      */
-    public final TableField<TenantsRecord, String> TENANT_NAME = createField(DSL.name("tenant_name"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<TenantsRecord, String> TENANT_NAME = createField(DSL.name("tenant_name"), SQLDataType.VARCHAR(128).nullable(false), this, "");
 
     /**
      * The column <code>tenants.cuid</code>.
@@ -77,7 +76,7 @@ public class Tenants extends TableImpl<TenantsRecord> {
     /**
      * The column <code>tenants.ctime</code>.
      */
-    public final TableField<TenantsRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<TenantsRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
 
     /**
      * The column <code>tenants.muid</code>.
@@ -92,7 +91,7 @@ public class Tenants extends TableImpl<TenantsRecord> {
     /**
      * The column <code>tenants.mtime</code>.
      */
-    public final TableField<TenantsRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<TenantsRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
 
     private Tenants(Name alias, Table<TenantsRecord> aliased) {
         this(alias, aliased, null);
@@ -130,11 +129,6 @@ public class Tenants extends TableImpl<TenantsRecord> {
     @Override
     public Schema getSchema() {
         return DefaultSchema.DEFAULT_SCHEMA;
-    }
-
-    @Override
-    public Identity<TenantsRecord, Long> getIdentity() {
-        return (Identity<TenantsRecord, Long>) super.getIdentity();
     }
 
     @Override

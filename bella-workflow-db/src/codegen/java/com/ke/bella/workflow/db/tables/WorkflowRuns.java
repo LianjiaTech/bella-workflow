@@ -59,17 +59,17 @@ public class WorkflowRuns extends TableImpl<WorkflowRunsRecord> {
     /**
      * The column <code>workflow_runs.tenant_id</code>.
      */
-    public final TableField<WorkflowRunsRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(32).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowRunsRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(32).nullable(false), this, "");
 
     /**
      * The column <code>workflow_runs.workflow_id</code>.
      */
-    public final TableField<WorkflowRunsRecord, String> WORKFLOW_ID = createField(DSL.name("workflow_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowRunsRecord, String> WORKFLOW_ID = createField(DSL.name("workflow_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
 
     /**
      * The column <code>workflow_runs.workflow_run_id</code>.
      */
-    public final TableField<WorkflowRunsRecord, String> WORKFLOW_RUN_ID = createField(DSL.name("workflow_run_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowRunsRecord, String> WORKFLOW_RUN_ID = createField(DSL.name("workflow_run_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
 
     /**
      * The column <code>workflow_runs.trigger_from</code>. 工作流触发来源：
@@ -92,13 +92,13 @@ API
     public final TableField<WorkflowRunsRecord, String> OUTPUTS = createField(DSL.name("outputs"), SQLDataType.CLOB, this, "最后一个节点的输出");
 
     /**
-     * The column <code>workflow_runs.status</code>. RUNNING = 'running'
+     * The column <code>workflow_runs.status</code>.     RUNNING = 'running'
     SUCCEEDED = 'succeeded'
     FAILED = 'failed'
     STOPPED = 'stopped'
 
      */
-    public final TableField<WorkflowRunsRecord, String> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR(32).nullable(false), this, "RUNNING = 'running'\n    SUCCEEDED = 'succeeded'\n    FAILED = 'failed'\n    STOPPED = 'stopped'\n");
+    public final TableField<WorkflowRunsRecord, String> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR(32).nullable(false), this, "    RUNNING = 'running'\n    SUCCEEDED = 'succeeded'\n    FAILED = 'failed'\n    STOPPED = 'stopped'\n");
 
     /**
      * The column <code>workflow_runs.error</code>.
@@ -108,7 +108,7 @@ API
     /**
      * The column <code>workflow_runs.cuid</code>.
      */
-    public final TableField<WorkflowRunsRecord, Long> CUID = createField(DSL.name("cuid"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "");
+    public final TableField<WorkflowRunsRecord, Long> CUID = createField(DSL.name("cuid"), SQLDataType.BIGINT.defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "");
 
     /**
      * The column <code>workflow_runs.cu_name</code>.
@@ -118,7 +118,7 @@ API
     /**
      * The column <code>workflow_runs.ctime</code>.
      */
-    public final TableField<WorkflowRunsRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<WorkflowRunsRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
 
     /**
      * The column <code>workflow_runs.muid</code>.
@@ -133,7 +133,7 @@ API
     /**
      * The column <code>workflow_runs.mtime</code>.
      */
-    public final TableField<WorkflowRunsRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<WorkflowRunsRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0), this, "");
 
     private WorkflowRuns(Name alias, Table<WorkflowRunsRecord> aliased) {
         this(alias, aliased, null);

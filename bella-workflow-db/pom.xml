@@ -76,7 +76,7 @@
                             <matchers>
                                 <tables>
                                     <table>
-                                        <expression>tenants</expression>
+                                        <expression>tenant</expression>
                                         <daoClass>
                                             <transform>PASCAL</transform>
                                             <expression>$0_D_B_Dao</expression>
@@ -89,7 +89,7 @@
                                     </table>
 
                                     <table>
-                                        <expression>workflow_node_runs</expression>
+                                        <expression>workflow_node_run</expression>
                                         <daoClass>
                                             <transform>PASCAL</transform>
                                             <expression>$0_D_B_Dao</expression>
@@ -102,7 +102,7 @@
                                     </table>
 
                                     <table>
-                                        <expression>workflow_runs</expression>
+                                        <expression>workflow_run</expression>
                                         <daoClass>
                                             <transform>PASCAL</transform>
                                             <expression>$0_D_B_Dao</expression>
@@ -115,7 +115,7 @@
                                     </table>
 
                                     <table>
-                                        <expression>workflows</expression>
+                                        <expression>workflow</expression>
                                         <daoClass>
                                             <transform>PASCAL</transform>
                                             <expression>$0_D_B_Dao</expression>
@@ -142,7 +142,7 @@
                                 </forcedType>
                             </forcedTypes>
                             <includes>
-                                tenants|workflow_node_runs|workflow_runs|workflows
+                                tenant|workflow_node_run|workflow_run|workflow
                             </includes>
                             <unsignedTypes>false</unsignedTypes>
                         </database>

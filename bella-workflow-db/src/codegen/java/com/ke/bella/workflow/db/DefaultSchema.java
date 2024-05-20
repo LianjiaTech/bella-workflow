@@ -4,10 +4,10 @@
 package com.ke.bella.workflow.db;
 
 
-import com.ke.bella.workflow.db.tables.Tenants;
-import com.ke.bella.workflow.db.tables.WorkflowNodeRuns;
-import com.ke.bella.workflow.db.tables.WorkflowRuns;
-import com.ke.bella.workflow.db.tables.Workflows;
+import com.ke.bella.workflow.db.tables.Tenant;
+import com.ke.bella.workflow.db.tables.Workflow;
+import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
+import com.ke.bella.workflow.db.tables.WorkflowRun;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,24 +31,24 @@ public class DefaultSchema extends SchemaImpl {
     public static final DefaultSchema DEFAULT_SCHEMA = new DefaultSchema();
 
     /**
-     * The table <code>tenants</code>.
+     * The table <code>tenant</code>.
      */
-    public final Tenants TENANTS = Tenants.TENANTS;
+    public final Tenant TENANT = Tenant.TENANT;
 
     /**
-     * The table <code>workflow_node_runs</code>.
+     * The table <code>workflow</code>.
      */
-    public final WorkflowNodeRuns WORKFLOW_NODE_RUNS = WorkflowNodeRuns.WORKFLOW_NODE_RUNS;
+    public final Workflow WORKFLOW = Workflow.WORKFLOW;
 
     /**
-     * The table <code>workflow_runs</code>.
+     * The table <code>workflow_node_run</code>.
      */
-    public final WorkflowRuns WORKFLOW_RUNS = WorkflowRuns.WORKFLOW_RUNS;
+    public final WorkflowNodeRun WORKFLOW_NODE_RUN = WorkflowNodeRun.WORKFLOW_NODE_RUN;
 
     /**
-     * The table <code>workflows</code>.
+     * The table <code>workflow_run</code>.
      */
-    public final Workflows WORKFLOWS = Workflows.WORKFLOWS;
+    public final WorkflowRun WORKFLOW_RUN = WorkflowRun.WORKFLOW_RUN;
 
     /**
      * No further instances allowed
@@ -66,9 +66,9 @@ public class DefaultSchema extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.<Table<?>>asList(
-            Tenants.TENANTS,
-            WorkflowNodeRuns.WORKFLOW_NODE_RUNS,
-            WorkflowRuns.WORKFLOW_RUNS,
-            Workflows.WORKFLOWS);
+            Tenant.TENANT,
+            Workflow.WORKFLOW,
+            WorkflowNodeRun.WORKFLOW_NODE_RUN,
+            WorkflowRun.WORKFLOW_RUN);
     }
 }

@@ -4,14 +4,14 @@
 package com.ke.bella.workflow.db;
 
 
-import com.ke.bella.workflow.db.tables.Tenants;
-import com.ke.bella.workflow.db.tables.WorkflowNodeRuns;
-import com.ke.bella.workflow.db.tables.WorkflowRuns;
-import com.ke.bella.workflow.db.tables.Workflows;
-import com.ke.bella.workflow.db.tables.records.TenantsRecord;
-import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunsRecord;
-import com.ke.bella.workflow.db.tables.records.WorkflowRunsRecord;
-import com.ke.bella.workflow.db.tables.records.WorkflowsRecord;
+import com.ke.bella.workflow.db.tables.Tenant;
+import com.ke.bella.workflow.db.tables.Workflow;
+import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
+import com.ke.bella.workflow.db.tables.WorkflowRun;
+import com.ke.bella.workflow.db.tables.records.TenantRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
 
 import org.jooq.TableField;
 import org.jooq.UniqueKey;
@@ -30,10 +30,10 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final UniqueKey<TenantsRecord> KEY_TENANTS_PRIMARY = Internal.createUniqueKey(Tenants.TENANTS, DSL.name("KEY_tenants_PRIMARY"), new TableField[] { Tenants.TENANTS.ID }, true);
-    public static final UniqueKey<WorkflowNodeRunsRecord> KEY_WORKFLOW_NODE_RUNS_PRIMARY = Internal.createUniqueKey(WorkflowNodeRuns.WORKFLOW_NODE_RUNS, DSL.name("KEY_workflow_node_runs_PRIMARY"), new TableField[] { WorkflowNodeRuns.WORKFLOW_NODE_RUNS.ID }, true);
-    public static final UniqueKey<WorkflowRunsRecord> KEY_WORKFLOW_RUNS_IDX_WORKFLOW_RUN_ID = Internal.createUniqueKey(WorkflowRuns.WORKFLOW_RUNS, DSL.name("KEY_workflow_runs_idx_workflow_run_id"), new TableField[] { WorkflowRuns.WORKFLOW_RUNS.WORKFLOW_RUN_ID }, true);
-    public static final UniqueKey<WorkflowRunsRecord> KEY_WORKFLOW_RUNS_PRIMARY = Internal.createUniqueKey(WorkflowRuns.WORKFLOW_RUNS, DSL.name("KEY_workflow_runs_PRIMARY"), new TableField[] { WorkflowRuns.WORKFLOW_RUNS.ID }, true);
-    public static final UniqueKey<WorkflowsRecord> KEY_WORKFLOWS_IDX_WORKFLOW_ID = Internal.createUniqueKey(Workflows.WORKFLOWS, DSL.name("KEY_workflows_idx_workflow_id"), new TableField[] { Workflows.WORKFLOWS.WORKFLOW_ID }, true);
-    public static final UniqueKey<WorkflowsRecord> KEY_WORKFLOWS_PRIMARY = Internal.createUniqueKey(Workflows.WORKFLOWS, DSL.name("KEY_workflows_PRIMARY"), new TableField[] { Workflows.WORKFLOWS.ID }, true);
+    public static final UniqueKey<TenantRecord> KEY_TENANT_PRIMARY = Internal.createUniqueKey(Tenant.TENANT, DSL.name("KEY_tenant_PRIMARY"), new TableField[] { Tenant.TENANT.ID }, true);
+    public static final UniqueKey<WorkflowRecord> KEY_WORKFLOW_IDX_WORKFLOW_ID = Internal.createUniqueKey(Workflow.WORKFLOW, DSL.name("KEY_workflow_idx_workflow_id"), new TableField[] { Workflow.WORKFLOW.WORKFLOW_ID }, true);
+    public static final UniqueKey<WorkflowRecord> KEY_WORKFLOW_PRIMARY = Internal.createUniqueKey(Workflow.WORKFLOW, DSL.name("KEY_workflow_PRIMARY"), new TableField[] { Workflow.WORKFLOW.ID }, true);
+    public static final UniqueKey<WorkflowNodeRunRecord> KEY_WORKFLOW_NODE_RUN_PRIMARY = Internal.createUniqueKey(WorkflowNodeRun.WORKFLOW_NODE_RUN, DSL.name("KEY_workflow_node_run_PRIMARY"), new TableField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.ID }, true);
+    public static final UniqueKey<WorkflowRunRecord> KEY_WORKFLOW_RUN_IDX_WORKFLOW_RUN_ID = Internal.createUniqueKey(WorkflowRun.WORKFLOW_RUN, DSL.name("KEY_workflow_run_idx_workflow_run_id"), new TableField[] { WorkflowRun.WORKFLOW_RUN.WORKFLOW_RUN_ID }, true);
+    public static final UniqueKey<WorkflowRunRecord> KEY_WORKFLOW_RUN_PRIMARY = Internal.createUniqueKey(WorkflowRun.WORKFLOW_RUN, DSL.name("KEY_workflow_run_PRIMARY"), new TableField[] { WorkflowRun.WORKFLOW_RUN.ID }, true);
 }

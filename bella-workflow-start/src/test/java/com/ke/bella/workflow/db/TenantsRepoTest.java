@@ -1,7 +1,7 @@
 package com.ke.bella.workflow.db;
 
 import com.ke.bella.workflow.AbstractTest;
-import com.ke.bella.workflow.db.tables.pojos.TenantsDB;
+import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import org.assertj.core.api.Assertions;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
@@ -16,17 +16,17 @@ public class TenantsRepoTest extends AbstractTest {
 
 	@Test
 	public void testInsertTenantsRepo() {
-		//插入一个mock对象 Tables.TENANTS
-		TenantsDB tenantsDB = new TenantsDB();
+        // 插入一个mock对象 Tables.TENANT
+        TenantDB tenantsDB = new TenantDB();
 		tenantsDB.setTenantName("test");
 		tenantsDB.setTenantId("test");
-		List<TenantsDB> beforeInsert = db.select().from(Tables.TENANTS).where(Tables.TENANTS.TENANT_NAME.eq("test")).fetchInto(TenantsDB.class);
+        List<TenantDB> beforeInsert = db.select().from(Tables.TENANT).where(Tables.TENANT.TENANT_NAME.eq("test")).fetchInto(TenantDB.class);
 		Assertions.assertThat(beforeInsert.size()).isLessThan(1);
-		db.insertInto(Tables.TENANTS)
-			.set(Tables.TENANTS.TENANT_ID, tenantsDB.getTenantId())
-			.set(Tables.TENANTS.TENANT_NAME, tenantsDB.getTenantName())
+        db.insertInto(Tables.TENANT)
+                .set(Tables.TENANT.TENANT_ID, tenantsDB.getTenantId())
+                .set(Tables.TENANT.TENANT_NAME, tenantsDB.getTenantName())
 			.execute();
-		List<TenantsDB> afterInsert = db.select().from(Tables.TENANTS).where(Tables.TENANTS.TENANT_NAME.eq("test")).fetchInto(TenantsDB.class);
+        List<TenantDB> afterInsert = db.select().from(Tables.TENANT).where(Tables.TENANT.TENANT_NAME.eq("test")).fetchInto(TenantDB.class);
 		Assertions.assertThat(afterInsert.size()).isGreaterThanOrEqualTo(1);
 	}
 }

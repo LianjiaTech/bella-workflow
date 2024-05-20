@@ -4,10 +4,10 @@
 package com.ke.bella.workflow.db;
 
 
-import com.ke.bella.workflow.db.tables.Tenants;
-import com.ke.bella.workflow.db.tables.WorkflowNodeRuns;
-import com.ke.bella.workflow.db.tables.WorkflowRuns;
-import com.ke.bella.workflow.db.tables.Workflows;
+import com.ke.bella.workflow.db.tables.Tenant;
+import com.ke.bella.workflow.db.tables.Workflow;
+import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
+import com.ke.bella.workflow.db.tables.WorkflowRun;
 
 
 /**
@@ -17,22 +17,22 @@ import com.ke.bella.workflow.db.tables.Workflows;
 public class Tables {
 
     /**
-     * The table <code>tenants</code>.
+     * The table <code>tenant</code>.
      */
-    public static final Tenants TENANTS = Tenants.TENANTS;
+    public static final Tenant TENANT = Tenant.TENANT;
 
     /**
-     * The table <code>workflow_node_runs</code>.
+     * The table <code>workflow</code>.
      */
-    public static final WorkflowNodeRuns WORKFLOW_NODE_RUNS = WorkflowNodeRuns.WORKFLOW_NODE_RUNS;
+    public static final Workflow WORKFLOW = Workflow.WORKFLOW;
 
     /**
-     * The table <code>workflow_runs</code>.
+     * The table <code>workflow_node_run</code>.
      */
-    public static final WorkflowRuns WORKFLOW_RUNS = WorkflowRuns.WORKFLOW_RUNS;
+    public static final WorkflowNodeRun WORKFLOW_NODE_RUN = WorkflowNodeRun.WORKFLOW_NODE_RUN;
 
     /**
-     * The table <code>workflows</code>.
+     * The table <code>workflow_run</code>.
      */
-    public static final Workflows WORKFLOWS = Workflows.WORKFLOWS;
+    public static final WorkflowRun WORKFLOW_RUN = WorkflowRun.WORKFLOW_RUN;
 }

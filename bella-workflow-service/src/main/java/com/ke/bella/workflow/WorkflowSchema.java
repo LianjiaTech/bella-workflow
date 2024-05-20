@@ -58,6 +58,13 @@ public class WorkflowSchema {
         private String targetPosition;
         private String type;
         private int width;
+
+        public String getType() {
+            if(data != null && data.containsKey("type")) {
+                return (String) data.get("type");
+            }
+            return this.type;
+        }
     }
 
     @lombok.Data

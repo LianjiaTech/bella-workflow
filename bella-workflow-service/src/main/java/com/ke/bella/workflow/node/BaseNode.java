@@ -54,7 +54,7 @@ public abstract class BaseNode implements RunnableNode {
     }
 
     public static BaseNode from(WorkflowSchema.Node meta) {
-        String type = (String) meta.getData().get("type");
+        String type = meta.getType();
         Class<? extends BaseNode> clazz = NODE_RUNNER_CLASSES.get(type);
         if(clazz == null) {
             throw new IllegalArgumentException(String.format("不支持的节点类型: %s", type));

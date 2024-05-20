@@ -30,7 +30,7 @@ public class WorkflowGraph {
                 .collect(Collectors.toMap(WorkflowSchema.Edge::getKey, e -> e));
         this.start = meta.getGraph().getNodes()
                 .stream()
-                .filter(n -> NodeType.START.name.equals(n.getData().get("type")))
+                .filter(n -> NodeType.START.name.equals(n.getType()))
                 .findFirst()
                 .get();
         this.graph = buildGraph(meta, this.nodeMap);

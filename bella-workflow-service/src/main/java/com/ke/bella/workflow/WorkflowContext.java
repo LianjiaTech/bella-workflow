@@ -57,14 +57,14 @@ public class WorkflowContext {
         }
     }
 
-    public synchronized void putNodeState(String nodeId, NodeRunResult state) {
+    public synchronized void putNodeRunResult(String nodeId, NodeRunResult result) {
         // 针对只有一个后继节点的边集中处理激活标记
         // 这样，只有if，switch等多后继节点才需要单独在node runner中处理
         List<Edge> edges = this.graph.outEdges(nodeId);
-        if(edges.size() == 1) {
-            state.activatedSourceHandles = Arrays.asList(edges.get(0).getSourceHandle());
+        if(result.getError() == null && edges.size() == 1) {
+            result.activatedSourceHandles = Arrays.asList(edges.get(0).getSourceHandle());
         }
 
-        this.state.putNodeState(nodeId, state);
+        this.state.putNodeState(nodeId, result);
     }
 }

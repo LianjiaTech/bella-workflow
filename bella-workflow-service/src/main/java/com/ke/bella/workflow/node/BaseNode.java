@@ -40,7 +40,7 @@ public abstract class BaseNode implements RunnableNode {
             callback.onWorkflowNodeRunStarted(context, meta.getId());
 
             NodeRunResult result = execute(context, callback);
-            context.putNodeState(meta.getId(), result);
+            context.putNodeRunResult(meta.getId(), result);
 
             callback.onWorkflowNodeRunSucceeded(context, meta.getId());
         } catch (Exception e) {

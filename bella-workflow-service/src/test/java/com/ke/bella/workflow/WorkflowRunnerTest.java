@@ -58,6 +58,18 @@ public class WorkflowRunnerTest {
                 System.out.println("Node run failed: " + nodeId + " " + error);
                 t.printStackTrace();
             }
+
+            @Override
+            public void onWorkflowRunSuspended(WorkflowContext context) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void onWorkflowRunResumed(WorkflowContext context) {
+                // TODO Auto-generated method stub
+
+            }
         });
     }
 }

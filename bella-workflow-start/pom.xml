@@ -35,18 +35,6 @@
         </dependency>
         <dependency>
             <groupId>com.lianjia.infrastructure</groupId>
-            <artifactId>loadbalance-client-ribbon</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.lianjia.infrastructure</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.lianjia.infrastructure</groupId>
-            <artifactId>spring-boot-starter-api-signature</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.lianjia.infrastructure</groupId>
             <artifactId>spring-boot-starter-config-client</artifactId>
         </dependency>
         <dependency>
@@ -66,45 +54,12 @@
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.lianjia.infrastructure</groupId>
-            <artifactId>spring-boot-starter-metrics</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.lianjia.infrastructure</groupId>
-            <artifactId>spring-boot-starter-sentinel</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.lianjia.kms</groupId>
-            <artifactId>spring-boot-starter-kms</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.lianjia.openiam</groupId>
-            <artifactId>spring-boot-starter-openiam</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.lianjia.schedule</groupId>
-            <artifactId>schedule-spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-            <version>3.4.13</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
         </dependency>
     </dependencies>
 

@@ -2,11 +2,10 @@ package com.ke.bella.workflow.api;
 
 import java.util.Map;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,12 +26,14 @@ public class WorkflowController {
 
     @Data
     static class WorkflowOp extends Operator {
-        @NotEmpty
         String workflowId;
     }
 
     @RequestMapping(path = { "/info" }, method = { RequestMethod.POST })
     public WorkflowDB info(@RequestBody WorkflowOp op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.workflowId, "workflowId不能为空");
+
         return ws.getWorkflow(op.getTenantId(), op.workflowId);
     }
 
@@ -45,7 +46,10 @@ public class WorkflowController {
     }
 
     @PostMapping("/sync")
-    public WorkflowDB sync(@Valid @RequestBody WorkflowSync op) {
+    public WorkflowDB sync(@RequestBody WorkflowSync op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.graph, "graph不能为空");
+
         if(StringUtils.isEmpty(op.getWorkflowId())) {
             return ws.newWorkflow(op.graph);
         }
@@ -54,7 +58,10 @@ public class WorkflowController {
     }
 
     @PostMapping("/publish")
-    public WorkflowDB publish(@Valid @RequestBody WorkflowOp op) {
+    public WorkflowDB publish(@RequestBody WorkflowOp op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.workflowId, "workflowId不能为空");
+
         return ws.publish(op.getTenantId(), op.getWorkflowId());
     }
 
@@ -65,32 +72,40 @@ public class WorkflowController {
     }
 
     @PostMapping("/run")
-    public Object run(@Valid @RequestBody WorkflowRun op) {
+    public Object run(@RequestBody WorkflowRun op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.workflowId, "workflowId不能为空");
+        Assert.notNull(op.inputs, "inputs不能为空");
+
         return null;
     }
 
     @Data
     @SuppressWarnings("rawtypes")
     static class WorkflowNodeRun extends WorkflowOp {
-        @NotNull
         Map inputs;
-
-        @NotEmpty
         String nodeId;
     }
 
     @PostMapping("/node/run")
-    public Object runNode(@Valid @RequestBody WorkflowRun op) {
+    public Object runNode(@RequestBody WorkflowNodeRun op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.workflowId, "workflowId不能为空");
+        Assert.hasText(op.nodeId, "nodeId不能为空");
+        Assert.notNull(op.inputs, "inputs不能为空");
+
         return null;
     }
 
     @Data
-    static class TenantCreate {
+    static class TenantCreate extends Operator {
         String tenantName;
     }
 
     @PostMapping("/tenant/create")
-    public TenantDB createTenant(@Valid @RequestBody TenantCreate op) {
+    public TenantDB createTenant(@RequestBody TenantCreate op) {
+        Assert.hasText(op.tenantName, "tenantName不能为空");
+
         return null;
     }
 }

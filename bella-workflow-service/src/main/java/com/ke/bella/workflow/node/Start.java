@@ -30,6 +30,7 @@ public class Start extends BaseNode {
         Map nodeInputs = validateAndExtract(workflowInputs);
         return NodeRunResult.builder()
                 .inputs(nodeInputs)
+                .status(NodeRunResult.Status.succeeded)
                 .build();
     }
 

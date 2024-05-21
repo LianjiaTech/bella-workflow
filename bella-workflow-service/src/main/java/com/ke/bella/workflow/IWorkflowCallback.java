@@ -5,6 +5,10 @@ public interface IWorkflowCallback {
 
     void onWorkflowRunSucceeded(WorkflowContext context);
 
+    void onWorkflowRunSuspended(WorkflowContext context);
+
+    void onWorkflowRunResumed(WorkflowContext context);
+
     void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t);
 
     void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId);

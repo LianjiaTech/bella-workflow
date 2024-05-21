@@ -1,6 +1,7 @@
 package com.ke.bella.workflow;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,13 +39,21 @@ public class WorkflowContext {
         Assert.isTrue(userInputs != null, "userInput不能为null");
     }
 
+    public boolean isSuspended() {
+        return !state.waitingNodeIds().isEmpty();
+    }
+
     public synchronized List<BaseNode> getNextNodes() {
         if(state.isEmpty()) {
             return Arrays.asList(BaseNode.from(graph.getStartNode()));
         } else {
+            if(!state.waitingNodeIds().isEmpty()) {
+                return Collections.emptyList();
+            }
+
             // 找出所有未执行节点
             Set<String> ids = graph.nodeIds();
-            ids.removeAll(state.nodeIds());
+            ids.removeAll(state.completedNodeIds());
 
             // 只有当所有依赖节点都ready的时候才可以执行
             List<WorkflowSchema.Node> nodes = ids.stream()

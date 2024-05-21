@@ -7,11 +7,17 @@ import com.ke.bella.workflow.node.BaseNode;
 public class WorkflowRunner {
 
     public void run(WorkflowContext context, IWorkflowCallback callback) {
-        try {
-            callback.onWorkflowRunStarted(context);
-            context.validate();
+        callback.onWorkflowRunStarted(context);
+        run0(context, callback, context.getNextNodes());
+    }
 
-            List<BaseNode> nodes = context.getNextNodes();
+    public void resume(WorkflowContext context, IWorkflowCallback callback) {
+        // TODO
+    }
+
+    private void run0(WorkflowContext context, IWorkflowCallback callback, List<BaseNode> nodes) {
+        try {
+            context.validate();
             while (!nodes.isEmpty()) {
                 for (BaseNode node : nodes) {
                     node.run(context, callback);
@@ -19,7 +25,11 @@ public class WorkflowRunner {
                 nodes = context.getNextNodes();
             }
 
-            callback.onWorkflowRunSucceeded(context);
+            if(context.isSuspended()) {
+                callback.onWorkflowRunSuspended(context);
+            } else {
+                callback.onWorkflowRunSucceeded(context);
+            }
         } catch (Exception e) {
             callback.onWorkflowRunFailed(context, e.getMessage(), e);
         }

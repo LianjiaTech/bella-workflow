@@ -1,4 +1,4 @@
-package com.ke.bella.workflow.controller;
+package com.ke.bella.workflow.api;
 
 import java.util.Map;
 
@@ -26,29 +26,18 @@ public class WorkflowController {
     WorkflowService ws;
 
     @Data
-    static class WorkflowOp {
-        @NotEmpty
-        String tenantId;
-
+    static class WorkflowOp extends Operator {
         @NotEmpty
         String workflowId;
-
-        @NotEmpty
-        String userId;
-
-        String userName;
     }
 
-    @RequestMapping(path = { "/info" }, method = { RequestMethod.GET, RequestMethod.POST })
-    public WorkflowDB info(WorkflowOp op) {
-        return null;
+    @RequestMapping(path = { "/info" }, method = { RequestMethod.POST })
+    public WorkflowDB info(@RequestBody WorkflowOp op) {
+        return ws.getWorkflow(op.getTenantId(), op.workflowId);
     }
 
     @Data
-    static class WorkflowSync {
-        @NotEmpty
-        String tenantId;
-
+    static class WorkflowSync extends Operator {
         String workflowId;
 
         @NotEmpty
@@ -58,15 +47,15 @@ public class WorkflowController {
     @PostMapping("/sync")
     public WorkflowDB sync(@Valid @RequestBody WorkflowSync op) {
         if(StringUtils.isEmpty(op.getWorkflowId())) {
-            return ws.newWorkflow(op.tenantId, op.graph);
+            return ws.newWorkflow(op.graph);
         }
 
-        return ws.syncWorkflow(op.tenantId, op.workflowId, op.graph);
+        return ws.syncWorkflow(op.workflowId, op.graph);
     }
 
     @PostMapping("/publish")
     public WorkflowDB publish(@Valid @RequestBody WorkflowOp op) {
-        return null;
+        return ws.publish(op.getTenantId(), op.getWorkflowId());
     }
 
     @Data
@@ -87,7 +76,7 @@ public class WorkflowController {
         Map inputs;
 
         @NotEmpty
-        String NodeId;
+        String nodeId;
     }
 
     @PostMapping("/node/run")

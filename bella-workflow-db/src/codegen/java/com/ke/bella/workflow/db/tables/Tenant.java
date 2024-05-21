@@ -77,7 +77,7 @@ public class Tenant extends TableImpl<TenantRecord> {
     /**
      * The column <code>tenant.ctime</code>.
      */
-    public final TableField<TenantRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
+    public final TableField<TenantRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
     /**
      * The column <code>tenant.muid</code>.
@@ -92,7 +92,7 @@ public class Tenant extends TableImpl<TenantRecord> {
     /**
      * The column <code>tenant.mtime</code>.
      */
-    public final TableField<TenantRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
+    public final TableField<TenantRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
     private Tenant(Name alias, Table<TenantRecord> aliased) {
         this(alias, aliased, null);

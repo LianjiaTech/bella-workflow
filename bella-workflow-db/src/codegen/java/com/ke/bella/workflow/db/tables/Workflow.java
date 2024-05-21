@@ -89,7 +89,7 @@ public class Workflow extends TableImpl<WorkflowRecord> {
     /**
      * The column <code>workflow.ctime</code>.
      */
-    public final TableField<WorkflowRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
+    public final TableField<WorkflowRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
     /**
      * The column <code>workflow.muid</code>.
@@ -104,7 +104,7 @@ public class Workflow extends TableImpl<WorkflowRecord> {
     /**
      * The column <code>workflow.mtime</code>.
      */
-    public final TableField<WorkflowRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
+    public final TableField<WorkflowRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
     private Workflow(Name alias, Table<WorkflowRecord> aliased) {
         this(alias, aliased, null);

@@ -3,6 +3,8 @@ package com.ke.bella.workflow;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import lombok.NoArgsConstructor;
 
 @lombok.Data
@@ -40,13 +42,16 @@ public class WorkflowSchema {
 
     @lombok.Data
     public static class Variable {
-        private List<String> value_selector;
+        @JsonAlias({ "value_selector" })
+        private List<String> valueSelector;
         private String variable;
     }
 
     @lombok.Data
     @SuppressWarnings("rawtypes")
     public static class Node {
+        static final String FIELD_TYPE = "type";
+
         private Map data;
         private boolean dragging;
         private int height;
@@ -60,8 +65,8 @@ public class WorkflowSchema {
         private int width;
 
         public String getType() {
-            if(data != null && data.containsKey("type")) {
-                return (String) data.get("type");
+            if(data != null && data.containsKey(FIELD_TYPE)) {
+                return (String) data.get(FIELD_TYPE);
             }
             return this.type;
         }

@@ -134,7 +134,7 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
     /**
      * The column <code>workflow_node_run.ctime</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
+    public final TableField<WorkflowNodeRunRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
     /**
      * The column <code>workflow_node_run.muid</code>.
@@ -149,7 +149,7 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
     /**
      * The column <code>workflow_node_run.mtime</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
+    public final TableField<WorkflowNodeRunRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
     private WorkflowNodeRun(Name alias, Table<WorkflowNodeRunRecord> aliased) {
         this(alias, aliased, null);

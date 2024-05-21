@@ -118,7 +118,7 @@ API
     /**
      * The column <code>workflow_run.ctime</code>.
      */
-    public final TableField<WorkflowRunRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
+    public final TableField<WorkflowRunRecord, LocalDateTime> CTIME = createField(DSL.name("ctime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
     /**
      * The column <code>workflow_run.muid</code>.
@@ -133,7 +133,7 @@ API
     /**
      * The column <code>workflow_run.mtime</code>.
      */
-    public final TableField<WorkflowRunRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0), this, "");
+    public final TableField<WorkflowRunRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
     private WorkflowRun(Name alias, Table<WorkflowRunRecord> aliased) {
         this(alias, aliased, null);

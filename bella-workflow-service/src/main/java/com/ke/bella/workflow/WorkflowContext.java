@@ -25,6 +25,7 @@ public class WorkflowContext {
     private String tenantId;
     private String workflowId;
     private String runId;
+    private String triggerFrom;
     private WorkflowGraph graph;
     private WorkflowRunState state;
     private Map userInputs;
@@ -41,6 +42,10 @@ public class WorkflowContext {
 
     public boolean isSuspended() {
         return !state.waitingNodeIds().isEmpty();
+    }
+
+    public BaseNode getNode(String nodeId) {
+        return BaseNode.from(graph.node(nodeId));
     }
 
     public synchronized List<BaseNode> getNextNodes() {

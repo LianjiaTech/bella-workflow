@@ -11,6 +11,11 @@ public class WorkflowRunner {
         run0(context, callback, context.getNextNodes());
     }
 
+    public void runNode(WorkflowContext context, IWorkflowCallback callback, String nodeId) {
+        BaseNode node = context.getNode(nodeId);
+        node.run(context, callback);
+    }
+
     public void resume(WorkflowContext context, IWorkflowCallback callback) {
         // TODO
     }

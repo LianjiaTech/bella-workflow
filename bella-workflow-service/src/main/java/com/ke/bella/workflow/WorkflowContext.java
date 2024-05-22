@@ -81,4 +81,12 @@ public class WorkflowContext {
 
         this.state.putNodeState(nodeId, result);
     }
+
+    public void putWorkflowRunResult(NodeRunResult result) {
+        this.state.setWorkflowRunResult(result);
+    }
+
+    public NodeRunResult getWorkflowRunResult() {
+        return this.state.getWorkflowRunResult();
+    }
 }

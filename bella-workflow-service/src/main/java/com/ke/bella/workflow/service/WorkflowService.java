@@ -88,6 +88,7 @@ public class WorkflowService {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public WorkflowRunDB newWorkflowRun(String workflowId, Map inputs, String responseMode, String callbackUrl) {
         // TODO Auto-generated method stub
         return null;

@@ -1,8 +1,5 @@
 package com.ke.bella.workflow.api;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,15 +9,19 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
+import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
+import com.ke.bella.workflow.api.WorkflowOps.TenantCreate;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowNodeRun;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.service.WorkflowService;
-
-import lombok.Getter;
-import lombok.Setter;
 
 @RestController
 @RequestMapping("/v1/workflow")
@@ -28,25 +29,12 @@ public class WorkflowController {
 
     WorkflowService ws;
 
-    @Getter
-    @Setter
-    static class WorkflowOp extends Operator {
-        String workflowId;
-    }
-
     @PostMapping("/info")
     public WorkflowDB info(@RequestBody WorkflowOp op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
         return ws.getWorkflow(op.workflowId);
-    }
-
-    @Getter
-    @Setter
-    static class WorkflowSync extends Operator {
-        String workflowId;
-        String graph;
     }
 
     @PostMapping("/sync")
@@ -69,21 +57,6 @@ public class WorkflowController {
         WorkflowDB wf = ws.getWorkflow(op.workflowId);
         ws.validateWorkflow(wf);
         ws.publish(op.workflowId);
-    }
-
-    enum ResponseMode {
-        streaming,
-        blocking,
-        callback;
-    }
-
-    @Getter
-    @Setter
-    @SuppressWarnings("rawtypes")
-    static class WorkflowRun extends WorkflowOp {
-        Map inputs = new HashMap();
-        String responseMode = ResponseMode.streaming.name();
-        String callbackUrl;
     }
 
     @PostMapping("/run")
@@ -110,18 +83,12 @@ public class WorkflowController {
             ws.runWorkflow(wr, op.inputs, new StreamingWorkflowCallback(emitter));
             return emitter;
         } else {
-            // TODO
+            TaskExecutor.submit(op, () -> {
+                CallbackWorkflowRunCallback callback = new CallbackWorkflowRunCallback(op.callbackUrl);
+                ws.runWorkflow(wr, op.inputs, callback);
+            });
             return wr;
         }
-    }
-
-    @Getter
-    @Setter
-    @SuppressWarnings("rawtypes")
-    static class WorkflowNodeRun extends WorkflowOp {
-        Map inputs = new HashMap();
-        String nodeId;
-        String responseMode = ResponseMode.streaming.name();
     }
 
     @PostMapping("/node/run")
@@ -134,12 +101,6 @@ public class WorkflowController {
         Assert.notNull(mode, "responseMode必须为[streaming, blocking]之一");
 
         return ws.runNode(op.workflowId, op.nodeId, op.inputs, op.responseMode);
-    }
-
-    @Getter
-    @Setter
-    static class TenantCreate extends Operator {
-        String tenantName;
     }
 
     @PostMapping("/tenant/create")
@@ -155,9 +116,27 @@ public class WorkflowController {
             // TODO
         }
 
+        @Override
+        public void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t) {
+            // TODO
+        }
+
         public Object getWorkflowRunResult(long timeout) {
             // TODO Auto-generated method stub
             return null;
+        }
+    }
+
+    class CallbackWorkflowRunCallback extends WorkflowCallbackAdaptor {
+        String callbackUrl;
+
+        public CallbackWorkflowRunCallback(String callbackUrl) {
+            this.callbackUrl = callbackUrl;
+        }
+
+        @Override
+        public void onWorkflowRunSucceeded(WorkflowContext context) {
+            // TODO
         }
 
         @Override

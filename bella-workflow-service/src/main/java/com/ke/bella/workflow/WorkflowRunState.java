@@ -9,6 +9,8 @@ import java.util.Set;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 public class WorkflowRunState {
@@ -16,6 +18,10 @@ public class WorkflowRunState {
     final Map<String, NodeRunResult> nodeCompletedStates = new HashMap<>();
     final Map<String, NodeRunResult> nodeWaitingStates = new HashMap<>();
     final Set<String> activatedSourceHandles = new HashSet<>();
+
+    @Getter
+    @Setter
+    NodeRunResult workflowRunResult;
 
     synchronized boolean isEmpty() {
         return nodeCompletedStates.isEmpty();

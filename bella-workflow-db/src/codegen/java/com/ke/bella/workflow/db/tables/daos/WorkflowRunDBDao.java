@@ -181,6 +181,20 @@ public class WorkflowRunDBDao extends DAOImpl<WorkflowRunRecord, WorkflowRunDB, 
     }
 
     /**
+     * Fetch records that have <code>callback_url BETWEEN lowerInclusive AND upperInclusive</code>
+     */
+    public List<WorkflowRunDB> fetchRangeOfCallbackUrl(String lowerInclusive, String upperInclusive) {
+        return fetchRange(WorkflowRun.WORKFLOW_RUN.CALLBACK_URL, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>callback_url IN (values)</code>
+     */
+    public List<WorkflowRunDB> fetchByCallbackUrl(String... values) {
+        return fetch(WorkflowRun.WORKFLOW_RUN.CALLBACK_URL, values);
+    }
+
+    /**
      * Fetch records that have <code>cuid BETWEEN lowerInclusive AND upperInclusive</code>
      */
     public List<WorkflowRunDB> fetchRangeOfCuid(Long lowerInclusive, Long upperInclusive) {

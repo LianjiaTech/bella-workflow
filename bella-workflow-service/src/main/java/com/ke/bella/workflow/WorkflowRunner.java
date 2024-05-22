@@ -2,6 +2,7 @@ package com.ke.bella.workflow;
 
 import java.util.List;
 
+import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.node.BaseNode;
 
 public class WorkflowRunner {
@@ -23,9 +24,10 @@ public class WorkflowRunner {
     private void run0(WorkflowContext context, IWorkflowCallback callback, List<BaseNode> nodes) {
         try {
             context.validate();
+            NodeRunResult result = null;
             while (!nodes.isEmpty()) {
                 for (BaseNode node : nodes) {
-                    node.run(context, callback);
+                    result = node.run(context, callback);
                 }
                 nodes = context.getNextNodes();
             }
@@ -33,6 +35,7 @@ public class WorkflowRunner {
             if(context.isSuspended()) {
                 callback.onWorkflowRunSuspended(context);
             } else {
+                context.putWorkflowRunResult(result);
                 callback.onWorkflowRunSucceeded(context);
             }
         } catch (Exception e) {

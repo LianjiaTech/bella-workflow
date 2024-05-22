@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row15;
+import org.jooq.Row16;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -106,6 +106,11 @@ API
      * The column <code>workflow_run.error</code>.
      */
     public final TableField<WorkflowRunRecord, String> ERROR = createField(DSL.name("error"), SQLDataType.CLOB, this, "");
+
+    /**
+     * The column <code>workflow_run.callback_url</code>.
+     */
+    public final TableField<WorkflowRunRecord, String> CALLBACK_URL = createField(DSL.name("callback_url"), SQLDataType.VARCHAR(1024).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow_run.cuid</code>.
@@ -222,11 +227,11 @@ API
     }
 
     // -------------------------------------------------------------------------
-    // Row15 type methods
+    // Row16 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row15<Long, String, String, String, String, String, String, String, String, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row15) super.fieldsRow();
+    public Row16<Long, String, String, String, String, String, String, String, String, String, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
+        return (Row16) super.fieldsRow();
     }
 }

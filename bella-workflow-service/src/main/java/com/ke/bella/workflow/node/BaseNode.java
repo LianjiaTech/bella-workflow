@@ -35,7 +35,7 @@ public abstract class BaseNode implements RunnableNode {
     public abstract NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback);
 
     @Override
-    public void run(WorkflowContext context, IWorkflowCallback callback) {
+    public NodeRunResult run(WorkflowContext context, IWorkflowCallback callback) {
         callback.onWorkflowNodeRunStarted(context, meta.getId());
         NodeRunResult result = execute(context, callback);
         context.putNodeRunResult(meta.getId(), result);
@@ -45,6 +45,7 @@ public abstract class BaseNode implements RunnableNode {
         } else if(result.getStatus() == NodeRunResult.Status.failed) {
             callback.onWorkflowNodeRunFailed(context, meta.getId(), result.getError().getMessage(), result.getError());
         }
+        return result;
     }
 
     public static void register(String nodeType, Class<? extends BaseNode> clazz) {

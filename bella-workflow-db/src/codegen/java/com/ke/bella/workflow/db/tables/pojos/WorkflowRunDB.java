@@ -27,6 +27,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        outputs;
     private String        status;
     private String        error;
+    private String        callbackUrl;
     private Long          cuid;
     private String        cuName;
     private LocalDateTime ctime;
@@ -46,6 +47,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.outputs = value.outputs;
         this.status = value.status;
         this.error = value.error;
+        this.callbackUrl = value.callbackUrl;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
         this.ctime = value.ctime;
@@ -64,6 +66,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        outputs,
         String        status,
         String        error,
+        String        callbackUrl,
         Long          cuid,
         String        cuName,
         LocalDateTime ctime,
@@ -80,6 +83,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.outputs = outputs;
         this.status = status;
         this.error = error;
+        this.callbackUrl = callbackUrl;
         this.cuid = cuid;
         this.cuName = cuName;
         this.ctime = ctime;
@@ -237,6 +241,20 @@ API
     }
 
     /**
+     * Getter for <code>workflow_run.callback_url</code>.
+     */
+    public String getCallbackUrl() {
+        return this.callbackUrl;
+    }
+
+    /**
+     * Setter for <code>workflow_run.callback_url</code>.
+     */
+    public void setCallbackUrl(String callbackUrl) {
+        this.callbackUrl = callbackUrl;
+    }
+
+    /**
      * Getter for <code>workflow_run.cuid</code>.
      */
     public Long getCuid() {
@@ -333,6 +351,7 @@ API
         sb.append(", ").append(outputs);
         sb.append(", ").append(status);
         sb.append(", ").append(error);
+        sb.append(", ").append(callbackUrl);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);
         sb.append(", ").append(ctime);

@@ -65,9 +65,20 @@ public class WorkflowService {
     }
 
     @SuppressWarnings("rawtypes")
-    public Object runNode(String workflowId, String nodeId, Map inputs, String responseMode) {
-        // TODO Auto-generated method stub
-        return null;
+    public void runNode(WorkflowRunDB wr, String nodeId, Map inputs, IWorkflowCallback callback) {
+        // 校验工作流是否合法
+        WorkflowDB wf = getWorkflow(wr.getWorkflowId());
+        validateWorkflow(wf);
+
+        // 构建执行上下文
+        WorkflowSchema meta = Utils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        WorkflowGraph graph = new WorkflowGraph(meta);
+        WorkflowContext context = WorkflowContext.builder()
+                .graph(graph)
+                .state(new WorkflowRunState())
+                .userInputs(inputs)
+                .build();
+        new WorkflowRunner().runNode(context, new WorkflowRunCallback(this, callback), nodeId);
     }
 
     public void validateWorkflow(WorkflowDB wf) {

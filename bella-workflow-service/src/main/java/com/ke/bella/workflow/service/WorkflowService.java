@@ -42,6 +42,12 @@ public class WorkflowService {
 
     @Transactional(rollbackFor = Exception.class)
     public void publish(String workflowId) {
+        // 校验是否有过成功的调试记录
+        Page<WorkflowRunDB> page = repo.pageWorkflowRun(workflowId, "succeeded");
+        if(page.getList().isEmpty()) {
+            throw new IllegalArgumentException("工作流还未调试通过，请至少完整执行成功一次");
+        }
+
         repo.publishWorkflow(workflowId);
     }
 
@@ -93,12 +99,6 @@ public class WorkflowService {
             graph.validate();
         } catch (Exception e) {
             throw new IllegalArgumentException("工作流配置不合法: " + e.getMessage());
-        }
-
-        // 校验是否有过成功的调试记录
-        Page<WorkflowRunDB> page = repo.pageWorkflowRun(wf.getWorkflowId(), "succeeded");
-        if(page.getList().isEmpty()) {
-            throw new IllegalArgumentException("工作流还未调试通过，请至少完整执行成功一次");
         }
     }
 

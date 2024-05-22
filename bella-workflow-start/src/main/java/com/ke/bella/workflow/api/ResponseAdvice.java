@@ -42,7 +42,7 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
             }
 
             BellaResponse<Object> resp = new BellaResponse<>();
-            resp.setCode(0);
+            resp.setCode(200);
             resp.setTimestamp(System.currentTimeMillis());
             resp.setData(body);
 

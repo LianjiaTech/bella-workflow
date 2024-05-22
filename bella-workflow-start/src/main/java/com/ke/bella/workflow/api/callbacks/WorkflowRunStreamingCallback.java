@@ -17,59 +17,61 @@ public class WorkflowRunStreamingCallback implements IWorkflowCallback {
     @Override
     public void onWorkflowRunStarted(WorkflowContext context) {
         // TODO
-        SseHelper.sendEvent(emitter, "onWorkflowRunStarted", null);
+        SseHelper.sendEvent(emitter, "onWorkflowRunStarted", "");
     }
 
     @Override
     public void onWorkflowRunSucceeded(WorkflowContext context) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowRunSucceeded", null);
+        SseHelper.sendEvent(emitter, "onWorkflowRunSucceeded", "");
+        emitter.complete();
 
     }
 
     @Override
     public void onWorkflowRunSuspended(WorkflowContext context) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowRunSuspended", null);
+        SseHelper.sendEvent(emitter, "onWorkflowRunSuspended", "");
     }
 
     @Override
     public void onWorkflowRunResumed(WorkflowContext context) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowRunResumed", null);
+        SseHelper.sendEvent(emitter, "onWorkflowRunResumed", "");
 
     }
 
     @Override
     public void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowRunFailed", null);
+        SseHelper.sendEvent(emitter, "onWorkflowRunFailed", "");
+        emitter.complete();
     }
 
     @Override
     public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunStarted", null);
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunStarted", "");
 
     }
 
     @Override
     public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunProgress", null);
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunProgress", "");
 
     }
 
     @Override
     public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunSucceeded", null);
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunSucceeded", "");
     }
 
     @Override
     public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunFailed", null);
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunFailed", "");
     }
 
 }

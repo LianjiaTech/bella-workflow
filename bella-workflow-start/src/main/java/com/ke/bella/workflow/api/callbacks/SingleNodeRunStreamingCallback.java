@@ -16,26 +16,28 @@ public class SingleNodeRunStreamingCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunStarted", null);
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunStarted", "");
 
     }
 
     @Override
     public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunProgress", null);
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunProgress", "");
 
     }
 
     @Override
     public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunSucceeded", null);
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunSucceeded", "");
+        emitter.complete();
     }
 
     @Override
     public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
         // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunFailed", null);
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunFailed", "");
+        emitter.complete();
     }
 }

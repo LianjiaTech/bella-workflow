@@ -91,6 +91,7 @@
                       <expression>$0_D_B</expression>
                     </pojoClass>
                     <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
+                    <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
                   </table>
 
                   <table>
@@ -104,6 +105,7 @@
                       <expression>$0_D_B</expression>
                     </pojoClass>
                     <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
+                    <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
                   </table>
 
                   <table>
@@ -117,6 +119,7 @@
                       <expression>$0_D_B</expression>
                     </pojoClass>
                     <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
+                    <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
                   </table>
 
                   <table>
@@ -130,6 +133,7 @@
                       <expression>$0_D_B</expression>
                     </pojoClass>
                     <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
+                    <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
                   </table>
                 </tables>
               </matchers>

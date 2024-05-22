@@ -92,13 +92,15 @@ API
     public final TableField<WorkflowRunRecord, String> OUTPUTS = createField(DSL.name("outputs"), SQLDataType.CLOB, this, "最后一个节点的输出");
 
     /**
-     * The column <code>workflow_run.status</code>.     RUNNING = 'running'
+     * The column <code>workflow_run.status</code>.     
+    INIT=‘init’
+    RUNNING = 'running'
     SUCCEEDED = 'succeeded'
     FAILED = 'failed'
     STOPPED = 'stopped'
 
      */
-    public final TableField<WorkflowRunRecord, String> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR(32).nullable(false), this, "    RUNNING = 'running'\n    SUCCEEDED = 'succeeded'\n    FAILED = 'failed'\n    STOPPED = 'stopped'\n");
+    public final TableField<WorkflowRunRecord, String> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR(32).nullable(false).defaultValue(DSL.inline("init", SQLDataType.VARCHAR)), this, "    \n    INIT=‘init’\n    RUNNING = 'running'\n    SUCCEEDED = 'succeeded'\n    FAILED = 'failed'\n    STOPPED = 'stopped'\n");
 
     /**
      * The column <code>workflow_run.error</code>.

@@ -1,7 +1,8 @@
 package com.ke.bella.workflow.node;
 
 public enum NodeType {
-    START("start");
+    START("start"),
+    END("end");
 
     public final String name;
 

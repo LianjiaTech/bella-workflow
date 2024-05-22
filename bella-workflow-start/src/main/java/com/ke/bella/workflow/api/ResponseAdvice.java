@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import com.genki.chat.utils.Jsoner;
 import com.ke.bella.workflow.BellaContext;
+import com.ke.bella.workflow.node.JsonUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -45,6 +47,10 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
             resp.setCode(200);
             resp.setTimestamp(System.currentTimeMillis());
             resp.setData(body);
+
+            if(body instanceof String) {
+                return JsonUtils.toJson(resp);
+            }
 
             return resp;
         } finally {

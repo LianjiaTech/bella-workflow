@@ -29,7 +29,7 @@ public class JsonUtils {
         }
     }
 
-    public static String tojson(Object obj) {
+    public static String toJson(Object obj) {
         try {
             return mapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {

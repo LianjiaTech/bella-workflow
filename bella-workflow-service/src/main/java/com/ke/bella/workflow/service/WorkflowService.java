@@ -104,6 +104,6 @@ public class WorkflowService {
 
     @SuppressWarnings("rawtypes")
     public WorkflowRunDB newWorkflowRun(String workflowId, Map inputs, String callbackUrl) {
-        return repo.addWorkflowRun(workflowId, JsonUtils.tojson(inputs), callbackUrl);
+        return repo.addWorkflowRun(workflowId, JsonUtils.toJson(inputs), callbackUrl);
     }
 }

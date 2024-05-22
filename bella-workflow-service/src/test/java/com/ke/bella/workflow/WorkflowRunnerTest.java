@@ -4,13 +4,13 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.ke.bella.workflow.node.Utils;
+import com.ke.bella.workflow.node.JsonUtils;
 
 public class WorkflowRunnerTest {
     @Test
     public void testWorkflowOnlyStartNode() {
-        WorkflowSchema meta = Utils.fromJson(
-                "{\"graph\":{\"edges\":[],\"nodes\":[{\"data\":{\"desc\":\"\",\"selected\":false,\"title\":\"Start\",\"type\":\"start\",\"variables\":[{\"label\":\"ss是\",\"max_length\":48,\"options\":[],\"required\":true,\"type\":\"text-input\",\"variable\":\"ss\"}]},\"dragging\":false,\"height\":90,\"id\":\"1711527768326\",\"position\":{\"x\":0.24229431219265507,\"y\":250.87504168280685},\"positionAbsolute\":{\"x\":0.24229431219265507,\"y\":250.87504168280685},\"selected\":false,\"sourcePosition\":\"right\",\"targetPosition\":\"left\",\"type\":\"custom\",\"width\":244}],\"viewport\":{\"x\":4.301986877937907,\"y\":-65.75965914432777,\"zoom\":1.028113826656067}}}",
+        WorkflowSchema meta = JsonUtils.fromJson(
+                "{\"graph\":{\"edges\":[{\"data\":{\"sourceType\":\"start\",\"targetType\":\"end\"},\"id\":\"1715592079631-1716360197363\",\"source\":\"1715592079631\",\"sourceHandle\":\"source\",\"target\":\"1716360197363\",\"targetHandle\":\"target\",\"type\":\"custom\"}],\"nodes\":[{\"data\":{\"desc\":\"\",\"selected\":false,\"title\":\"开始\",\"type\":\"start\",\"variables\":[{\"label\":\"aa\",\"max_length\":48,\"options\":[],\"required\":true,\"type\":\"text-input\",\"variable\":\"a\"}]},\"height\":90,\"id\":\"1715592079631\",\"position\":{\"x\":78,\"y\":282},\"positionAbsolute\":{\"x\":78,\"y\":282},\"selected\":false,\"sourcePosition\":\"right\",\"targetPosition\":\"left\",\"type\":\"custom\",\"width\":244},{\"data\":{\"desc\":\"\",\"outputs\":[{\"value_selector\":[\"1715592079631\",\"a\"],\"variable\":\"a\"}],\"selected\":false,\"title\":\"结束\",\"type\":\"end\"},\"height\":90,\"id\":\"1716360197363\",\"position\":{\"x\":378,\"y\":282},\"positionAbsolute\":{\"x\":378,\"y\":282},\"selected\":true,\"sourcePosition\":\"right\",\"targetPosition\":\"left\",\"type\":\"custom\",\"width\":244}],\"viewport\":{\"x\":-88,\"y\":39,\"zoom\":1}}}",
                 WorkflowSchema.class);
         WorkflowGraph graph = new WorkflowGraph(meta);
         WorkflowContext context = WorkflowContext.builder()

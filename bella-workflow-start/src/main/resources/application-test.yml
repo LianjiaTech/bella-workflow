@@ -56,3 +56,4 @@ logging:
     root: INFO
     org:
       springframework: INFO
+      jooq: DEBUG

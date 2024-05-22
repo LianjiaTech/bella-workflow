@@ -59,7 +59,7 @@ public class Workflow extends TableImpl<WorkflowRecord> {
     /**
      * The column <code>workflow.tenant_id</code>. 租户id
      */
-    public final TableField<WorkflowRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(32).nullable(false), this, "租户id");
+    public final TableField<WorkflowRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(64).nullable(false), this, "租户id");
 
     /**
      * The column <code>workflow.workflow_id</code>.

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.mysql.cj.conf.StringProperty;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -37,6 +39,10 @@ public class WorkflowRunState {
 
     synchronized boolean isActivated(String sourceNodeId, String sourceHandle) {
         return activatedSourceHandles.contains(String.format("%s/%s", sourceNodeId, sourceHandle));
+    }
+
+    public Object getVariableValue(List<String> selector) {
+        return Variables.getValue(nodeCompletedStates, selector);
     }
 
     synchronized void putNodeState(String nodeId, NodeRunResult state) {
@@ -73,6 +79,5 @@ public class WorkflowRunState {
 
         @Builder.Default
         List<String> activatedSourceHandles = new ArrayList();
-
     }
 }

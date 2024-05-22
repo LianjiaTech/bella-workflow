@@ -24,6 +24,7 @@ public abstract class BaseNode implements RunnableNode {
     private static final Map<String, Class<? extends BaseNode>> NODE_RUNNER_CLASSES = new ConcurrentHashMap<>();
     static {
         register(NodeType.START.name, Start.class);
+        register(NodeType.END.name, End.class);
     }
 
     protected WorkflowSchema.Node meta;

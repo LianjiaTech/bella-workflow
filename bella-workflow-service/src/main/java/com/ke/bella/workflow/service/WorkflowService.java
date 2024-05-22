@@ -2,6 +2,8 @@ package com.ke.bella.workflow.service;
 
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +18,12 @@ import com.ke.bella.workflow.db.repo.WorkflowRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
-import com.ke.bella.workflow.node.Utils;
+import com.ke.bella.workflow.node.JsonUtils;
 
 @Component
 public class WorkflowService {
 
+    @Resource
     WorkflowRepo repo;
 
     @Transactional(rollbackFor = Exception.class)
@@ -54,7 +57,7 @@ public class WorkflowService {
         validateWorkflow(wf);
 
         // 构建执行上下文
-        WorkflowSchema meta = Utils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
         WorkflowGraph graph = new WorkflowGraph(meta);
         WorkflowContext context = WorkflowContext.builder()
                 .graph(graph)
@@ -71,7 +74,7 @@ public class WorkflowService {
         validateWorkflow(wf);
 
         // 构建执行上下文
-        WorkflowSchema meta = Utils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
         WorkflowGraph graph = new WorkflowGraph(meta);
         WorkflowContext context = WorkflowContext.builder()
                 .graph(graph)
@@ -85,7 +88,7 @@ public class WorkflowService {
         // 校验工作流配置是否合法
         String graphJson = wf.getGraph();
         try {
-            WorkflowSchema meta = Utils.fromJson(graphJson, WorkflowSchema.class);
+            WorkflowSchema meta = JsonUtils.fromJson(graphJson, WorkflowSchema.class);
             WorkflowGraph graph = new WorkflowGraph(meta);
             graph.validate();
         } catch (Exception e) {
@@ -100,8 +103,7 @@ public class WorkflowService {
     }
 
     @SuppressWarnings("rawtypes")
-    public WorkflowRunDB newWorkflowRun(String workflowId, Map inputs, String responseMode, String callbackUrl) {
-        // TODO Auto-generated method stub
-        return null;
+    public WorkflowRunDB newWorkflowRun(String workflowId, Map inputs, String callbackUrl) {
+        return repo.addWorkflowRun(workflowId, JsonUtils.tojson(inputs), callbackUrl);
     }
 }

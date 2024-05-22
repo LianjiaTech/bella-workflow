@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.api;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +30,7 @@ import com.ke.bella.workflow.service.WorkflowService;
 @RequestMapping("/v1/workflow")
 public class WorkflowController {
 
+    @Autowired
     WorkflowService ws;
 
     @PostMapping("/info")
@@ -46,9 +48,9 @@ public class WorkflowController {
 
         if(StringUtils.isEmpty(op.getWorkflowId())) {
             ws.newWorkflow(op.graph);
+        } else {
+            ws.syncWorkflow(op.workflowId, op.graph);
         }
-
-        ws.syncWorkflow(op.workflowId, op.graph);
     }
 
     @PostMapping("/publish")
@@ -72,7 +74,7 @@ public class WorkflowController {
             Assert.notNull(op.callbackUrl, "callbackUrl不能为空");
         }
 
-        WorkflowRunDB wr = ws.newWorkflowRun(op.workflowId, op.inputs, op.responseMode, op.callbackUrl);
+        WorkflowRunDB wr = ws.newWorkflowRun(op.workflowId, op.inputs, op.callbackUrl);
 
         if(mode == ResponseMode.blocking) {
             WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback();
@@ -102,7 +104,7 @@ public class WorkflowController {
         Assert.notNull(op.inputs, "inputs不能为空");
         Assert.notNull(mode, "responseMode必须为[streaming, blocking]之一");
 
-        WorkflowRunDB wr = ws.newWorkflowRun(op.workflowId, op.inputs, op.responseMode, "");
+        WorkflowRunDB wr = ws.newWorkflowRun(op.workflowId, op.inputs, "");
         if(mode == ResponseMode.blocking) {
             SingleNodeRunBlockingCallback callback = new SingleNodeRunBlockingCallback();
             ws.runNode(wr, op.nodeId, op.inputs, callback);

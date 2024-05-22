@@ -57,7 +57,7 @@ public class Tenant extends TableImpl<TenantRecord> {
     /**
      * The column <code>tenant.tenant_id</code>.
      */
-    public final TableField<TenantRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(32).nullable(false), this, "");
+    public final TableField<TenantRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(64).nullable(false), this, "");
 
     /**
      * The column <code>tenant.tenant_name</code>.

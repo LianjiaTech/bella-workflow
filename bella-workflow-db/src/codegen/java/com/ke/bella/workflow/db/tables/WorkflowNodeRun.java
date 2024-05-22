@@ -59,7 +59,7 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
     /**
      * The column <code>workflow_node_run.tenant_id</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(32).nullable(false), this, "");
+    public final TableField<WorkflowNodeRunRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(64).nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_run.workflow_id</code>.

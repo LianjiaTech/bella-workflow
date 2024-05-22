@@ -5,12 +5,14 @@ import static com.ke.bella.workflow.db.tables.Workflow.*;
 import static com.ke.bella.workflow.db.tables.WorkflowRun.*;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
 import org.jooq.DSLContext;
 import org.jooq.SelectSeekStep1;
 import org.jooq.impl.DSL;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.ke.bella.workflow.BellaContext;
@@ -21,6 +23,7 @@ import com.ke.bella.workflow.db.tables.records.TenantRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
 
+@Component
 public class WorkflowRepo implements BaseRepo {
 
     @Resource
@@ -37,7 +40,7 @@ public class WorkflowRepo implements BaseRepo {
         WorkflowRecord rec = WORKFLOW.newRecord();
 
         rec.setTenantId(BellaContext.getOperator().getTenantId());
-        rec.setWorkflowId(""); // TODO
+        rec.setWorkflowId(UUID.randomUUID().toString()); // TODO
         rec.setGraph(graph);
         rec.setVersion(0L);
 
@@ -79,7 +82,7 @@ public class WorkflowRepo implements BaseRepo {
     public TenantDB addTenant(String tenantName) {
         TenantRecord rec = TENANT.newRecord();
 
-        rec.setTenantId(""); // TODO
+        rec.setTenantId(UUID.randomUUID().toString()); // TODO
         rec.setTenantName(tenantName);
 
         fillCreatorInfo(rec);
@@ -96,5 +99,21 @@ public class WorkflowRepo implements BaseRepo {
                 .and(status != null ? WORKFLOW_RUN.STATUS.eq(status) : DSL.noCondition())
                 .orderBy(WORKFLOW_RUN.CTIME.desc());
         return queryPage(db, query, 0, 0, WorkflowRunDB.class);
+    }
+
+    public WorkflowRunDB addWorkflowRun(String workflowId, String inputs, String callbackUrl) {
+        WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
+
+        rec.setTenantId(BellaContext.getOperator().getTenantId());
+        rec.setWorkflowId(workflowId);
+        rec.setWorkflowRunId(UUID.randomUUID().toString()); // TODO
+        rec.setInputs(inputs);
+        rec.setCallbackUrl(callbackUrl);
+
+        fillCreatorInfo(rec);
+
+        db.insertInto(WORKFLOW_RUN).set(rec).execute();
+
+        return rec.into(WorkflowRunDB.class);
     }
 }

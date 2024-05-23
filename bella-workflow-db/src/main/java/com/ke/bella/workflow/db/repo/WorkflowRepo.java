@@ -29,18 +29,37 @@ public class WorkflowRepo implements BaseRepo {
     @Resource
     private DSLContext db;
 
-    public WorkflowDB queryWorkflow(String workflowId) {
+    public WorkflowDB queryDraftWorkflow(String workflowId) {
         return db.selectFrom(WORKFLOW)
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
+                .and(WORKFLOW.VERSION.eq(0l))
                 .fetchOne().into(WorkflowDB.class);
     }
 
-    public WorkflowDB addWorkflow(String graph) {
+    public WorkflowDB queryPublishedWorkflow(String workflowId) {
+        return db.selectFrom(WORKFLOW)
+                .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
+                .and(WORKFLOW.VERSION.greaterThan(0l)) // 正式版
+                .orderBy(WORKFLOW.VERSION.desc())   // 最新版
+                .limit(1)
+                .fetchOne().into(WorkflowDB.class);
+    }
+
+    public WorkflowDB queryWorkflow(String workflowId, Long version) {
+        return db.selectFrom(WORKFLOW)
+                .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
+                .and(WORKFLOW.VERSION.eq(version))
+                .fetchOne().into(WorkflowDB.class);
+    }
+
+    public WorkflowDB addDraftWorkflow(String workflowId, String graph) {
         WorkflowRecord rec = WORKFLOW.newRecord();
 
         rec.setTenantId(BellaContext.getOperator().getTenantId());
-        rec.setWorkflowId(UUID.randomUUID().toString()); // TODO
+        rec.setWorkflowId(workflowId == null ? UUID.randomUUID().toString() : workflowId); // TODO
         rec.setGraph(graph);
         rec.setVersion(0L);
 
@@ -51,7 +70,7 @@ public class WorkflowRepo implements BaseRepo {
         return rec.into(WorkflowDB.class);
     }
 
-    public void syncWorkflow(String workflowId, String graph) {
+    public void updateDraftWorkflow(String workflowId, String graph) {
         WorkflowRecord rec = WORKFLOW.newRecord();
         rec.setGraph(graph);
         fillUpdatorInfo(rec);
@@ -101,11 +120,12 @@ public class WorkflowRepo implements BaseRepo {
         return queryPage(db, query, 0, 0, WorkflowRunDB.class);
     }
 
-    public WorkflowRunDB addWorkflowRun(String workflowId, String inputs, String callbackUrl) {
+    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, String inputs, String callbackUrl) {
         WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
 
         rec.setTenantId(BellaContext.getOperator().getTenantId());
-        rec.setWorkflowId(workflowId);
+        rec.setWorkflowId(wf.getWorkflowId());
+        rec.setWorkflowVersion(wf.getVersion());
         rec.setWorkflowRunId(UUID.randomUUID().toString()); // TODO
         rec.setInputs(inputs);
         rec.setCallbackUrl(callbackUrl);

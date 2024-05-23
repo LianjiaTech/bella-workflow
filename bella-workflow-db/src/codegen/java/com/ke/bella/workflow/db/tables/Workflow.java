@@ -146,7 +146,7 @@ public class Workflow extends TableImpl<WorkflowRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.WORKFLOW_IDX_CUID_TIME, Indexes.WORKFLOW_IDX_TENANT_ID);
+        return Arrays.<Index>asList(Indexes.WORKFLOW_IDX_CUID_TIME);
     }
 
     @Override
@@ -161,7 +161,7 @@ public class Workflow extends TableImpl<WorkflowRecord> {
 
     @Override
     public List<UniqueKey<WorkflowRecord>> getKeys() {
-        return Arrays.<UniqueKey<WorkflowRecord>>asList(Keys.KEY_WORKFLOW_PRIMARY, Keys.KEY_WORKFLOW_IDX_WORKFLOW_ID);
+        return Arrays.<UniqueKey<WorkflowRecord>>asList(Keys.KEY_WORKFLOW_PRIMARY, Keys.KEY_WORKFLOW_IDX_TENANT_ID);
     }
 
     @Override

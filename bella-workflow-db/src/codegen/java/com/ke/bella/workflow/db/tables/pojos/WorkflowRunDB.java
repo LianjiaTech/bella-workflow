@@ -21,6 +21,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private Long          id;
     private String        tenantId;
     private String        workflowId;
+    private Long          workflowVersion;
     private String        workflowRunId;
     private String        triggerFrom;
     private String        inputs;
@@ -41,6 +42,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.id = value.id;
         this.tenantId = value.tenantId;
         this.workflowId = value.workflowId;
+        this.workflowVersion = value.workflowVersion;
         this.workflowRunId = value.workflowRunId;
         this.triggerFrom = value.triggerFrom;
         this.inputs = value.inputs;
@@ -60,6 +62,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         Long          id,
         String        tenantId,
         String        workflowId,
+        Long          workflowVersion,
         String        workflowRunId,
         String        triggerFrom,
         String        inputs,
@@ -77,6 +80,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.id = id;
         this.tenantId = tenantId;
         this.workflowId = workflowId;
+        this.workflowVersion = workflowVersion;
         this.workflowRunId = workflowRunId;
         this.triggerFrom = triggerFrom;
         this.inputs = inputs;
@@ -132,6 +136,20 @@ public class WorkflowRunDB implements Operator, Serializable {
      */
     public void setWorkflowId(String workflowId) {
         this.workflowId = workflowId;
+    }
+
+    /**
+     * Getter for <code>workflow_run.workflow_version</code>.
+     */
+    public Long getWorkflowVersion() {
+        return this.workflowVersion;
+    }
+
+    /**
+     * Setter for <code>workflow_run.workflow_version</code>.
+     */
+    public void setWorkflowVersion(Long workflowVersion) {
+        this.workflowVersion = workflowVersion;
     }
 
     /**
@@ -345,6 +363,7 @@ API
         sb.append(id);
         sb.append(", ").append(tenantId);
         sb.append(", ").append(workflowId);
+        sb.append(", ").append(workflowVersion);
         sb.append(", ").append(workflowRunId);
         sb.append(", ").append(triggerFrom);
         sb.append(", ").append(inputs);

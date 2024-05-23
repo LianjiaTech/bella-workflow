@@ -90,13 +90,6 @@ public class WorkflowDBDao extends DAOImpl<WorkflowRecord, WorkflowDB, Long> {
     }
 
     /**
-     * Fetch a unique record that has <code>workflow_id = value</code>
-     */
-    public WorkflowDB fetchOneByWorkflowId(String value) {
-        return fetchOne(Workflow.WORKFLOW.WORKFLOW_ID, value);
-    }
-
-    /**
      * Fetch records that have <code>graph BETWEEN lowerInclusive AND upperInclusive</code>
      */
     public List<WorkflowDB> fetchRangeOfGraph(String lowerInclusive, String upperInclusive) {

@@ -90,6 +90,20 @@ public class WorkflowRunDBDao extends DAOImpl<WorkflowRunRecord, WorkflowRunDB, 
     }
 
     /**
+     * Fetch records that have <code>workflow_version BETWEEN lowerInclusive AND upperInclusive</code>
+     */
+    public List<WorkflowRunDB> fetchRangeOfWorkflowVersion(Long lowerInclusive, Long upperInclusive) {
+        return fetchRange(WorkflowRun.WORKFLOW_RUN.WORKFLOW_VERSION, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>workflow_version IN (values)</code>
+     */
+    public List<WorkflowRunDB> fetchByWorkflowVersion(Long... values) {
+        return fetch(WorkflowRun.WORKFLOW_RUN.WORKFLOW_VERSION, values);
+    }
+
+    /**
      * Fetch records that have <code>workflow_run_id BETWEEN lowerInclusive AND upperInclusive</code>
      */
     public List<WorkflowRunDB> fetchRangeOfWorkflowRunId(String lowerInclusive, String upperInclusive) {

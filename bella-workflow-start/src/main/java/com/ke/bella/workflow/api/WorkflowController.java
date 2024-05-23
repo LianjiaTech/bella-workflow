@@ -66,8 +66,7 @@ public class WorkflowController {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
-        WorkflowDB wf = ws.getDraftWorkflow(op.workflowId);
-        ws.validateWorkflow(wf);
+
         ws.publish(op.workflowId);
     }
 

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.ke.bella.workflow.BellaContext;
-import com.ke.bella.workflow.node.JsonUtils;
+import com.ke.bella.workflow.JsonUtils;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;

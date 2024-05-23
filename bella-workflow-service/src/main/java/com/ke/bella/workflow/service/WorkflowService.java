@@ -34,7 +34,7 @@ public class WorkflowService {
     @Transactional(rollbackFor = Exception.class)
     public void syncWorkflow(String workflowId, String graph) {
         WorkflowDB wf = repo.queryDraftWorkflow(workflowId);
-        if (wf == null) {
+        if(wf == null) {
             repo.addDraftWorkflow(workflowId, graph);
         } else {
             repo.updateDraftWorkflow(workflowId, graph);
@@ -55,9 +55,14 @@ public class WorkflowService {
 
     @Transactional(rollbackFor = Exception.class)
     public void publish(String workflowId) {
+        // 校验工作流配置是否合法
+        WorkflowDB wf = getDraftWorkflow(workflowId);
+        validateWorkflow(wf);
+
         // 校验是否有过成功的调试记录
-        Page<WorkflowRunDB> page = repo.pageWorkflowRun(workflowId, "succeeded");
-        if(page.getList().isEmpty()) {
+        Page<WorkflowRunDB> page = repo.pageWorkflowRun(workflowId, wf.getVersion(), "succeeded");
+        WorkflowRunDB wr = repo.queryDraftWorkflowRunSuccessed(wf);
+        if(wr == null) {
             throw new IllegalArgumentException("工作流还未调试通过，请至少完整执行成功一次");
         }
 

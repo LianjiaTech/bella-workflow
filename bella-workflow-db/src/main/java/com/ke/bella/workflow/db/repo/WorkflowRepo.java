@@ -37,6 +37,17 @@ public class WorkflowRepo implements BaseRepo {
                 .fetchOne().into(WorkflowDB.class);
     }
 
+    public WorkflowRunDB queryDraftWorkflowRunSuccessed(WorkflowDB wf) {
+        return db.selectFrom(WORKFLOW_RUN)
+                .where(WORKFLOW_RUN.TENANT_ID.eq(wf.getTenantId())
+                        .and(WORKFLOW_RUN.WORKFLOW_ID.eq(wf.getWorkflowId()))
+                        .and(WORKFLOW_RUN.WORKFLOW_VERSION.eq(wf.getVersion()))
+                        .and(WORKFLOW_RUN.STATUS.eq("successed"))
+                        .and(WORKFLOW_RUN.CTIME.ge(wf.getMtime())))
+                .limit(1)
+                .fetchOneInto(WorkflowRunDB.class);
+    }
+
     public WorkflowDB queryPublishedWorkflow(String workflowId) {
         return db.selectFrom(WORKFLOW)
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
@@ -111,10 +122,11 @@ public class WorkflowRepo implements BaseRepo {
         return rec.into(TenantDB.class);
     }
 
-    public Page<WorkflowRunDB> pageWorkflowRun(String workflowId, String status) {
+    public Page<WorkflowRunDB> pageWorkflowRun(String workflowId, Long version, String status) {
         SelectSeekStep1<WorkflowRunRecord, LocalDateTime> query = db.selectFrom(WORKFLOW_RUN)
                 .where(WORKFLOW_RUN.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(WORKFLOW_RUN.WORKFLOW_ID.eq(workflowId))
+                .and(WORKFLOW_RUN.WORKFLOW_VERSION.eq(version))
                 .and(status != null ? WORKFLOW_RUN.STATUS.eq(status) : DSL.noCondition())
                 .orderBy(WORKFLOW_RUN.CTIME.desc());
         return queryPage(db, query, 0, 0, WorkflowRunDB.class);

@@ -1,13 +1,12 @@
 package com.ke.bella.workflow;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import com.ke.bella.workflow.api.Operator;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,32 +15,32 @@ public class TaskExecutor {
     static ThreadFactory tf = new NamedThreadFactory("bella-worker-", true);
     static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1, tf);
 
-    public static void schedule(Operator oper, Runnable r, long delayMills) {
-        executor.schedule(new Task(r, oper), delayMills, TimeUnit.MILLISECONDS);
+    public static void schedule(Runnable r, long delayMills) {
+        executor.schedule(new Task(r), delayMills, TimeUnit.MILLISECONDS);
     }
 
-    public static void submit(Operator oper, Runnable r) {
-        executor.submit(new Task(r, oper));
+    public static void submit(Runnable r) {
+        executor.submit(new Task(r));
     }
 
     public static class Task implements Runnable {
         Runnable r;
-        Operator oper;
+        Map<String, Object> context;
 
-        public Task(Runnable r, Operator oper) {
+        public Task(Runnable r) {
             this.r = r;
-            this.oper = oper;
+            this.context = BellaContext.snapshot();
         }
 
         @Override
         public void run() {
-            BellaContext.setOperator(oper);
+            BellaContext.replace(context);
             try {
                 r.run();
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             } finally {
-                BellaContext.removeOperator();
+                BellaContext.clearAll();
             }
         }
     }

@@ -107,7 +107,7 @@ public class WorkflowController {
             ws.runWorkflow(wr, op.inputs, new WorkflowRunStreamingCallback(emitter));
             return emitter;
         } else {
-            TaskExecutor.submit(op, () -> {
+            TaskExecutor.submit(() -> {
                 WorkflowRunNotifyCallback callback = new WorkflowRunNotifyCallback(op.callbackUrl);
                 ws.runWorkflow(wr, op.inputs, callback);
             });

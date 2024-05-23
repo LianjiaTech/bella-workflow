@@ -28,16 +28,29 @@ public class WorkflowService {
 
     @Transactional(rollbackFor = Exception.class)
     public WorkflowDB newWorkflow(String graph) {
-        return repo.addWorkflow(graph);
+        return repo.addDraftWorkflow(null, graph);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void syncWorkflow(String workflowId, String graph) {
-        repo.syncWorkflow(workflowId, graph);
+        WorkflowDB wf = repo.queryDraftWorkflow(workflowId);
+        if (wf == null) {
+            repo.addDraftWorkflow(workflowId, graph);
+        } else {
+            repo.updateDraftWorkflow(workflowId, graph);
+        }
     }
 
-    public WorkflowDB getWorkflow(String workflowId) {
-        return repo.queryWorkflow(workflowId);
+    public WorkflowDB getDraftWorkflow(String workflowId) {
+        return repo.queryDraftWorkflow(workflowId);
+    }
+
+    public WorkflowDB getPublishedWorkflow(String workflowId) {
+        return repo.queryPublishedWorkflow(workflowId);
+    }
+
+    public WorkflowDB getWorkflow(String workflowId, Long version) {
+        return repo.queryWorkflow(workflowId, version);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -59,7 +72,7 @@ public class WorkflowService {
     @SuppressWarnings("rawtypes")
     public void runWorkflow(WorkflowRunDB wr, Map inputs, IWorkflowCallback callback) {
         // 校验工作流是否合法
-        WorkflowDB wf = getWorkflow(wr.getWorkflowId());
+        WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
         validateWorkflow(wf);
 
         // 构建执行上下文
@@ -76,7 +89,7 @@ public class WorkflowService {
     @SuppressWarnings("rawtypes")
     public void runNode(WorkflowRunDB wr, String nodeId, Map inputs, IWorkflowCallback callback) {
         // 校验工作流是否合法
-        WorkflowDB wf = getWorkflow(wr.getWorkflowId());
+        WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
         validateWorkflow(wf);
 
         // 构建执行上下文
@@ -103,7 +116,7 @@ public class WorkflowService {
     }
 
     @SuppressWarnings("rawtypes")
-    public WorkflowRunDB newWorkflowRun(String workflowId, Map inputs, String callbackUrl) {
-        return repo.addWorkflowRun(workflowId, JsonUtils.toJson(inputs), callbackUrl);
+    public WorkflowRunDB newWorkflowRun(WorkflowDB wf, Map inputs, String callbackUrl) {
+        return repo.addWorkflowRun(wf, JsonUtils.toJson(inputs), callbackUrl);
     }
 }

@@ -33,15 +33,23 @@ public class WorkflowController {
     @Autowired
     WorkflowService ws;
 
+    @PostMapping("/draft/info")
+    public WorkflowDB draftInfo(@RequestBody WorkflowOp op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.workflowId, "workflowId不能为空");
+
+        return ws.getDraftWorkflow(op.workflowId);
+    }
+
     @PostMapping("/info")
     public WorkflowDB info(@RequestBody WorkflowOp op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
-        return ws.getWorkflow(op.workflowId);
+        return ws.getPublishedWorkflow(op.workflowId);
     }
 
-    @PostMapping("/sync")
+    @PostMapping("/draft/sync")
     public void sync(@RequestBody WorkflowSync op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.graph, "graph不能为空");
@@ -53,18 +61,27 @@ public class WorkflowController {
         }
     }
 
-    @PostMapping("/publish")
+    @PostMapping("/draft/publish")
     public void publish(@RequestBody WorkflowOp op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
-        WorkflowDB wf = ws.getWorkflow(op.workflowId);
+        WorkflowDB wf = ws.getDraftWorkflow(op.workflowId);
         ws.validateWorkflow(wf);
         ws.publish(op.workflowId);
     }
 
+    @PostMapping("/draft/run")
+    public Object runDraft(@RequestBody WorkflowRun op) {
+        return run0(op, "draft");
+    }
+
     @PostMapping("/run")
     public Object run(@RequestBody WorkflowRun op) {
+        return run0(op, "published");
+    }
+
+    public Object run0(WorkflowRun op, String ver) {
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
@@ -74,7 +91,11 @@ public class WorkflowController {
             Assert.notNull(op.callbackUrl, "callbackUrl不能为空");
         }
 
-        WorkflowRunDB wr = ws.newWorkflowRun(op.workflowId, op.inputs, op.callbackUrl);
+        WorkflowDB wf = ver.equals("published") ? ws.getPublishedWorkflow(op.workflowId)
+                : ws.getDraftWorkflow(op.workflowId);
+        Assert.notNull(wf, String.format("没有找到对应的的工作流, %s(ver. %s)", op.workflowId, ver));
+
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, op.callbackUrl);
 
         if(mode == ResponseMode.blocking) {
             WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback();
@@ -95,7 +116,7 @@ public class WorkflowController {
         }
     }
 
-    @PostMapping("/node/run")
+    @PostMapping("/draft/node/run")
     public Object runSingleNode(@RequestBody WorkflowNodeRun op) {
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
         Assert.hasText(op.tenantId, "tenantId不能为空");
@@ -104,7 +125,10 @@ public class WorkflowController {
         Assert.notNull(op.inputs, "inputs不能为空");
         Assert.notNull(mode, "responseMode必须为[streaming, blocking]之一");
 
-        WorkflowRunDB wr = ws.newWorkflowRun(op.workflowId, op.inputs, "");
+        WorkflowDB wf = ws.getDraftWorkflow(op.workflowId);
+        Assert.notNull(wf, String.format("工作流当前无draft版本，无法单独调试节点", op.workflowId));
+
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "");
         if(mode == ResponseMode.blocking) {
             SingleNodeRunBlockingCallback callback = new SingleNodeRunBlockingCallback();
             ws.runNode(wr, op.nodeId, op.inputs, callback);

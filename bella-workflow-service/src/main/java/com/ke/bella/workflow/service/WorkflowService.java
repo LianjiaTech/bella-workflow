@@ -13,7 +13,6 @@ import com.ke.bella.workflow.WorkflowGraph;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
@@ -60,7 +59,6 @@ public class WorkflowService {
         validateWorkflow(wf);
 
         // 校验是否有过成功的调试记录
-        Page<WorkflowRunDB> page = repo.pageWorkflowRun(workflowId, wf.getVersion(), "succeeded");
         WorkflowRunDB wr = repo.queryDraftWorkflowRunSuccessed(wf);
         if(wr == null) {
             throw new IllegalArgumentException("工作流还未调试通过，请至少完整执行成功一次");

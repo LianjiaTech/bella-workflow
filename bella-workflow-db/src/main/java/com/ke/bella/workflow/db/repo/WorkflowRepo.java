@@ -122,11 +122,10 @@ public class WorkflowRepo implements BaseRepo {
         return rec.into(TenantDB.class);
     }
 
-    public Page<WorkflowRunDB> pageWorkflowRun(String workflowId, Long version, String status) {
+    public Page<WorkflowRunDB> pageWorkflowRun(String workflowId, String status) {
         SelectSeekStep1<WorkflowRunRecord, LocalDateTime> query = db.selectFrom(WORKFLOW_RUN)
                 .where(WORKFLOW_RUN.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(WORKFLOW_RUN.WORKFLOW_ID.eq(workflowId))
-                .and(WORKFLOW_RUN.WORKFLOW_VERSION.eq(version))
                 .and(status != null ? WORKFLOW_RUN.STATUS.eq(status) : DSL.noCondition())
                 .orderBy(WORKFLOW_RUN.CTIME.desc());
         return queryPage(db, query, 0, 0, WorkflowRunDB.class);

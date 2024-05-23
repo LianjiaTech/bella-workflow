@@ -49,12 +49,15 @@ public class WorkflowRunState {
             throw new IllegalStateException("工作流节点运行状态异常");
         } else if(s == NodeRunResult.Status.waiting) {
             nodeWaitingStates.put(nodeId, state);
-        } else if(s == NodeRunResult.Status.succeeded) {
-            nodeCompletedStates.put(nodeId, state);
-            state.activatedSourceHandles
-                    .forEach(h -> activatedSourceHandles.add(String.format("%s/%s", nodeId, h)));
         } else {
-            nodeCompletedStates.put(nodeId, state);
+            nodeWaitingStates.remove(nodeId);
+            if(s == NodeRunResult.Status.succeeded) {
+                nodeCompletedStates.put(nodeId, state);
+                state.activatedSourceHandles
+                        .forEach(h -> activatedSourceHandles.add(String.format("%s/%s", nodeId, h)));
+            } else {
+                nodeCompletedStates.put(nodeId, state);
+            }
         }
     }
 

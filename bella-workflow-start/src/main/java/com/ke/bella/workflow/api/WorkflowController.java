@@ -1,8 +1,11 @@
 package com.ke.bella.workflow.api;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,7 +68,6 @@ public class WorkflowController {
     public void publish(@RequestBody WorkflowOp op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
-
 
         ws.publish(op.workflowId);
     }
@@ -146,5 +148,14 @@ public class WorkflowController {
         Assert.hasText(op.tenantName, "tenantName不能为空");
 
         return ws.createTenant(op.tenantName);
+    }
+
+    @SuppressWarnings("rawtypes")
+    @PostMapping("/callback/{tenantId}/{workflowRunId}/{nodeId}")
+    public void callback(@PathVariable String tenantId,
+            @PathVariable String workflowRunId,
+            @PathVariable String nodeId,
+            @RequestBody Map inputs) {
+        // TODO
     }
 }

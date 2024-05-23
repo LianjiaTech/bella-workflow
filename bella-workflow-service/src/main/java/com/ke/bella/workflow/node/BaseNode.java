@@ -25,6 +25,7 @@ public abstract class BaseNode implements RunnableNode {
     static {
         register(NodeType.START.name, Start.class);
         register(NodeType.END.name, End.class);
+        register(NodeType.IF_ELSE.name, IfElseNode.class);
     }
 
     protected WorkflowSchema.Node meta;

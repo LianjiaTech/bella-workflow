@@ -45,7 +45,7 @@ public class WorkflowRunState {
 
     synchronized void putNodeState(String nodeId, NodeRunResult state) {
         NodeRunResult.Status s = state.status;
-        if(s == NodeRunResult.Status.running) {
+        if(s == NodeRunResult.Status.running || s == null) {
             throw new IllegalStateException("工作流节点运行状态异常");
         } else if(s == NodeRunResult.Status.waiting) {
             nodeWaitingStates.put(nodeId, state);

@@ -13,12 +13,12 @@ public class BellaContext {
         operatorLocal.set(operator);
     }
 
-    public static void removeOperator() {
-        operatorLocal.remove();
-    }
-
     public static Operator getOperator() {
         return operatorLocal.get();
+    }
+
+    public static void setApiKey(String ak) {
+        apiKey.set(ak);
     }
 
     public static void clearAll() {

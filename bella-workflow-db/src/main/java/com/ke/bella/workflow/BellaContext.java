@@ -37,4 +37,8 @@ public class BellaContext {
         operatorLocal.set((Operator) map.get("oper"));
         apiKey.set((String) map.get("ak"));
     }
+
+    public static String getApiKey() {
+        return apiKey.get();
+    }
 }

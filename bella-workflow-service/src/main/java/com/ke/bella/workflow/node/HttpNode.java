@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,7 +23,6 @@ import com.ke.bella.workflow.node.HttpNode.Data.Authorization.Config;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.Headers.Builder;
@@ -34,6 +34,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
+import okio.Buffer;
 
 @SuppressWarnings("rawtypes")
 public class HttpNode extends BaseNode {
@@ -63,6 +64,9 @@ public class HttpNode extends BaseNode {
                     .method(data.getMethod().toUpperCase(), buildBody(context))
                     .build();
 
+            Map processedData = new LinkedHashMap<>();
+            processedData.put("request", render(request));
+
             response = client.newCall(request).execute();
 
             Map outputs = new LinkedHashMap<>();
@@ -71,6 +75,7 @@ public class HttpNode extends BaseNode {
             outputs.put("headers", response.headers().toMultimap());
             outputs.put("files", extractFiles(response));
             return NodeRunResult.builder()
+                    .processData(processedData)
                     .outputs(outputs)
                     .status(NodeRunResult.Status.succeeded)
                     .build();
@@ -86,9 +91,34 @@ public class HttpNode extends BaseNode {
         }
     }
 
+    private String render(Request request) {
+        String template = "{{ request.method() }} {{ request.url().toString() }} HTTP/1.1\n"
+                + "{% for header in request.headers().toMultimap().entrySet() %}\n"
+                + "{{ header.key }}: {{ header.value }}\n\n"
+                + "{% endfor %}\n"
+                + "\n"
+                + "{{ body }}";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("headers", request.headers().names());
+        map.put("body", bodyToString(request));
+        map.put("request", request);
+        return Variables.render(template, map);
+    }
+
     private Object extractFiles(Response response) {
-        // TODO Auto-generated method stub
-        return null;
+        return null; // TODO
+    }
+
+    private static String bodyToString(final Request request) {
+        try {
+            final Request copy = request.newBuilder().build();
+            final Buffer buffer = new Buffer();
+            copy.body().writeTo(buffer);
+            return buffer.readUtf8();
+        } catch (final IOException e) {
+            return "did not work";
+        }
     }
 
     private String extractBody(Response response) throws IOException {

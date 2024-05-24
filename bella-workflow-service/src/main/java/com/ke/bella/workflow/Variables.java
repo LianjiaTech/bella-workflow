@@ -11,7 +11,9 @@ import io.pebbletemplates.pebble.loader.StringLoader;
 import io.pebbletemplates.pebble.template.PebbleTemplate;
 
 public class Variables {
-    private static final PebbleEngine engine = new PebbleEngine.Builder().loader(new StringLoader()).build();
+    private static final PebbleEngine engine = new PebbleEngine.Builder()
+            .loader(new StringLoader())
+            .build();
 
     @SuppressWarnings("rawtypes")
     public static Object getValue(Map pool, String selectors) {

@@ -32,7 +32,7 @@ public class IfElseNode extends BaseNode {
     @SuppressWarnings("unchecked")
     @Override
     public NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
-        Map inputs = new LinkedHashMap();
+        Map processData = new LinkedHashMap();
         List<Map<String, Object>> inputConditions = new ArrayList<>();
         for (Condition condition : data.getConditions()) {
             Object actualValue = context.getState().getVariableValue(condition.getVariableSelector());
@@ -45,7 +45,7 @@ public class IfElseNode extends BaseNode {
 
             inputConditions.add(inputCondition);
         }
-        inputs.put("conditions", inputConditions);
+        processData.put("conditions", inputConditions);
 
         String logicalOperator = data.getLogicalOperator();
         boolean compareResult = logicalOperator.equals("and");
@@ -63,7 +63,7 @@ public class IfElseNode extends BaseNode {
         Map outputs = new LinkedHashMap();
         outputs.put("result", compareResult);
         return NodeRunResult.builder()
-                .inputs(inputs)
+                .processData(processData)
                 .outputs(outputs)
                 .activatedSourceHandles(Arrays.asList(compareResult ? "true" : "false"))
                 .status(NodeRunResult.Status.succeeded)

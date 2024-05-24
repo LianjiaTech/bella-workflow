@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TenantCreate;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowCopy;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowNodeRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
@@ -58,10 +59,25 @@ public class WorkflowController {
         Assert.hasText(op.graph, "graph不能为空");
 
         if(StringUtils.isEmpty(op.getWorkflowId())) {
-            ws.newWorkflow(op.graph);
+            ws.newWorkflow(op);
         } else {
-            ws.syncWorkflow(op.workflowId, op.graph);
+            ws.syncWorkflow(op);
         }
+    }
+
+    @PostMapping("/copy")
+    public void copy(@RequestBody WorkflowCopy op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.workflowId, "workflowId不能为空");
+        Assert.notNull(op.version, "version不能为空");
+
+        WorkflowDB wf = ws.getWorkflow(op.workflowId, op.version);
+        WorkflowSync sync = WorkflowSync.builder()
+                .graph(wf.getGraph())
+                .title(wf.getTitle())
+                .desc(wf.getDesc())
+                .build();
+        ws.newWorkflow(sync);
     }
 
     @PostMapping("/draft/publish")

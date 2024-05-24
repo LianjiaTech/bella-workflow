@@ -14,8 +14,10 @@ import org.jooq.SelectSeekStep1;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.BellaContext;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
@@ -66,12 +68,18 @@ public class WorkflowRepo implements BaseRepo {
                 .fetchOne().into(WorkflowDB.class);
     }
 
-    public WorkflowDB addDraftWorkflow(String workflowId, String graph) {
+    public WorkflowDB addDraftWorkflow(WorkflowSync op) {
         WorkflowRecord rec = WORKFLOW.newRecord();
 
         rec.setTenantId(BellaContext.getOperator().getTenantId());
-        rec.setWorkflowId(workflowId == null ? UUID.randomUUID().toString() : workflowId); // TODO
-        rec.setGraph(graph);
+        rec.setWorkflowId(op.getWorkflowId() == null ? UUID.randomUUID().toString() : op.getWorkflowId()); // TODO
+        rec.setGraph(op.getGraph());
+        if(!StringUtils.isEmpty(op.getTitle())) {
+            rec.setTitle(op.getTitle());
+        }
+        if(!StringUtils.isEmpty(op.getDesc())) {
+            rec.setDesc(op.getDesc());
+        }
         rec.setVersion(0L);
 
         fillCreatorInfo(rec);
@@ -81,15 +89,21 @@ public class WorkflowRepo implements BaseRepo {
         return rec.into(WorkflowDB.class);
     }
 
-    public void updateDraftWorkflow(String workflowId, String graph) {
+    public void updateDraftWorkflow(WorkflowSync op) {
         WorkflowRecord rec = WORKFLOW.newRecord();
-        rec.setGraph(graph);
+        rec.setGraph(op.getGraph());
+        if(!StringUtils.isEmpty(op.getTitle())) {
+            rec.setTitle(op.getTitle());
+        }
+        if(!StringUtils.isEmpty(op.getDesc())) {
+            rec.setDesc(op.getDesc());
+        }
         fillUpdatorInfo(rec);
 
         int num = db.update(WORKFLOW)
                 .set(rec)
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
-                .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
+                .and(WORKFLOW.WORKFLOW_ID.eq(op.getWorkflowId()))
                 .and(WORKFLOW.VERSION.eq(0L))
                 .execute();
         Assert.isTrue(num == 1, "工作流配置更新失败，请检查工作流配置版本是否为draft");

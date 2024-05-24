@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 public class WorkflowOps {
     public enum ResponseMode {
@@ -21,9 +23,20 @@ public class WorkflowOps {
 
     @Getter
     @Setter
+    public static class WorkflowCopy extends Operator {
+        String workflowId;
+        Long version;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @SuperBuilder
     public static class WorkflowSync extends Operator {
         String workflowId;
         String graph;
+        String title;
+        String desc;
     }
 
     @Getter

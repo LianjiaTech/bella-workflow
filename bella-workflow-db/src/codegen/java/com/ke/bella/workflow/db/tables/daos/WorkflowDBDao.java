@@ -90,6 +90,34 @@ public class WorkflowDBDao extends DAOImpl<WorkflowRecord, WorkflowDB, Long> {
     }
 
     /**
+     * Fetch records that have <code>title BETWEEN lowerInclusive AND upperInclusive</code>
+     */
+    public List<WorkflowDB> fetchRangeOfTitle(String lowerInclusive, String upperInclusive) {
+        return fetchRange(Workflow.WORKFLOW.TITLE, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>title IN (values)</code>
+     */
+    public List<WorkflowDB> fetchByTitle(String... values) {
+        return fetch(Workflow.WORKFLOW.TITLE, values);
+    }
+
+    /**
+     * Fetch records that have <code>desc BETWEEN lowerInclusive AND upperInclusive</code>
+     */
+    public List<WorkflowDB> fetchRangeOfDesc(String lowerInclusive, String upperInclusive) {
+        return fetchRange(Workflow.WORKFLOW.DESC, lowerInclusive, upperInclusive);
+    }
+
+    /**
+     * Fetch records that have <code>desc IN (values)</code>
+     */
+    public List<WorkflowDB> fetchByDesc(String... values) {
+        return fetch(Workflow.WORKFLOW.DESC, values);
+    }
+
+    /**
      * Fetch records that have <code>graph BETWEEN lowerInclusive AND upperInclusive</code>
      */
     public List<WorkflowDB> fetchRangeOfGraph(String lowerInclusive, String upperInclusive) {

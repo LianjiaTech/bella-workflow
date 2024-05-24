@@ -21,6 +21,8 @@ public class WorkflowDB implements Operator, Serializable {
     private Long          id;
     private String        tenantId;
     private String        workflowId;
+    private String        title;
+    private String        desc;
     private String        graph;
     private Long          version;
     private Long          cuid;
@@ -36,6 +38,8 @@ public class WorkflowDB implements Operator, Serializable {
         this.id = value.id;
         this.tenantId = value.tenantId;
         this.workflowId = value.workflowId;
+        this.title = value.title;
+        this.desc = value.desc;
         this.graph = value.graph;
         this.version = value.version;
         this.cuid = value.cuid;
@@ -50,6 +54,8 @@ public class WorkflowDB implements Operator, Serializable {
         Long          id,
         String        tenantId,
         String        workflowId,
+        String        title,
+        String        desc,
         String        graph,
         Long          version,
         Long          cuid,
@@ -62,6 +68,8 @@ public class WorkflowDB implements Operator, Serializable {
         this.id = id;
         this.tenantId = tenantId;
         this.workflowId = workflowId;
+        this.title = title;
+        this.desc = desc;
         this.graph = graph;
         this.version = version;
         this.cuid = cuid;
@@ -112,6 +120,34 @@ public class WorkflowDB implements Operator, Serializable {
      */
     public void setWorkflowId(String workflowId) {
         this.workflowId = workflowId;
+    }
+
+    /**
+     * Getter for <code>workflow.title</code>.
+     */
+    public String getTitle() {
+        return this.title;
+    }
+
+    /**
+     * Setter for <code>workflow.title</code>.
+     */
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /**
+     * Getter for <code>workflow.desc</code>.
+     */
+    public String getDesc() {
+        return this.desc;
+    }
+
+    /**
+     * Setter for <code>workflow.desc</code>.
+     */
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
     /**
@@ -233,6 +269,8 @@ public class WorkflowDB implements Operator, Serializable {
         sb.append(id);
         sb.append(", ").append(tenantId);
         sb.append(", ").append(workflowId);
+        sb.append(", ").append(title);
+        sb.append(", ").append(desc);
         sb.append(", ").append(graph);
         sb.append(", ").append(version);
         sb.append(", ").append(cuid);

@@ -14,6 +14,7 @@ import com.ke.bella.workflow.WorkflowGraph;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
@@ -26,17 +27,17 @@ public class WorkflowService {
     WorkflowRepo repo;
 
     @Transactional(rollbackFor = Exception.class)
-    public WorkflowDB newWorkflow(String graph) {
-        return repo.addDraftWorkflow(null, graph);
+    public WorkflowDB newWorkflow(WorkflowSync op) {
+        return repo.addDraftWorkflow(op);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void syncWorkflow(String workflowId, String graph) {
-        WorkflowDB wf = repo.queryDraftWorkflow(workflowId);
+    public void syncWorkflow(WorkflowSync op) {
+        WorkflowDB wf = repo.queryDraftWorkflow(op.getWorkflowId());
         if(wf == null) {
-            repo.addDraftWorkflow(workflowId, graph);
+            repo.addDraftWorkflow(op);
         } else {
-            repo.updateDraftWorkflow(workflowId, graph);
+            repo.updateDraftWorkflow(op);
         }
     }
 

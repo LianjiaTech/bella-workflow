@@ -7,6 +7,7 @@ public enum NodeType {
     LLM("llm"),
     HTTP_REQUEST("http-request"),
     QUESTION_CLASSIFIER("question-classifier"),
+    TEMPLATE_TRANSFORM("template-transform"),
     ;
 
     public final String name;

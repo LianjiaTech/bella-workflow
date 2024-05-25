@@ -18,7 +18,6 @@ import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
-import com.ke.bella.workflow.node.HttpNode.Data.Authorization.Config;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -161,7 +160,7 @@ public class HttpNode extends BaseNode {
         headers.entrySet().forEach(e -> builder.add(e.getKey(), e.getValue()));
 
         // Auth header
-        Config config = data.getAuthorization().getConfig();
+        Data.Authorization.Config config = data.getAuthorization().getConfig();
         String authType = data.getAuthorization().type;
         String apiKey = null;
         if("api-key".equals(authType)) {

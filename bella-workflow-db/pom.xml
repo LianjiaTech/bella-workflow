@@ -135,6 +135,17 @@
                     <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
                     <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
                   </table>
+                  <table>
+                    <expression>instance</expression>
+                    <daoClass>
+                      <transform>PASCAL</transform>
+                      <expression>$0_D_B_Dao</expression>
+                    </daoClass>
+                    <pojoClass>
+                      <transform>PASCAL</transform>
+                      <expression>$0_D_B</expression>
+                    </pojoClass>
+                  </table>
                 </tables>
               </matchers>
             </strategy>
@@ -151,15 +162,15 @@
                 </forcedType>
               </forcedTypes>
               <includes>
-                tenant|workflow_node_run|workflow_run|workflow
+                tenant|workflow_node_run|workflow_run|workflow|instance
               </includes>
               <unsignedTypes>false</unsignedTypes>
             </database>
             <generate>
               <deprecated>false</deprecated>
-              <records>false</records>
+              <records>true</records>
               <pojos>true</pojos>
-              <daos>true</daos>
+              <daos>false</daos>
             </generate>
             <target>
               <packageName>com.ke.bella.workflow.db</packageName>

@@ -4,6 +4,7 @@
 package com.ke.bella.workflow.db;
 
 
+import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
@@ -29,6 +30,11 @@ public class DefaultSchema extends SchemaImpl {
      * The reference instance of <code>DEFAULT_SCHEMA</code>
      */
     public static final DefaultSchema DEFAULT_SCHEMA = new DefaultSchema();
+
+    /**
+     * The table <code>instance</code>.
+     */
+    public final Instance INSTANCE = Instance.INSTANCE;
 
     /**
      * The table <code>tenant</code>.
@@ -66,6 +72,7 @@ public class DefaultSchema extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.<Table<?>>asList(
+            Instance.INSTANCE,
             Tenant.TENANT,
             Workflow.WORKFLOW,
             WorkflowNodeRun.WORKFLOW_NODE_RUN,

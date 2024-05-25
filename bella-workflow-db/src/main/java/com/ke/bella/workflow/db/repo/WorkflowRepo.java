@@ -17,6 +17,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.BellaContext;
+import com.ke.bella.workflow.IDGenerator;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
@@ -72,7 +73,7 @@ public class WorkflowRepo implements BaseRepo {
         WorkflowRecord rec = WORKFLOW.newRecord();
 
         rec.setTenantId(BellaContext.getOperator().getTenantId());
-        rec.setWorkflowId(op.getWorkflowId() == null ? UUID.randomUUID().toString() : op.getWorkflowId()); // TODO
+        rec.setWorkflowId(op.getWorkflowId() == null ? IDGenerator.newWorkflowId() : op.getWorkflowId());
         rec.setGraph(op.getGraph());
         if(!StringUtils.isEmpty(op.getTitle())) {
             rec.setTitle(op.getTitle());
@@ -126,7 +127,7 @@ public class WorkflowRepo implements BaseRepo {
     public TenantDB addTenant(String tenantName) {
         TenantRecord rec = TENANT.newRecord();
 
-        rec.setTenantId(UUID.randomUUID().toString()); // TODO
+        rec.setTenantId(IDGenerator.newTenantId());
         rec.setTenantName(tenantName);
 
         fillCreatorInfo(rec);
@@ -151,7 +152,7 @@ public class WorkflowRepo implements BaseRepo {
         rec.setTenantId(BellaContext.getOperator().getTenantId());
         rec.setWorkflowId(wf.getWorkflowId());
         rec.setWorkflowVersion(wf.getVersion());
-        rec.setWorkflowRunId(UUID.randomUUID().toString()); // TODO
+        rec.setWorkflowRunId(IDGenerator.newWorkflowRunId());
         rec.setInputs(inputs);
         rec.setCallbackUrl(callbackUrl);
 

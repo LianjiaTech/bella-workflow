@@ -4,6 +4,7 @@
 package com.ke.bella.workflow.db;
 
 
+import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
@@ -15,6 +16,11 @@ import com.ke.bella.workflow.db.tables.WorkflowRun;
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Tables {
+
+    /**
+     * The table <code>instance</code>.
+     */
+    public static final Instance INSTANCE = Instance.INSTANCE;
 
     /**
      * The table <code>tenant</code>.

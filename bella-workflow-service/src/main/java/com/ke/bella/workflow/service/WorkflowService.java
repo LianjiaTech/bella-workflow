@@ -14,12 +14,15 @@ import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowGraph;
 import com.ke.bella.workflow.WorkflowRunState;
+import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 
 @Component
@@ -97,6 +100,9 @@ public class WorkflowService {
         WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
         WorkflowGraph graph = new WorkflowGraph(meta);
         WorkflowContext context = WorkflowContext.builder()
+                .tenantId(wr.getTenantId())
+                .workflowId(wr.getWorkflowId())
+                .runId(wr.getWorkflowRunId())
                 .graph(graph)
                 .state(new WorkflowRunState())
                 .userInputs(inputs)
@@ -114,6 +120,9 @@ public class WorkflowService {
         WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
         WorkflowGraph graph = new WorkflowGraph(meta);
         WorkflowContext context = WorkflowContext.builder()
+                .tenantId(wr.getTenantId())
+                .workflowId(wr.getWorkflowId())
+                .runId(wr.getWorkflowRunId())
                 .graph(graph)
                 .state(new WorkflowRunState())
                 .userInputs(inputs)
@@ -138,5 +147,98 @@ public class WorkflowService {
         final WorkflowRunDB wr = repo.addWorkflowRun(wf, JsonUtils.toJson(inputs), callbackUrl);
         TaskExecutor.submit(() -> counter.increase(wr));
         return wr;
+    }
+
+    public void updateWorkflowRun(WorkflowContext context, String status) {
+        updateWorkflowRun(context, status, "");
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void updateWorkflowRun(WorkflowContext context, String status, Map outputs) {
+        WorkflowRunDB wr = new WorkflowRunDB();
+        wr.setTenantId(context.getTenantId());
+        wr.setWorkflowId(context.getWorkflowId());
+        wr.setWorkflowRunId(context.getRunId());
+        wr.setStatus(status);
+        if(outputs != null) {
+            wr.setOutputs(JsonUtils.toJson(outputs));
+        }
+
+        repo.updateWorkflowRun(wr);
+    }
+
+    public void updateWorkflowRun(WorkflowContext context, String status, String error) {
+        WorkflowRunDB wr = new WorkflowRunDB();
+        wr.setTenantId(context.getTenantId());
+        wr.setWorkflowId(context.getWorkflowId());
+        wr.setWorkflowRunId(context.getRunId());
+        wr.setStatus(status);
+        wr.setError(error);
+
+        repo.updateWorkflowRun(wr);
+    }
+
+    public void createWorkflowNodeRun(WorkflowContext context, String nodeId, String status) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(context.getTenantId());
+        wnr.setWorkflowId(context.getWorkflowId());
+        wnr.setWorkflowRunId(context.getRunId());
+        wnr.setNodeId(nodeId);
+        wnr.setStatus(status);
+        wnr.setInputs("");
+        wnr.setOutputs("");
+        wnr.setError("");
+        wnr.setProcessData("");
+
+        Node meta = context.getGraph().node(nodeId);
+        wnr.setNodeType(meta.getType());
+        wnr.setTitle(meta.getTitle());
+
+        repo.addWorkflowRunNode(wnr);
+    }
+
+    public void updateWorkflowNodeRun(WorkflowContext context, String nodeId, String status) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(context.getTenantId());
+        wnr.setWorkflowId(context.getWorkflowId());
+        wnr.setWorkflowRunId(context.getRunId());
+        wnr.setNodeId(nodeId);
+        wnr.setStatus(status);
+
+        repo.updateWorkflowNodeRun(wnr);
+    }
+
+    public void updateWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(context.getTenantId());
+        wnr.setWorkflowId(context.getWorkflowId());
+        wnr.setWorkflowRunId(context.getRunId());
+        wnr.setNodeId(nodeId);
+        wnr.setStatus(NodeRunResult.Status.succeeded.name());
+
+        NodeRunResult nodeState = context.getState().getNodeState(nodeId);
+        wnr.setInputs(JsonUtils.toJson(nodeState.getInputs()));
+        wnr.setOutputs(JsonUtils.toJson(nodeState.getOutputs()));
+        wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
+        wnr.setActivedTargetHandles(JsonUtils.toJson(nodeState.getActivatedSourceHandles()));
+
+        repo.updateWorkflowNodeRun(wnr);
+    }
+
+    public void updateWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(context.getTenantId());
+        wnr.setWorkflowId(context.getWorkflowId());
+        wnr.setWorkflowRunId(context.getRunId());
+        wnr.setNodeId(nodeId);
+        wnr.setStatus(NodeRunResult.Status.failed.name());
+        wnr.setError(error);
+
+        NodeRunResult nodeState = context.getState().getNodeState(nodeId);
+        wnr.setInputs(JsonUtils.toJson(nodeState.getInputs()));
+        wnr.setOutputs(JsonUtils.toJson(nodeState.getOutputs()));
+        wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
+
+        repo.updateWorkflowNodeRun(wnr);
     }
 }

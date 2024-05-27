@@ -59,7 +59,7 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
     /**
      * The column <code>workflow_node_run.tenant_id</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(64).nullable(false), this, "");
+    public final TableField<WorkflowNodeRunRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow_node_run.workflow_id</code>.
@@ -84,27 +84,27 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
     /**
      * The column <code>workflow_node_run.title</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, String> TITLE = createField(DSL.name("title"), SQLDataType.VARCHAR(128), this, "");
+    public final TableField<WorkflowNodeRunRecord, String> TITLE = createField(DSL.name("title"), SQLDataType.VARCHAR(128).nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_run.inputs</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB, this, "");
+    public final TableField<WorkflowNodeRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_run.outputs</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, String> OUTPUTS = createField(DSL.name("outputs"), SQLDataType.CLOB, this, "");
+    public final TableField<WorkflowNodeRunRecord, String> OUTPUTS = createField(DSL.name("outputs"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_run.error</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, String> ERROR = createField(DSL.name("error"), SQLDataType.CLOB, this, "");
+    public final TableField<WorkflowNodeRunRecord, String> ERROR = createField(DSL.name("error"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_run.process_data</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, String> PROCESS_DATA = createField(DSL.name("process_data"), SQLDataType.CLOB, this, "");
+    public final TableField<WorkflowNodeRunRecord, String> PROCESS_DATA = createField(DSL.name("process_data"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_run.actived_target_handles</code>.
@@ -114,7 +114,7 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
     /**
      * The column <code>workflow_node_run.status</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, String> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR(32), this, "");
+    public final TableField<WorkflowNodeRunRecord, String> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR(32).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow_node_run.elapsed_time</code>.

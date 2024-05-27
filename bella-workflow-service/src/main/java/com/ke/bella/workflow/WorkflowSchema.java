@@ -51,6 +51,7 @@ public class WorkflowSchema {
     @SuppressWarnings("rawtypes")
     public static class Node {
         static final String FIELD_TYPE = "type";
+        static final String FIELD_TITLE = "title";
 
         private Map data;
         private boolean dragging;
@@ -69,6 +70,10 @@ public class WorkflowSchema {
                 return (String) data.get(FIELD_TYPE);
             }
             return this.type;
+        }
+
+        public String getTitle() {
+            return (String) data.get(FIELD_TITLE);
         }
     }
 

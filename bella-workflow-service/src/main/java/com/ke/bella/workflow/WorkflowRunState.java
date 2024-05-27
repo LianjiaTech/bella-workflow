@@ -50,6 +50,10 @@ public class WorkflowRunState {
         return Variables.getValue(variablePoolMap, selector);
     }
 
+    public NodeRunResult getNodeState(String nodeId) {
+        return nodeCompletedStates.get(nodeId);
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     synchronized void putNodeState(String nodeId, NodeRunResult state) {
         NodeRunResult.Status s = state.status;
@@ -96,5 +100,13 @@ public class WorkflowRunState {
 
         @Builder.Default
         List<String> activatedSourceHandles = new ArrayList();
+    }
+
+    public enum WorkflowRunStatus {
+        running,
+        succeeded,
+        failed,
+        stopped,
+        suspended;
     }
 }

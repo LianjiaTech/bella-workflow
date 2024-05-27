@@ -21,12 +21,14 @@ import org.springframework.util.StringUtils;
 import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IDGenerator;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
-import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
+import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.*;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunShardingDB;
 import com.ke.bella.workflow.db.tables.records.TenantRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunShardingRecord;
@@ -173,6 +175,8 @@ public class WorkflowRepo implements BaseRepo {
         rec.setWorkflowRunId(runId);
         rec.setWorkflowRunShardingKey(shardKey);
         rec.setInputs(inputs);
+        rec.setOutputs("");
+        rec.setError("");
         if(callbackUrl != null) {
             rec.setCallbackUrl(callbackUrl);
         }
@@ -184,6 +188,20 @@ public class WorkflowRepo implements BaseRepo {
                 .execute();
 
         return rec.into(WorkflowRunDB.class);
+    }
+
+    public void updateWorkflowRun(WorkflowRunDB wr) {
+        WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
+        rec.from(wr);
+        fillUpdatorInfo(rec);
+
+        String shardKey = shardingKeyByworkflowRunId(wr.getWorkflowRunId());
+        db(shardKey).update(WORKFLOW_RUN)
+                .set(rec)
+                .where(WORKFLOW_RUN.TENANT_ID.eq(wr.getTenantId()))
+                .and(WORKFLOW_RUN.WORKFLOW_ID.eq(wr.getWorkflowId()))
+                .and(WORKFLOW_RUN.WORKFLOW_RUN_ID.eq(wr.getWorkflowRunId()))
+                .execute();
     }
 
     public WorkflowRunShardingDB queryWorkflowRunShardingByRunID(String workflowRunId) {
@@ -240,7 +258,7 @@ public class WorkflowRepo implements BaseRepo {
         }
 
         db.execute(createTableLikeSql(WORKFLOW_RUN.getName(), key));
-        db.execute(createTableLikeSql(WorkflowNodeRun.WORKFLOW_NODE_RUN.getName(), key));
+        db.execute(createTableLikeSql(WORKFLOW_NODE_RUN.getName(), key));
 
         addWorkflowSharding(keyTime, lastKey, key);
     }
@@ -248,4 +266,32 @@ public class WorkflowRepo implements BaseRepo {
     private static String createTableLikeSql(String tableName, String key) {
         return String.format("create table `%s_%s` like `%s`", tableName, key, tableName);
     }
+
+    public void addWorkflowRunNode(WorkflowNodeRunDB wnr) {
+        WorkflowNodeRunRecord rec = WORKFLOW_NODE_RUN.newRecord();
+        rec.from(wnr);
+
+        fillCreatorInfo(rec);
+
+        String shardKey = shardingKeyByworkflowRunId(wnr.getWorkflowRunId());
+        db(shardKey).insertInto(WORKFLOW_NODE_RUN)
+                .set(rec)
+                .execute();
+    }
+
+    public void updateWorkflowNodeRun(WorkflowNodeRunDB wnr) {
+        WorkflowNodeRunRecord rec = WORKFLOW_NODE_RUN.newRecord();
+        rec.from(wnr);
+
+        fillUpdatorInfo(rec);
+        String shardKey = shardingKeyByworkflowRunId(wnr.getWorkflowRunId());
+        db(shardKey).update(WORKFLOW_NODE_RUN)
+                .set(rec)
+                .where(WORKFLOW_NODE_RUN.TENANT_ID.eq(wnr.getTenantId()))
+                .and(WORKFLOW_NODE_RUN.WORKFLOW_ID.eq(wnr.getWorkflowId()))
+                .and(WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID.eq(wnr.getWorkflowRunId()))
+                .and((WORKFLOW_NODE_RUN.NODE_ID.eq(wnr.getNodeId())))
+                .execute();
+    }
+
 }

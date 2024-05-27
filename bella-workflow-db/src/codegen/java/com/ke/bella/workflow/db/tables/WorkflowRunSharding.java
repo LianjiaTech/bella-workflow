@@ -65,7 +65,7 @@ public class WorkflowRunSharding extends TableImpl<WorkflowRunShardingRecord> {
     /**
      * The column <code>workflow_run_sharding.key_time</code>.
      */
-    public final TableField<WorkflowRunShardingRecord, LocalDateTime> KEY_TIME = createField(DSL.name("key_time"), SQLDataType.LOCALDATETIME(0), this, "");
+    public final TableField<WorkflowRunShardingRecord, LocalDateTime> KEY_TIME = createField(DSL.name("key_time"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
 
     /**
      * The column <code>workflow_run_sharding.last_key</code>.

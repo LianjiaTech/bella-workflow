@@ -69,7 +69,7 @@ public class WorkflowRun extends TableImpl<WorkflowRunRecord> {
     /**
      * The column <code>workflow_run.workflow_version</code>.
      */
-    public final TableField<WorkflowRunRecord, Long> WORKFLOW_VERSION = createField(DSL.name("workflow_version"), SQLDataType.BIGINT, this, "");
+    public final TableField<WorkflowRunRecord, Long> WORKFLOW_VERSION = createField(DSL.name("workflow_version"), SQLDataType.BIGINT.nullable(false), this, "");
 
     /**
      * The column <code>workflow_run.workflow_run_id</code>.
@@ -94,12 +94,12 @@ API
     /**
      * The column <code>workflow_run.inputs</code>.
      */
-    public final TableField<WorkflowRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB, this, "");
+    public final TableField<WorkflowRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_run.outputs</code>. 最后一个节点的输出
      */
-    public final TableField<WorkflowRunRecord, String> OUTPUTS = createField(DSL.name("outputs"), SQLDataType.CLOB, this, "最后一个节点的输出");
+    public final TableField<WorkflowRunRecord, String> OUTPUTS = createField(DSL.name("outputs"), SQLDataType.CLOB.nullable(false), this, "最后一个节点的输出");
 
     /**
      * The column <code>workflow_run.status</code>.     
@@ -115,7 +115,7 @@ API
     /**
      * The column <code>workflow_run.error</code>.
      */
-    public final TableField<WorkflowRunRecord, String> ERROR = createField(DSL.name("error"), SQLDataType.CLOB, this, "");
+    public final TableField<WorkflowRunRecord, String> ERROR = createField(DSL.name("error"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_run.callback_url</code>.
@@ -125,7 +125,7 @@ API
     /**
      * The column <code>workflow_run.cuid</code>.
      */
-    public final TableField<WorkflowRunRecord, Long> CUID = createField(DSL.name("cuid"), SQLDataType.BIGINT.defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "");
+    public final TableField<WorkflowRunRecord, Long> CUID = createField(DSL.name("cuid"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "");
 
     /**
      * The column <code>workflow_run.cu_name</code>.
@@ -150,7 +150,7 @@ API
     /**
      * The column <code>workflow_run.mtime</code>.
      */
-    public final TableField<WorkflowRunRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
+    public final TableField<WorkflowRunRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
     private WorkflowRun(Name alias, Table<WorkflowRunRecord> aliased) {
         this(alias, aliased, null);

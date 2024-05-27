@@ -208,10 +208,11 @@ public class WorkflowRepo implements BaseRepo {
                 .fetchOneInto(WorkflowRunShardingDB.class);
     }
 
-    private void addWorkflowSharding(LocalDateTime keyTime, String key) {
+    private void addWorkflowSharding(LocalDateTime keyTime, String lastKey, String key) {
         WorkflowRunShardingRecord rec = WORKFLOW_RUN_SHARDING.newRecord();
         rec.setKey(key);
         rec.setKeyTime(keyTime);
+        rec.setLastKey(lastKey);
         fillCreatorInfo(rec);
 
         db.insertInto(WORKFLOW_RUN_SHARDING)
@@ -233,7 +234,7 @@ public class WorkflowRepo implements BaseRepo {
         String key = keyTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
 
         WorkflowRunShardingRecord rec = db.selectFrom(WORKFLOW_RUN_SHARDING)
-                .where(WORKFLOW_RUN_SHARDING.KEY.eq(lastKey)).forUpdate().fetchOne();
+                .where(WORKFLOW_RUN_SHARDING.LAST_KEY.eq(lastKey)).forUpdate().fetchOne();
         if(rec != null) {
             return;
         }
@@ -241,7 +242,7 @@ public class WorkflowRepo implements BaseRepo {
         db.execute(createTableLikeSql(WORKFLOW_RUN.getName(), key));
         db.execute(createTableLikeSql(WorkflowNodeRun.WORKFLOW_NODE_RUN.getName(), key));
 
-        addWorkflowSharding(keyTime, key);
+        addWorkflowSharding(keyTime, lastKey, key);
     }
 
     private static String createTableLikeSql(String tableName, String key) {

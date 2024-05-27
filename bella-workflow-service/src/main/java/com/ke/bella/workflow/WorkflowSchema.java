@@ -48,6 +48,9 @@ public class WorkflowSchema {
     }
 
     @lombok.Data
+    @lombok.Builder
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
     @SuppressWarnings("rawtypes")
     public static class Node {
         static final String FIELD_TYPE = "type";

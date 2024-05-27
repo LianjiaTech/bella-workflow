@@ -13,7 +13,6 @@ import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
-import com.ke.bella.workflow.node.IfElseNode.Data.Condition;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,7 +33,7 @@ public class IfElseNode extends BaseNode {
     public NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
         Map processData = new LinkedHashMap();
         List<Map<String, Object>> inputConditions = new ArrayList<>();
-        for (Condition condition : data.getConditions()) {
+        for (Data.Condition condition : data.getConditions()) {
             Object actualValue = context.getState().getVariableValue(condition.getVariableSelector());
             Object expectedValue = condition.getValue();
 

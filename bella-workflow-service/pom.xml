@@ -75,6 +75,11 @@
       <artifactId>jinjava</artifactId>
       <version>2.7.2</version>
     </dependency>
+    <dependency>
+      <groupId>io.github.lambdua</groupId>
+      <artifactId>service</artifactId>
+      <version>0.20.8</version>
+    </dependency>
   </dependencies>
 
   <build>

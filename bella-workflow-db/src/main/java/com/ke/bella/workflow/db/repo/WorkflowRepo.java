@@ -228,11 +228,12 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void newShardingTable(LocalDateTime keyTime) {
+    public void newShardingTable(String lastKey) {
+        LocalDateTime keyTime = LocalDateTime.now().plusMinutes(10L);
         String key = keyTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
 
         WorkflowRunShardingRecord rec = db.selectFrom(WORKFLOW_RUN_SHARDING)
-                .where(WORKFLOW_RUN_SHARDING.KEY.eq(key)).forUpdate().fetchOne();
+                .where(WORKFLOW_RUN_SHARDING.KEY.eq(lastKey)).forUpdate().fetchOne();
         if(rec != null) {
             return;
         }

@@ -21,6 +21,7 @@ public class WorkflowRunShardingDB implements Operator, Serializable {
     private Long          id;
     private String        key;
     private LocalDateTime keyTime;
+    private String        lastKey;
     private Long          count;
     private Long          maxCount;
     private LocalDateTime ctime;
@@ -36,6 +37,7 @@ public class WorkflowRunShardingDB implements Operator, Serializable {
         this.id = value.id;
         this.key = value.key;
         this.keyTime = value.keyTime;
+        this.lastKey = value.lastKey;
         this.count = value.count;
         this.maxCount = value.maxCount;
         this.ctime = value.ctime;
@@ -50,6 +52,7 @@ public class WorkflowRunShardingDB implements Operator, Serializable {
         Long          id,
         String        key,
         LocalDateTime keyTime,
+        String        lastKey,
         Long          count,
         Long          maxCount,
         LocalDateTime ctime,
@@ -62,6 +65,7 @@ public class WorkflowRunShardingDB implements Operator, Serializable {
         this.id = id;
         this.key = key;
         this.keyTime = keyTime;
+        this.lastKey = lastKey;
         this.count = count;
         this.maxCount = maxCount;
         this.ctime = ctime;
@@ -114,6 +118,20 @@ public class WorkflowRunShardingDB implements Operator, Serializable {
      */
     public void setKeyTime(LocalDateTime keyTime) {
         this.keyTime = keyTime;
+    }
+
+    /**
+     * Getter for <code>workflow_run_sharding.last_key</code>.
+     */
+    public String getLastKey() {
+        return this.lastKey;
+    }
+
+    /**
+     * Setter for <code>workflow_run_sharding.last_key</code>.
+     */
+    public void setLastKey(String lastKey) {
+        this.lastKey = lastKey;
     }
 
     /**
@@ -237,6 +255,7 @@ public class WorkflowRunShardingDB implements Operator, Serializable {
         sb.append(id);
         sb.append(", ").append(key);
         sb.append(", ").append(keyTime);
+        sb.append(", ").append(lastKey);
         sb.append(", ").append(count);
         sb.append(", ").append(maxCount);
         sb.append(", ").append(ctime);

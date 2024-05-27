@@ -1,6 +1,5 @@
 package com.ke.bella.workflow.service;
 
-import java.time.LocalDateTime;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicLong;
@@ -56,10 +55,9 @@ public class WorkflowRunCountUpdator {
     public void trySharding() {
         WorkflowRunShardingDB sharding = repo.queryLatestWorkflowRunSharding();
         if(sharding.getCount().longValue() >= sharding.getMaxCount().longValue()) {
-            LocalDateTime keyTime = LocalDateTime.now().plusMinutes(10L);
 
-            LOGGER.info("new workflow_run sharding, shard_time: {}", keyTime);
-            TaskExecutor.submit(() -> repo.newShardingTable(keyTime));
+            LOGGER.info("new workflow_run sharding, last_key: {}", sharding.getKey());
+            TaskExecutor.submit(() -> repo.newShardingTable(sharding.getKey()));
         }
     }
 }

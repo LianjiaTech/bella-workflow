@@ -5,6 +5,7 @@ package com.ke.bella.workflow.db.tables;
 
 
 import com.ke.bella.workflow.db.DefaultSchema;
+import com.ke.bella.workflow.db.Indexes;
 import com.ke.bella.workflow.db.Keys;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunShardingRecord;
 
@@ -15,9 +16,10 @@ import java.util.List;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
+import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row11;
+import org.jooq.Row12;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -64,6 +66,11 @@ public class WorkflowRunSharding extends TableImpl<WorkflowRunShardingRecord> {
      * The column <code>workflow_run_sharding.key_time</code>.
      */
     public final TableField<WorkflowRunShardingRecord, LocalDateTime> KEY_TIME = createField(DSL.name("key_time"), SQLDataType.LOCALDATETIME(0), this, "");
+
+    /**
+     * The column <code>workflow_run_sharding.last_key</code>.
+     */
+    public final TableField<WorkflowRunShardingRecord, String> LAST_KEY = createField(DSL.name("last_key"), SQLDataType.VARCHAR(255).nullable(false), this, "");
 
     /**
      * The column <code>workflow_run_sharding.count</code>. 分表的记录数量
@@ -145,6 +152,11 @@ public class WorkflowRunSharding extends TableImpl<WorkflowRunShardingRecord> {
     }
 
     @Override
+    public List<Index> getIndexes() {
+        return Arrays.<Index>asList(Indexes.WORKFLOW_RUN_SHARDING_IDX_LAST_KEY);
+    }
+
+    @Override
     public Identity<WorkflowRunShardingRecord, Long> getIdentity() {
         return (Identity<WorkflowRunShardingRecord, Long>) super.getIdentity();
     }
@@ -186,11 +198,11 @@ public class WorkflowRunSharding extends TableImpl<WorkflowRunShardingRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row11 type methods
+    // Row12 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row11<Long, String, LocalDateTime, Long, Long, LocalDateTime, String, Long, LocalDateTime, String, Long> fieldsRow() {
-        return (Row11) super.fieldsRow();
+    public Row12<Long, String, LocalDateTime, String, Long, Long, LocalDateTime, String, Long, LocalDateTime, String, Long> fieldsRow() {
+        return (Row12) super.fieldsRow();
     }
 }

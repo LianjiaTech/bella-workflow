@@ -93,8 +93,8 @@ public class HttpNode extends BaseNode {
 
     private String render(Request request) {
         String template = "{{ request.method() }} {{ request.url().toString() }} HTTP/1.1\n"
-                + "{% for header in request.headers().toMultimap().entrySet() %}\n"
-                + "{{ header.key }}: {{ header.value }}\n\n"
+                + "{% for header in request.headers().toMultimap().entrySet() %}"
+                + "{{ header.key }}: {{ header.value }}\n"
                 + "{% endfor %}\n"
                 + "\n"
                 + "{{ body }}";
@@ -103,7 +103,7 @@ public class HttpNode extends BaseNode {
         map.put("headers", request.headers().names());
         map.put("body", bodyToString(request));
         map.put("request", request);
-        return Variables.render(template, map);
+        return Variables.renderJinjia(template, map);
     }
 
     private Object extractFiles(Response response) {

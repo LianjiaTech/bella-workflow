@@ -40,7 +40,7 @@ public class TemplateTransformNode extends BaseNode {
                     .forEach(v -> inputs.put(v.getVariable(),
                             context.getState().getVariableValue(v.getValueSelector())));
 
-            String text = Variables.render(data.getTemplate(), inputs);
+            String text = Variables.renderJinjia(data.getTemplate(), inputs);
             Assert.isTrue(text.length() <= MAX_TEMPLATE_TRANSFORM_OUTPUT_LENGTH, "Output length exceeds");
 
             Map outputs = new LinkedHashMap();

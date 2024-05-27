@@ -1,19 +1,15 @@
 package com.ke.bella.workflow;
 
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import io.pebbletemplates.pebble.PebbleEngine;
-import io.pebbletemplates.pebble.loader.StringLoader;
-import io.pebbletemplates.pebble.template.PebbleTemplate;
+import com.hubspot.jinjava.Jinjava;
 
 public class Variables {
-    private static final PebbleEngine engine = new PebbleEngine.Builder()
-            .loader(new StringLoader())
-            .build();
+//    private static final PebbleEngine engine = new PebbleEngine.Builder()
+//            .loader(new StringLoader())
+//            .build();
 
     @SuppressWarnings("rawtypes")
     public static Object getValue(Map pool, String selectors) {
@@ -123,19 +119,24 @@ public class Variables {
         return builder.toString();
     }
 
-    public static String render(String tmpl, Map<String, Object> context) {
-        String text = tmpl;
-        try {
-            PebbleTemplate t = engine.getTemplate(tmpl);
+//    public static String render(String tmpl, Map<String, Object> context) {
+//        String text = tmpl;
+//        try {
+//            PebbleTemplate t = engine.getTemplate(tmpl);
+//
+//            Writer writer = new StringWriter();
+//            t.evaluate(writer, context);
+//
+//            text = writer.toString();
+//        } catch (Exception e) {
+//            throw new IllegalArgumentException("模版渲染失败: " + e.getMessage(), e);
+//        }
+//
+//        return text;
+//    }
 
-            Writer writer = new StringWriter();
-            t.evaluate(writer, context);
-
-            text = writer.toString();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("模版渲染失败: " + e.getMessage(), e);
-        }
-
-        return text;
+    public static String renderJinjia(String tmpl, Map<String, Object> context) {
+        Jinjava jinjava = new Jinjava();
+        return jinjava.render(tmpl, context);
     }
 }

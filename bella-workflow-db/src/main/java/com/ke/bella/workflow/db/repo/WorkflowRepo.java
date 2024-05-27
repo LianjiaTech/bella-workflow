@@ -58,7 +58,7 @@ public class WorkflowRepo implements BaseRepo {
                 .and(WORKFLOW.VERSION.greaterThan(0l)) // 正式版
                 .orderBy(WORKFLOW.VERSION.desc())   // 最新版
                 .limit(1)
-                .fetchOne().into(WorkflowDB.class);
+                .fetchOneInto(WorkflowDB.class);
     }
 
     public WorkflowDB queryWorkflow(String workflowId, Long version) {
@@ -154,7 +154,9 @@ public class WorkflowRepo implements BaseRepo {
         rec.setWorkflowVersion(wf.getVersion());
         rec.setWorkflowRunId(IDGenerator.newWorkflowRunId());
         rec.setInputs(inputs);
-        rec.setCallbackUrl(callbackUrl);
+        if(callbackUrl != null) {
+            rec.setCallbackUrl(callbackUrl);
+        }
 
         fillCreatorInfo(rec);
 

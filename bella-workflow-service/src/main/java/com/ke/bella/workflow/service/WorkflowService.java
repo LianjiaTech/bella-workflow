@@ -2,6 +2,7 @@ package com.ke.bella.workflow.service;
 
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.JsonUtils;
+import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowGraph;
 import com.ke.bella.workflow.WorkflowRunState;
@@ -25,6 +27,18 @@ public class WorkflowService {
 
     @Resource
     WorkflowRepo repo;
+
+    @Resource
+    WorkflowRunCountUpdator counter;
+
+    @PostConstruct
+    public void init() {
+        // update counter every 5s.
+        TaskExecutor.scheduleAtFixedRate(() -> counter.flush(), 5);
+
+        // try sharding every 60s.
+        TaskExecutor.scheduleAtFixedRate(() -> counter.trySharding(), 60);
+    }
 
     @Transactional(rollbackFor = Exception.class)
     public WorkflowDB newWorkflow(WorkflowSync op) {
@@ -121,6 +135,8 @@ public class WorkflowService {
 
     @SuppressWarnings("rawtypes")
     public WorkflowRunDB newWorkflowRun(WorkflowDB wf, Map inputs, String callbackUrl) {
-        return repo.addWorkflowRun(wf, JsonUtils.toJson(inputs), callbackUrl);
+        final WorkflowRunDB wr = repo.addWorkflowRun(wf, JsonUtils.toJson(inputs), callbackUrl);
+        TaskExecutor.submit(() -> counter.increase(wr));
+        return wr;
     }
 }

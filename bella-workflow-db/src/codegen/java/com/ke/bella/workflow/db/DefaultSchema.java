@@ -9,6 +9,7 @@ import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
+import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +58,11 @@ public class DefaultSchema extends SchemaImpl {
     public final WorkflowRun WORKFLOW_RUN = WorkflowRun.WORKFLOW_RUN;
 
     /**
+     * The table <code>workflow_run_sharding</code>.
+     */
+    public final WorkflowRunSharding WORKFLOW_RUN_SHARDING = WorkflowRunSharding.WORKFLOW_RUN_SHARDING;
+
+    /**
      * No further instances allowed
      */
     private DefaultSchema() {
@@ -76,6 +82,7 @@ public class DefaultSchema extends SchemaImpl {
             Tenant.TENANT,
             Workflow.WORKFLOW,
             WorkflowNodeRun.WORKFLOW_NODE_RUN,
-            WorkflowRun.WORKFLOW_RUN);
+            WorkflowRun.WORKFLOW_RUN,
+            WorkflowRunSharding.WORKFLOW_RUN_SHARDING);
     }
 }

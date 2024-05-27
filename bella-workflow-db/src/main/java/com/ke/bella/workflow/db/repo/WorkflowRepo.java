@@ -3,9 +3,10 @@ package com.ke.bella.workflow.db.repo;
 import static com.ke.bella.workflow.db.tables.Tenant.*;
 import static com.ke.bella.workflow.db.tables.Workflow.*;
 import static com.ke.bella.workflow.db.tables.WorkflowRun.*;
+import static com.ke.bella.workflow.db.tables.WorkflowRunSharding.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.time.format.DateTimeFormatter;
 
 import javax.annotation.Resource;
 
@@ -13,24 +14,37 @@ import org.jooq.DSLContext;
 import org.jooq.SelectSeekStep1;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IDGenerator;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
+import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowRunShardingDB;
 import com.ke.bella.workflow.db.tables.records.TenantRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowRunShardingRecord;
 
 @Component
 public class WorkflowRepo implements BaseRepo {
 
     @Resource
     private DSLContext db;
+
+    private DSLContext db(String shardingKey) {
+        return DSLContextHolder.get(shardingKey, db);
+    }
+
+    private String shardingKeyByworkflowRunId(String workflowRunId) {
+        WorkflowRunShardingDB s = queryWorkflowRunShardingByRunID(workflowRunId);
+        return s.getKey();
+    }
 
     public WorkflowDB queryDraftWorkflow(String workflowId) {
         return db.selectFrom(WORKFLOW)
@@ -146,13 +160,18 @@ public class WorkflowRepo implements BaseRepo {
         return queryPage(db, query, 0, 0, WorkflowRunDB.class);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public WorkflowRunDB addWorkflowRun(WorkflowDB wf, String inputs, String callbackUrl) {
         WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
+
+        String runId = IDGenerator.newWorkflowRunId();
+        String shardKey = shardingKeyByworkflowRunId(runId);
 
         rec.setTenantId(BellaContext.getOperator().getTenantId());
         rec.setWorkflowId(wf.getWorkflowId());
         rec.setWorkflowVersion(wf.getVersion());
-        rec.setWorkflowRunId(IDGenerator.newWorkflowRunId());
+        rec.setWorkflowRunId(runId);
+        rec.setWorkflowRunShardingKey(shardKey);
         rec.setInputs(inputs);
         if(callbackUrl != null) {
             rec.setCallbackUrl(callbackUrl);
@@ -160,8 +179,71 @@ public class WorkflowRepo implements BaseRepo {
 
         fillCreatorInfo(rec);
 
-        db.insertInto(WORKFLOW_RUN).set(rec).execute();
+        db(shardKey).insertInto(WORKFLOW_RUN)
+                .set(rec)
+                .execute();
 
         return rec.into(WorkflowRunDB.class);
+    }
+
+    public WorkflowRunShardingDB queryWorkflowRunShardingByRunID(String workflowRunId) {
+        LocalDateTime time = IDGenerator.timeFromCode(workflowRunId);
+        return db.selectFrom(WORKFLOW_RUN_SHARDING)
+                .where(WORKFLOW_RUN_SHARDING.KEY_TIME.le(time))
+                .orderBy(WORKFLOW_RUN_SHARDING.ID.desc())
+                .limit(1)
+                .fetchOneInto(WorkflowRunShardingDB.class);
+    }
+
+    public WorkflowRunShardingDB queryWorkflowRunShardingByKey(String key) {
+        return db.selectFrom(WORKFLOW_RUN_SHARDING)
+                .where(WORKFLOW_RUN_SHARDING.KEY.eq(key))
+                .fetchOneInto(WorkflowRunShardingDB.class);
+    }
+
+    public WorkflowRunShardingDB queryLatestWorkflowRunSharding() {
+        return db.selectFrom(WORKFLOW_RUN_SHARDING)
+                .orderBy(WORKFLOW_RUN_SHARDING.ID.desc())
+                .limit(1)
+                .fetchOneInto(WorkflowRunShardingDB.class);
+    }
+
+    private void addWorkflowSharding(LocalDateTime keyTime, String key) {
+        WorkflowRunShardingRecord rec = WORKFLOW_RUN_SHARDING.newRecord();
+        rec.setKey(key);
+        rec.setKeyTime(keyTime);
+        fillCreatorInfo(rec);
+
+        db.insertInto(WORKFLOW_RUN_SHARDING)
+                .set(rec)
+                .execute();
+    }
+
+    public void increaseShardingCount(String key, long delta) {
+        db.update(WORKFLOW_RUN_SHARDING)
+                .set(WORKFLOW_RUN_SHARDING.COUNT, WORKFLOW_RUN_SHARDING.COUNT.plus(delta))
+                .set(WORKFLOW_RUN_SHARDING.MTIME, LocalDateTime.now())
+                .where(WORKFLOW_RUN_SHARDING.KEY.eq(key))
+                .execute();
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void newShardingTable(LocalDateTime keyTime) {
+        String key = keyTime.format(DateTimeFormatter.ofPattern("yyMMddHHmmss"));
+
+        WorkflowRunShardingRecord rec = db.selectFrom(WORKFLOW_RUN_SHARDING)
+                .where(WORKFLOW_RUN_SHARDING.KEY.eq(key)).forUpdate().fetchOne();
+        if(rec != null) {
+            return;
+        }
+
+        db.execute(createTableLikeSql(WORKFLOW_RUN.getName(), key));
+        db.execute(createTableLikeSql(WorkflowNodeRun.WORKFLOW_NODE_RUN.getName(), key));
+
+        addWorkflowSharding(keyTime, key);
+    }
+
+    private static String createTableLikeSql(String tableName, String key) {
+        return String.format("create table `%s_%s` like `%s`", tableName, key, tableName);
     }
 }

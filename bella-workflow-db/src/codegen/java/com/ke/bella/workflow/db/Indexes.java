@@ -4,6 +4,7 @@
 package com.ke.bella.workflow.db;
 
 
+import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
@@ -25,6 +26,7 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     public static final Index WORKFLOW_IDX_CUID_TIME = Internal.createIndex(DSL.name("idx_cuid_time"), Workflow.WORKFLOW, new OrderField[] { Workflow.WORKFLOW.CUID, Workflow.WORKFLOW.CTIME }, false);
+    public static final Index INSTANCE_IDX_IP_PORT = Internal.createIndex(DSL.name("idx_ip_port"), Instance.INSTANCE, new OrderField[] { Instance.INSTANCE.IP, Instance.INSTANCE.PORT }, false);
     public static final Index WORKFLOW_RUN_IDX_TENANT_ID = Internal.createIndex(DSL.name("idx_tenant_id"), WorkflowRun.WORKFLOW_RUN, new OrderField[] { WorkflowRun.WORKFLOW_RUN.TENANT_ID, WorkflowRun.WORKFLOW_RUN.CTIME }, false);
     public static final Index WORKFLOW_NODE_RUN_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowNodeRun.WORKFLOW_NODE_RUN, new OrderField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.WORKFLOW_ID, WorkflowNodeRun.WORKFLOW_NODE_RUN.CTIME, WorkflowNodeRun.WORKFLOW_NODE_RUN.STATUS }, false);
     public static final Index WORKFLOW_RUN_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowRun.WORKFLOW_RUN, new OrderField[] { WorkflowRun.WORKFLOW_RUN.WORKFLOW_ID, WorkflowRun.WORKFLOW_RUN.CTIME, WorkflowRun.WORKFLOW_RUN.STATUS }, false);

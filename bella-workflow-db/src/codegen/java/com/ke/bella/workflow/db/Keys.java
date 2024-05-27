@@ -9,11 +9,13 @@ import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
+import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.records.InstanceRecord;
 import com.ke.bella.workflow.db.tables.records.TenantRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowRunShardingRecord;
 
 import org.jooq.TableField;
 import org.jooq.UniqueKey;
@@ -39,4 +41,6 @@ public class Keys {
     public static final UniqueKey<WorkflowNodeRunRecord> KEY_WORKFLOW_NODE_RUN_PRIMARY = Internal.createUniqueKey(WorkflowNodeRun.WORKFLOW_NODE_RUN, DSL.name("KEY_workflow_node_run_PRIMARY"), new TableField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.ID }, true);
     public static final UniqueKey<WorkflowRunRecord> KEY_WORKFLOW_RUN_IDX_WORKFLOW_RUN_ID = Internal.createUniqueKey(WorkflowRun.WORKFLOW_RUN, DSL.name("KEY_workflow_run_idx_workflow_run_id"), new TableField[] { WorkflowRun.WORKFLOW_RUN.WORKFLOW_RUN_ID }, true);
     public static final UniqueKey<WorkflowRunRecord> KEY_WORKFLOW_RUN_PRIMARY = Internal.createUniqueKey(WorkflowRun.WORKFLOW_RUN, DSL.name("KEY_workflow_run_PRIMARY"), new TableField[] { WorkflowRun.WORKFLOW_RUN.ID }, true);
+    public static final UniqueKey<WorkflowRunShardingRecord> KEY_WORKFLOW_RUN_SHARDING_IDX_KEY = Internal.createUniqueKey(WorkflowRunSharding.WORKFLOW_RUN_SHARDING, DSL.name("KEY_workflow_run_sharding_idx_key"), new TableField[] { WorkflowRunSharding.WORKFLOW_RUN_SHARDING.KEY }, true);
+    public static final UniqueKey<WorkflowRunShardingRecord> KEY_WORKFLOW_RUN_SHARDING_PRIMARY = Internal.createUniqueKey(WorkflowRunSharding.WORKFLOW_RUN_SHARDING, DSL.name("KEY_workflow_run_sharding_PRIMARY"), new TableField[] { WorkflowRunSharding.WORKFLOW_RUN_SHARDING.ID }, true);
 }

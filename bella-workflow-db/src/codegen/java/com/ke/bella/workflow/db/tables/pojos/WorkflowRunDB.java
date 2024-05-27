@@ -23,6 +23,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        workflowId;
     private Long          workflowVersion;
     private String        workflowRunId;
+    private String        workflowRunShardingKey;
     private String        triggerFrom;
     private String        inputs;
     private String        outputs;
@@ -44,6 +45,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.workflowId = value.workflowId;
         this.workflowVersion = value.workflowVersion;
         this.workflowRunId = value.workflowRunId;
+        this.workflowRunShardingKey = value.workflowRunShardingKey;
         this.triggerFrom = value.triggerFrom;
         this.inputs = value.inputs;
         this.outputs = value.outputs;
@@ -64,6 +66,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        workflowId,
         Long          workflowVersion,
         String        workflowRunId,
+        String        workflowRunShardingKey,
         String        triggerFrom,
         String        inputs,
         String        outputs,
@@ -82,6 +85,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.workflowId = workflowId;
         this.workflowVersion = workflowVersion;
         this.workflowRunId = workflowRunId;
+        this.workflowRunShardingKey = workflowRunShardingKey;
         this.triggerFrom = triggerFrom;
         this.inputs = inputs;
         this.outputs = outputs;
@@ -164,6 +168,20 @@ public class WorkflowRunDB implements Operator, Serializable {
      */
     public void setWorkflowRunId(String workflowRunId) {
         this.workflowRunId = workflowRunId;
+    }
+
+    /**
+     * Getter for <code>workflow_run.workflow_run_sharding_key</code>.
+     */
+    public String getWorkflowRunShardingKey() {
+        return this.workflowRunShardingKey;
+    }
+
+    /**
+     * Setter for <code>workflow_run.workflow_run_sharding_key</code>.
+     */
+    public void setWorkflowRunShardingKey(String workflowRunShardingKey) {
+        this.workflowRunShardingKey = workflowRunShardingKey;
     }
 
     /**
@@ -365,6 +383,7 @@ API
         sb.append(", ").append(workflowId);
         sb.append(", ").append(workflowVersion);
         sb.append(", ").append(workflowRunId);
+        sb.append(", ").append(workflowRunShardingKey);
         sb.append(", ").append(triggerFrom);
         sb.append(", ").append(inputs);
         sb.append(", ").append(outputs);

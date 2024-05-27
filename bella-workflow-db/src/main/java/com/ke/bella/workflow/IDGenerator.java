@@ -72,6 +72,12 @@ public class IDGenerator {
         return "WKFL-" + UUID.randomUUID().toString();
     }
 
+    public static String timeStrFromCode(String code) {
+        int index = code.indexOf('-') + 1;
+        String str = code.substring(index, index + 12);
+        return str;
+    }
+
     public static LocalDateTime timeFromCode(String code) {
         int index = code.indexOf('-') + 1;
         String str = code.substring(index, index + 12);

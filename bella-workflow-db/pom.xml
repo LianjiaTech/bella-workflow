@@ -48,6 +48,10 @@
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -81,6 +85,17 @@
               <matchers>
                 <tables>
                   <table>
+                    <expression>instance</expression>
+                    <daoClass>
+                      <transform>PASCAL</transform>
+                      <expression>$0_D_B_Dao</expression>
+                    </daoClass>
+                    <pojoClass>
+                      <transform>PASCAL</transform>
+                      <expression>$0_D_B</expression>
+                    </pojoClass>
+                  </table>
+                  <table>
                     <expression>tenant</expression>
                     <daoClass>
                       <transform>PASCAL</transform>
@@ -93,35 +108,6 @@
                     <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
                     <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
                   </table>
-
-                  <table>
-                    <expression>workflow_node_run</expression>
-                    <daoClass>
-                      <transform>PASCAL</transform>
-                      <expression>$0_D_B_Dao</expression>
-                    </daoClass>
-                    <pojoClass>
-                      <transform>PASCAL</transform>
-                      <expression>$0_D_B</expression>
-                    </pojoClass>
-                    <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
-                    <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
-                  </table>
-
-                  <table>
-                    <expression>workflow_run</expression>
-                    <daoClass>
-                      <transform>PASCAL</transform>
-                      <expression>$0_D_B_Dao</expression>
-                    </daoClass>
-                    <pojoClass>
-                      <transform>PASCAL</transform>
-                      <expression>$0_D_B</expression>
-                    </pojoClass>
-                    <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
-                    <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
-                  </table>
-
                   <table>
                     <expression>workflow</expression>
                     <daoClass>
@@ -135,8 +121,8 @@
                     <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
                     <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
                   </table>
-                  <table>
-                    <expression>instance</expression>
+                   <table>
+                    <expression>workflow_run</expression>
                     <daoClass>
                       <transform>PASCAL</transform>
                       <expression>$0_D_B_Dao</expression>
@@ -145,6 +131,34 @@
                       <transform>PASCAL</transform>
                       <expression>$0_D_B</expression>
                     </pojoClass>
+                    <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
+                    <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
+                  </table>
+                   <table>
+                    <expression>workflow_node_run</expression>
+                    <daoClass>
+                      <transform>PASCAL</transform>
+                      <expression>$0_D_B_Dao</expression>
+                    </daoClass>
+                    <pojoClass>
+                      <transform>PASCAL</transform>
+                      <expression>$0_D_B</expression>
+                    </pojoClass>
+                    <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
+                    <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
+                  </table>
+                  <table>
+                    <expression>workflow_run_sharding</expression>
+                    <daoClass>
+                      <transform>PASCAL</transform>
+                      <expression>$0_D_B_Dao</expression>
+                    </daoClass>
+                    <pojoClass>
+                      <transform>PASCAL</transform>
+                      <expression>$0_D_B</expression>
+                    </pojoClass>
+                    <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
+                    <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
                   </table>
                 </tables>
               </matchers>
@@ -162,7 +176,7 @@
                 </forcedType>
               </forcedTypes>
               <includes>
-                tenant|workflow_node_run|workflow_run|workflow|instance
+                tenant|workflow_node_run|workflow_run|workflow|instance|workflow_run_sharding
               </includes>
               <unsignedTypes>false</unsignedTypes>
             </database>

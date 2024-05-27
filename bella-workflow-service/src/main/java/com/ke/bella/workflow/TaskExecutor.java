@@ -19,6 +19,10 @@ public class TaskExecutor {
         executor.schedule(new Task(r), delayMills, TimeUnit.MILLISECONDS);
     }
 
+    public static void scheduleAtFixedRate(Runnable r, int period) {
+        executor.scheduleAtFixedRate(r, period, period, TimeUnit.SECONDS);
+    }
+
     public static void submit(Runnable r) {
         executor.submit(new Task(r));
     }

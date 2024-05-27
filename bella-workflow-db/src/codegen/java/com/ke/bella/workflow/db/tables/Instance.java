@@ -5,6 +5,7 @@ package com.ke.bella.workflow.db.tables;
 
 
 import com.ke.bella.workflow.db.DefaultSchema;
+import com.ke.bella.workflow.db.Indexes;
 import com.ke.bella.workflow.db.Keys;
 import com.ke.bella.workflow.db.tables.records.InstanceRecord;
 
@@ -15,6 +16,7 @@ import java.util.List;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
+import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
 import org.jooq.Row6;
@@ -115,6 +117,11 @@ public class Instance extends TableImpl<InstanceRecord> {
     @Override
     public Schema getSchema() {
         return DefaultSchema.DEFAULT_SCHEMA;
+    }
+
+    @Override
+    public List<Index> getIndexes() {
+        return Arrays.<Index>asList(Indexes.INSTANCE_IDX_IP_PORT);
     }
 
     @Override

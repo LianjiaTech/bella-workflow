@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row17;
+import org.jooq.Row18;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -75,6 +75,11 @@ public class WorkflowRun extends TableImpl<WorkflowRunRecord> {
      * The column <code>workflow_run.workflow_run_id</code>.
      */
     public final TableField<WorkflowRunRecord, String> WORKFLOW_RUN_ID = createField(DSL.name("workflow_run_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
+
+    /**
+     * The column <code>workflow_run.workflow_run_sharding_key</code>.
+     */
+    public final TableField<WorkflowRunRecord, String> WORKFLOW_RUN_SHARDING_KEY = createField(DSL.name("workflow_run_sharding_key"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow_run.trigger_from</code>. 工作流触发来源：
@@ -232,11 +237,11 @@ API
     }
 
     // -------------------------------------------------------------------------
-    // Row17 type methods
+    // Row18 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row17<Long, String, String, Long, String, String, String, String, String, String, String, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row17) super.fieldsRow();
+    public Row18<Long, String, String, Long, String, String, String, String, String, String, String, String, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
+        return (Row18) super.fieldsRow();
     }
 }

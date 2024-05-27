@@ -66,7 +66,13 @@ public class QuestionClassifierNode extends BaseNode {
             processData.put("prompts", this.chatTemplateToSaving(chatMessages));
             processData.put("usage", compResult.getUsage());
 
-            return NodeRunResult.builder().status(NodeRunResult.Status.succeeded).inputs(variables).processData(processData).outputs(outputData)
+
+            return NodeRunResult.builder()
+                    .status(NodeRunResult.Status.succeeded)
+                    .inputs(variables)
+                    .processData(processData)
+                    .outputs(outputData)
+                    .activatedSourceHandles(Lists.newArrayList(category.getId()))
                     .build();
         } catch (Exception e) {
             LOGGER.error("QuestionClassifierNode execute error ", e);

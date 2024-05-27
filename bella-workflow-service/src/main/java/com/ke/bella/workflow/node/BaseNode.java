@@ -28,6 +28,7 @@ public abstract class BaseNode implements RunnableNode {
         register(NodeType.IF_ELSE.name, IfElseNode.class);
         register(NodeType.HTTP_REQUEST.name, HttpNode.class);
         register(NodeType.TEMPLATE_TRANSFORM.name, TemplateTransformNode.class);
+        register(NodeType.QUESTION_CLASSIFIER.name, QuestionClassifierNode.class);
     }
 
     protected WorkflowSchema.Node meta;

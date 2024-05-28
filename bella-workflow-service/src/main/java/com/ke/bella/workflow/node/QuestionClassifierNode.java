@@ -82,23 +82,29 @@ public class QuestionClassifierNode extends BaseNode {
     }
 
     private ChatCompletionResult invokeOpenAPILlm(Data.Authorization authorization, Data.ModelConfig modelConfig, List<ChatMessage> chatMessages) {
-        Data.Authorization.Config config = authorization.getConfig();
-        String authType = authorization.getType();
-        String apiKey = null;
-        if("api-key".equals(authType)) {
-            apiKey = config.getApiKey();
-        } else if("bella-key".equals(authType)) {
-            apiKey = BellaContext.getApiKey();
+
+        String token = null;
+        String apiBaseUrl = OPENAI_API_BASE_URL;
+        if(authorization != null) {
+            token = prefix() + authorization.getApiKey();
+            apiBaseUrl = authorization.getApiBaseUrl();
+        } else if(BellaContext.getApiKey() !=null) {
+            token = prefix() + BellaContext.getApiKey();
         }
-        String token = "";
-        if(!"no-auth".equals(authType)) {
-            token = config.prefix() + apiKey;
+
+        if(token == null) {
+            throw new IllegalArgumentException("Invalid authorization config");
         }
-        OpenAiService service = new OpenAiService(token, Duration.ofSeconds(this.data.getTimeout().getRead()), OPENAI_API_BASE_URL);
+
+        OpenAiService service = new OpenAiService(token, Duration.ofSeconds(this.data.getTimeout().getRead()), apiBaseUrl);
         return service.createChatCompletion(
                 ChatCompletionRequest.builder().model(modelConfig.getName()).frequencyPenalty(modelConfig.getParam().getFrequencyPenalty())
                         .presencePenalty(modelConfig.getParam().getPresencePenalty()).topP(modelConfig.getParam().getTopP())
                         .maxTokens(modelConfig.getParam().getMaxTokens()).messages(chatMessages).build());
+    }
+
+    public String prefix() {
+        return "Bearer ";
     }
 
     private List<Map<String, String>> chatTemplateToSaving(List<ChatMessage> chatMessages) {
@@ -176,30 +182,8 @@ public class QuestionClassifierNode extends BaseNode {
         @lombok.NoArgsConstructor
         @lombok.AllArgsConstructor
         public static class Authorization {
-            @lombok.Getter
-            @lombok.Setter
-            @lombok.Builder
-            @lombok.NoArgsConstructor
-            @lombok.AllArgsConstructor
-            public static class Config {
-                // 'basic', 'bearer', 'custom'
-                String type;
-                String apiKey;
-
-                public String prefix() {
-                    if("basic".equals(type)) {
-                        return "Basic ";
-                    } else if("bearer".equals(type)) {
-                        return "Bearer ";
-                    }
-                    return "";
-                }
-            }
-
-            // 'no-auth', 'api-key', 'bella-key'
-            String type;
-            Config config;
-
+            String apiKey;
+            String apiBaseUrl;
         }
 
         @lombok.Getter

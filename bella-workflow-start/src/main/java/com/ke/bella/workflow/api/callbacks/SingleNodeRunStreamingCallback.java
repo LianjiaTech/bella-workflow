@@ -1,5 +1,8 @@
 package com.ke.bella.workflow.api.callbacks;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.ke.bella.workflow.WorkflowCallbackAdaptor;
@@ -15,29 +18,42 @@ public class SingleNodeRunStreamingCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
-        // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunStarted", "");
+        Map<String, Object> data = new LinkedHashMap<>();
+        responseWorkflowInfo(context, data);
+        responseWorkflowNodeInfo(context, data, nodeId);
+
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunStarted", data);
 
     }
 
     @Override
-    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
-        // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunProgress", "");
+    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData pdata) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        responseWorkflowInfo(context, data);
+        responseWorkflowNodeInfo(context, data, nodeId);
+        responseWorkflowNodeProgress(context, data, pdata);
+
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunProgress", data);
 
     }
 
     @Override
     public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
-        // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunSucceeded", "");
-        emitter.complete();
+        Map<String, Object> data = new LinkedHashMap<>();
+        responseWorkflowInfo(context, data);
+        responseWorkflowNodeInfo(context, data, nodeId);
+        responseWorkflowNodeResult(context, data, nodeId);
+
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunSucceeded", data);
     }
 
     @Override
     public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
-        // TODO Auto-generated method stub
-        SseHelper.sendEvent(emitter, "onWorkflowNodeRunFailed", "");
-        emitter.complete();
+        Map<String, Object> data = new LinkedHashMap<>();
+        responseWorkflowInfo(context, data);
+        responseWorkflowNodeInfo(context, data, nodeId);
+        responseWorkflowNodeResult(context, data, nodeId);
+
+        SseHelper.sendEvent(emitter, "onWorkflowNodeRunFailed", data);
     }
 }

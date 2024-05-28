@@ -1,6 +1,38 @@
 package com.ke.bella.workflow;
 
+import java.util.Map;
+
 public class WorkflowCallbackAdaptor implements IWorkflowCallback {
+
+    protected void responseWorkflowInfo(WorkflowContext context, Map<String, Object> data) {
+        data.put("tenantId", context.getTenantId());
+        data.put("workflowId", context.getWorkflowId());
+        data.put("workflowRunId", context.getRunId());
+    }
+
+    protected void responseWorkflowMeta(WorkflowContext context, Map<String, Object> data) {
+        data.put("meta", context.getGraph().getMeta());
+    }
+
+    protected void responseWorkflowOutputs(WorkflowContext context, Map<String, Object> data) {
+        data.put("outputs", context.getWorkflowRunResult().getOutputs());
+    }
+
+    protected void responseWorkflowError(WorkflowContext context, Map<String, Object> data, String error) {
+        data.put("error", error);
+    }
+
+    protected void responseWorkflowNodeInfo(WorkflowContext context, Map<String, Object> data, String nodeId) {
+        data.put("nodeId", nodeId);
+    }
+
+    protected void responseWorkflowNodeProgress(WorkflowContext context, Map<String, Object> data, ProgressData pd) {
+        data.put("progress", pd);
+    }
+
+    protected void responseWorkflowNodeResult(WorkflowContext context, Map<String, Object> data, String nodeId) {
+        data.put("result", context.getState().getNodeState(nodeId));
+    }
 
     @Override
     public void onWorkflowRunStarted(WorkflowContext context) {

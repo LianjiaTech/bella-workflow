@@ -15,7 +15,10 @@ import com.ke.bella.workflow.WorkflowSchema.Edge;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.node.NodeType;
 
+import lombok.Getter;
+
 public class WorkflowGraph {
+    @Getter
     final WorkflowSchema meta;
     final WorkflowSchema.Node start;
     final Map<String, WorkflowSchema.Node> nodeMap;

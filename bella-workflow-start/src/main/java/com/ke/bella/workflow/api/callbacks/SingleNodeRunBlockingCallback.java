@@ -9,7 +9,7 @@ import com.ke.bella.workflow.WorkflowContext;
 public class SingleNodeRunBlockingCallback extends WorkflowCallbackAdaptor {
     Map<String, Object> data = new LinkedHashMap<>();
 
-    public Object getWorkflowNodeRunResult(String nodeId, long l) {
+    public Object getWorkflowNodeRunResult(long timeout) {
         return data;
     }
 

@@ -149,7 +149,7 @@ public class WorkflowController {
         if(mode == ResponseMode.blocking) {
             SingleNodeRunBlockingCallback callback = new SingleNodeRunBlockingCallback();
             ws.runNode(wr, op.nodeId, op.inputs, callback);
-            return callback.getWorkflowNodeRunResult(op.nodeId, 300000l);
+            return callback.getWorkflowNodeRunResult(300000l);
 
         } else {
             // create SseEmitter with timeout 300s

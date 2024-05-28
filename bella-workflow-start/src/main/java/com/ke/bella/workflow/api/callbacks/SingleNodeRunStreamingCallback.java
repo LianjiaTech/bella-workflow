@@ -45,6 +45,7 @@ public class SingleNodeRunStreamingCallback extends WorkflowCallbackAdaptor {
         responseWorkflowNodeResult(context, data, nodeId);
 
         SseHelper.sendEvent(emitter, "onWorkflowNodeRunSucceeded", data);
+        emitter.complete();
     }
 
     @Override
@@ -55,5 +56,6 @@ public class SingleNodeRunStreamingCallback extends WorkflowCallbackAdaptor {
         responseWorkflowNodeResult(context, data, nodeId);
 
         SseHelper.sendEvent(emitter, "onWorkflowNodeRunFailed", data);
+        emitter.complete();
     }
 }

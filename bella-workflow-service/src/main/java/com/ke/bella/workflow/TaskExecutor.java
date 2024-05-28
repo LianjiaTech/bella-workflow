@@ -8,6 +8,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.RandomUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -20,7 +22,8 @@ public class TaskExecutor {
     }
 
     public static void scheduleAtFixedRate(Runnable r, int period) {
-        executor.scheduleAtFixedRate(r, period, period, TimeUnit.SECONDS);
+        int initialDelay = period + RandomUtils.nextInt(1, period);
+        executor.scheduleAtFixedRate(r, initialDelay, period, TimeUnit.SECONDS);
     }
 
     public static void submit(Runnable r) {

@@ -5,13 +5,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -130,6 +128,7 @@ public class LlmNode extends BaseNode {
         return service.streamChatCompletion(chatCompletionRequest);
     }
 
+    @SuppressWarnings("rawtypes")
     private Map<String, Object> fetchJinjaInputs(Data data, Map variablePool) {
         HashMap<String, Object> result = new HashMap<>();
         for (WorkflowSchema.Variable jinja2Variable : data.getPromptConfig().getJinja2Variables()) {
@@ -164,21 +163,8 @@ public class LlmNode extends BaseNode {
         return result;
     }
 
-    private String fetchContext(Data data, Map<String, Object> variablePool) {
-        if(!data.getContext().isEnabled() || CollectionUtils.isEmpty(data.getContext().getVariableSelector())) {
-            return null;
-        }
-        Object value = Variables.getValue(variablePool, data.getContext().getVariableSelector());
-        if(Objects.isNull(value)) {
-            return null;
-        } else if(value instanceof String) {
-            return (String) value;
-        } else {
-            throw new IllegalArgumentException("Unsupported context type: " + value.getClass().getName());
-        }
-    }
-
-    @lombok.Data
+    @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder

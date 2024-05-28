@@ -21,7 +21,7 @@ public class SingleNodeRunStreamingCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
-    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
         // TODO Auto-generated method stub
         SseHelper.sendEvent(emitter, "onWorkflowNodeRunProgress", "");
 

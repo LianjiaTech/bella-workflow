@@ -2,6 +2,7 @@ package com.ke.bella.workflow.service;
 
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowContext;
+import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 
@@ -73,9 +74,9 @@ public class WorkflowRunCallback implements IWorkflowCallback {
     }
 
     @Override
-    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
         LOGGER.info("{} onWorkflowNodeRunProgress", context.getRunId());
-        delegate.onWorkflowNodeRunProgress(context, nodeId);
+        delegate.onWorkflowNodeRunProgress(context, nodeId, data);
     }
 
     @Override

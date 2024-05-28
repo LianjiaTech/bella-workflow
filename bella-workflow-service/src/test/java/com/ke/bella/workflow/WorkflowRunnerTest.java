@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
+
 public class WorkflowRunnerTest {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
@@ -51,7 +53,7 @@ public class WorkflowRunnerTest {
             }
 
             @Override
-            public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId) {
+            public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
                 System.out.println("Node run progress: " + nodeId);
 
             }

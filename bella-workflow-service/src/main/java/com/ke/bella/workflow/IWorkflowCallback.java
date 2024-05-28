@@ -1,6 +1,19 @@
 package com.ke.bella.workflow;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+
 public interface IWorkflowCallback {
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    public static class ProgressData {
+        int progress;
+        Object data;
+    }
+
     void onWorkflowRunStarted(WorkflowContext context);
 
     void onWorkflowRunSucceeded(WorkflowContext context);
@@ -13,7 +26,7 @@ public interface IWorkflowCallback {
 
     void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId);
 
-    void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId);
+    void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data);
 
     void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId);
 

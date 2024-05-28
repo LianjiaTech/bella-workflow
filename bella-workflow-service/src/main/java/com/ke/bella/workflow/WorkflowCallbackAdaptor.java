@@ -27,7 +27,7 @@ public class WorkflowCallbackAdaptor implements IWorkflowCallback {
     }
 
     @Override
-    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
     }
 
     @Override

@@ -65,11 +65,11 @@
       <groupId>org.jetbrains.kotlin</groupId>
       <artifactId>kotlin-stdlib</artifactId>
     </dependency>
-<!--     <dependency>
+    <dependency>
       <groupId>io.pebbletemplates</groupId>
       <artifactId>pebble-legacy-spring-boot-starter</artifactId>
       <version>3.2.2</version>
-    </dependency> -->
+    </dependency>
     <dependency>
       <groupId>com.hubspot.jinjava</groupId>
       <artifactId>jinjava</artifactId>

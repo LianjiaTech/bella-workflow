@@ -61,7 +61,7 @@ public class WorkflowRepo implements BaseRepo {
                 .where(WORKFLOW_RUN.TENANT_ID.eq(wf.getTenantId())
                         .and(WORKFLOW_RUN.WORKFLOW_ID.eq(wf.getWorkflowId()))
                         .and(WORKFLOW_RUN.WORKFLOW_VERSION.eq(wf.getVersion()))
-                        .and(WORKFLOW_RUN.STATUS.eq("successed"))
+                        .and(WORKFLOW_RUN.STATUS.eq("succeeded"))
                         .and(WORKFLOW_RUN.CTIME.ge(wf.getMtime())))
                 .limit(1)
                 .fetchOneInto(WorkflowRunDB.class);

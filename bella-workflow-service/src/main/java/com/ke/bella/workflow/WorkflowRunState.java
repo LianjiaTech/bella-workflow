@@ -97,6 +97,7 @@ public class WorkflowRunState {
         Map outputs;
         Exception error;
         Status status;
+        long elapsedTime;
 
         @Builder.Default
         List<String> activatedSourceHandles = new ArrayList();

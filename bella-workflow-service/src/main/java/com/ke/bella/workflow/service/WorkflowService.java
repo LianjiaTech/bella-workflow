@@ -230,6 +230,7 @@ public class WorkflowService {
         wnr.setOutputs(JsonUtils.toJson(nodeState.getOutputs()));
         wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
         wnr.setActivedTargetHandles(JsonUtils.toJson(nodeState.getActivatedSourceHandles()));
+        wnr.setElapsedTime(nodeState.getElapsedTime());
 
         repo.updateWorkflowNodeRun(wnr);
     }
@@ -247,6 +248,7 @@ public class WorkflowService {
         wnr.setInputs(JsonUtils.toJson(nodeState.getInputs()));
         wnr.setOutputs(JsonUtils.toJson(nodeState.getOutputs()));
         wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
+        wnr.setElapsedTime(nodeState.getElapsedTime());
 
         repo.updateWorkflowNodeRun(wnr);
     }

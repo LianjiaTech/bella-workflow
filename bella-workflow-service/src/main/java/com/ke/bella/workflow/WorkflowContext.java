@@ -48,6 +48,12 @@ public class WorkflowContext {
         return BaseNode.from(graph.node(nodeId));
     }
 
+    public List<BaseNode> getNodes(List<String> nodeIds) {
+        return nodeIds.stream()
+                .map(id -> BaseNode.from(graph.node(id)))
+                .collect(Collectors.toList());
+    }
+
     public synchronized List<BaseNode> getNextNodes() {
         if(state.isEmpty()) {
             return Arrays.asList(BaseNode.from(graph.getStartNode()));
@@ -88,5 +94,9 @@ public class WorkflowContext {
 
     public NodeRunResult getWorkflowRunResult() {
         return this.state.getWorkflowRunResult();
+    }
+
+    public boolean isResume(String nodeId) {
+        return this.state.isResume(nodeId);
     }
 }

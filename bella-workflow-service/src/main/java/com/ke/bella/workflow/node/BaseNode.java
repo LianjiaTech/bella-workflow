@@ -40,6 +40,10 @@ public abstract class BaseNode implements RunnableNode {
 
     public abstract NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback);
 
+    public String getNodeId() {
+        return this.meta.getId();
+    }
+
     @Override
     public NodeRunResult run(WorkflowContext context, IWorkflowCallback callback) {
         Long startTime = System.nanoTime();
@@ -56,6 +60,16 @@ public abstract class BaseNode implements RunnableNode {
 
         result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);
         return result;
+    }
+
+    public NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback) {
+        NodeRunResult r = context.getState().getNodeState(getNodeId());
+        return NodeRunResult.builder()
+                .inputs(r.getInputs())
+                .processData(r.getProcessData())
+                .outputs(context.getState().getNotifyData(getNodeId()))
+                .status(NodeRunResult.Status.succeeded)
+                .build();
     }
 
     public static void register(String nodeType, Class<? extends BaseNode> clazz) {

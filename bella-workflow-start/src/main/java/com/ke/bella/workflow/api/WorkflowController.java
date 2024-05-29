@@ -114,27 +114,27 @@ public class WorkflowController {
                 : ws.getDraftWorkflow(op.workflowId);
         Assert.notNull(wf, String.format("没有找到对应的的工作流, %s(ver. %s)", op.workflowId, ver));
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, op.callbackUrl);
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, op.callbackUrl, op.responseMode);
 
         if(mode == ResponseMode.blocking) {
-            WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback();
-            ws.runWorkflow(wr, op.inputs, callback);
-            return callback.getWorkflowRunResult(300000l);
+            WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, 300000l);
+            TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, callback));
+            return callback.getWorkflowRunResult();
 
         } else if(mode == ResponseMode.streaming) {
             // create SseEmitter with timeout 300s
             SseEmitter emitter = SseHelper.createSse(300000l, wr.getWorkflowRunId());
-            ws.runWorkflow(wr, op.inputs, new WorkflowRunStreamingCallback(emitter));
+            TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, new WorkflowRunStreamingCallback(emitter, ws)));
             return emitter;
         } else {
             TaskExecutor.submit(() -> {
-                WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback();
+                WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, 300000l);
                 ws.runWorkflow(wr, op.inputs, callback);
-                Map<String, Object> result = callback.getWorkflowRunResult(300000l);
+                Map<String, Object> result = callback.getWorkflowRunResult();
 
                 TaskExecutor.submit(new WorkflowRunNotifier(op.callbackUrl, result, ws));
             });
-            return wr;
+            return BellaResponse.builder().code(201).data(wr).build();
         }
     }
 
@@ -150,7 +150,7 @@ public class WorkflowController {
         WorkflowDB wf = ws.getDraftWorkflow(op.workflowId);
         Assert.notNull(wf, String.format("工作流当前无draft版本，无法单独调试节点", op.workflowId));
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "");
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", op.responseMode);
         if(mode == ResponseMode.blocking) {
             SingleNodeRunBlockingCallback callback = new SingleNodeRunBlockingCallback();
             ws.runNode(wr, op.nodeId, op.inputs, callback);
@@ -180,11 +180,15 @@ public class WorkflowController {
     }
 
     @SuppressWarnings("rawtypes")
-    @PostMapping("/callback/{tenantId}/{workflowRunId}/{nodeId}")
-    public void callback(@PathVariable String tenantId,
+    @PostMapping("/callback/{tenantId}/{workflowId}/{workflowRunId}/{nodeId}")
+    public BellaResponse callback(@PathVariable String tenantId,
+            @PathVariable String workflowId,
             @PathVariable String workflowRunId,
             @PathVariable String nodeId,
             @RequestBody Map inputs) {
-        // TODO
+
+        ws.notifyWorkflowRun(tenantId, workflowId, workflowRunId, nodeId, inputs);
+
+        return BellaResponse.builder().code(201).data("OK").build();
     }
 }

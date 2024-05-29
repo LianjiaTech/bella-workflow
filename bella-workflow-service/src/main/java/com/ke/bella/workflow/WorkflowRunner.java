@@ -1,6 +1,5 @@
 package com.ke.bella.workflow;
 
-import java.util.Arrays;
 import java.util.List;
 
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
@@ -18,9 +17,11 @@ public class WorkflowRunner {
         node.run(context, callback);
     }
 
-    public void resume(WorkflowContext context, IWorkflowCallback callback, String nodeId) {
-        BaseNode node = context.getNode(nodeId);
-        run0(context, callback, Arrays.asList(node));
+    public void resume(WorkflowContext context, IWorkflowCallback callback, List<String> nodeIds) {
+        callback.onWorkflowRunResumed(context);
+
+        List<BaseNode> nodes = context.getNodes(nodeIds);
+        run0(context, callback, nodes);
     }
 
     private void run0(WorkflowContext context, IWorkflowCallback callback, List<BaseNode> nodes) {
@@ -29,7 +30,11 @@ public class WorkflowRunner {
             NodeRunResult result = null;
             while (!nodes.isEmpty()) {
                 for (BaseNode node : nodes) {
-                    result = node.run(context, callback);
+                    if(context.isResume(node.getNodeId())) {
+                        result = node.resume(context, callback);
+                    } else {
+                        result = node.run(context, callback);
+                    }
                 }
                 nodes = context.getNextNodes();
             }

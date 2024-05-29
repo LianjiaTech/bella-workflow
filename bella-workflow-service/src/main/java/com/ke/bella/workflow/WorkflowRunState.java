@@ -19,6 +19,7 @@ public class WorkflowRunState {
     final Map<String, NodeRunResult> nodeCompletedStates = new HashMap<>();
     final Map<String, NodeRunResult> nodeWaitingStates = new HashMap<>();
     final Map<String, Object> variablePoolMap = new HashMap<>();
+    final Map<String, Map> notifyDataMap = new HashMap<>();
     final Set<String> activatedSourceHandles = new HashSet<>();
 
     @Getter
@@ -33,8 +34,14 @@ public class WorkflowRunState {
         return nodeCompletedStates.keySet();
     }
 
-    synchronized Set<String> waitingNodeIds() {
+    public synchronized Set<String> waitingNodeIds() {
         return nodeWaitingStates.keySet();
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void putNotifyData(Map<String, Map> data) {
+        notifyDataMap.clear();
+        notifyDataMap.putAll(data);
     }
 
     synchronized boolean isActivated(String sourceNodeId, String sourceHandle) {
@@ -51,7 +58,17 @@ public class WorkflowRunState {
     }
 
     public NodeRunResult getNodeState(String nodeId) {
-        return nodeCompletedStates.get(nodeId);
+        NodeRunResult r = nodeWaitingStates.get(nodeId);
+        return r == null ? nodeCompletedStates.get(nodeId) : r;
+    }
+
+    public boolean isResume(String nodeId) {
+        return notifyDataMap.containsKey(nodeId);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public Map getNotifyData(String nodeId) {
+        return notifyDataMap.get(nodeId);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -88,6 +105,7 @@ public class WorkflowRunState {
         public enum Status {
             running,
             waiting,
+            notified,
             succeeded,
             failed;
         }
@@ -110,4 +128,5 @@ public class WorkflowRunState {
         stopped,
         suspended;
     }
+
 }

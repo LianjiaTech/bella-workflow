@@ -30,13 +30,14 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        status;
     private String        error;
     private String        callbackUrl;
+    private Integer       callbackStatus;
     private Long          cuid;
     private String        cuName;
     private LocalDateTime ctime;
     private Long          muid;
     private String        muName;
     private LocalDateTime mtime;
-    private Integer       callbackStatus;
+    private String        responseMode;
 
     public WorkflowRunDB() {}
 
@@ -53,13 +54,14 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.status = value.status;
         this.error = value.error;
         this.callbackUrl = value.callbackUrl;
+        this.callbackStatus = value.callbackStatus;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
         this.ctime = value.ctime;
         this.muid = value.muid;
         this.muName = value.muName;
         this.mtime = value.mtime;
-        this.callbackStatus = value.callbackStatus;
+        this.responseMode = value.responseMode;
     }
 
     public WorkflowRunDB(
@@ -75,13 +77,14 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        status,
         String        error,
         String        callbackUrl,
+        Integer       callbackStatus,
         Long          cuid,
         String        cuName,
         LocalDateTime ctime,
         Long          muid,
         String        muName,
         LocalDateTime mtime,
-        Integer       callbackStatus
+        String        responseMode
     ) {
         this.id = id;
         this.tenantId = tenantId;
@@ -95,13 +98,14 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.status = status;
         this.error = error;
         this.callbackUrl = callbackUrl;
+        this.callbackStatus = callbackStatus;
         this.cuid = cuid;
         this.cuName = cuName;
         this.ctime = ctime;
         this.muid = muid;
         this.muName = muName;
         this.mtime = mtime;
-        this.callbackStatus = callbackStatus;
+        this.responseMode = responseMode;
     }
 
     /**
@@ -295,6 +299,20 @@ API
     }
 
     /**
+     * Getter for <code>workflow_run.callback_status</code>.
+     */
+    public Integer getCallbackStatus() {
+        return this.callbackStatus;
+    }
+
+    /**
+     * Setter for <code>workflow_run.callback_status</code>.
+     */
+    public void setCallbackStatus(Integer callbackStatus) {
+        this.callbackStatus = callbackStatus;
+    }
+
+    /**
      * Getter for <code>workflow_run.cuid</code>.
      */
     public Long getCuid() {
@@ -379,17 +397,17 @@ API
     }
 
     /**
-     * Getter for <code>workflow_run.callback_status</code>.
+     * Getter for <code>workflow_run.response_mode</code>.
      */
-    public Integer getCallbackStatus() {
-        return this.callbackStatus;
+    public String getResponseMode() {
+        return this.responseMode;
     }
 
     /**
-     * Setter for <code>workflow_run.callback_status</code>.
+     * Setter for <code>workflow_run.response_mode</code>.
      */
-    public void setCallbackStatus(Integer callbackStatus) {
-        this.callbackStatus = callbackStatus;
+    public void setResponseMode(String responseMode) {
+        this.responseMode = responseMode;
     }
 
     @Override
@@ -408,13 +426,14 @@ API
         sb.append(", ").append(status);
         sb.append(", ").append(error);
         sb.append(", ").append(callbackUrl);
+        sb.append(", ").append(callbackStatus);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);
         sb.append(", ").append(ctime);
         sb.append(", ").append(muid);
         sb.append(", ").append(muName);
         sb.append(", ").append(mtime);
-        sb.append(", ").append(callbackStatus);
+        sb.append(", ").append(responseMode);
 
         sb.append(")");
         return sb.toString();

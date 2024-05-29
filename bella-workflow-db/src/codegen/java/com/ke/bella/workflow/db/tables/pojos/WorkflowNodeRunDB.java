@@ -29,6 +29,7 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
     private String        outputs;
     private String        error;
     private String        processData;
+    private String        notifyData;
     private String        activedTargetHandles;
     private String        status;
     private Long          elapsedTime;
@@ -53,6 +54,7 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
         this.outputs = value.outputs;
         this.error = value.error;
         this.processData = value.processData;
+        this.notifyData = value.notifyData;
         this.activedTargetHandles = value.activedTargetHandles;
         this.status = value.status;
         this.elapsedTime = value.elapsedTime;
@@ -76,6 +78,7 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
         String        outputs,
         String        error,
         String        processData,
+        String        notifyData,
         String        activedTargetHandles,
         String        status,
         Long          elapsedTime,
@@ -97,6 +100,7 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
         this.outputs = outputs;
         this.error = error;
         this.processData = processData;
+        this.notifyData = notifyData;
         this.activedTargetHandles = activedTargetHandles;
         this.status = status;
         this.elapsedTime = elapsedTime;
@@ -263,6 +267,20 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
     }
 
     /**
+     * Getter for <code>workflow_node_run.notify_data</code>.
+     */
+    public String getNotifyData() {
+        return this.notifyData;
+    }
+
+    /**
+     * Setter for <code>workflow_node_run.notify_data</code>.
+     */
+    public void setNotifyData(String notifyData) {
+        this.notifyData = notifyData;
+    }
+
+    /**
      * Getter for <code>workflow_node_run.actived_target_handles</code>.
      */
     public String getActivedTargetHandles() {
@@ -403,6 +421,7 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
         sb.append(", ").append(outputs);
         sb.append(", ").append(error);
         sb.append(", ").append(processData);
+        sb.append(", ").append(notifyData);
         sb.append(", ").append(activedTargetHandles);
         sb.append(", ").append(status);
         sb.append(", ").append(elapsedTime);

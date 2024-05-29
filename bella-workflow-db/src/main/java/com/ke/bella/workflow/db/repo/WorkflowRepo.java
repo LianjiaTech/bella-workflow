@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -181,7 +182,7 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, String inputs, String callbackUrl) {
+    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, String inputs, String callbackUrl, String responseMode) {
         WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
 
         String runId = IDGenerator.newWorkflowRunId();
@@ -197,6 +198,9 @@ public class WorkflowRepo implements BaseRepo {
         rec.setError("");
         if(callbackUrl != null) {
             rec.setCallbackUrl(callbackUrl);
+        }
+        if(responseMode != null) {
+            rec.setResponseMode(responseMode);
         }
 
         fillCreatorInfo(rec);
@@ -331,4 +335,11 @@ public class WorkflowRepo implements BaseRepo {
                 .execute();
     }
 
+    public List<WorkflowNodeRunDB> queryWorkflowNodeRuns(String workflowRunId, Set<String> nodeids) {
+        String shardKey = shardingKeyByworkflowRunId(workflowRunId);
+        return db(shardKey).selectFrom(WORKFLOW_NODE_RUN)
+                .where(WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID.eq(workflowRunId)
+                        .and(WORKFLOW_NODE_RUN.NODE_ID.in(nodeids)))
+                .fetchInto(WorkflowNodeRunDB.class);
+    }
 }

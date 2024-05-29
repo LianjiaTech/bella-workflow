@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row20;
+import org.jooq.Row21;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -105,6 +105,11 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
      * The column <code>workflow_node_run.process_data</code>.
      */
     public final TableField<WorkflowNodeRunRecord, String> PROCESS_DATA = createField(DSL.name("process_data"), SQLDataType.CLOB.nullable(false), this, "");
+
+    /**
+     * The column <code>workflow_node_run.notify_data</code>.
+     */
+    public final TableField<WorkflowNodeRunRecord, String> NOTIFY_DATA = createField(DSL.name("notify_data"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_run.actived_target_handles</code>.
@@ -236,11 +241,11 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row20 type methods
+    // Row21 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row20<Long, String, String, String, String, String, String, String, String, String, String, String, String, Long, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row20) super.fieldsRow();
+    public Row21<Long, String, String, String, String, String, String, String, String, String, String, String, String, String, Long, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
+        return (Row21) super.fieldsRow();
     }
 }

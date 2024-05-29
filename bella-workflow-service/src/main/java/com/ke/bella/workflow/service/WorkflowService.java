@@ -1,8 +1,11 @@
 package com.ke.bella.workflow.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -145,8 +148,8 @@ public class WorkflowService {
     }
 
     @SuppressWarnings("rawtypes")
-    public WorkflowRunDB newWorkflowRun(WorkflowDB wf, Map inputs, String callbackUrl) {
-        final WorkflowRunDB wr = repo.addWorkflowRun(wf, JsonUtils.toJson(inputs), callbackUrl);
+    public WorkflowRunDB newWorkflowRun(WorkflowDB wf, Map inputs, String callbackUrl, String responseMode) {
+        final WorkflowRunDB wr = repo.addWorkflowRun(wf, JsonUtils.toJson(inputs), callbackUrl, responseMode);
         TaskExecutor.submit(() -> counter.increase(wr));
         return wr;
     }
@@ -198,6 +201,7 @@ public class WorkflowService {
         wnr.setOutputs("");
         wnr.setError("");
         wnr.setProcessData("");
+        wnr.setNotifyData("");
 
         Node meta = context.getGraph().node(nodeId);
         wnr.setNodeType(meta.getType());
@@ -257,4 +261,39 @@ public class WorkflowService {
         return repo.listWorkflowRun(workflowId, startTime);
     }
 
+    @SuppressWarnings("rawtypes")
+    public void notifyWorkflowRun(String tenantId, String workflowId, String workflowRunId, String nodeId, Map inputs) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(tenantId);
+        wnr.setWorkflowId(workflowId);
+        wnr.setWorkflowRunId(workflowRunId);
+        wnr.setNodeId(nodeId);
+        wnr.setStatus(NodeRunResult.Status.notified.name());
+        wnr.setNotifyData(JsonUtils.toJson(inputs));
+
+        repo.updateWorkflowNodeRun(wnr);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public boolean tryResumeWorkflow(WorkflowContext context, IWorkflowCallback callback) {
+        Set<String> nodeids = context.getState().waitingNodeIds();
+        List<WorkflowNodeRunDB> wrns = repo.queryWorkflowNodeRuns(context.getRunId(), nodeids);
+
+        List<String> ids = new ArrayList<>();
+        Map<String, Map> notifiedData = new HashMap<>();
+        wrns.forEach(r -> {
+            if(r.getStatus().equals(NodeRunResult.Status.notified.name())) {
+                ids.add(r.getNodeId());
+                notifiedData.put(r.getNodeId(), JsonUtils.fromJson(r.getNotifyData(), Map.class));
+            }
+        });
+
+        if(ids.isEmpty()) {
+            return false;
+        }
+
+        context.getState().putNotifyData(notifiedData);
+        new WorkflowRunner().resume(context, new WorkflowRunCallback(this, callback), ids);
+        return true;
+    }
 }

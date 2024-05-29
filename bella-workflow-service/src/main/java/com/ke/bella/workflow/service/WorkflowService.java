@@ -178,6 +178,13 @@ public class WorkflowService {
         repo.updateWorkflowRun(wr);
     }
 
+    public void markWorkflowRunCallbacked(String workflowRunId) {
+        WorkflowRunDB wr = new WorkflowRunDB();
+        wr.setWorkflowRunId(workflowRunId);
+        wr.setCallbackStatus(1);
+        repo.updateWorkflowRun(wr);
+    }
+
     public void createWorkflowNodeRun(WorkflowContext context, String nodeId, String status) {
         WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
         wnr.setTenantId(context.getTenantId());
@@ -241,4 +248,5 @@ public class WorkflowService {
 
         repo.updateWorkflowNodeRun(wnr);
     }
+
 }

@@ -81,7 +81,7 @@ public class WorkflowRunSharding extends TableImpl<WorkflowRunShardingRecord> {
      * The column <code>workflow_run_sharding.max_count</code>. 分表的最大记录数
 如果count&gt;max_count， 创建新表
      */
-    public final TableField<WorkflowRunShardingRecord, Long> MAX_COUNT = createField(DSL.name("max_count"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("20000000", SQLDataType.BIGINT)), this, "分表的最大记录数\n如果count>max_count， 创建新表");
+    public final TableField<WorkflowRunShardingRecord, Long> MAX_COUNT = createField(DSL.name("max_count"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("200000000", SQLDataType.BIGINT)), this, "分表的最大记录数\n如果count>max_count， 创建新表");
 
     /**
      * The column <code>workflow_run_sharding.ctime</code>.

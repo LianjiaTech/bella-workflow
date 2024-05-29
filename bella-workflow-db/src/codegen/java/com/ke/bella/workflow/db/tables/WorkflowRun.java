@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row18;
+import org.jooq.Row19;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -152,6 +152,11 @@ API
      */
     public final TableField<WorkflowRunRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
+    /**
+     * The column <code>workflow_run.callback_status</code>.
+     */
+    public final TableField<WorkflowRunRecord, Integer> CALLBACK_STATUS = createField(DSL.name("callback_status"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.inline("0", SQLDataType.INTEGER)), this, "");
+
     private WorkflowRun(Name alias, Table<WorkflowRunRecord> aliased) {
         this(alias, aliased, null);
     }
@@ -237,11 +242,11 @@ API
     }
 
     // -------------------------------------------------------------------------
-    // Row18 type methods
+    // Row19 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row18<Long, String, String, Long, String, String, String, String, String, String, String, String, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row18) super.fieldsRow();
+    public Row19<Long, String, String, Long, String, String, String, String, String, String, String, String, Long, String, LocalDateTime, Long, String, LocalDateTime, Integer> fieldsRow() {
+        return (Row19) super.fieldsRow();
     }
 }

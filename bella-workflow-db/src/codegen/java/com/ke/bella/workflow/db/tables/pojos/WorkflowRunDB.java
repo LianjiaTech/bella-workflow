@@ -36,6 +36,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private Long          muid;
     private String        muName;
     private LocalDateTime mtime;
+    private Integer       callbackStatus;
 
     public WorkflowRunDB() {}
 
@@ -58,6 +59,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.muid = value.muid;
         this.muName = value.muName;
         this.mtime = value.mtime;
+        this.callbackStatus = value.callbackStatus;
     }
 
     public WorkflowRunDB(
@@ -78,7 +80,8 @@ public class WorkflowRunDB implements Operator, Serializable {
         LocalDateTime ctime,
         Long          muid,
         String        muName,
-        LocalDateTime mtime
+        LocalDateTime mtime,
+        Integer       callbackStatus
     ) {
         this.id = id;
         this.tenantId = tenantId;
@@ -98,6 +101,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.muid = muid;
         this.muName = muName;
         this.mtime = mtime;
+        this.callbackStatus = callbackStatus;
     }
 
     /**
@@ -374,6 +378,20 @@ API
         this.mtime = mtime;
     }
 
+    /**
+     * Getter for <code>workflow_run.callback_status</code>.
+     */
+    public Integer getCallbackStatus() {
+        return this.callbackStatus;
+    }
+
+    /**
+     * Setter for <code>workflow_run.callback_status</code>.
+     */
+    public void setCallbackStatus(Integer callbackStatus) {
+        this.callbackStatus = callbackStatus;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("WorkflowRunDB (");
@@ -396,6 +414,7 @@ API
         sb.append(", ").append(muid);
         sb.append(", ").append(muName);
         sb.append(", ").append(mtime);
+        sb.append(", ").append(callbackStatus);
 
         sb.append(")");
         return sb.toString();

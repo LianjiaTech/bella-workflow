@@ -43,9 +43,4 @@ public class JsonUtils {
             throw new IllegalArgumentException(e);
         }
     }
-
-    public static void main(String[] args) {
-        Map m = fromJson("{\"a\": 1, \"b\": 1.1223123123130}", Map.class);
-        System.out.println(m);
-    }
 }

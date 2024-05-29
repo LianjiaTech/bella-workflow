@@ -198,9 +198,7 @@ public class WorkflowRepo implements BaseRepo {
         String shardKey = shardingKeyByworkflowRunId(wr.getWorkflowRunId());
         db(shardKey).update(WORKFLOW_RUN)
                 .set(rec)
-                .where(WORKFLOW_RUN.TENANT_ID.eq(wr.getTenantId()))
-                .and(WORKFLOW_RUN.WORKFLOW_ID.eq(wr.getWorkflowId()))
-                .and(WORKFLOW_RUN.WORKFLOW_RUN_ID.eq(wr.getWorkflowRunId()))
+                .where(WORKFLOW_RUN.WORKFLOW_RUN_ID.eq(wr.getWorkflowRunId()))
                 .execute();
     }
 

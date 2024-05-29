@@ -9,7 +9,7 @@ import com.ke.bella.workflow.WorkflowContext;
 public class WorkflowRunBlockingCallback extends WorkflowCallbackAdaptor {
     Map<String, Object> data = new LinkedHashMap<>();
 
-    public Object getWorkflowRunResult(long timeout) {
+    public Map<String, Object> getWorkflowRunResult(long timeout) {
         return data;
     }
 

@@ -2,17 +2,19 @@ package com.ke.bella.workflow.db.repo;
 
 import static com.ke.bella.workflow.db.tables.Tenant.*;
 import static com.ke.bella.workflow.db.tables.Workflow.*;
+import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.*;
 import static com.ke.bella.workflow.db.tables.WorkflowRun.*;
 import static com.ke.bella.workflow.db.tables.WorkflowRunSharding.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.jooq.DSLContext;
-import org.jooq.SelectSeekStep1;
-import org.jooq.impl.DSL;
+import org.jooq.SelectConditionStep;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -21,7 +23,6 @@ import org.springframework.util.StringUtils;
 import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IDGenerator;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
-import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.*;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
@@ -57,7 +58,8 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     public WorkflowRunDB queryDraftWorkflowRunSuccessed(WorkflowDB wf) {
-        return db.selectFrom(WORKFLOW_RUN)
+        WorkflowRunShardingDB sharding = queryWorkflowRunShardingByTime(wf.getMtime());
+        return db(sharding.getKey()).selectFrom(WORKFLOW_RUN)
                 .where(WORKFLOW_RUN.TENANT_ID.eq(wf.getTenantId())
                         .and(WORKFLOW_RUN.WORKFLOW_ID.eq(wf.getWorkflowId()))
                         .and(WORKFLOW_RUN.WORKFLOW_VERSION.eq(wf.getVersion()))
@@ -153,13 +155,29 @@ public class WorkflowRepo implements BaseRepo {
         return rec.into(TenantDB.class);
     }
 
-    public Page<WorkflowRunDB> pageWorkflowRun(String workflowId, String status) {
-        SelectSeekStep1<WorkflowRunRecord, LocalDateTime> query = db.selectFrom(WORKFLOW_RUN)
-                .where(WORKFLOW_RUN.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
-                .and(WORKFLOW_RUN.WORKFLOW_ID.eq(workflowId))
-                .and(status != null ? WORKFLOW_RUN.STATUS.eq(status) : DSL.noCondition())
-                .orderBy(WORKFLOW_RUN.CTIME.desc());
-        return queryPage(db, query, 0, 0, WorkflowRunDB.class);
+    public List<WorkflowRunDB> listWorkflowRun(String workflowId, LocalDateTime startTime) {
+        List<WorkflowRunShardingDB> shardings = queryWorkflowRunShardingsByTime(startTime, startTime.plusDays(7));
+
+        List<String> queries = new ArrayList<>();
+        List<Object> args = new ArrayList<>();
+        shardings.forEach(sharding -> {
+            SelectConditionStep<WorkflowRunRecord> sql = db(sharding.getKey()).selectFrom(WORKFLOW_RUN)
+                    .where(WORKFLOW_RUN.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                    .and(WORKFLOW_RUN.WORKFLOW_ID.eq(workflowId));
+            queries.add(sql.getSQL());
+            args.addAll(sql.getBindValues());
+        });
+
+        StringBuilder sb = new StringBuilder(queries.get(0));
+        for (int i = 1; i < queries.size(); i++) {
+            sb.append("\n")
+                    .append("union all")
+                    .append("\n")
+                    .append("(").append(queries.get(i)).append(")");
+        }
+        sb.append("\n order by ctime desc;");
+
+        return db.fetch(sb.toString(), args.toArray()).into(WorkflowRunDB.class);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -209,6 +227,27 @@ public class WorkflowRepo implements BaseRepo {
                 .orderBy(WORKFLOW_RUN_SHARDING.ID.desc())
                 .limit(1)
                 .fetchOneInto(WorkflowRunShardingDB.class);
+    }
+
+    public WorkflowRunShardingDB queryWorkflowRunShardingByTime(LocalDateTime time) {
+        return db.selectFrom(WORKFLOW_RUN_SHARDING)
+                .where(WORKFLOW_RUN_SHARDING.KEY_TIME.le(time))
+                .orderBy(WORKFLOW_RUN_SHARDING.ID.desc())
+                .limit(1)
+                .fetchOneInto(WorkflowRunShardingDB.class);
+    }
+
+    public List<WorkflowRunShardingDB> queryWorkflowRunShardingsByTime(LocalDateTime startTime, LocalDateTime endTime) {
+        return db.selectFrom(WORKFLOW_RUN_SHARDING)
+                .where(WORKFLOW_RUN_SHARDING.KEY_TIME.ge(startTime)
+                        .and(WORKFLOW_RUN_SHARDING.KEY_TIME.le(endTime)))
+                .orderBy(WORKFLOW_RUN_SHARDING.ID.desc())
+                .unionAll(
+                        db.selectFrom(WORKFLOW_RUN_SHARDING)
+                                .where(WORKFLOW_RUN_SHARDING.KEY_TIME.le(startTime))
+                                .orderBy(WORKFLOW_RUN_SHARDING.ID.desc())
+                                .limit(1))
+                .fetchInto(WorkflowRunShardingDB.class);
     }
 
     public WorkflowRunShardingDB queryWorkflowRunShardingByKey(String key) {

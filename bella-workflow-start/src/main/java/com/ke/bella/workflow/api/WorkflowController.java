@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.api;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +17,7 @@ import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TenantCreate;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowCopy;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowList;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowNodeRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
@@ -167,6 +169,14 @@ public class WorkflowController {
         Assert.hasText(op.tenantName, "tenantName不能为空");
 
         return ws.createTenant(op.tenantName);
+    }
+
+    @PostMapping("/run/list")
+    public List<WorkflowRunDB> listWorkflowRun(@RequestBody WorkflowList op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.workflowId, "workflowId不能为空");
+
+        return ws.listWorkflowRun(op.workflowId, op.startTime);
     }
 
     @SuppressWarnings("rawtypes")

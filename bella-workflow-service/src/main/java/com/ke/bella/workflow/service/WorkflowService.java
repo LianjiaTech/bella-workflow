@@ -1,5 +1,7 @@
 package com.ke.bella.workflow.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -247,6 +249,10 @@ public class WorkflowService {
         wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
 
         repo.updateWorkflowNodeRun(wnr);
+    }
+
+    public List<WorkflowRunDB> listWorkflowRun(String workflowId, LocalDateTime startTime) {
+        return repo.listWorkflowRun(workflowId, startTime);
     }
 
 }

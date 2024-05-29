@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.api;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +38,14 @@ public class WorkflowOps {
         String graph;
         String title;
         String desc;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class WorkflowList extends Operator {
+        String workflowId;
+        LocalDateTime startTime = LocalDateTime.now().minusDays(7);
     }
 
     @Getter

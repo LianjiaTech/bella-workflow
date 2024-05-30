@@ -8,6 +8,7 @@ public class WorkflowCallbackAdaptor implements IWorkflowCallback {
         data.put("tenantId", context.getTenantId());
         data.put("workflowId", context.getWorkflowId());
         data.put("workflowRunId", context.getRunId());
+        data.put("status", context.getState().getStatus().name());
     }
 
     protected void responseWorkflowMeta(WorkflowContext context, Map<String, Object> data) {

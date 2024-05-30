@@ -26,7 +26,7 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.callbacks.SingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.SingleNodeRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
-import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifier;
+import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunStreamingCallback;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
@@ -129,11 +129,8 @@ public class WorkflowController {
             return emitter;
         } else {
             TaskExecutor.submit(() -> {
-                WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, 300000l);
+                WorkflowRunNotifyCallback callback = new WorkflowRunNotifyCallback(ws, op.callbackUrl);
                 ws.runWorkflow(wr, op.inputs, callback);
-                Map<String, Object> result = callback.getWorkflowRunResult();
-
-                TaskExecutor.submit(new WorkflowRunNotifier(op.callbackUrl, result, ws));
             });
             return BellaResponse.builder().code(201).data(wr).build();
         }

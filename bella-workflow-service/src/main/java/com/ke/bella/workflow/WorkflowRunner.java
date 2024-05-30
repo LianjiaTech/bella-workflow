@@ -3,11 +3,13 @@ package com.ke.bella.workflow;
 import java.util.List;
 
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
+import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.node.BaseNode;
 
 public class WorkflowRunner {
 
     public void run(WorkflowContext context, IWorkflowCallback callback) {
+        context.getState().setStatus(WorkflowRunStatus.running);
         callback.onWorkflowRunStarted(context);
         run0(context, callback, context.getNextNodes());
     }
@@ -18,7 +20,9 @@ public class WorkflowRunner {
     }
 
     public void resume(WorkflowContext context, IWorkflowCallback callback, List<String> nodeIds) {
+        context.getState().setStatus(WorkflowRunStatus.running);
         callback.onWorkflowRunResumed(context);
+
 
         List<BaseNode> nodes = context.getNodes(nodeIds);
         run0(context, callback, nodes);
@@ -40,12 +44,15 @@ public class WorkflowRunner {
             }
 
             if(context.isSuspended()) {
+                context.getState().setStatus(WorkflowRunStatus.suspended);
                 callback.onWorkflowRunSuspended(context);
             } else {
                 context.putWorkflowRunResult(result);
+                context.getState().setStatus(WorkflowRunStatus.succeeded);
                 callback.onWorkflowRunSucceeded(context);
             }
         } catch (Exception e) {
+            context.getState().setStatus(WorkflowRunStatus.failed);
             callback.onWorkflowRunFailed(context, e.getMessage(), e);
         }
     }

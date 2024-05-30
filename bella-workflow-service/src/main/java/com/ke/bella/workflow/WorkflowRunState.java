@@ -26,6 +26,10 @@ public class WorkflowRunState {
     @Setter
     NodeRunResult workflowRunResult;
 
+    @Getter
+    @Setter
+    WorkflowRunStatus status;
+
     synchronized boolean isEmpty() {
         return nodeCompletedStates.isEmpty();
     }

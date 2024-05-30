@@ -296,4 +296,8 @@ public class WorkflowService {
         new WorkflowRunner().resume(context, new WorkflowRunCallback(this, callback), ids);
         return true;
     }
+
+    public WorkflowRunDB getWorkflowRun(String workflowRunId) {
+        return repo.queryWorkflowRun(workflowRunId);
+    }
 }

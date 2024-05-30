@@ -156,6 +156,13 @@ public class WorkflowRepo implements BaseRepo {
         return rec.into(TenantDB.class);
     }
 
+    public WorkflowRunDB queryWorkflowRun(String workflowRunId) {
+        String shardKey = shardingKeyByworkflowRunId(workflowRunId);
+        return db(shardKey).selectFrom(WORKFLOW_RUN)
+                .where(WORKFLOW_RUN.WORKFLOW_RUN_ID.eq(workflowRunId))
+                .fetchOne().into(WorkflowRunDB.class);
+    }
+
     public List<WorkflowRunDB> listWorkflowRun(String workflowId, LocalDateTime startTime) {
         List<WorkflowRunShardingDB> shardings = queryWorkflowRunShardingsByTime(startTime, startTime.plusDays(7));
 

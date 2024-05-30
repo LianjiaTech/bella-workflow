@@ -21,6 +21,7 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowList;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowNodeRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunInfo;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.callbacks.SingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.SingleNodeRunStreamingCallback;
@@ -177,6 +178,13 @@ public class WorkflowController {
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
         return ws.listWorkflowRun(op.workflowId, op.startTime);
+    }
+
+    @PostMapping("/run/info")
+    public WorkflowRunDB getWorkflowRun(@RequestBody WorkflowRunInfo op) {
+        Assert.hasText(op.workflowRunId, "workflowRunId不能为空");
+
+        return ws.getWorkflowRun(op.getWorkflowRunId());
     }
 
     @SuppressWarnings("rawtypes")

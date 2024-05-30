@@ -60,6 +60,12 @@ public class WorkflowOps {
 
     @Getter
     @Setter
+    public static class WorkflowRunInfo extends Operator {
+        String workflowRunId;
+    }
+
+    @Getter
+    @Setter
     @SuppressWarnings("rawtypes")
     public static class WorkflowNodeRun extends WorkflowOp {
         Map inputs = new HashMap();

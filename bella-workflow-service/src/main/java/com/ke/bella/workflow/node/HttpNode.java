@@ -7,8 +7,10 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.util.StringUtils;
 
@@ -101,8 +103,12 @@ public class HttpNode extends BaseNode {
                 + "\n"
                 + "{{ body }}";
 
+        List<String> headers = request.headers().names().stream()
+                .filter(h -> !h.equals("Authorization"))
+                .collect(Collectors.toList());
+
         Map<String, Object> map = new HashMap<>();
-        map.put("headers", request.headers().names());
+        map.put("headers", headers);
         map.put("body", bodyToString(request));
         map.put("request", request);
         return Variables.renderJinjia(template, map);
@@ -259,7 +265,7 @@ public class HttpNode extends BaseNode {
         String headers;
         Timeout timeout;
         Authorization authorization;
-        boolean maskAuthorizationHeader = true;
+        boolean stream = false;
 
         @Getter
         @Setter

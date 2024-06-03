@@ -206,7 +206,7 @@ public class WorkflowController {
         // callback时，可立即去尝试是否可以resume
         TaskExecutor.schedule(() -> {
             WorkflowRunNotifyCallback callback = new WorkflowRunNotifyCallback(ws, wr.getCallbackUrl());
-            ws.tryResumeWorkflow(wr, callback);
+            ws.tryResumeWorkflow(wr.getWorkflowRunId(), callback);
         }, isCallback ? 10L : MAX_TIMEOUT + 5000L);
 
         return BellaResponse.builder().code(201).data("OK").build();

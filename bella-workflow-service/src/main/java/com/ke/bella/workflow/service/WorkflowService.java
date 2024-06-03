@@ -20,6 +20,7 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowGraph;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
+import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
@@ -303,7 +304,12 @@ public class WorkflowService {
     }
 
     @SuppressWarnings("rawtypes")
-    public void tryResumeWorkflow(WorkflowRunDB wr, IWorkflowCallback callback) {
+    public void tryResumeWorkflow(String workflowRunId, IWorkflowCallback callback) {
+        WorkflowRunDB wr = repo.queryWorkflowRun(workflowRunId);
+        if(WorkflowRunStatus.valueOf(wr.getStatus()) != WorkflowRunStatus.suspended) {
+            return;
+        }
+
         // 构建执行上下文
         WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
         WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);

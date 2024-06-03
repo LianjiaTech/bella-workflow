@@ -55,7 +55,7 @@ public class WorkflowRepo implements BaseRepo {
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
                 .and(WORKFLOW.VERSION.eq(0l))
-                .fetchOne().into(WorkflowDB.class);
+                .fetchOneInto(WorkflowDB.class);
     }
 
     public WorkflowRunDB queryDraftWorkflowRunSuccessed(WorkflowDB wf) {
@@ -85,7 +85,7 @@ public class WorkflowRepo implements BaseRepo {
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
                 .and(WORKFLOW.VERSION.eq(version))
-                .fetchOne().into(WorkflowDB.class);
+                .fetchOneInto(WorkflowDB.class);
     }
 
     public WorkflowDB addDraftWorkflow(WorkflowSync op) {
@@ -131,15 +131,13 @@ public class WorkflowRepo implements BaseRepo {
 
     public void publishWorkflow(String workflowId) {
         WorkflowRecord rec = WORKFLOW.newRecord();
+        WorkflowDB wf = queryDraftWorkflow(workflowId);
+        rec.from(wf);
         rec.setVersion(System.currentTimeMillis());
         fillUpdatorInfo(rec);
 
-        int num = db.update(WORKFLOW)
-                .set(rec)
-                .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
-                .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
-                .and(WORKFLOW.VERSION.eq(0L))
-                .execute();
+        int num = db.insertInto(WORKFLOW).set(rec).execute();
+
         Assert.isTrue(num == 1, "工作流配置发布失败，请检查工作流配置版本是否为draft");
     }
 

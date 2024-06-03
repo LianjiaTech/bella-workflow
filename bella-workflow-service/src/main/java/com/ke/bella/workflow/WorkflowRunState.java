@@ -88,11 +88,11 @@ public class WorkflowRunState {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    synchronized void putNodeState(String nodeId, NodeRunResult state) {
+    public synchronized void putNodeState(String nodeId, NodeRunResult state) {
         NodeRunResult.Status s = state.status;
         if(s == NodeRunResult.Status.running || s == null) {
             throw new IllegalStateException("工作流节点运行状态异常");
-        } else if(s == NodeRunResult.Status.waiting) {
+        } else if(s == NodeRunResult.Status.waiting || s == NodeRunResult.Status.notified) {
             nodeWaitingStates.put(nodeId, state);
         } else {
             nodeWaitingStates.remove(nodeId);

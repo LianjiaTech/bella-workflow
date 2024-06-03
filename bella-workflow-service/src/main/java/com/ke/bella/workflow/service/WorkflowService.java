@@ -288,7 +288,8 @@ public class WorkflowService {
             }
         });
 
-        if(ids.isEmpty()) {
+        // 简化同步操作，等所有节点都回来再继续执行
+        if(ids.size() != nodeids.size()) {
             return false;
         }
 
@@ -299,5 +300,35 @@ public class WorkflowService {
 
     public WorkflowRunDB getWorkflowRun(String workflowRunId) {
         return repo.queryWorkflowRun(workflowRunId);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void tryResumeWorkflow(WorkflowRunDB wr, IWorkflowCallback callback) {
+        // 构建执行上下文
+        WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
+        WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        WorkflowGraph graph = new WorkflowGraph(meta);
+        WorkflowContext context = WorkflowContext.builder()
+                .tenantId(wr.getTenantId())
+                .workflowId(wr.getWorkflowId())
+                .runId(wr.getWorkflowRunId())
+                .graph(graph)
+                .state(getWorkflowRunState(wr.getWorkflowRunId()))
+                .userInputs(new HashMap())
+                .build();
+
+        tryResumeWorkflow(context, callback);
+    }
+
+    public WorkflowRunState getWorkflowRunState(String workflowRunId) {
+        List<WorkflowNodeRunDB> wrs = repo.queryWorkflowNodeRuns(workflowRunId);
+        WorkflowRunState state = new WorkflowRunState();
+        wrs.forEach(wr -> state.putNodeState(wr.getNodeId(), NodeRunResult.builder()
+                .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class))
+                .outputs(JsonUtils.fromJson(wr.getOutputs(), Map.class))
+                .processData(JsonUtils.fromJson(wr.getProcessData(), Map.class))
+                .status(NodeRunResult.Status.valueOf(wr.getStatus()))
+                .build()));
+        return state;
     }
 }

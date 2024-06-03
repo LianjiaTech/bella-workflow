@@ -347,4 +347,11 @@ public class WorkflowRepo implements BaseRepo {
                         .and(WORKFLOW_NODE_RUN.NODE_ID.in(nodeids)))
                 .fetchInto(WorkflowNodeRunDB.class);
     }
+
+    public List<WorkflowNodeRunDB> queryWorkflowNodeRuns(String workflowRunId) {
+        String shardKey = shardingKeyByworkflowRunId(workflowRunId);
+        return db(shardKey).selectFrom(WORKFLOW_NODE_RUN)
+                .where(WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID.eq(workflowRunId))
+                .fetchInto(WorkflowNodeRunDB.class);
+    }
 }

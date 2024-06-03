@@ -37,6 +37,8 @@ import com.ke.bella.workflow.service.WorkflowService;
 @RequestMapping("/v1/workflow")
 public class WorkflowController {
 
+    public static final long MAX_TIMEOUT = 300000L;
+
     @Autowired
     WorkflowService ws;
 
@@ -118,13 +120,13 @@ public class WorkflowController {
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, op.callbackUrl, op.responseMode);
 
         if(mode == ResponseMode.blocking) {
-            WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, 300000l);
+            WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, MAX_TIMEOUT);
             TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, callback));
             return callback.getWorkflowRunResult();
 
         } else if(mode == ResponseMode.streaming) {
             // create SseEmitter with timeout 300s
-            SseEmitter emitter = SseHelper.createSse(300000l, wr.getWorkflowRunId());
+            SseEmitter emitter = SseHelper.createSse(MAX_TIMEOUT, wr.getWorkflowRunId());
             TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, new WorkflowRunStreamingCallback(emitter, ws)));
             return emitter;
         } else {
@@ -152,11 +154,11 @@ public class WorkflowController {
         if(mode == ResponseMode.blocking) {
             SingleNodeRunBlockingCallback callback = new SingleNodeRunBlockingCallback();
             ws.runNode(wr, op.nodeId, op.inputs, callback);
-            return callback.getWorkflowNodeRunResult(300000l);
+            return callback.getWorkflowNodeRunResult(MAX_TIMEOUT);
 
         } else {
             // create SseEmitter with timeout 300s
-            SseEmitter emitter = SseHelper.createSse(300000l, wr.getWorkflowRunId());
+            SseEmitter emitter = SseHelper.createSse(MAX_TIMEOUT, wr.getWorkflowRunId());
             ws.runNode(wr, op.nodeId, op.inputs, new SingleNodeRunStreamingCallback(emitter));
             return emitter;
         }
@@ -196,6 +198,15 @@ public class WorkflowController {
         Assert.notNull(wr, String.format("找不到对应的工作流运行实例", workflowRunId));
 
         ws.notifyWorkflowRun(wr, nodeId, inputs);
+
+        boolean isCallback = wr.getResponseMode().equals(ResponseMode.callback.name());
+
+        // 非callback时，等待超时时间到了之后再去试一下是否需要resume
+        // callback时，可立即去尝试是否可以resume
+        TaskExecutor.schedule(() -> {
+            WorkflowRunNotifyCallback callback = new WorkflowRunNotifyCallback(ws, wr.getCallbackUrl());
+            ws.tryResumeWorkflow(wr, callback);
+        }, isCallback ? 10L : MAX_TIMEOUT + 5000L);
 
         return BellaResponse.builder().code(201).data("OK").build();
     }

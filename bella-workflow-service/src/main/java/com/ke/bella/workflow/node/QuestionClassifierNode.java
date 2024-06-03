@@ -35,7 +35,7 @@ public class QuestionClassifierNode extends BaseNode {
     }
 
     @Override
-    public NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
+    protected NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
 
         try {
             //获取query
@@ -156,7 +156,7 @@ public class QuestionClassifierNode extends BaseNode {
         ChatMessage userMessage2 = new UserMessage(QUESTION_CLASSIFIER_USER_PROMPT_2);
         ChatMessage assistantMessage2 = new SystemMessage(QUESTION_CLASSIFIER_ASSISTANT_PROMPT_2);
         ChatMessage userMessage3 = new UserMessage(String.format(QUESTION_CLASSIFIER_USER_PROMPT_3, query, categories, nodeData.getInstruction()));
-        LOGGER.debug("Question Classifier Chat Messages: {} {} {} {} {} {}", systemMessage, userMessage, assistantMessage, userMessage2,
+        LOGGER.trace("Question Classifier Chat Messages: {} {} {} {} {} {}", systemMessage, userMessage, assistantMessage, userMessage2,
                 assistantMessage2, userMessage3);
         return Lists.newArrayList(systemMessage, userMessage, assistantMessage, userMessage2, assistantMessage2, userMessage3);
     }

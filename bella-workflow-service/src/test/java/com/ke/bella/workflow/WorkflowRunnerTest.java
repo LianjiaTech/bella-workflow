@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
-
 public class WorkflowRunnerTest {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test

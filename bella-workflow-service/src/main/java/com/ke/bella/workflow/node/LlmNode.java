@@ -46,7 +46,7 @@ public class LlmNode extends BaseNode {
     }
 
     @Override
-    public WorkflowRunState.NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
+    protected WorkflowRunState.NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
         Map<String, Object> processData = new HashMap<>();
         try {
             validateData();
@@ -138,6 +138,7 @@ public class LlmNode extends BaseNode {
         return result;
     }
 
+    @SuppressWarnings("rawtypes")
     private List<ChatMessage> fetchChatMessages(WorkflowContext context) {
         List<ChatMessage> result = new ArrayList<>();
         Map variablePool = context.getState().getVariablePool();

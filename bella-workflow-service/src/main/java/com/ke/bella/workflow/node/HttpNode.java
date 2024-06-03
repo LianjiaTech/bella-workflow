@@ -16,10 +16,12 @@ import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
+import com.ke.bella.workflow.WorkflowRunState.NodeRunResult.NodeRunResultBuilder;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 
 import lombok.Getter;
@@ -35,8 +37,11 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okhttp3.internal.sse.RealEventSource;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
+import okhttp3.sse.EventSource;
+import okhttp3.sse.EventSourceListener;
 import okio.Buffer;
 
 @SuppressWarnings("rawtypes")
@@ -58,7 +63,7 @@ public class HttpNode extends BaseNode {
 
     @SuppressWarnings("unchecked")
     @Override
-    public NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
+    protected NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
         Response response = null;
         try {
             Request request = new Request.Builder()
@@ -70,6 +75,16 @@ public class HttpNode extends BaseNode {
             Map processedData = new LinkedHashMap<>();
             processedData.put("request", render(request));
 
+            NodeRunResultBuilder resultBuilder = NodeRunResult.builder().processData(processedData);
+
+            if(data.isStreaming()) {
+                return requestWithSSE(context, request, resultBuilder, callback);
+            }
+
+            if(data.isCallback()) {
+                return requestWithCallback(context, request, resultBuilder, callback);
+            }
+
             response = client.newCall(request).execute();
 
             Map outputs = new LinkedHashMap<>();
@@ -78,8 +93,7 @@ public class HttpNode extends BaseNode {
             outputs.put("body", extractBody(response));
             outputs.put("headers", response.headers().toMultimap());
             outputs.put("files", extractFiles(response));
-            return NodeRunResult.builder()
-                    .processData(processedData)
+            return resultBuilder
                     .outputs(outputs)
                     .status(statusCode >= 200 && statusCode <= 299 ? NodeRunResult.Status.succeeded : NodeRunResult.Status.failed)
                     .build();
@@ -95,9 +109,92 @@ public class HttpNode extends BaseNode {
         }
     }
 
+    private NodeRunResult requestWithCallback(WorkflowContext context, Request request, NodeRunResultBuilder resultBuilder,
+            IWorkflowCallback callback) throws IOException {
+
+        Response response = client.newCall(request).execute();
+        int statusCode = response.code();
+        return resultBuilder
+                .status(statusCode >= 200 && statusCode <= 299 ? NodeRunResult.Status.waiting : NodeRunResult.Status.failed)
+                .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private NodeRunResult requestWithSSE(WorkflowContext context, Request request, NodeRunResultBuilder builder, IWorkflowCallback callback) {
+        RealEventSource eventSource = new RealEventSource(request, new EventSourceListener() {
+            Map outputs = new LinkedHashMap<>();
+            StringBuilder bodyBuffer = new StringBuilder();
+
+            @Override
+            public void onOpen(EventSource eventSource, Response response) {
+                Map<String, String> data = new LinkedHashMap<>();
+                data.put("event", "onOpne");
+
+                callback.onWorkflowNodeRunProgress(context, getNodeId(), ProgressData.builder()
+                        .data(data)
+                        .build());
+
+                outputs.put("status_code", response.code());
+                outputs.put("headers", response.headers().toMultimap());
+            }
+
+            @Override
+            public void onEvent(EventSource eventSource, String id, String type, String rawdata) {
+                Map<String, Object> data = new LinkedHashMap<>();
+                Map<String, String> data2 = new LinkedHashMap<>();
+                data.put("event", "onEvent");
+                data.put("data", data2);
+
+                data2.put("id", id);
+                data2.put("type", type);
+                data2.put("data", rawdata);
+
+                callback.onWorkflowNodeRunProgress(context, getNodeId(), ProgressData.builder()
+                        .data(data)
+                        .build());
+                bodyBuffer.append("\n")
+                        .append("id: ").append(id).append("\n")
+                        .append("type: ").append(type).append("\n")
+                        .append("data: ").append(data).append("\n");
+            }
+
+            @Override
+            public void onClosed(EventSource eventSource) {
+                Map<String, String> data = new LinkedHashMap<>();
+                data.put("event", "onClosed");
+
+                callback.onWorkflowNodeRunProgress(context, getNodeId(), ProgressData.builder()
+                        .data(data)
+                        .progress(100)
+                        .build());
+
+                outputs.put("body", bodyBuffer.toString());
+                builder.status(NodeRunResult.Status.succeeded);
+            }
+
+            @Override
+            public void onFailure(EventSource eventSource, Throwable t, Response response) {
+                Map<String, String> data = new LinkedHashMap<>();
+                data.put("event", "onFailure");
+
+                callback.onWorkflowNodeRunProgress(context, getNodeId(), ProgressData.builder()
+                        .data(data)
+                        .progress(100)
+                        .build());
+
+                builder.status(NodeRunResult.Status.failed);
+                builder.error(new IllegalStateException("SSE请求异常", t));
+            }
+        });
+
+        eventSource.connect(client);
+
+        return builder.build();
+    }
+
     private String render(Request request) {
         String template = "{{ request.method() }} {{ request.url().toString() }} HTTP/1.1\n"
-                + "{% for header in request.headers().toMultimap().entrySet() %}"
+                + "{% for header in headers %}"
                 + "{{ header.key }}: {{ header.value }}\n"
                 + "{% endfor %}\n"
                 + "\n"
@@ -265,7 +362,19 @@ public class HttpNode extends BaseNode {
         String headers;
         Timeout timeout;
         Authorization authorization;
-        boolean stream = false;
+        String mode = "blocking";
+
+        boolean isStreaming() {
+            return "streaming".equalsIgnoreCase(mode);
+        }
+
+        boolean isCallback() {
+            return "callback".equalsIgnoreCase(mode);
+        }
+
+        boolean isBlocking() {
+            return "blocking".equalsIgnoreCase(mode);
+        }
 
         @Getter
         @Setter

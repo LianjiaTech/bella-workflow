@@ -33,7 +33,7 @@ public class TemplateTransformNode extends BaseNode {
 
     @SuppressWarnings("unchecked")
     @Override
-    public NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
+    protected NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
         Map inputs = new LinkedHashMap<>();
         try {
             data.getVariables()

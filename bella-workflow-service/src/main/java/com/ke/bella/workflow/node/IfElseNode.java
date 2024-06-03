@@ -30,7 +30,7 @@ public class IfElseNode extends BaseNode {
 
     @SuppressWarnings("unchecked")
     @Override
-    public NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
+    protected NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
         Map processData = new LinkedHashMap();
         List<Map<String, Object>> inputConditions = new ArrayList<>();
         for (Data.Condition condition : data.getConditions()) {

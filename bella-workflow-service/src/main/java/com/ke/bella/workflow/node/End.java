@@ -27,7 +27,7 @@ public class End extends BaseNode {
 
     @SuppressWarnings("unchecked")
     @Override
-    public NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
+    protected NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
         Map outputs = new LinkedHashMap<>();
         data.getOutputs()
                 .forEach(v -> outputs.put(v.getVariable(), context.getState().getVariableValue(v.getValueSelector())));

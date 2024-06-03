@@ -18,7 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 public class QuestionClassifierNodeTest {
 
     @Test
-    public void testQuestionClassifierNode() {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void testQuestionClassifierNode() throws IOException {
         // 构造一个 start 节点的输出
         Map output = Maps.newHashMap();
         output.put("query", "如何做家常红烧肉");
@@ -29,7 +30,8 @@ public class QuestionClassifierNodeTest {
     }
 
     @Test
-    public void testQuestionClassifierNode2() {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void testQuestionClassifierNode2() throws IOException {
         // 构造一个 start 节点的输出
         Map output = Maps.newHashMap();
         output.put("query", "如何学习打篮球");
@@ -40,17 +42,15 @@ public class QuestionClassifierNodeTest {
 
     }
 
-    private static WorkflowRunState.NodeRunResult getResult(Map output) {
+    @SuppressWarnings({ "rawtypes" })
+    private static WorkflowRunState.NodeRunResult getResult(Map output) throws IOException {
         WorkflowRunState state = new WorkflowRunState();
         state.putNodeState("start", WorkflowRunState.NodeRunResult.builder()
                 .outputs(output)
                 .status(WorkflowRunState.NodeRunResult.Status.succeeded)
                 .build());
-        WorkflowContext context = WorkflowContext.builder()
-                .tenantId("test")
-                .workflowId("test")
-                .state(state)
-                .build();
+        WorkflowContext context = CommonNodeTest.createContext("src/test/resources/question_classifier_node_case.json", new HashMap());
+        context.setState(state);
         // 构造一个 QuestionClassifierNode
         QuestionClassifierNode.Data data = QuestionClassifierNode.Data.builder()
                 .queryVariableSelector(Lists.newArrayList("start", "query"))
@@ -82,18 +82,19 @@ public class QuestionClassifierNodeTest {
                 .build();
 
         QuestionClassifierNode node = new QuestionClassifierNode(WorkflowSchema.Node.builder()
-                .id("question-classifier")
+                .id("1716904682038")
                 .type(NodeType.QUESTION_CLASSIFIER.name)
                 .height(100)
                 .data(JsonUtils.fromJson(JsonUtils.toJson(data), Map.class))
                 .build());
         // 执行并校验结果
-        WorkflowRunState.NodeRunResult result = node.execute(context, null);
+        WorkflowRunState.NodeRunResult result = node.run(context, new WorkflowCallbackAdaptor());
         LOGGER.debug("result: {}", JsonUtils.toJson(result));
         return result;
     }
 
     @Test
+    @SuppressWarnings({ "rawtypes" })
     public void testQuestionClassifierNodeResult() throws IOException {
         HashMap<String, Object> userInputs = new HashMap<>();
         userInputs.put("input", "情感咨询");

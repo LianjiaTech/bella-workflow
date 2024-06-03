@@ -26,7 +26,7 @@ public class Start extends BaseNode {
     }
 
     @Override
-    public NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
+    protected NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
         Map workflowInputs = context.userInputs();
         Map nodeInputs = validateAndExtract(workflowInputs);
         return NodeRunResult.builder()

@@ -8,6 +8,7 @@ import com.ke.bella.workflow.api.Operator;
 public class BellaContext {
     private static ThreadLocal<Operator> operatorLocal = new ThreadLocal<>();
     private static ThreadLocal<String> apiKey = new ThreadLocal<>();
+    private static String WORKFLOW_DOMAIN = "https://example.com";
 
     public static void setOperator(Operator operator) {
         operatorLocal.set(operator);
@@ -40,5 +41,9 @@ public class BellaContext {
 
     public static String getApiKey() {
         return apiKey.get();
+    }
+
+    public static String getDomain() {
+        return WORKFLOW_DOMAIN;
     }
 }

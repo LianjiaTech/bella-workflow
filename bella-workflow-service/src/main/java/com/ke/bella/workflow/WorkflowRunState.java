@@ -18,7 +18,8 @@ public class WorkflowRunState {
     /** NodeId -> NodeRunResult */
     final Map<String, NodeRunResult> nodeCompletedStates = new HashMap<>();
     final Map<String, NodeRunResult> nodeWaitingStates = new HashMap<>();
-    final Map<String, Object> variablePoolMap = new HashMap<>();
+    @SuppressWarnings("rawtypes")
+    final Map<String, Map> variablePoolMap = new HashMap<>();
     @SuppressWarnings("rawtypes")
     final Map<String, Map> notifyDataMap = new HashMap<>();
     final Set<String> activatedSourceHandles = new HashSet<>();
@@ -47,6 +48,16 @@ public class WorkflowRunState {
     public void putNotifyData(Map<String, Map> data) {
         notifyDataMap.clear();
         notifyDataMap.putAll(data);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public synchronized void putVariable(String nodeId, String key, Object value) {
+        Map variables = this.variablePoolMap.get(nodeId);
+        if(variables == null) {
+            variables = new HashMap();
+        }
+        variables.put(key, value);
+        variablePoolMap.put(nodeId, variables);
     }
 
     synchronized boolean isActivated(String sourceNodeId, String sourceHandle) {

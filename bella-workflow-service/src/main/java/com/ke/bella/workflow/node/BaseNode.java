@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 class BaseNodeData {
@@ -20,6 +22,7 @@ class BaseNodeData {
     private String type;
 }
 
+@Slf4j
 public abstract class BaseNode implements RunnableNode {
     private static final Map<String, Class<? extends BaseNode>> NODE_RUNNER_CLASSES = new ConcurrentHashMap<>();
     static {
@@ -38,7 +41,7 @@ public abstract class BaseNode implements RunnableNode {
         this.meta = meta;
     }
 
-    public abstract NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback);
+    protected abstract NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback);
 
     public String getNodeId() {
         return this.meta.getId();
@@ -48,9 +51,15 @@ public abstract class BaseNode implements RunnableNode {
         return meta;
     }
 
+    protected boolean isCallback() {
+        return false;
+    }
+
     @Override
     public NodeRunResult run(WorkflowContext context, IWorkflowCallback callback) {
         Long startTime = System.nanoTime();
+
+        appendBuiltinVariables(context);
 
         callback.onWorkflowNodeRunStarted(context, meta.getId());
 
@@ -63,6 +72,9 @@ public abstract class BaseNode implements RunnableNode {
         }
 
         result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);
+
+        LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
+
         return result;
     }
 
@@ -74,6 +86,18 @@ public abstract class BaseNode implements RunnableNode {
                 .outputs(context.getState().getNotifyData(getNodeId()))
                 .status(NodeRunResult.Status.succeeded)
                 .build();
+    }
+
+    private void appendBuiltinVariables(WorkflowContext context) {
+        // append callbackUrl
+        if(isCallback()) {
+            String url = String.format("%s/v1/workflow/callback/%s/%s/%s/%s ",
+                    BellaContext.getDomain(),
+                    context.getTenantId(),
+                    context.getWorkflowId(),
+                    context.getRunId(), getNodeId());
+            context.getState().putVariable(getNodeId(), "callbackUrl", url);
+        }
     }
 
     public static void register(String nodeType, Class<? extends BaseNode> clazz) {

@@ -289,7 +289,7 @@ public class WorkflowService {
         });
 
         // 简化同步操作，等所有节点都回来再继续执行
-        if(ids.size() != nodeids.size()) {
+        if(!ids.isEmpty() && ids.size() != nodeids.size()) {
             return false;
         }
 

@@ -201,6 +201,7 @@ public class WorkflowController {
 
         boolean isCallback = wr.getResponseMode().equals(ResponseMode.callback.name());
 
+        // resume简单实现版：
         // 非callback时，等待超时时间到了之后再去试一下是否需要resume
         // callback时，可立即去尝试是否可以resume
         TaskExecutor.schedule(() -> {

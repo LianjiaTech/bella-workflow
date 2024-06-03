@@ -5,6 +5,9 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @lombok.Data
@@ -80,17 +83,23 @@ public class WorkflowSchema {
         }
     }
 
-    @lombok.Data
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Position {
         private int x;
         private int y;
     }
 
-    @lombok.Data
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Viewport {
         private int x;
         private int y;
-        private int zoom;
+        private double zoom;
     }
 
     @lombok.Data

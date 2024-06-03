@@ -191,6 +191,7 @@ public class LlmNode extends BaseNode {
         @AllArgsConstructor
         public static class Authorization {
             String apiKey;
+            @Builder.Default
             String apiBaseUrl = "https://example.com/v1/";
 
             public String authorization() {

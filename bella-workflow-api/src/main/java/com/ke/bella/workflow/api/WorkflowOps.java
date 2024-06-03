@@ -82,8 +82,10 @@ public class WorkflowOps {
     @AllArgsConstructor
     @SuppressWarnings("rawtypes")
     public static class WorkflowNodeRun extends WorkflowOp {
+        @Builder.Default
         Map inputs = new HashMap();
         String nodeId;
+        @Builder.Default
         String responseMode = ResponseMode.streaming.name();
     }
 

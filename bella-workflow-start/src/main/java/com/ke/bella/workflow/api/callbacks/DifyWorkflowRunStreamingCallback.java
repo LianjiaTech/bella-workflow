@@ -180,6 +180,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
+    @SuppressWarnings("rawtypes")
     public static class DifyData {
         private String id;
         @JsonProperty("node_id")

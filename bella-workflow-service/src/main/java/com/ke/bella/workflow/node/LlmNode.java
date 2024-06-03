@@ -93,8 +93,8 @@ public class LlmNode extends BaseNode {
     }
 
     private void validateData() {
-        Data.Authorization config = data.getAuthorization();
-        config.valid();
+        Assert.notNull(data.getAuthorization(), "authorization不能为空");
+        data.getAuthorization().valid();
     }
 
     private String handleInvokeResult(Data.Timeout timeout, WorkflowContext context, Flowable<ChatCompletionChunk> llmResult,
@@ -180,6 +180,7 @@ public class LlmNode extends BaseNode {
         private Vision vision;
         // todo impl memory
         private Object memory;
+        @Builder.Default
         private Timeout timeout = new Timeout();
         private Authorization authorization;
 

@@ -15,6 +15,7 @@ import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.SystemMessage;
 import com.theokanning.openai.completion.chat.UserMessage;
 import com.theokanning.openai.service.OpenAiService;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Duration;
@@ -173,7 +174,8 @@ public class QuestionClassifierNode extends BaseNode {
         ModelConfig model;
         List<ClassConfig> classes;
         String instruction;
-        Timeout timeout;
+		@Builder.Default
+        Timeout timeout = new Timeout();
         Authorization authorization;
 
         @lombok.Getter

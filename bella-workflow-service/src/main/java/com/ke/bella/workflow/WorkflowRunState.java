@@ -19,6 +19,7 @@ public class WorkflowRunState {
     final Map<String, NodeRunResult> nodeCompletedStates = new HashMap<>();
     final Map<String, NodeRunResult> nodeWaitingStates = new HashMap<>();
     final Map<String, Object> variablePoolMap = new HashMap<>();
+    @SuppressWarnings("rawtypes")
     final Map<String, Map> notifyDataMap = new HashMap<>();
     final Set<String> activatedSourceHandles = new HashSet<>();
 

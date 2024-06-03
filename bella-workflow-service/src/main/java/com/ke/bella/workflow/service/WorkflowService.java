@@ -262,11 +262,11 @@ public class WorkflowService {
     }
 
     @SuppressWarnings("rawtypes")
-    public void notifyWorkflowRun(String tenantId, String workflowId, String workflowRunId, String nodeId, Map inputs) {
+    public void notifyWorkflowRun(WorkflowRunDB wr, String nodeId, Map inputs) {
         WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
-        wnr.setTenantId(tenantId);
-        wnr.setWorkflowId(workflowId);
-        wnr.setWorkflowRunId(workflowRunId);
+        wnr.setTenantId(wr.getTenantId());
+        wnr.setWorkflowId(wr.getWorkflowId());
+        wnr.setWorkflowRunId(wr.getWorkflowRunId());
         wnr.setNodeId(nodeId);
         wnr.setStatus(NodeRunResult.Status.notified.name());
         wnr.setNotifyData(JsonUtils.toJson(inputs));

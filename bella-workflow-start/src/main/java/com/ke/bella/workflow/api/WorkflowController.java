@@ -192,7 +192,10 @@ public class WorkflowController {
             @PathVariable String nodeId,
             @RequestBody Map inputs) {
 
-        ws.notifyWorkflowRun(tenantId, workflowId, workflowRunId, nodeId, inputs);
+        WorkflowRunDB wr = ws.getWorkflowRun(workflowRunId);
+        Assert.notNull(wr, String.format("找不到对应的工作流运行实例", workflowRunId));
+
+        ws.notifyWorkflowRun(wr, nodeId, inputs);
 
         return BellaResponse.builder().code(201).data("OK").build();
     }

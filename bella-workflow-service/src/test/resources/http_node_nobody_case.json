@@ -1,0 +1,148 @@
+{
+  "graph": {
+    "edges": [
+      {
+        "data": {
+          "sourceType": "start",
+          "targetType": "http-request"
+        },
+        "id": "1717382048262-1717382052745",
+        "source": "1717382048262",
+        "sourceHandle": "source",
+        "target": "1717382052745",
+        "targetHandle": "target",
+        "type": "custom"
+      },
+      {
+        "data": {
+          "sourceType": "http-request",
+          "targetType": "end"
+        },
+        "id": "1717382052745-1717382055086",
+        "source": "1717382052745",
+        "sourceHandle": "source",
+        "target": "1717382055086",
+        "targetHandle": "target",
+        "type": "custom"
+      }
+    ],
+    "nodes": [
+      {
+        "data": {
+          "desc": "",
+          "selected": false,
+          "title": "开始",
+          "type": "start",
+          "variables": []
+        },
+        "height": 54,
+        "id": "1717382048262",
+        "position": {
+          "x": -41.808079894338334,
+          "y": 282
+        },
+        "positionAbsolute": {
+          "x": -41.808079894338334,
+          "y": 282
+        },
+        "selected": false,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244
+      },
+      {
+        "data": {
+          "authorization": {
+            "config": null,
+            "type": "no-auth"
+          },
+          "body": {
+            "data": "",
+            "type": "none"
+          },
+          "desc": "",
+          "headers": "",
+          "method": "get",
+          "params": "",
+          "selected": false,
+          "timeout": {
+            "max_connect_timeout": 0,
+            "max_read_timeout": 0,
+            "max_write_timeout": 0
+          },
+          "title": "HTTP 请求",
+          "type": "http-request",
+          "url": "http://example.com/bclever/bella/ali-qwen15-72b-zfy-v1-chat-20240314/healthCheck",
+          "variables": []
+        },
+        "height": 138,
+        "id": "1717382052745",
+        "position": {
+          "x": 380,
+          "y": 282
+        },
+        "positionAbsolute": {
+          "x": 380,
+          "y": 282
+        },
+        "selected": false,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244
+      },
+      {
+        "data": {
+          "desc": "",
+          "outputs": [
+            {
+              "value_selector": [
+                "1717382052745",
+                "body"
+              ],
+              "variable": "body"
+            },
+            {
+              "value_selector": [
+                "1717382052745",
+                "status_code"
+              ],
+              "variable": "status_code"
+            },
+            {
+              "value_selector": [
+                "1717382052745",
+                "headers"
+              ],
+              "variable": "headers"
+            }
+          ],
+          "selected": false,
+          "title": "结束",
+          "type": "end"
+        },
+        "height": 142,
+        "id": "1717382055086",
+        "position": {
+          "x": 680,
+          "y": 282
+        },
+        "positionAbsolute": {
+          "x": 680,
+          "y": 282
+        },
+        "selected": true,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244
+      }
+    ],
+    "viewport": {
+      "x": -247.2839259387789,
+      "y": 47.47104007931554,
+      "zoom": 0.8669375635146869
+    }
+  }
+}

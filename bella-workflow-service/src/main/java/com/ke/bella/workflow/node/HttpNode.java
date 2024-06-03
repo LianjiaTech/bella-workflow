@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.util.StringUtils;
 
@@ -31,6 +32,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
 import okio.Buffer;
@@ -112,9 +114,11 @@ public class HttpNode extends BaseNode {
 
     private static String bodyToString(final Request request) {
         try {
-            final Request copy = request.newBuilder().build();
+            if(Objects.isNull(request.body())) {
+                return null;
+            }
             final Buffer buffer = new Buffer();
-            copy.body().writeTo(buffer);
+            request.body().writeTo(buffer);
             return buffer.readUtf8();
         } catch (final IOException e) {
             return "did not work";
@@ -122,9 +126,15 @@ public class HttpNode extends BaseNode {
     }
 
     private String extractBody(Response response) throws IOException {
-        String type = response.body().contentType().type();
-        if(type.contains("text") || type.contains("json") || type.contains("xml")) {
-            return response.body().string();
+        ResponseBody body = response.body();
+        if(body != null) {
+            MediaType contentType = body.contentType();
+            if(contentType != null) {
+                String mediaType = contentType.toString();
+                if(mediaType.contains("text") || mediaType.contains("json") || mediaType.contains("xml")) {
+                    return body.string();
+                }
+            }
         }
         return "";
     }

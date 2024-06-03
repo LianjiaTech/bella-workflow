@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,6 +20,9 @@ public class WorkflowOps {
 
     @Getter
     @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class WorkflowOp extends Operator {
         String workflowId;
     }
@@ -33,6 +38,7 @@ public class WorkflowOps {
     @Setter
     @NoArgsConstructor
     @SuperBuilder
+    @AllArgsConstructor
     public static class WorkflowSync extends Operator {
         String workflowId;
         String graph;
@@ -50,9 +56,14 @@ public class WorkflowOps {
 
     @Getter
     @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @SuppressWarnings("rawtypes")
     public static class WorkflowRun extends WorkflowOp {
+        @Builder.Default
         Map inputs = new HashMap();
+        @Builder.Default
         String responseMode = ResponseMode.streaming.name();
         String callbackUrl;
         String triggerFrom;
@@ -66,6 +77,9 @@ public class WorkflowOps {
 
     @Getter
     @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @SuppressWarnings("rawtypes")
     public static class WorkflowNodeRun extends WorkflowOp {
         Map inputs = new HashMap();

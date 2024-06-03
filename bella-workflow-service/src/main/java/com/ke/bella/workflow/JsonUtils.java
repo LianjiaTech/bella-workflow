@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -29,6 +30,14 @@ public class JsonUtils {
     }
 
     public static <T> T fromJson(String json, Class<T> clazz) {
+        try {
+            return mapper.readValue(json, clazz);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static <T> T fromJson(String json, TypeReference<T> clazz) {
         try {
             return mapper.readValue(json, clazz);
         } catch (Exception e) {

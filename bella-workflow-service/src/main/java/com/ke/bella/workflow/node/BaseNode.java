@@ -44,6 +44,10 @@ public abstract class BaseNode implements RunnableNode {
         return this.meta.getId();
     }
 
+    public WorkflowSchema.Node getMeta() {
+        return meta;
+    }
+
     @Override
     public NodeRunResult run(WorkflowContext context, IWorkflowCallback callback) {
         Long startTime = System.nanoTime();

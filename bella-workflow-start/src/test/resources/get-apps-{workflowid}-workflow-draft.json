@@ -1,0 +1,82 @@
+{
+  "response": {
+    "id": "96e1c0c8-0df2-4e6b-bde1-395c25c8034b",
+    "graph": {
+      "nodes": [
+        {
+          "width": 244,
+          "height": 54,
+          "id": "1716950363207",
+          "type": "custom",
+          "data": {
+            "type": "start",
+            "title": "\u5f00\u59cb",
+            "desc": "",
+            "variables": [],
+            "selected": false
+          },
+          "position": {
+            "x": 80,
+            "y": 282
+          },
+          "targetPosition": "left",
+          "sourcePosition": "right",
+          "positionAbsolute": {
+            "x": 80,
+            "y": 282
+          }
+        }
+      ],
+      "edges": [],
+      "viewport": {
+        "x": 79.95073986952903,
+        "y": 126.48405257269536,
+        "zoom": 1.0
+      }
+    },
+    "features": {
+      "opening_statement": "",
+      "suggested_questions": [],
+      "suggested_questions_after_answer": {
+        "enabled": false
+      },
+      "text_to_speech": {
+        "enabled": false,
+        "voice": "",
+        "language": ""
+      },
+      "speech_to_text": {
+        "enabled": false
+      },
+      "retriever_resource": {
+        "enabled": false
+      },
+      "sensitive_word_avoidance": {
+        "enabled": false
+      },
+      "file_upload": {
+        "image": {
+          "enabled": false,
+          "number_limits": 3,
+          "transfer_methods": [
+            "local_file",
+            "remote_url"
+          ]
+        }
+      }
+    },
+    "created_by": {
+      "id": "b4741fe5-ae34-4a8e-8fc1-d7f957738bd9",
+      "name": "zhufengyi",
+      "email": "391611664@qq.com"
+    },
+    "created_at": 1716950363,
+    "updated_by": {
+      "id": "b4741fe5-ae34-4a8e-8fc1-d7f957738bd9",
+      "name": "zhufengyi",
+      "email": "391611664@qq.com"
+    },
+    "updated_at": 1716953372
+  }
+
+}

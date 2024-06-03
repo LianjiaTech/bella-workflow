@@ -28,7 +28,7 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         Class<?> clazz = returnType.getContainingClass();
-        return clazz.getName().startsWith("com.ke.bella.workflow.api.");
+        return clazz.getName().startsWith("com.ke.bella.workflow.api.WorkflowController");
     }
 
     @SuppressWarnings("rawtypes")

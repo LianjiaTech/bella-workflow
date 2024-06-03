@@ -69,14 +69,15 @@ public class HttpNode extends BaseNode {
             response = client.newCall(request).execute();
 
             Map outputs = new LinkedHashMap<>();
-            outputs.put("status_code", response.code());
+            int statusCode = response.code();
+            outputs.put("status_code", statusCode);
             outputs.put("body", extractBody(response));
             outputs.put("headers", response.headers().toMultimap());
             outputs.put("files", extractFiles(response));
             return NodeRunResult.builder()
                     .processData(processedData)
                     .outputs(outputs)
-                    .status(NodeRunResult.Status.succeeded)
+                    .status(statusCode >= 200 && statusCode <= 299 ? NodeRunResult.Status.succeeded : NodeRunResult.Status.failed)
                     .build();
         } catch (Exception e) {
             return NodeRunResult.builder()

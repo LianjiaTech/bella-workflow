@@ -1,0 +1,202 @@
+{
+  "request": {
+    "graph": {
+      "nodes": [
+        {
+          "width": 244,
+          "height": 90,
+          "id": "1715941054541",
+          "type": "custom",
+          "data": {
+            "type": "start",
+            "title": "开始",
+            "desc": "",
+            "variables": [
+              {
+                "variable": "q",
+                "label": "问题",
+                "type": "text-input",
+                "max_length": 48,
+                "required": true,
+                "options": []
+              }
+            ],
+            "selected": false
+          },
+          "position": {
+            "x": 78.515476429371,
+            "y": 282
+          },
+          "targetPosition": "left",
+          "sourcePosition": "right",
+          "positionAbsolute": {
+            "x": 78.515476429371,
+            "y": 282
+          },
+          "selected": false
+        },
+        {
+          "width": 244,
+          "height": 288,
+          "id": "1716460032513",
+          "type": "custom",
+          "data": {
+            "type": "question-classifier",
+            "title": "问题分类器",
+            "desc": "",
+            "query_variable_selector": [
+              "1715941054541",
+              "q"
+            ],
+            "topics": [],
+            "model": {
+              "provider": "openai_api_compatible",
+              "name": "c4ai-command-r-plus",
+              "mode": "chat",
+              "completion_params": {
+                "temperature": 0.7,
+                "top_p": 1,
+                "frequency_penalty": 0,
+                "presence_penalty": 0,
+                "max_tokens": 512
+              }
+            },
+            "classes": [
+              {
+                "id": "1",
+                "name": "美食相关的问题"
+              },
+              {
+                "id": "2",
+                "name": "体育相关的问题"
+              },
+              {
+                "id": "1716518273381",
+                "name": "摄影相关的问题"
+              },
+              {
+                "id": "1716524008633",
+                "name": "444"
+              },
+              {
+                "id": "1716529977867",
+                "name": ""
+              }
+            ],
+            "selected": false,
+            "instructions": "",
+            "instruction": ""
+          },
+          "position": {
+            "x": 379.0072924116897,
+            "y": 422.96447754005567
+          },
+          "targetPosition": "left",
+          "sourcePosition": "right",
+          "positionAbsolute": {
+            "x": 379.0072924116897,
+            "y": 422.96447754005567
+          },
+          "selected": false
+        },
+        {
+          "width": 244,
+          "height": 90,
+          "id": "1716379734663",
+          "type": "custom",
+          "data": {
+            "type": "end",
+            "title": "结束",
+            "desc": "",
+            "outputs": [
+              {
+                "variable": "body",
+                "value_selector": [
+                  "1716460032513",
+                  "class_name"
+                ]
+              }
+            ],
+            "selected": false
+          },
+          "position": {
+            "x": 772.251645779282,
+            "y": 454.4806293727879
+          },
+          "targetPosition": "left",
+          "sourcePosition": "right",
+          "positionAbsolute": {
+            "x": 772.251645779282,
+            "y": 454.4806293727879
+          },
+          "selected": true
+        }
+      ],
+      "edges": [
+        {
+          "id": "1715941054541-1716460032513",
+          "type": "custom",
+          "source": "1715941054541",
+          "target": "1716460032513",
+          "sourceHandle": "source",
+          "targetHandle": "target",
+          "data": {
+            "sourceType": "start",
+            "targetType": "question-classifier"
+          }
+        },
+        {
+          "id": "1716460032513-1716379734663",
+          "type": "custom",
+          "source": "1716460032513",
+          "target": "1716379734663",
+          "sourceHandle": "1",
+          "targetHandle": "target",
+          "data": {
+            "sourceType": "question-classifier",
+            "targetType": "end"
+          }
+        }
+      ],
+      "viewport": {
+        "x": -83.82936049194723,
+        "y": 110.45483166234578,
+        "zoom": 0.6951657096461674
+      }
+    },
+    "features": {
+      "opening_statement": "",
+      "suggested_questions": [],
+      "suggested_questions_after_answer": {
+        "enabled": false
+      },
+      "text_to_speech": {
+        "enabled": false,
+        "voice": "",
+        "language": ""
+      },
+      "speech_to_text": {
+        "enabled": false
+      },
+      "retriever_resource": {
+        "enabled": false
+      },
+      "sensitive_word_avoidance": {
+        "enabled": false
+      },
+      "file_upload": {
+        "image": {
+          "enabled": false,
+          "number_limits": 3,
+          "transfer_methods": [
+            "local_file",
+            "remote_url"
+          ]
+        }
+      }
+    }
+  },
+  "response":{
+
+  }
+}

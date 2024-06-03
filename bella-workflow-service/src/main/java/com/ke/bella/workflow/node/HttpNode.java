@@ -10,10 +10,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
@@ -120,7 +123,9 @@ public class HttpNode extends BaseNode {
     }
 
     @SuppressWarnings("unchecked")
-    private NodeRunResult requestWithSSE(WorkflowContext context, Request request, NodeRunResultBuilder builder, IWorkflowCallback callback) {
+    private NodeRunResult requestWithSSE(WorkflowContext context, Request request, NodeRunResultBuilder builder, IWorkflowCallback callback)
+            throws InterruptedException {
+        CountDownLatch eventLatch = new CountDownLatch(1);
         RealEventSource eventSource = new RealEventSource(request, new EventSourceListener() {
             Map outputs = new LinkedHashMap<>();
             StringBuilder bodyBuffer = new StringBuilder();
@@ -170,6 +175,7 @@ public class HttpNode extends BaseNode {
 
                 outputs.put("body", bodyBuffer.toString());
                 builder.status(NodeRunResult.Status.succeeded);
+                eventLatch.countDown();
             }
 
             @Override
@@ -184,10 +190,13 @@ public class HttpNode extends BaseNode {
 
                 builder.status(NodeRunResult.Status.failed);
                 builder.error(new IllegalStateException("SSE请求异常", t));
+                eventLatch.countDown();
             }
         });
 
         eventSource.connect(client);
+
+        eventLatch.await(data.getTimeout().getRead(), TimeUnit.MILLISECONDS);
 
         return builder.build();
     }
@@ -243,6 +252,10 @@ public class HttpNode extends BaseNode {
     }
 
     private RequestBody buildBody(WorkflowContext context) {
+        if(data.getMethod().equalsIgnoreCase("get")) {
+            return null;
+        }
+
         String type = data.getBody().getType();
         if("form-data".equals(type)) {
             Map<String, String> values = toFormattedMap(data.getBody().data, context.getState().getVariablePool());
@@ -417,9 +430,12 @@ public class HttpNode extends BaseNode {
         @Getter
         @Setter
         public static class Timeout {
-            int connect = 300;
-            int read = 600;
-            int write = 600;
+            @JsonAlias("max_connect_timeout")
+            int connect = 10 * 1000;
+            @JsonAlias("max_read_timeout")
+            int read = 300 * 1000;
+            @JsonAlias("max_write_timeout")
+            int write = 60 * 1000;
         }
     }
 }

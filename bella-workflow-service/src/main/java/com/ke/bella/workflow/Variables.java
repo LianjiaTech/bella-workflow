@@ -3,6 +3,7 @@ package com.ke.bella.workflow;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,6 +45,28 @@ public class Variables {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static void putValue(Map<String, Map> pool, List<String> selector, Object value) {
+        if(selector.isEmpty()) {
+            return;
+        }
+
+        Map parent = pool;
+        Map result = parent;
+        for (int i = 0; i < selector.size() - 1; i++) {
+            String key = selector.get(i);
+            result = (Map) result.get(key);
+            if(result == null) {
+                result = new LinkedHashMap<>();
+                parent.put(key, result);
+            } else if(!(result instanceof Map)) {
+                throw new IllegalArgumentException("变量不合法");
+            }
+            parent = result;
+        }
+        result.put(selector.get(selector.size() - 1), value);
     }
 
     @SuppressWarnings("rawtypes")
@@ -145,4 +168,5 @@ public class Variables {
         Jinjava jinjava = new Jinjava();
         return jinjava.render(tmpl, context);
     }
+
 }

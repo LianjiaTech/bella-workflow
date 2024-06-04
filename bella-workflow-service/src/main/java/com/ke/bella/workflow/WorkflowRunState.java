@@ -45,7 +45,7 @@ public class WorkflowRunState {
     }
 
     @SuppressWarnings("rawtypes")
-    public void putNotifyData(Map<String, Map> data) {
+    public synchronized void putNotifyData(Map<String, Map> data) {
         notifyDataMap.clear();
         notifyDataMap.putAll(data);
     }
@@ -65,25 +65,29 @@ public class WorkflowRunState {
     }
 
     @SuppressWarnings("rawtypes")
-    public Map getVariablePool() {
+    public synchronized Map getVariablePool() {
         return Collections.unmodifiableMap(variablePoolMap);
     }
 
-    public Object getVariableValue(List<String> selector) {
+    public synchronized Object getVariableValue(List<String> selector) {
         return Variables.getValue(variablePoolMap, selector);
     }
 
-    public NodeRunResult getNodeState(String nodeId) {
+    public synchronized void putVariableValue(List<String> selector, Object value) {
+        Variables.putValue(variablePoolMap, selector, value);
+    }
+
+    public synchronized NodeRunResult getNodeState(String nodeId) {
         NodeRunResult r = nodeWaitingStates.get(nodeId);
         return r == null ? nodeCompletedStates.get(nodeId) : r;
     }
 
-    public boolean isResume(String nodeId) {
+    public synchronized boolean isResume(String nodeId) {
         return notifyDataMap.containsKey(nodeId);
     }
 
     @SuppressWarnings("rawtypes")
-    public Map getNotifyData(String nodeId) {
+    public synchronized Map getNotifyData(String nodeId) {
         return notifyDataMap.get(nodeId);
     }
 

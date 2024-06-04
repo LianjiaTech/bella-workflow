@@ -112,6 +112,7 @@ public class WorkflowService {
                 .graph(graph)
                 .state(new WorkflowRunState())
                 .userInputs(inputs)
+                .triggerFrom(wr.getTriggerFrom())
                 .build();
         new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
     }
@@ -132,6 +133,7 @@ public class WorkflowService {
                 .graph(graph)
                 .state(new WorkflowRunState())
                 .userInputs(inputs)
+                .triggerFrom(wr.getTriggerFrom())
                 .build();
         new WorkflowRunner().runNode(context, new WorkflowRunCallback(this, callback), nodeId);
     }
@@ -149,8 +151,8 @@ public class WorkflowService {
     }
 
     @SuppressWarnings("rawtypes")
-    public WorkflowRunDB newWorkflowRun(WorkflowDB wf, Map inputs, String callbackUrl, String responseMode) {
-        final WorkflowRunDB wr = repo.addWorkflowRun(wf, JsonUtils.toJson(inputs), callbackUrl, responseMode);
+    public WorkflowRunDB newWorkflowRun(WorkflowDB wf, Map inputs, String callbackUrl, String responseMode, String triggerFrom) {
+        final WorkflowRunDB wr = repo.addWorkflowRun(wf, JsonUtils.toJson(inputs), callbackUrl, responseMode, triggerFrom);
         TaskExecutor.submit(() -> counter.increase(wr));
         return wr;
     }
@@ -321,6 +323,7 @@ public class WorkflowService {
                 .graph(graph)
                 .state(getWorkflowRunState(wr.getWorkflowRunId()))
                 .userInputs(new HashMap())
+                .triggerFrom(wr.getTriggerFrom())
                 .build();
 
         tryResumeWorkflow(context, callback);

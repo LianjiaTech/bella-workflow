@@ -3,6 +3,7 @@ package com.ke.bella.workflow.node;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.WorkflowContext;
+import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 
@@ -27,6 +29,7 @@ public class IfElseNode extends BaseNode {
         super(meta);
         this.data = JsonUtils.convertValue(meta.getData(), Data.class);
     }
+
 
     @SuppressWarnings("unchecked")
     @Override

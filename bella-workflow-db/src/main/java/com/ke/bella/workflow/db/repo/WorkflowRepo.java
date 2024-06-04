@@ -187,7 +187,7 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, String inputs, String callbackUrl, String responseMode) {
+    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, String inputs, String callbackUrl, String responseMode, String triggerFrom) {
         WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
 
         String runId = IDGenerator.newWorkflowRunId();
@@ -201,6 +201,7 @@ public class WorkflowRepo implements BaseRepo {
         rec.setInputs(inputs);
         rec.setOutputs("");
         rec.setError("");
+        rec.setTriggerFrom(triggerFrom);
         if(callbackUrl != null) {
             rec.setCallbackUrl(callbackUrl);
         }

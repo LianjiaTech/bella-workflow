@@ -61,6 +61,10 @@ public abstract class BaseNode implements RunnableNode {
 
         appendBuiltinVariables(context);
 
+        if("DEBUG_NODE".equals(context.getTriggerFrom())) {
+            appendUserInputsAsVariables(context);
+        }
+
         callback.onWorkflowNodeRunStarted(context, meta.getId());
 
         NodeRunResult result = execute(context, callback);
@@ -76,6 +80,19 @@ public abstract class BaseNode implements RunnableNode {
         LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
 
         return result;
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    private void appendUserInputsAsVariables(WorkflowContext context) {
+        final Map<String, Object> userInputs = context.userInputs();
+        userInputs.forEach((k, v) -> {
+            if(k.startsWith("#") && k.endsWith("#")) {
+                String[] selector = k.substring(1, k.length() - 1).split("\\.");
+                context.getState().putVariableValue(Arrays.asList(selector), userInputs.get(k));
+            } else {
+                throw new IllegalArgumentException("用户输入的变量名不合法，需要是`#key1.key2#`格式");
+            }
+        });
     }
 
     public NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback) {

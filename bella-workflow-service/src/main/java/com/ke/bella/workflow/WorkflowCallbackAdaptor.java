@@ -25,6 +25,7 @@ public class WorkflowCallbackAdaptor implements IWorkflowCallback {
 
     protected void responseWorkflowNodeInfo(WorkflowContext context, Map<String, Object> data, String nodeId) {
         data.put("nodeId", nodeId);
+        data.put("nodeType", context.getGraph().node(nodeId).getType());
     }
 
     protected void responseWorkflowNodeProgress(WorkflowContext context, Map<String, Object> data, ProgressData pd) {

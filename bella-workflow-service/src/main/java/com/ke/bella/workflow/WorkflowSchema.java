@@ -48,6 +48,7 @@ public class WorkflowSchema {
         @JsonAlias({ "value_selector" })
         private List<String> valueSelector;
         private String variable;
+        private String value;
     }
 
     @lombok.Data

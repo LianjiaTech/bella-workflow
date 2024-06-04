@@ -86,7 +86,7 @@ public class DifyController {
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         Assert.notNull(wf, String.format("工作流当前无draft版本，无法单独调试节点", op.workflowId));
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "","");
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", "", "DEBUG_NODE");
 
         DifySingleNodeRunBlockingCallback callback = new DifySingleNodeRunBlockingCallback();
         ws.runNode(wr, nodeId, op.inputs, callback);
@@ -124,7 +124,7 @@ public class DifyController {
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法单独调试节点", op.workflowId));
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "","");
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", "", "DEBUG");
         if(mode == WorkflowOps.ResponseMode.blocking) {
             WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, 300000L);
             TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, callback));

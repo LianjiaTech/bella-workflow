@@ -23,6 +23,7 @@ import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
+import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult.NodeRunResultBuilder;
 import com.ke.bella.workflow.WorkflowSchema.Node;
@@ -69,6 +70,11 @@ public class HttpNode extends BaseNode {
     protected NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
         Response response = null;
         try {
+            Map inputs = new LinkedHashMap<>();
+            if(data.getVariables() != null) {
+                data.getVariables().forEach(v -> inputs.put(v.getVariable(), context.getState().getVariableValue(v.getValueSelector())));
+            }
+
             Request request = new Request.Builder()
                     .url(buildUrl(context).toURL())
                     .headers(buildHeaders(context))
@@ -78,7 +84,9 @@ public class HttpNode extends BaseNode {
             Map processedData = new LinkedHashMap<>();
             processedData.put("request", render(request));
 
-            NodeRunResultBuilder resultBuilder = NodeRunResult.builder().processData(processedData);
+            NodeRunResultBuilder resultBuilder = NodeRunResult.builder()
+                    .inputs(inputs)
+                    .processData(processedData);
 
             if(data.isStreaming()) {
                 return requestWithSSE(context, request, resultBuilder, callback);
@@ -376,6 +384,7 @@ public class HttpNode extends BaseNode {
         Timeout timeout;
         Authorization authorization;
         String mode = "blocking";
+        List<WorkflowSchema.Variable> variables;
 
         boolean isStreaming() {
             return "streaming".equalsIgnoreCase(mode);

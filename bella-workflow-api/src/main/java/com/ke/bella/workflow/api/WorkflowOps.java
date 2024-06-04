@@ -18,6 +18,13 @@ public class WorkflowOps {
         callback;
     }
 
+    public enum TriggerFrom {
+        DEBUG,
+        DEBUG_NODE,
+        API,
+        SCHEDULE;
+    }
+
     @Getter
     @Setter
     @SuperBuilder
@@ -66,7 +73,8 @@ public class WorkflowOps {
         @Builder.Default
         String responseMode = ResponseMode.streaming.name();
         String callbackUrl;
-        String triggerFrom;
+        @Builder.Default
+        String triggerFrom = TriggerFrom.DEBUG.name();
     }
 
     @Getter

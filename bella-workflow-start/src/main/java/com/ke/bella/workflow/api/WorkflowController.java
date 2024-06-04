@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TenantCreate;
+import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowCopy;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowList;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowNodeRun;
@@ -95,12 +96,15 @@ public class WorkflowController {
 
     @PostMapping("/draft/run")
     public Object runDraft(@RequestBody WorkflowRun op) {
-        return run0(op, "draft", "DEBUG");
+        return run0(op, "draft", TriggerFrom.DEBUG.name());
     }
 
     @PostMapping("/run")
     public Object run(@RequestBody WorkflowRun op) {
-        return run0(op, "published", "API");
+        TriggerFrom tf = TriggerFrom.valueOf(op.triggerFrom);
+        Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE]之一");
+
+        return run0(op, "published", op.triggerFrom);
     }
 
     public Object run0(WorkflowRun op, String ver, String triggerFrom) {
@@ -150,7 +154,7 @@ public class WorkflowController {
         WorkflowDB wf = ws.getDraftWorkflow(op.workflowId);
         Assert.notNull(wf, String.format("工作流当前无draft版本，无法单独调试节点", op.workflowId));
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", op.responseMode, "DEBUG_NODE");
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", op.responseMode, TriggerFrom.DEBUG_NODE.name());
         if(mode == ResponseMode.blocking) {
             SingleNodeRunBlockingCallback callback = new SingleNodeRunBlockingCallback();
             ws.runNode(wr, op.nodeId, op.inputs, callback);

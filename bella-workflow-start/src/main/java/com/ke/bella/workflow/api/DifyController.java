@@ -6,6 +6,7 @@ import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
@@ -86,7 +87,7 @@ public class DifyController {
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         Assert.notNull(wf, String.format("工作流当前无draft版本，无法单独调试节点", op.workflowId));
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", "", "DEBUG_NODE");
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", "", TriggerFrom.DEBUG_NODE.name());
 
         DifySingleNodeRunBlockingCallback callback = new DifySingleNodeRunBlockingCallback();
         ws.runNode(wr, nodeId, op.inputs, callback);
@@ -124,7 +125,7 @@ public class DifyController {
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法单独调试节点", op.workflowId));
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", "", "DEBUG");
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", "", TriggerFrom.DEBUG.name());
         if(mode == WorkflowOps.ResponseMode.blocking) {
             WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, 300000L);
             TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, callback));

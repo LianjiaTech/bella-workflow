@@ -133,6 +133,7 @@ public class WorkflowRepo implements BaseRepo {
         WorkflowRecord rec = WORKFLOW.newRecord();
         WorkflowDB wf = queryDraftWorkflow(workflowId);
         rec.from(wf);
+        rec.setId(null);
         rec.setVersion(System.currentTimeMillis());
         fillUpdatorInfo(rec);
 

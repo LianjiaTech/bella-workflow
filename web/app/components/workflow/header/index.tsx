@@ -82,9 +82,12 @@ const Header: FC = () => {
     if (handleCheckBeforePublish()) {
       const res = await publishWorkflow(`/apps/${appID}/workflows/publish`)
 
-      if (res) {
+      if (res.code === 200) {
         notify({ type: 'success', message: t('common.api.actionSuccess') })
         workflowStore.getState().setPublishedAt(res.created_at)
+      }
+      else {
+        notify({ type: 'error', message: t(res.message) })
       }
     }
     else {

@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -59,7 +60,7 @@ public class WorkflowService {
         WorkflowDB wf = repo.queryDraftWorkflow(op.getWorkflowId());
         if(wf == null) {
             repo.addDraftWorkflow(op);
-        } else {
+        } else if(!StringUtils.equals(wf.getGraph(), op.getGraph())) {
             repo.updateDraftWorkflow(op);
         }
     }

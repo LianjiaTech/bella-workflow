@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.db.repo;
 
 import static com.ke.bella.workflow.db.tables.WorkflowRun.*;
+import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.*;
 
 import java.util.regex.Pattern;
 
@@ -41,7 +42,10 @@ public class DSLContextHolder {
                                 .withInputExpression(Pattern.compile(".*"))
                                 .withTables(new MappedTable()
                                         .withInput(WORKFLOW_RUN.getName())
-                                        .withOutput(targetTableName(WORKFLOW_RUN.getName(), key)))));
+                                        .withOutput(targetTableName(WORKFLOW_RUN.getName(), key)),
+                                        new MappedTable()
+                                                .withInput(WORKFLOW_NODE_RUN.getName())
+                                                .withOutput(targetTableName(WORKFLOW_NODE_RUN.getName(), key)))));
     }
 
     public static String targetTableName(String orignalName, String key) {

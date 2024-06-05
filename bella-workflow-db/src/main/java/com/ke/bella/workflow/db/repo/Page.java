@@ -9,7 +9,7 @@ public class Page<T> {
     private int page;
     private int pageSize;
     private int total;
-    private List<T> list;
+    private List<T> data;
 
     public static <T> Page<T> from(int page, int pageSize) {
         return new Page<T>().page(page).pageSize(pageSize);
@@ -31,7 +31,7 @@ public class Page<T> {
     }
 
     public Page<T> list(List<T> list) {
-        this.list = list;
+        this.data = list;
         return this;
     }
 

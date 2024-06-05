@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 
 import org.jooq.DSLContext;
 import org.jooq.SelectConditionStep;
+import org.jooq.SelectSeekStep1;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -56,6 +57,14 @@ public class WorkflowRepo implements BaseRepo {
                 .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
                 .and(WORKFLOW.VERSION.eq(0l))
                 .fetchOneInto(WorkflowDB.class);
+    }
+
+    public Page<WorkflowDB> pageDraftWorkflow() {
+        SelectSeekStep1<WorkflowRecord, Long> sql = db.selectFrom(WORKFLOW)
+                .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW.VERSION.eq(0l))
+                .orderBy(WORKFLOW.ID.desc());
+        return queryPage(db, sql, 1, 30, WorkflowDB.class);
     }
 
     public WorkflowRunDB queryDraftWorkflowRunSuccessed(WorkflowDB wf) {

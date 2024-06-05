@@ -1,5 +1,22 @@
 package com.ke.bella.workflow.api;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.ke.bella.workflow.BellaContext;
@@ -11,26 +28,16 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
+import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.service.WorkflowService;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/console/api/apps")
@@ -39,13 +46,33 @@ public class DifyController {
     @Autowired
     WorkflowService ws;
 
-    private  void initContext() {
+    private void initContext() {
         BellaContext.setOperator(Operator.builder()
                 .userId(userIdL)
                 .tenantId("test")
                 .userName("test")
                 .build());
         BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public Page<DifyApp> pageApps(@RequestParam int page, @RequestParam int limit, @RequestParam String name) {
+        initContext();
+        Page<WorkflowDB> wfs = ws.pageDraftWorkflow();
+
+        List<DifyApp> apps = new ArrayList<>();
+        wfs.getData().forEach(wf -> apps.add(DifyApp.builder()
+                .id(wf.getWorkflowId())
+                .name(wf.getTitle())
+                .description(wf.getDesc())
+                .build()));
+
+        Page<DifyApp> ret = new Page<>();
+        ret.page(page);
+        ret.pageSize(wfs.getPageSize());
+        ret.total(wfs.getTotal());
+        ret.list(apps);
+        return ret;
     }
 
     @GetMapping("/{workflowId}/workflows/draft")
@@ -59,13 +86,72 @@ public class DifyController {
         return JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
     }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DifyApp {
+        String id;
+        String name;
+        String description;
+        @Builder.Default
+        String mode = "workflow";
+        @Builder.Default
+        String icon = "\ud83e\udd16";
+        @Builder.Default
+        String icon_background = "#FFEAD5";
+        boolean enable_site;
+        boolean enable_api;
+        Object model_config;
+        @Builder.Default
+        Site site = new Site();
+        @Builder.Default
+        String api_base_url = "https://example.com/v1";
+        int created_at;
+        @Builder.Default
+        Object[] deleted_tools = new Object[0];
+        @Builder.Default
+        Object[] tags = new Object[0];
+
+        @Data
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public static class Site {
+            String access_token;
+            String code;
+            String title;
+            Object icon;
+            Object icon_background;
+            Object description;
+            String default_language;
+            Object customize_domain;
+            Object copyright;
+            Object privacy_policy;
+            Object custom_disclaimer;
+            String customize_token_strategy;
+            boolean prompt_public;
+            String app_base_url;
+        }
+    }
+
+    @GetMapping("/{workflowId}")
+    public DifyApp getDifyApp(@PathVariable String workflowId) {
+        initContext();
+        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
+        return DifyApp.builder()
+                .id(workflowId)
+                .name(wf.getTitle())
+                .description(wf.getDesc())
+                .build();
+    }
+
     @PostMapping("/{workflowId}/workflows/draft")
     public WorkflowSchema saveDraftInfo(@PathVariable String workflowId, @RequestBody WorkflowSchema schema) {
         initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         WorkflowSync sync = WorkflowSync.builder()
-                .graph(Objects.nonNull(schema)?JsonUtils.toJson(schema):JsonUtils.toJson(getDefaultWorkflowSchema()))
+                .graph(Objects.nonNull(schema) ? JsonUtils.toJson(schema) : JsonUtils.toJson(getDefaultWorkflowSchema()))
                 .workflowId(workflowId)
                 .build();
         if(Objects.isNull(wf)) {
@@ -93,6 +179,7 @@ public class DifyController {
         ws.runNode(wr, nodeId, op.inputs, callback);
         return callback.getWorkflowNodeRunResult();
     }
+
     @GetMapping("/{workflowId}/workflows/publish")
     public Object getPublish(@PathVariable String workflowId) {
         initContext();
@@ -103,13 +190,14 @@ public class DifyController {
         }
         return JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
     }
+
     @PostMapping("/{workflowId}/workflows/publish")
     public Object publish(@PathVariable String workflowId) {
         initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
-        try{
+        try {
             ws.publish(workflowId);
-        }catch (Exception e){
+        } catch (Exception e) {
             return DifyResponse.builder().code("invalid_param").message(e.getMessage()).status(400).build();
         }
         return DifyResponse.builder().code("success").message("发布成功").status(200).build();
@@ -147,10 +235,9 @@ public class DifyController {
         private String message;
     }
 
-
     private WorkflowSchema getDefaultWorkflowSchema() {
         WorkflowSchema.Graph graph = new WorkflowSchema.Graph();
-        Map<String,Object> maps = Maps.newHashMap();
+        Map<String, Object> maps = Maps.newHashMap();
         maps.put("type", NodeType.START.name);
         maps.put("name", "开始");
         maps.put("title", "开始节点");
@@ -158,7 +245,7 @@ public class DifyController {
         maps.put("selected", true);
 
         graph.setNodes(Lists.newArrayList(WorkflowSchema.Node.builder()
-                .id(System.currentTimeMillis()+"")
+                .id(System.currentTimeMillis() + "")
                 .type(NodeType.START.name)
                 .data(maps)
                 .width(244)

@@ -26,6 +26,7 @@ import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
+import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
@@ -67,6 +68,10 @@ public class WorkflowService {
 
     public WorkflowDB getDraftWorkflow(String workflowId) {
         return repo.queryDraftWorkflow(workflowId);
+    }
+
+    public Page<WorkflowDB> pageDraftWorkflow() {
+        return repo.pageDraftWorkflow();
     }
 
     public WorkflowDB getPublishedWorkflow(String workflowId) {

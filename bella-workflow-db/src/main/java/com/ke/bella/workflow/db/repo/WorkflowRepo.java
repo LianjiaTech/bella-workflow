@@ -120,7 +120,9 @@ public class WorkflowRepo implements BaseRepo {
 
     public void updateDraftWorkflow(WorkflowSync op) {
         WorkflowRecord rec = WORKFLOW.newRecord();
-        rec.setGraph(op.getGraph());
+        if(!StringUtils.isEmpty(op.getGraph())) {
+            rec.setGraph(op.getGraph());
+        }
         if(!StringUtils.isEmpty(op.getTitle())) {
             rec.setTitle(op.getTitle());
         }

@@ -10,9 +10,9 @@ import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -55,7 +55,7 @@ public class DifyController {
         BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public Page<DifyApp> pageApps(@RequestParam int page, @RequestParam int limit, @RequestParam String name) {
         initContext();
         Page<WorkflowDB> wfs = ws.pageDraftWorkflow();
@@ -73,6 +73,21 @@ public class DifyController {
         ret.total(wfs.getTotal());
         ret.list(apps);
         return ret;
+    }
+
+    @PostMapping
+    public DifyApp createApp(@RequestBody DifyApp app) {
+        initContext();
+
+        WorkflowSchema schema = getDefaultWorkflowSchema();
+        WorkflowSync sync = WorkflowSync.builder()
+                .title(app.getName())
+                .desc(app.getDescription())
+                .graph(JsonUtils.toJson(schema))
+                .build();
+        WorkflowDB wf = ws.newWorkflow(sync);
+        app.setId(wf.getWorkflowId());
+        return app;
     }
 
     @GetMapping("/{workflowId}/workflows/draft")
@@ -143,6 +158,20 @@ public class DifyController {
                 .name(wf.getTitle())
                 .description(wf.getDesc())
                 .build();
+    }
+
+    @PutMapping("/{workflowId}")
+    public DifyApp updateDifyApp(@PathVariable String workflowId, @RequestBody DifyApp app) {
+        initContext();
+
+        WorkflowSync op = WorkflowSync.builder()
+                .title(app.getName())
+                .desc(app.getDescription())
+                .workflowId(workflowId)
+                .build();
+        ws.syncWorkflow(op);
+
+        return app;
     }
 
     @PostMapping("/{workflowId}/workflows/draft")

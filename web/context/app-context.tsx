@@ -1,6 +1,6 @@
 'use client'
 
-import { createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createRef, useCallback, useMemo, useRef, useState } from 'react'
 import useSWR from 'swr'
 import { createContext, useContext, useContextSelector } from 'use-context-selector'
 import type { FC, ReactNode } from 'react'
@@ -103,14 +103,14 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
     }
   }, [userProfileResponse])
 
-  useEffect(() => {
-    updateUserProfileAndVersion()
-  }, [updateUserProfileAndVersion, userProfileResponse])
+  // useEffect(() => {
+  //   updateUserProfileAndVersion()
+  // }, [updateUserProfileAndVersion, userProfileResponse])
 
-  useEffect(() => {
-    if (currentWorkspaceResponse)
-      setCurrentWorkspace(currentWorkspaceResponse)
-  }, [currentWorkspaceResponse])
+  // useEffect(() => {
+  //   if (currentWorkspaceResponse)
+  //     setCurrentWorkspace(currentWorkspaceResponse)
+  // }, [currentWorkspaceResponse])
 
   if (!appList || !userProfile)
     return <Loading type='app' />

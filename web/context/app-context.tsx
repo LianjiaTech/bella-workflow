@@ -57,8 +57,8 @@ const AppContext = createContext<AppContextValue>({
     is_password_set: false,
   },
   currentWorkspace: initialWorkspaceInfo,
-  isCurrentWorkspaceManager: false,
-  isCurrentWorkspaceOwner: false,
+  isCurrentWorkspaceManager: true,
+  isCurrentWorkspaceOwner: true,
   mutateUserProfile: () => { },
   mutateCurrentWorkspace: () => { },
   pageContainerRef: createRef(),
@@ -81,7 +81,13 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
   const { data: userProfileResponse, mutate: mutateUserProfile } = useSWR({ url: '/account/profile', params: {} }, fetchUserProfile)
   const { data: currentWorkspaceResponse, mutate: mutateCurrentWorkspace } = useSWR({ url: '/workspaces/current', params: {} }, fetchCurrentWorkspace)
 
-  const [userProfile, setUserProfile] = useState<UserProfileResponse>()
+  const [userProfile, setUserProfile] = useState<UserProfileResponse>({
+    id: '1',
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    avatar: 'https://randomuser.me/api',
+
+  })
   const [langeniusVersionInfo, setLangeniusVersionInfo] = useState<LangGeniusVersionResponse>(initialLangeniusVersionInfo)
   const [currentWorkspace, setCurrentWorkspace] = useState<ICurrentWorkspace>(initialWorkspaceInfo)
   const isCurrentWorkspaceManager = useMemo(() => ['owner', 'admin'].includes(currentWorkspace.role), [currentWorkspace.role])
@@ -119,8 +125,8 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
       langeniusVersionInfo,
       useSelector,
       currentWorkspace,
-      isCurrentWorkspaceManager,
-      isCurrentWorkspaceOwner,
+      isCurrentWorkspaceManager: true,
+      isCurrentWorkspaceOwner: true,
       mutateCurrentWorkspace,
     }}>
       <div className='flex flex-col h-full overflow-y-auto'>

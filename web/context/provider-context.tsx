@@ -15,8 +15,6 @@ import {
 import type { Model, ModelProvider } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import type { RETRIEVE_METHOD } from '@/types/app'
 import { Plan, type UsagePlanInfo } from '@/app/components/billing/type'
-import { fetchCurrentPlanInfo } from '@/service/billing'
-import { parseCurrentPlan } from '@/app/components/billing/utils'
 import { defaultPlan } from '@/app/components/billing/config'
 
 const ProviderContext = createContext<{
@@ -78,14 +76,14 @@ export const ProviderContextProvider = ({
   const [enableReplaceWebAppLogo, setEnableReplaceWebAppLogo] = useState(false)
 
   const fetchPlan = async () => {
-    const data = await fetchCurrentPlanInfo()
-    const enabled = data.billing.enabled
-    setEnableBilling(enabled)
-    setEnableReplaceWebAppLogo(data.can_replace_logo)
-    if (enabled) {
-      setPlan(parseCurrentPlan(data))
-      setIsFetchedPlan(true)
-    }
+    // const data = await fetchCurrentPlanInfo()
+    // const enabled = data.billing.enabled
+    // setEnableBilling(enabled)
+    // setEnableReplaceWebAppLogo(data.can_replace_logo)
+    // if (enabled) {
+    //   setPlan(parseCurrentPlan(data))
+    //   setIsFetchedPlan(true)
+    // }
   }
   useEffect(() => {
     fetchPlan()

@@ -22,7 +22,7 @@ export type UserProfileResponse = {
   name: string
   email: string
   avatar: string
-  is_password_set: boolean
+  is_password_set?: boolean
   interface_language?: string
   interface_theme?: string
   timezone?: string

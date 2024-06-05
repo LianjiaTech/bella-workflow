@@ -319,13 +319,13 @@ const baseFetch = <T>(
                     globalThis.location.href = `${globalThis.location.origin}/init`
                   else if (data.code === 'not_setup' && IS_CE_EDITION)
                     globalThis.location.href = `${globalThis.location.origin}/install`
-                  else if (location.pathname !== '/signin' || !IS_CE_EDITION)
-                    globalThis.location.href = loginUrl
+                  // else if (location.pathname !== '/signin' || !IS_CE_EDITION)
+                  //   globalThis.location.href = loginUrl
                   else if (!silent)
                     Toast.notify({ type: 'error', message: data.message })
                 }).catch(() => {
                   // Handle any other errors
-                  globalThis.location.href = loginUrl
+                  // globalThis.location.href = loginUrl
                 })
 
                 break
@@ -334,8 +334,8 @@ const baseFetch = <T>(
                 bodyJson.then((data: ResponseError) => {
                   if (!silent)
                     Toast.notify({ type: 'error', message: data.message })
-                  if (data.code === 'already_setup')
-                    globalThis.location.href = `${globalThis.location.origin}/signin`
+                  // if (data.code === 'already_setup')
+                  //   globalThis.location.href = `${globalThis.location.origin}/signin`
                 })
                 break
               // fall through

@@ -9,10 +9,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.jetbrains.annotations.NotNull;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.Variables;
@@ -49,7 +49,6 @@ public class LlmNode extends BaseNode {
     protected WorkflowRunState.NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
         Map<String, Object> processData = new HashMap<>();
         try {
-            validateData();
             Map<String, Object> nodeInputs = new HashMap<>();
             // only support chat model currently
             List<ChatMessage> chatMessages = fetchChatMessages(context);
@@ -90,11 +89,6 @@ public class LlmNode extends BaseNode {
         processData.put("model_mode", "chat");
         processData.put("prompts", prompts);
         return processData;
-    }
-
-    private void validateData() {
-        Assert.notNull(data.getAuthorization(), "authorization不能为空");
-        data.getAuthorization().valid();
     }
 
     private String handleInvokeResult(Data.Timeout timeout, WorkflowContext context, Flowable<ChatCompletionChunk> llmResult,
@@ -183,7 +177,8 @@ public class LlmNode extends BaseNode {
         private Object memory;
         @Builder.Default
         private Timeout timeout = new Timeout();
-        private Authorization authorization;
+        @Builder.Default
+        private Authorization authorization = new Authorization();
 
         @lombok.Data
         @Builder
@@ -195,11 +190,10 @@ public class LlmNode extends BaseNode {
             String apiBaseUrl = "https://example.com/v1/";
 
             public String authorization() {
+                if(apiKey == null) {
+                    apiKey = BellaContext.getApiKey();
+                }
                 return String.format("Bearer %s", apiKey);
-            }
-
-            public void valid() {
-                Assert.hasText(apiKey, "apiKey不能为空");
             }
         }
 

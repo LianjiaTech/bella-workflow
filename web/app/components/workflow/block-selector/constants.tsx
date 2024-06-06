@@ -14,11 +14,11 @@ export const BLOCKS: Block[] = [
     type: BlockEnum.LLM,
     title: 'LLM',
   },
-  {
-    classification: BlockClassificationEnum.Default,
-    type: BlockEnum.KnowledgeRetrieval,
-    title: 'Knowledge Retrieval',
-  },
+  // {
+  //   classification: BlockClassificationEnum.Default,
+  //   type: BlockEnum.KnowledgeRetrieval,
+  //   title: 'Knowledge Retrieval',
+  // },
   {
     classification: BlockClassificationEnum.Default,
     type: BlockEnum.End,
@@ -39,21 +39,21 @@ export const BLOCKS: Block[] = [
     type: BlockEnum.IfElse,
     title: 'IF/ELSE',
   },
-  {
-    classification: BlockClassificationEnum.Transform,
-    type: BlockEnum.Code,
-    title: 'Code',
-  },
+  // {
+  //   classification: BlockClassificationEnum.Transform,
+  //   type: BlockEnum.Code,
+  //   title: 'Code',
+  // },
   {
     classification: BlockClassificationEnum.Transform,
     type: BlockEnum.TemplateTransform,
     title: 'Templating Transform',
   },
-  {
-    classification: BlockClassificationEnum.Transform,
-    type: BlockEnum.VariableAssigner,
-    title: 'Variable Assigner',
-  },
+  // {
+  //   classification: BlockClassificationEnum.Transform,
+  //   type: BlockEnum.VariableAssigner,
+  //   title: 'Variable Assigner',
+  // },
   {
     classification: BlockClassificationEnum.Utilities,
     type: BlockEnum.HttpRequest,

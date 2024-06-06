@@ -2,7 +2,6 @@ import type { FC } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import MemoryConfig from '../_base/components/memory-config'
-import VarReferencePicker from '../_base/components/variable/var-reference-picker'
 import useConfig from './use-config'
 import ResolutionPicker from './components/resolution-picker'
 import type { LLMNodeType } from './types'
@@ -145,7 +144,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
         </Field>
 
         {/* knowledge */}
-        <Field
+        {/* <Field
           title={t(`${i18nPrefix}.context`)}
           tooltip={t(`${i18nPrefix}.contextTooltip`)!}
         >
@@ -162,23 +161,27 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
               <div className='leading-[18px] text-xs font-normal text-[#DC6803]'>{t(`${i18nPrefix}.notSetContextInPromptTip`)}</div>
             )}
           </>
-        </Field>
+        </Field> */}
 
         {/* Prompt */}
         {model.name && (
-          <ConfigPrompt
-            readOnly={readOnly}
-            nodeId={id}
-            filterVar={filterInputVar}
-            isChatModel={isChatModel}
-            isChatApp={isChatMode}
-            isShowContext
-            payload={inputs.prompt_template}
-            onChange={handlePromptChange}
-            hasSetBlockStatus={hasSetBlockStatus}
-            varList={inputs.prompt_config?.jinja2_variables || []}
-            handleAddVariable={handleAddVariable}
-          />
+          <Field
+            title={t(`${i18nPrefix}.prompt`)}
+          >
+            <ConfigPrompt
+              readOnly={readOnly}
+              nodeId={id}
+              filterVar={filterInputVar}
+              isChatModel={isChatModel}
+              isChatApp={isChatMode}
+              isShowContext
+              payload={inputs.prompt_template}
+              onChange={handlePromptChange}
+              hasSetBlockStatus={hasSetBlockStatus}
+              varList={inputs.prompt_config?.jinja2_variables || []}
+              handleAddVariable={handleAddVariable}
+            />
+          </Field>
         )}
 
         {isShowVars && (

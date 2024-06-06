@@ -13,8 +13,8 @@ import type { NavIcon } from '@/app/components/app-sidebar/navLink'
 import { fetchAppDetail } from '@/service/apps'
 import { useAppContext } from '@/context/app-context'
 import Loading from '@/app/components/base/loading'
-import { BarChartSquare02, FileHeart02, PromptEngineering, TerminalSquare } from '@/app/components/base/icons/src/vender/line/development'
-import { BarChartSquare02 as BarChartSquare02Solid, FileHeart02 as FileHeart02Solid, PromptEngineering as PromptEngineeringSolid, TerminalSquare as TerminalSquareSolid } from '@/app/components/base/icons/src/vender/solid/development'
+import { FileHeart02, PromptEngineering, TerminalSquare } from '@/app/components/base/icons/src/vender/line/development'
+import { FileHeart02 as FileHeart02Solid, PromptEngineering as PromptEngineeringSolid, TerminalSquare as TerminalSquareSolid } from '@/app/components/base/icons/src/vender/solid/development'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 
 export type IAppDetailLayoutProps = {
@@ -70,12 +70,12 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         icon: FileHeart02,
         selectedIcon: FileHeart02Solid,
       },
-      {
-        name: t('common.appMenus.overview'),
-        href: `/app/${appId}/overview`,
-        icon: BarChartSquare02,
-        selectedIcon: BarChartSquare02Solid,
-      },
+      // {
+      //   name: t('common.appMenus.overview'),
+      //   href: `/app/${appId}/overview`,
+      //   icon: BarChartSquare02,
+      //   selectedIcon: BarChartSquare02Solid,
+      // },
     ]
     return navs
   }, [t])

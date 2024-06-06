@@ -14,7 +14,7 @@ Workflow 应用无会话支持，适合用于翻译/文章写作/总结 AI 等�
 
   ### Authentication
 
-  Dify Service API 使用 `API-Key` 进行鉴权。
+Bella Workflow API 使用 `API-Key` 进行鉴权。
   <i>**强烈建议开发者把 `API-Key` 放在后端存储，而非分享或者放在客户端存储，以免 `API-Key` 泄露，导致财产损失。**</i>
   所有 API 请求都应在 **`Authorization`** HTTP Header 中包含您的 `API-Key`，如下所示：
 
@@ -29,7 +29,7 @@ Workflow 应用无会话支持，适合用于翻译/文章写作/总结 AI 等�
 ---
 
 <Heading
-  url='/workflows/run'
+  url='/workflow/run'
   method='POST'
   title='执行 workflow'
   name='#Execute-Workflow'
@@ -39,23 +39,21 @@ Workflow 应用无会话支持，适合用于翻译/文章写作/总结 AI 等�
     执行 workflow，没有已发布的 workflow，不可执行。
 
     ### Request Body
+      - `tenantId` (string) Required
+      - `workflowId` (string) Required
       - `inputs` (object) Required
-        允许传入 App 定义的各变量值。
+        允许传入 workflow start 节点定义的各变量值。
         inputs 参数包含了多组键值对（Key/Value pairs），每组的键对应一个特定变量，每组的值则是该变量的具体值。
       - `response_mode` (string) Required
         返回响应模式，支持：
         - `streaming` 流式模式（推荐）。基于 SSE（**[Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)**）实现类似打字机输出方式的流式返回。
         - `blocking` 阻塞模式，等待执行完毕后返回结果。（请求若流程较长可能会被中断）。
-        <i>由于 Cloudflare 限制，请求会在 100 秒超时无返回后中断。</i>
-      - `user` (string) Required
+        - `callback` 回调模式，执行任务提交后立即返回，工作流运行完成时回调到指定的`callbackUrl`  
+        <i>长时间运行的任务请优先考虑callback模式</i>
+      - `userId` (Long) Required
         用户标识，用于定义终端用户的身份，方便检索、统计。
         由开发者定义规则，需保证用户标识在应用内唯一。
-      - `files` (array[object]) Optional
-          文件列表，适用于传入文件（图片）结合文本理解并回答问题，仅当模型支持 Vision 能力时可用。
-          - `type` (string) 支持类型：图片 `image`（目前仅支持图片格式）。
-          - `transfer_method` (string) 传递方式，`remote_url` 图片地址 / `local_file` 上传文件
-          - `url` (string) 图片地址（仅当传递方式为 `remote_url` 时）
-          - `upload_file_id` (string) (string) 上传文件 ID（仅当传递方式为 `local_file` 时）
+      - `userName` (string) Required
 
     ### Response
     当 `response_mode` 为 `blocking` 时，返回 CompletionResponse object。
@@ -156,16 +154,19 @@ Workflow 应用无会话支持，适合用于翻译/文章写作/总结 AI 等�
 
   </Col>
   <Col sticky>
-     <CodeGroup title="Request" tag="POST" label="/workflows/run" targetCode={`curl -X POST '${props.appDetail.api_base_url}/workflows/run' \\\n--header 'Authorization: Bearer {api_key}' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    "inputs": ${JSON.stringify(props.inputs)},\n    "response_mode": "streaming",\n    "user": "abc-123"\n}'\n`}>
+     <CodeGroup title="Request" tag="POST" label="/workflow/run" targetCode={`curl -X POST '${props.appDetail.api_base_url}/workflow/run' \\\n--header 'Authorization: Bearer {api_key}' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    "tenantId": "${props.appDetail.tenantId}",\n    "workflowId": "${props.appDetail.id}",\n    "inputs": ${JSON.stringify(props.inputs)},\n    "response_mode": "streaming",\n    "userId": "1000123"\n}'\n`}>
 
     ```bash {{ title: 'cURL' }}
-    curl -X POST '${props.appDetail.api_base_url}/workflows/run' \
-    --header 'Authorization: Bearer {api_key}' \
-    --header 'Content-Type: application/json' \
-    --data-raw '{
-        "inputs": {},
-        "response_mode": "streaming",
-        "user": "abc-123"
+    curl -X 'POST' \
+      '${props.appDetail.api_base_url}/workflow/run' \
+      -H 'Content-Type: application/json' \
+      -d '{
+      "userId": 0,
+      "userName": "string",
+      "tenantId": "${props.appDetail.tenantId}",
+      "workflowId": "${props.appDetail.id}",
+      "inputs": ${JSON.stringify(props.inputs)},
+      "responseMode": "streaming"
     }'
     ```
 

@@ -87,7 +87,6 @@ const Workflow: FC<WorkflowProps> = memo(({
   edges: originalEdges,
   viewport,
 }) => {
-  console.log('init workflow component.')
   const workflowContainerRef = useRef<HTMLDivElement>(null)
   const workflowStore = useWorkflowStore()
   const [nodes, setNodes] = useNodesState(originalNodes)

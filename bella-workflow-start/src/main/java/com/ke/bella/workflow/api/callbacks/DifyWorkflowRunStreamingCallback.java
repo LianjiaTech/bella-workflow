@@ -75,7 +75,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                 .workflowRunId(context.getRunId())
                 .workflowId(context.getWorkflowId())
                 .taskId(context.getRunId())
-                .event("workflow_failed")
+                .event("workflow_finished")
                 .data(DifyData.builder()
                         .id(context.getRunId())
                         .workflowId(context.getWorkflowId())

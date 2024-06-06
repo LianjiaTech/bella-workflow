@@ -24,7 +24,7 @@ public class WorkflowGraph {
     final WorkflowSchema.Node start;
     final Map<String, WorkflowSchema.Node> nodeMap;
     final Map<String, WorkflowSchema.Edge> edgeMap;
-    final MutableNetwork<WorkflowSchema.Node, WorkflowSchema.Edge> graph;
+    final MutableNetwork<String, WorkflowSchema.Edge> graph;
 
     public WorkflowGraph(WorkflowSchema meta) {
         this.meta = meta;
@@ -51,26 +51,26 @@ public class WorkflowGraph {
     }
 
     public List<WorkflowSchema.Edge> inEdges(String id) {
-        return new ArrayList<>(graph.inEdges(node(id)));
+        return new ArrayList<>(graph.inEdges(id));
     }
 
     public List<WorkflowSchema.Edge> outEdges(String id) {
-        return new ArrayList<>(graph.outEdges(node(id)));
+        return new ArrayList<>(graph.outEdges(id));
     }
 
     public Set<String> nodeIds() {
         return new HashSet<>(nodeMap.keySet());
     }
 
-    private static MutableNetwork<Node, Edge> buildGraph(WorkflowSchema meta, Map<String, Node> nodes) {
-        MutableNetwork<WorkflowSchema.Node, WorkflowSchema.Edge> graph = NetworkBuilder
+    private static MutableNetwork<String, Edge> buildGraph(WorkflowSchema meta, Map<String, Node> nodes) {
+        MutableNetwork<String, WorkflowSchema.Edge> graph = NetworkBuilder
                 .directed()
                 .allowsParallelEdges(true)
                 .allowsSelfLoops(false)
                 .build();
 
-        nodes.values().forEach(graph::addNode);
-        meta.getGraph().getEdges().forEach(e -> graph.addEdge(nodes.get(e.getSource()), nodes.get(e.getTarget()), e));
+        nodes.values().forEach(n -> graph.addNode(n.getId()));
+        meta.getGraph().getEdges().forEach(e -> graph.addEdge(e.getSource(), e.getTarget(), e));
 
         return graph;
     }
@@ -95,25 +95,25 @@ public class WorkflowGraph {
         }
 
         // 从start出发可以遍历到所有节点
-        Traverser<WorkflowSchema.Node> traverser = Traverser.forGraph(this.graph);
-        Iterable<Node> it = traverser.breadthFirst(start);
-        Set<Node> reachableNodes = new HashSet<>();
+        Traverser<String> traverser = Traverser.forGraph(this.graph);
+        Iterable<String> it = traverser.breadthFirst(start.getId());
+        Set<String> reachableNodes = new HashSet<>();
         it.forEach(reachableNodes::add);
-        for (Node node : this.graph.nodes()) {
-            if(!reachableNodes.contains(node)) {
-                throw new IllegalArgumentException("工作流不连通，存在孤立节点： " + node.getId());
+        for (String nodeId : this.graph.nodes()) {
+            if(!reachableNodes.contains(nodeId)) {
+                throw new IllegalArgumentException("工作流不连通，存在孤立节点： " + nodeId);
             }
 
-            Integer handleSize = (Integer) node.getData().get("source_handles_size");
-            if(handleSize != null && handleSize.intValue() != outEdges(node.getId()).size()) {
-                throw new IllegalArgumentException("工作流不连通，节点的后续边不全： " + node.getId());
+            Integer handleSize = (Integer) node(nodeId).getData().get("source_handles_size");
+            if(handleSize != null && handleSize.intValue() != outEdges(nodeId).size()) {
+                throw new IllegalArgumentException("工作流不连通，节点的后续边不全： " + nodeId);
             }
         }
 
         // 所有终止节点都必须是END
-        for (Node node : this.graph.nodes()) {
-            if(this.graph.outDegree(node) == 0 && !NodeType.END.name.equals(node.getType())) {
-                throw new IllegalArgumentException("所有终止节点都必须是END，存在非END节点： " + node.getId());
+        for (String nodeId : this.graph.nodes()) {
+            if(this.graph.outDegree(nodeId) == 0 && !NodeType.END.name.equals(node(nodeId).getType())) {
+                throw new IllegalArgumentException("所有终止节点都必须是END，存在非END节点： " + nodeId);
             }
         }
     }

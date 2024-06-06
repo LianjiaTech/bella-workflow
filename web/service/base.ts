@@ -137,11 +137,14 @@ const handleStream = (
       }
       buffer += decoder.decode(result.value, { stream: true })
       const lines = buffer.split('\n')
+      let processed = false
       try {
         lines.forEach((message) => {
+          processed = false
           if (message.startsWith('data:')) {
             try {
               bufferObj = JSON.parse(message.substring(5)) as Record<string, any>// remove data: and parse as json
+              console.log(bufferObj)
             }
             catch (e) {
               // mute handle message cut off
@@ -201,9 +204,10 @@ const handleStream = (
             else if (bufferObj.event === 'text_replace') {
               onTextReplace?.(bufferObj as TextReplaceResponse)
             }
+            processed = true
           }
         })
-        buffer = lines[lines.length - 1]
+        buffer = processed ? '' : lines[lines.length - 1]
       }
       catch (e) {
         onData('', false, {

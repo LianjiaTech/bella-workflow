@@ -13,6 +13,7 @@ import com.google.common.graph.NetworkBuilder;
 import com.google.common.graph.Traverser;
 import com.ke.bella.workflow.WorkflowSchema.Edge;
 import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.node.NodeType;
 
 import lombok.Getter;
@@ -75,6 +76,9 @@ public class WorkflowGraph {
     }
 
     public void validate() {
+        // 判断是否存在对应的实现类
+        meta.getGraph().getNodes().forEach(BaseNode::from);
+
         // 判断有且只有一个start
         int startCount = meta.getGraph().getNodes()
                 .stream()
@@ -98,6 +102,11 @@ public class WorkflowGraph {
         for (Node node : this.graph.nodes()) {
             if(!reachableNodes.contains(node)) {
                 throw new IllegalArgumentException("工作流不连通，存在孤立节点： " + node.getId());
+            }
+
+            Integer handleSize = (Integer) node.getData().get("source_handles_size");
+            if(handleSize != null && handleSize.intValue() != outEdges(node.getId()).size()) {
+                throw new IllegalArgumentException("工作流不连通，节点的后续边不全： " + node.getId());
             }
         }
 

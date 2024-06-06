@@ -1,5 +1,9 @@
 package com.ke.bella.workflow.node;
 
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -15,12 +19,9 @@ import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.SystemMessage;
 import com.theokanning.openai.completion.chat.UserMessage;
 import com.theokanning.openai.service.OpenAiService;
+
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 public class QuestionClassifierNode extends BaseNode {
@@ -29,9 +30,11 @@ public class QuestionClassifierNode extends BaseNode {
 
     private final String OPENAI_API_BASE_URL = "https://example.com/v1/"; //todo 配置化
 
+    @SuppressWarnings("unchecked")
     public QuestionClassifierNode(Node meta) {
         super(meta);
         this.data = JsonUtils.convertValue(meta.getData(), Data.class);
+        meta.getData().put("source_handles_size", this.data.classes.size());
     }
 
     @Override

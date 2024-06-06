@@ -38,6 +38,7 @@ public class WorkflowContext {
         Assert.isTrue(graph != null, "工作流不能为null");
         Assert.isTrue(state != null, "工作流运行状态不能为null");
         Assert.isTrue(userInputs != null, "userInput不能为null");
+        graph.validate();
     }
 
     public boolean isSuspended() {

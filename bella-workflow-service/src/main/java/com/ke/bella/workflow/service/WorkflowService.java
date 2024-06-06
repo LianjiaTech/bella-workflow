@@ -106,7 +106,6 @@ public class WorkflowService {
     public void runWorkflow(WorkflowRunDB wr, Map inputs, IWorkflowCallback callback) {
         // 校验工作流是否合法
         WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
-        validateWorkflow(wf);
 
         // 构建执行上下文
         WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
@@ -127,7 +126,6 @@ public class WorkflowService {
     public void runNode(WorkflowRunDB wr, String nodeId, Map inputs, IWorkflowCallback callback) {
         // 校验工作流是否合法
         WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
-        validateWorkflow(wf);
 
         // 构建执行上下文
         WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);

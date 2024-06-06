@@ -83,7 +83,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                         .error(error)
                         .createdAt(System.currentTimeMillis())
                         .finishedAt(System.currentTimeMillis())
-                        .elapsedTime(context.getWorkflowRunResult().getElapsedTime() / 1000d)
+                        .elapsedTime(0.1)
                         .build())
                 .build();
         SseHelper.sendEvent(emitter, event);

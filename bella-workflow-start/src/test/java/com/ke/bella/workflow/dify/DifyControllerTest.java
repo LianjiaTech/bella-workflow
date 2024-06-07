@@ -11,9 +11,11 @@ import com.ke.bella.workflow.api.DifyController;
 import com.ke.bella.workflow.api.Operator;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
+import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -25,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-@Transactional
+@Slf4j
 public class DifyControllerTest extends AbstractTest {
 
     @Autowired
@@ -39,7 +41,7 @@ public class DifyControllerTest extends AbstractTest {
     @Test
     public void testCreateDraft() {
         String WORKFLOW_ID = IDGenerator.newWorkflowId();
-        Example<WorkflowSchema, Map> source = readJson("post-apps-{workflowId}-workflow-draft.json",
+        Example<WorkflowSchema, Map> source = readJson("post-apps-workflowid-workflow-draft.json",
                 new TypeReference<Example<WorkflowSchema, Map>>() {
                 });
         dify.saveDraftInfo(WORKFLOW_ID, source.getRequest());
@@ -50,25 +52,28 @@ public class DifyControllerTest extends AbstractTest {
     @Test
     public void testWorkFlowRun() {
         String WORKFLOW_ID = IDGenerator.newWorkflowId();
-        Example<WorkflowSchema, Map> source = readJson("post-apps-{workflowId}-workflow-draft.json",
+        Example<WorkflowSchema, Map> source = readJson("post-apps-workflowid-workflow-draft.json",
                 new TypeReference<Example<WorkflowSchema, Map>>() {
                 });
         dify.saveDraftInfo(WORKFLOW_ID, source.getRequest());
         WorkflowSchema target = dify.getDraftInfo(WORKFLOW_ID);
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
-        //todo 处理多线程导致的事务不可见问题
-        /* Object response = dify.workflowRun(WORKFLOW_ID, WorkflowOps.WorkflowRun.builder()
+
+        Object response = dify.workflowRun(WORKFLOW_ID, WorkflowOps.WorkflowRun.builder()
                         .responseMode(WorkflowOps.ResponseMode.blocking.name())
-                        .inputs(Maps.of("q", "我想要烧一个红烧肉").asMap())
+                        .inputs(Maps.of("#1715941054541.q#", "我想要烧一个红烧肉").asMap())
                 .build());
-        Assertions.assertNotNull(response);*/
+        Map<String,Object> callback = (Map<String, Object>) response;
+        Assertions.assertNotNull(callback);
+        Assertions.assertEquals(callback.get("status"),"succeeded" , JsonUtils.toJson(callback));
+
 
     }
 
     @Test
     public void testWorkFlowNodeRun() {
         String WORKFLOW_ID = IDGenerator.newWorkflowId();
-        Example<WorkflowSchema, Map> source = readJson("post-apps-{workflowId}-workflow-draft.json",
+        Example<WorkflowSchema, Map> source = readJson("post-apps-workflowid-workflow-draft.json",
                 new TypeReference<Example<WorkflowSchema, Map>>() {
                 });
         dify.saveDraftInfo(WORKFLOW_ID, source.getRequest());
@@ -76,7 +81,7 @@ public class DifyControllerTest extends AbstractTest {
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
 
         Object response = dify.nodeRun(WORKFLOW_ID, "1716460032513",
-                WorkflowOps.WorkflowNodeRun.builder().inputs(Maps.of("input", "我想要烧一个红烧肉").asMap()).build());
+                WorkflowOps.WorkflowNodeRun.builder().inputs(Maps.of("#1715941054541.q#", "我想要烧一个红烧肉").asMap()).build());
         Assertions.assertNotNull(response);
 
         DifyWorkflowRunStreamingCallback.DifyData data = (DifyWorkflowRunStreamingCallback.DifyData) response;
@@ -87,7 +92,7 @@ public class DifyControllerTest extends AbstractTest {
     @Test
     public void testWorkFlowStreamRun() {
         String WORKFLOW_ID = IDGenerator.newWorkflowId();
-        Example<WorkflowSchema, Map> source = readJson("post-apps-{workflowId}-workflow-draft.json",
+        Example<WorkflowSchema, Map> source = readJson("post-apps-workflowid-workflow-draft.json",
                 new TypeReference<Example<WorkflowSchema, Map>>() {
                 });
         dify.saveDraftInfo(WORKFLOW_ID, source.getRequest());
@@ -95,7 +100,7 @@ public class DifyControllerTest extends AbstractTest {
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
 
         Object response = dify.workflowRun(WORKFLOW_ID, WorkflowOps.WorkflowRun.builder().responseMode(WorkflowOps.ResponseMode.streaming.name())
-                .inputs(Maps.of("input", "我想要烧一个红烧肉").asMap()).build());
+                .inputs(Maps.of("#1715941054541.q#", "我想要烧一个红烧肉").asMap()).build());
         Assertions.assertNotNull(response);
 
         ResponseBodyEmitter emitter = (ResponseBodyEmitter) response;
@@ -108,8 +113,11 @@ public class DifyControllerTest extends AbstractTest {
     }
 
     private String readResource(String path) {
-        File file = new File("src/test/resources/" + path);
         try {
+            //获取 测试资源文件
+            File file = new File(Thread.currentThread()
+                    .getContextClassLoader()
+                    .getResource(path).getFile());
             return FileUtils.readFileToString(file, "UTF-8");
         } catch (IOException e) {
             throw new RuntimeException(e);

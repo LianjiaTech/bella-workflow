@@ -1,0 +1,12 @@
+
+# ----- 日志级别配置 测试环境 -----
+logging:
+  level:
+    root: INFO
+    org:
+      jooq: INFO
+      springframework: INFO
+      apache:
+        http: INFO
+    okhttp3:
+      OkHttpClient: INFO

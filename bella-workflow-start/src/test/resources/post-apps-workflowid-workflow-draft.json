@@ -1,0 +1,265 @@
+{
+  "request": {
+    "graph": {
+      "edges": [
+        {
+          "data": {
+            "sourceType": "start",
+            "targetType": "question-classifier"
+          },
+          "id": "1715941054541-1716460032513",
+          "source": "1715941054541",
+          "sourceHandle": "source",
+          "target": "1716460032513",
+          "targetHandle": "target",
+          "type": "custom",
+          "key": "1715941054541/source-1716460032513/target"
+        },
+        {
+          "data": {
+            "sourceType": "question-classifier",
+            "targetType": "end"
+          },
+          "id": "1716460032513-1716379734663",
+          "source": "1716460032513",
+          "sourceHandle": "1",
+          "target": "1716379734663",
+          "targetHandle": "target",
+          "type": "custom",
+          "key": "1716460032513/1-1716379734663/target"
+        },
+        {
+          "data": {
+            "sourceType": "question-classifier",
+            "targetType": "end"
+          },
+          "id": "1716460032513-1717756995144",
+          "source": "1716460032513",
+          "sourceHandle": "2",
+          "target": "1717756995144",
+          "targetHandle": "target",
+          "type": "custom",
+          "key": "1716460032513/2-1717756995144/target"
+        },
+        {
+          "data": {
+            "sourceType": "question-classifier",
+            "targetType": "end"
+          },
+          "id": "1716460032513-1717756998329",
+          "source": "1716460032513",
+          "sourceHandle": "1716518273381",
+          "target": "1717756998329",
+          "targetHandle": "target",
+          "type": "custom",
+          "key": "1716460032513/1716518273381-1717756998329/target"
+        }
+      ],
+      "nodes": [
+        {
+          "data": {
+            "type": "start",
+            "title": "开始",
+            "desc": "",
+            "variables": [
+              {
+                "variable": "q",
+                "label": "问题",
+                "type": "text-input",
+                "max_length": 48,
+                "required": true,
+                "options": []
+              }
+            ],
+            "selected": false
+          },
+          "dragging": false,
+          "height": 90,
+          "id": "1715941054541",
+          "position": {
+            "x": 78,
+            "y": 282
+          },
+          "positionAbsolute": {
+            "x": 78,
+            "y": 282
+          },
+          "selected": false,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "start",
+          "width": 244,
+          "title": "开始"
+        },
+        {
+          "data": {
+            "type": "question-classifier",
+            "title": "问题分类器",
+            "desc": "",
+            "query_variable_selector": [
+              "1715941054541",
+              "q"
+            ],
+            "topics": [],
+            "model": {
+              "provider": "openai_api_compatible",
+              "name": "c4ai-command-r-plus",
+              "mode": "chat",
+              "completion_params": {
+                "temperature": 0.7,
+                "top_p": 1,
+                "frequency_penalty": 0,
+                "presence_penalty": 0,
+                "max_tokens": 512
+              }
+            },
+            "classes": [
+              {
+                "id": "1",
+                "name": "美食相关的问题"
+              },
+              {
+                "id": "2",
+                "name": "体育相关的问题"
+              },
+              {
+                "id": "1716518273381",
+                "name": "摄影相关的问题"
+              }
+            ],
+            "selected": false,
+            "instructions": "",
+            "instruction": ""
+          },
+          "dragging": false,
+          "height": 224,
+          "id": "1716460032513",
+          "position": {
+            "x": 379,
+            "y": 422
+          },
+          "positionAbsolute": {
+            "x": 379,
+            "y": 422
+          },
+          "selected": false,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "question-classifier",
+          "width": 244,
+          "title": "问题分类器"
+        },
+        {
+          "data": {
+            "type": "end",
+            "title": "结束",
+            "desc": "",
+            "outputs": [
+              {
+                "variable": "body",
+                "value_selector": [
+                  "1716460032513",
+                  "class_name"
+                ]
+              }
+            ],
+            "selected": false
+          },
+          "dragging": false,
+          "height": 90,
+          "id": "1716379734663",
+          "position": {
+            "x": 772,
+            "y": 454
+          },
+          "positionAbsolute": {
+            "x": 772,
+            "y": 454
+          },
+          "selected": false,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "end",
+          "width": 244,
+          "title": "结束"
+        },
+        {
+          "data": {
+            "type": "end",
+            "title": "结束 2",
+            "desc": "",
+            "outputs": [
+              {
+                "variable": "class_name",
+                "value_selector": [
+                  "1716460032513",
+                  "class_name"
+                ]
+              }
+            ],
+            "selected": false
+          },
+          "dragging": false,
+          "height": 90,
+          "id": "1717756995144",
+          "position": {
+            "x": 772,
+            "y": 583
+          },
+          "positionAbsolute": {
+            "x": 772,
+            "y": 583
+          },
+          "selected": false,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "end",
+          "width": 244,
+          "title": "结束 2"
+        },
+        {
+          "data": {
+            "type": "end",
+            "title": "结束 3",
+            "desc": "",
+            "outputs": [
+              {
+                "variable": "class_name",
+                "value_selector": [
+                  "1716460032513",
+                  "class_name"
+                ]
+              }
+            ],
+            "selected": false
+          },
+          "dragging": false,
+          "height": 90,
+          "id": "1717756998329",
+          "position": {
+            "x": 772,
+            "y": 676
+          },
+          "positionAbsolute": {
+            "x": 772,
+            "y": 676
+          },
+          "selected": true,
+          "sourcePosition": "right",
+          "targetPosition": "left",
+          "type": "end",
+          "width": 244,
+          "title": "结束 3"
+        }
+      ],
+      "viewport": {
+        "x": -449,
+        "y": -183,
+        "zoom": 1.2323201131592745
+      }
+    }
+  },
+  "response":{
+
+  }
+}

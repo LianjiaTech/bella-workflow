@@ -9,6 +9,5 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringJUnitConfig(TestApplication.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
 	"spring.profiles.active=junit,test" })
-@Transactional
 public abstract class AbstractTest {
 }

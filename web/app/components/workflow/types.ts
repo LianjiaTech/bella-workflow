@@ -116,6 +116,7 @@ export type InputVar = {
   required: boolean
   hint?: string
   options?: string[]
+  alias?: string
 }
 
 export type ModelConfig = {

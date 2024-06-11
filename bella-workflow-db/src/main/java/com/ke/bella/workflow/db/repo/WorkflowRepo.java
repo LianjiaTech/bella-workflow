@@ -65,7 +65,7 @@ public class WorkflowRepo implements BaseRepo {
         SelectSeekStep1<WorkflowRecord, Long> sql = db.selectFrom(WORKFLOW)
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(WORKFLOW.VERSION.eq(0l))
-                .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition() : WORKFLOW.TITLE.like(op.getName()))
+                .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition() : WORKFLOW.TITLE.like("%" + op.getName() + "%"))
                 .orderBy(WORKFLOW.ID.desc());
         return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowDB.class);
     }

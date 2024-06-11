@@ -2,6 +2,8 @@ package com.ke.bella.workflow.db.repo;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Data;
 
 @Data
@@ -33,6 +35,12 @@ public class Page<T> {
     public Page<T> list(List<T> list) {
         this.data = list;
         return this;
+    }
+
+
+    @JsonProperty("has_more")
+    public boolean hasMore() {
+        return page * pageSize < total;
     }
 
 }

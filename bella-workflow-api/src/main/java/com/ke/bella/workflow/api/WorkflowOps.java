@@ -36,6 +36,21 @@ public class WorkflowOps {
 
     @Getter
     @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WorkflowPage extends Operator {
+        @Builder.Default
+        int page = 1;
+
+        @Builder.Default
+        int pageSize = 30;
+
+        String name;
+    }
+
+    @Getter
+    @Setter
     public static class WorkflowCopy extends Operator {
         String workflowId;
         Long version;

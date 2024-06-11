@@ -25,6 +25,7 @@ import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
@@ -70,8 +71,8 @@ public class WorkflowService {
         return repo.queryDraftWorkflow(workflowId);
     }
 
-    public Page<WorkflowDB> pageDraftWorkflow() {
-        return repo.pageDraftWorkflow();
+    public Page<WorkflowDB> pageDraftWorkflow(WorkflowPage op) {
+        return repo.pageDraftWorkflow(op);
     }
 
     public WorkflowDB getPublishedWorkflow(String workflowId) {

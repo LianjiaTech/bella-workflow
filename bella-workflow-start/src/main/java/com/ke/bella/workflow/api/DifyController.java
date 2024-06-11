@@ -24,6 +24,7 @@ import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
@@ -58,7 +59,10 @@ public class DifyController {
     @GetMapping
     public Page<DifyApp> pageApps(@RequestParam int page, @RequestParam int limit, @RequestParam String name) {
         initContext();
-        Page<WorkflowDB> wfs = ws.pageDraftWorkflow();
+
+        WorkflowPage op = WorkflowPage.builder().page(page).pageSize(limit).name(name).build();
+
+        Page<WorkflowDB> wfs = ws.pageDraftWorkflow(op);
 
         List<DifyApp> apps = new ArrayList<>();
         wfs.getData().forEach(wf -> apps.add(DifyApp.builder()

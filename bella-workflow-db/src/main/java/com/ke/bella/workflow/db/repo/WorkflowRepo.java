@@ -17,6 +17,7 @@ import javax.annotation.Resource;
 import org.jooq.DSLContext;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectSeekStep1;
+import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -24,6 +25,7 @@ import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IDGenerator;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
@@ -59,12 +61,13 @@ public class WorkflowRepo implements BaseRepo {
                 .fetchOneInto(WorkflowDB.class);
     }
 
-    public Page<WorkflowDB> pageDraftWorkflow() {
+    public Page<WorkflowDB> pageDraftWorkflow(WorkflowPage op) {
         SelectSeekStep1<WorkflowRecord, Long> sql = db.selectFrom(WORKFLOW)
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(WORKFLOW.VERSION.eq(0l))
+                .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition() : WORKFLOW.TITLE.like(op.getName()))
                 .orderBy(WORKFLOW.ID.desc());
-        return queryPage(db, sql, 1, 30, WorkflowDB.class);
+        return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowDB.class);
     }
 
     public WorkflowRunDB queryDraftWorkflowRunSuccessed(WorkflowDB wf) {

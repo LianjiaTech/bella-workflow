@@ -156,11 +156,14 @@ public class WorkflowRepo implements BaseRepo {
         Assert.isTrue(num == 1, "工作流配置发布失败，请检查工作流配置版本是否为draft");
     }
 
-    public TenantDB addTenant(String tenantName) {
+    public TenantDB addTenant(String tenantName, String parentTenantId) {
         TenantRecord rec = TENANT.newRecord();
 
         rec.setTenantId(IDGenerator.newTenantId());
         rec.setTenantName(tenantName);
+        if(!StringUtils.isEmpty(parentTenantId)) {
+            rec.setParentId(parentTenantId);
+        }
 
         fillCreatorInfo(rec);
 

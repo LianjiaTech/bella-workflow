@@ -5,6 +5,7 @@ package com.ke.bella.workflow.db.tables;
 
 
 import com.ke.bella.workflow.db.DefaultSchema;
+import com.ke.bella.workflow.db.Indexes;
 import com.ke.bella.workflow.db.Keys;
 import com.ke.bella.workflow.db.tables.records.TenantRecord;
 
@@ -15,9 +16,10 @@ import java.util.List;
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Identity;
+import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row9;
+import org.jooq.Row10;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -63,6 +65,11 @@ public class Tenant extends TableImpl<TenantRecord> {
      * The column <code>tenant.tenant_name</code>.
      */
     public final TableField<TenantRecord, String> TENANT_NAME = createField(DSL.name("tenant_name"), SQLDataType.VARCHAR(128).nullable(false), this, "");
+
+    /**
+     * The column <code>tenant.parent_id</code>.
+     */
+    public final TableField<TenantRecord, String> PARENT_ID = createField(DSL.name("parent_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>tenant.cuid</code>.
@@ -133,6 +140,11 @@ public class Tenant extends TableImpl<TenantRecord> {
     }
 
     @Override
+    public List<Index> getIndexes() {
+        return Arrays.<Index>asList(Indexes.TENANT_IDX_PARENT_ID);
+    }
+
+    @Override
     public Identity<TenantRecord, Long> getIdentity() {
         return (Identity<TenantRecord, Long>) super.getIdentity();
     }
@@ -144,7 +156,7 @@ public class Tenant extends TableImpl<TenantRecord> {
 
     @Override
     public List<UniqueKey<TenantRecord>> getKeys() {
-        return Arrays.<UniqueKey<TenantRecord>>asList(Keys.KEY_TENANT_PRIMARY);
+        return Arrays.<UniqueKey<TenantRecord>>asList(Keys.KEY_TENANT_PRIMARY, Keys.KEY_TENANT_IDX_TENANT_ID);
     }
 
     @Override
@@ -174,11 +186,11 @@ public class Tenant extends TableImpl<TenantRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row9 type methods
+    // Row10 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row9<Long, String, String, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row9) super.fieldsRow();
+    public Row10<Long, String, String, String, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
+        return (Row10) super.fieldsRow();
     }
 }

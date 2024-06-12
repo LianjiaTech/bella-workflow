@@ -35,6 +35,7 @@ public class Keys {
     // -------------------------------------------------------------------------
 
     public static final UniqueKey<InstanceRecord> KEY_INSTANCE_PRIMARY = Internal.createUniqueKey(Instance.INSTANCE, DSL.name("KEY_instance_PRIMARY"), new TableField[] { Instance.INSTANCE.ID }, true);
+    public static final UniqueKey<TenantRecord> KEY_TENANT_IDX_TENANT_ID = Internal.createUniqueKey(Tenant.TENANT, DSL.name("KEY_tenant_idx_tenant_id"), new TableField[] { Tenant.TENANT.TENANT_ID }, true);
     public static final UniqueKey<TenantRecord> KEY_TENANT_PRIMARY = Internal.createUniqueKey(Tenant.TENANT, DSL.name("KEY_tenant_PRIMARY"), new TableField[] { Tenant.TENANT.ID }, true);
     public static final UniqueKey<WorkflowRecord> KEY_WORKFLOW_IDX_TENANT_ID = Internal.createUniqueKey(Workflow.WORKFLOW, DSL.name("KEY_workflow_idx_tenant_id"), new TableField[] { Workflow.WORKFLOW.TENANT_ID, Workflow.WORKFLOW.WORKFLOW_ID, Workflow.WORKFLOW.VERSION }, true);
     public static final UniqueKey<WorkflowRecord> KEY_WORKFLOW_PRIMARY = Internal.createUniqueKey(Workflow.WORKFLOW, DSL.name("KEY_workflow_PRIMARY"), new TableField[] { Workflow.WORKFLOW.ID }, true);

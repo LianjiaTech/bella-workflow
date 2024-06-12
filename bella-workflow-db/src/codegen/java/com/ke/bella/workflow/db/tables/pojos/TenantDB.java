@@ -21,6 +21,7 @@ public class TenantDB implements Operator, Serializable {
     private Long          id;
     private String        tenantId;
     private String        tenantName;
+    private String        parentId;
     private Long          cuid;
     private String        cuName;
     private LocalDateTime ctime;
@@ -34,6 +35,7 @@ public class TenantDB implements Operator, Serializable {
         this.id = value.id;
         this.tenantId = value.tenantId;
         this.tenantName = value.tenantName;
+        this.parentId = value.parentId;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
         this.ctime = value.ctime;
@@ -46,6 +48,7 @@ public class TenantDB implements Operator, Serializable {
         Long          id,
         String        tenantId,
         String        tenantName,
+        String        parentId,
         Long          cuid,
         String        cuName,
         LocalDateTime ctime,
@@ -56,6 +59,7 @@ public class TenantDB implements Operator, Serializable {
         this.id = id;
         this.tenantId = tenantId;
         this.tenantName = tenantName;
+        this.parentId = parentId;
         this.cuid = cuid;
         this.cuName = cuName;
         this.ctime = ctime;
@@ -104,6 +108,20 @@ public class TenantDB implements Operator, Serializable {
      */
     public void setTenantName(String tenantName) {
         this.tenantName = tenantName;
+    }
+
+    /**
+     * Getter for <code>tenant.parent_id</code>.
+     */
+    public String getParentId() {
+        return this.parentId;
+    }
+
+    /**
+     * Setter for <code>tenant.parent_id</code>.
+     */
+    public void setParentId(String parentId) {
+        this.parentId = parentId;
     }
 
     /**
@@ -197,6 +215,7 @@ public class TenantDB implements Operator, Serializable {
         sb.append(id);
         sb.append(", ").append(tenantId);
         sb.append(", ").append(tenantName);
+        sb.append(", ").append(parentId);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);
         sb.append(", ").append(ctime);

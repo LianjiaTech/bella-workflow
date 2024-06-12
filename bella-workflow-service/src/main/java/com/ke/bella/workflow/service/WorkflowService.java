@@ -99,8 +99,8 @@ public class WorkflowService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public TenantDB createTenant(String tenantName) {
-        return repo.addTenant(tenantName);
+    public TenantDB createTenant(String tenantName, String parentTenantId) {
+        return repo.addTenant(tenantName, parentTenantId);
     }
 
     @SuppressWarnings("rawtypes")

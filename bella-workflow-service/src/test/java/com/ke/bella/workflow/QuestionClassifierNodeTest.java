@@ -99,7 +99,7 @@ public class QuestionClassifierNodeTest {
         HashMap<String, Object> userInputs = new HashMap<>();
         userInputs.put("input", "情感咨询");
         WorkflowContext context = CommonNodeTest.createContext("src/test/resources/question_classifier_node_case.json", userInputs);
-        new WorkflowRunner().run(context, new IWorkflowCallback() {
+        new WorkflowRunner().run(context, new WorkflowCallbackAdaptor() {
             @Override
             public void onWorkflowRunSucceeded(WorkflowContext context) {
                 Map outputs = context.getState().getWorkflowRunResult().getOutputs();

@@ -11,7 +11,7 @@ public class HttpNodeTest {
     @Test
     public void testGetMethodWhenNobody() throws IOException {
         WorkflowContext context = CommonNodeTest.createContext("src/test/resources/http_node_nobody_case.json", new HashMap<>());
-        new WorkflowRunner().run(context, new IWorkflowCallback() {
+        new WorkflowRunner().run(context, new WorkflowCallbackAdaptor() {
             @Override
             public void onWorkflowRunSucceeded(WorkflowContext context) {
                 Assertions.assertThat(context.getState().getWorkflowRunResult().getOutputs().get("body")).isNotNull();

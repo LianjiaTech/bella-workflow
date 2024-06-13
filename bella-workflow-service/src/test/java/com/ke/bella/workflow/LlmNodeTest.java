@@ -15,7 +15,7 @@ public class LlmNodeTest {
         map.put("appliance_type", "冰箱");
         map.put("context", "冰箱：美的526；热水器：海尔kl7");
         WorkflowContext context = CommonNodeTest.createContext("src/test/resources/llm_node_case.json", map);
-        new WorkflowRunner().run(context, new IWorkflowCallback() {
+        new WorkflowRunner().run(context, new WorkflowCallbackAdaptor() {
             @Override
             public void onWorkflowRunSucceeded(WorkflowContext context) {
                 System.out.println("Workflow run succeeded: " + JsonUtils.toJson(context.getWorkflowRunResult()));

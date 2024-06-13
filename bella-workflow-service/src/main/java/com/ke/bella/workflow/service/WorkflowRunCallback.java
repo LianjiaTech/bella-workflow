@@ -79,6 +79,16 @@ public class WorkflowRunCallback implements IWorkflowCallback {
     }
 
     @Override
+    public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId) {
+        LOGGER.info("{} onWorkflowNodeRunWaited", context.getRunId());
+
+        service.updateWorkflowNodeRunWaited(context, nodeId);
+
+        delegate.onWorkflowNodeRunWaited(context, nodeId);
+
+    }
+
+    @Override
     public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
         LOGGER.info("{} onWorkflowNodeRunSucceeded", context.getRunId());
 
@@ -96,5 +106,4 @@ public class WorkflowRunCallback implements IWorkflowCallback {
 
         delegate.onWorkflowNodeRunFailed(context, nodeId, error, t);
     }
-
 }

@@ -28,6 +28,8 @@ public interface IWorkflowCallback {
 
     void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data);
 
+    void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId);
+
     void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId);
 
     void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t);

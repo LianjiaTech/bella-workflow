@@ -73,6 +73,8 @@ public abstract class BaseNode implements RunnableNode {
             callback.onWorkflowNodeRunSucceeded(context, meta.getId());
         } else if(result.getStatus() == NodeRunResult.Status.failed) {
             callback.onWorkflowNodeRunFailed(context, meta.getId(), result.getError().getMessage(), result.getError());
+        } else if(result.getStatus() == NodeRunResult.Status.waiting) {
+            callback.onWorkflowNodeRunWaited(context, meta.getId());
         }
 
         result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);

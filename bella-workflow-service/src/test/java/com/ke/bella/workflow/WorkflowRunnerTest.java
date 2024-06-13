@@ -20,7 +20,7 @@ public class WorkflowRunnerTest {
                 .state(new WorkflowRunState())
                 .userInputs(map)
                 .build();
-        new WorkflowRunner().run(context, new IWorkflowCallback() {
+        new WorkflowRunner().run(context, new WorkflowCallbackAdaptor() {
             @Override
             public void onWorkflowRunSucceeded(WorkflowContext context) {
                 System.out.println("Workflow run succeeded: " + JsonUtils.toJson(context.getWorkflowRunResult()));

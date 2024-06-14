@@ -1,6 +1,5 @@
 package com.ke.bella.workflow.api;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,17 +17,18 @@ import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TenantCreate;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowCopy;
-import com.ke.bella.workflow.api.WorkflowOps.WorkflowList;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowNodeRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunInfo;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.callbacks.SingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.SingleNodeRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunStreamingCallback;
+import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
@@ -175,12 +175,12 @@ public class WorkflowController {
         return ws.createTenant(op.tenantName, op.parentTenantId);
     }
 
-    @PostMapping("/run/list")
-    public List<WorkflowRunDB> listWorkflowRun(@RequestBody WorkflowList op) {
+    @PostMapping("/run/page")
+    public Page<WorkflowRunDB> listWorkflowRun(@RequestBody WorkflowRunPage op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
-        return ws.listWorkflowRun(op.workflowId, op.startTime);
+        return ws.listWorkflowRun(op);
     }
 
     @PostMapping("/run/info")

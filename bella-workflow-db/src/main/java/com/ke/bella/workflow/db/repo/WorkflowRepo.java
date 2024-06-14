@@ -8,7 +8,6 @@ import static com.ke.bella.workflow.db.tables.WorkflowRunSharding.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -26,6 +25,7 @@ import org.springframework.util.StringUtils;
 import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IDGenerator;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
@@ -179,29 +179,22 @@ public class WorkflowRepo implements BaseRepo {
                 .fetchOne().into(WorkflowRunDB.class);
     }
 
-    public List<WorkflowRunDB> listWorkflowRun(String workflowId, LocalDateTime startTime) {
-        List<WorkflowRunShardingDB> shardings = queryWorkflowRunShardingsByTime(startTime, startTime.plusDays(7));
-
-        List<String> queries = new ArrayList<>();
-        List<Object> args = new ArrayList<>();
-        shardings.forEach(sharding -> {
+    public Page<WorkflowRunDB> listWorkflowRun(WorkflowRunPage op) {
+        SelectConditionStep<WorkflowRunRecord> query = null;
+        List<WorkflowRunShardingDB> shardings = queryWorkflowRunShardingsByTime(op.getStartTime(), op.getStartTime().plusDays(7));
+        for (int i = 0; i < shardings.size(); i++) {
+            WorkflowRunShardingDB sharding = shardings.get(i);
             SelectConditionStep<WorkflowRunRecord> sql = db(sharding.getKey()).selectFrom(WORKFLOW_RUN)
                     .where(WORKFLOW_RUN.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
-                    .and(WORKFLOW_RUN.WORKFLOW_ID.eq(workflowId));
-            queries.add(sql.getSQL());
-            args.addAll(sql.getBindValues());
-        });
-
-        StringBuilder sb = new StringBuilder(queries.get(0));
-        for (int i = 1; i < queries.size(); i++) {
-            sb.append("\n")
-                    .append("union all")
-                    .append("\n")
-                    .append("(").append(queries.get(i)).append(")");
+                    .and(WORKFLOW_RUN.WORKFLOW_ID.eq(op.getWorkflowId()));
+            if(i == 0) {
+                query = sql;
+            } else {
+                query.unionAll(sql);
+            }
         }
-        sb.append("\n order by ctime desc;");
 
-        return db.fetch(sb.toString(), args.toArray()).into(WorkflowRunDB.class);
+        return queryPage(db, query, op.getPage(), op.getPageSize(), WorkflowRunDB.class);
     }
 
     @Transactional(rollbackFor = Exception.class)

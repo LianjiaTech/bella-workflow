@@ -43,6 +43,9 @@ public interface BaseRepo {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public default <T> Page<T> queryPage(DSLContext db, SelectLimitStep scs, int page, int pageSize, Class<T> clazz) {
+        if(scs == null) {
+            return (Page<T>) Page.from(page, pageSize);
+        }
         return Page.from(page, pageSize)
                 .total(db.fetchCount(scs))
                 .list(scs.limit((page - 1) * pageSize, pageSize)

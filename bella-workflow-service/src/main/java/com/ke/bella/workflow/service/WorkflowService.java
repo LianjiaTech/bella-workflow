@@ -1,6 +1,5 @@
 package com.ke.bella.workflow.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +25,7 @@ import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
@@ -281,8 +281,8 @@ public class WorkflowService {
         repo.updateWorkflowNodeRun(wnr);
     }
 
-    public List<WorkflowRunDB> listWorkflowRun(String workflowId, LocalDateTime startTime) {
-        return repo.listWorkflowRun(workflowId, startTime);
+    public Page<WorkflowRunDB> listWorkflowRun(WorkflowRunPage op) {
+        return repo.listWorkflowRun(op);
     }
 
     @SuppressWarnings("rawtypes")

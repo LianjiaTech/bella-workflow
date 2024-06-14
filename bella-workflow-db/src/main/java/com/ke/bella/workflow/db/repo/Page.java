@@ -43,4 +43,9 @@ public class Page<T> {
         return page * pageSize < total;
     }
 
+    @JsonProperty("limit")
+    public int pageSize() {
+        return pageSize;
+    }
+
 }

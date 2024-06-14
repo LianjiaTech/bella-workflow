@@ -25,6 +25,7 @@ import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
@@ -256,6 +257,12 @@ public class DifyController {
             TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, new DifyWorkflowRunStreamingCallback(emitter)));
             return emitter;
         }
+    }
+
+    @RequestMapping("/{workflowId}/workflow-app-logs")
+    public Page<WorkflowRunDB> pageWorkflowRun(@PathVariable String workflowId) {
+        initContext();
+        return ws.listWorkflowRun(WorkflowRunPage.builder().workflowId(workflowId).build());
     }
 
     @Data

@@ -71,9 +71,19 @@ public class WorkflowOps {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class WorkflowList extends Operator {
+    @AllArgsConstructor
+    @SuperBuilder
+    public static class WorkflowRunPage extends Operator {
         String workflowId;
+
+        @Builder.Default
         LocalDateTime startTime = LocalDateTime.now().minusDays(7);
+
+        @Builder.Default
+        int page = 1;
+
+        @Builder.Default
+        int pageSize = 30;
     }
 
     @Getter

@@ -220,9 +220,12 @@ public class WorkflowRepo implements BaseRepo {
         if(op.getResponseMode() != null) {
             rec.setResponseMode(op.getResponseMode());
         }
-        if(op.getTraceId() != null) {
+        if(StringUtils.isEmpty(op.getTraceId())) {
+            rec.setTraceId(runId);
+        } else {
             rec.setTraceId(op.getTraceId());
         }
+
         rec.setSpanLev(op.getSpanLev());
 
         fillCreatorInfo(rec);

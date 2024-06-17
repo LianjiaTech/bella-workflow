@@ -96,7 +96,8 @@ public class WorkflowController {
 
     @PostMapping("/draft/run")
     public Object runDraft(@RequestBody WorkflowRun op) {
-        return run0(op, "draft", TriggerFrom.DEBUG.name());
+        op.setTriggerFrom(TriggerFrom.DEBUG.name());
+        return run0(op, "draft");
     }
 
     @PostMapping("/run")
@@ -104,10 +105,10 @@ public class WorkflowController {
         TriggerFrom tf = TriggerFrom.valueOf(op.triggerFrom);
         Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE]之一");
 
-        return run0(op, "published", op.triggerFrom);
+        return run0(op, "published");
     }
 
-    public Object run0(WorkflowRun op, String ver, String triggerFrom) {
+    public Object run0(WorkflowRun op, String ver) {
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
@@ -121,7 +122,7 @@ public class WorkflowController {
                 : ws.getDraftWorkflow(op.workflowId);
         Assert.notNull(wf, String.format("没有找到对应的的工作流, %s(ver. %s)", op.workflowId, ver));
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, op.callbackUrl, op.responseMode, triggerFrom);
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op);
 
         if(mode == ResponseMode.blocking) {
             WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, MAX_TIMEOUT);
@@ -154,7 +155,16 @@ public class WorkflowController {
         WorkflowDB wf = ws.getDraftWorkflow(op.workflowId);
         Assert.notNull(wf, String.format("工作流当前无draft版本，无法单独调试节点", op.workflowId));
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", op.responseMode, TriggerFrom.DEBUG_NODE.name());
+        WorkflowRun op2 = WorkflowRun.builder()
+                .userId(op.getUserId())
+                .userName(op.getUserName())
+                .tenantId(op.getTenantId())
+                .workflowId(op.getWorkflowId())
+                .inputs(op.getInputs())
+                .responseMode(op.getResponseMode())
+                .triggerFrom(WorkflowOps.TriggerFrom.DEBUG.name())
+                .build();
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
         if(mode == ResponseMode.blocking) {
             SingleNodeRunBlockingCallback callback = new SingleNodeRunBlockingCallback();
             ws.runNode(wr, op.nodeId, op.inputs, callback);

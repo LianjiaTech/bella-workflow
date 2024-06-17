@@ -25,6 +25,7 @@ import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.repo.Page;
@@ -155,9 +156,8 @@ public class WorkflowService {
         }
     }
 
-    @SuppressWarnings("rawtypes")
-    public WorkflowRunDB newWorkflowRun(WorkflowDB wf, Map inputs, String callbackUrl, String responseMode, String triggerFrom) {
-        final WorkflowRunDB wr = repo.addWorkflowRun(wf, JsonUtils.toJson(inputs), callbackUrl, responseMode, triggerFrom);
+    public WorkflowRunDB newWorkflowRun(WorkflowDB wf, WorkflowRun op) {
+        final WorkflowRunDB wr = repo.addWorkflowRun(wf, op, JsonUtils.toJson(op.getInputs()));
         TaskExecutor.submit(() -> counter.increase(wr));
         return wr;
     }

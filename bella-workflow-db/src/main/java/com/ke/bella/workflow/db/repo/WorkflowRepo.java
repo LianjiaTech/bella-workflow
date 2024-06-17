@@ -25,6 +25,7 @@ import org.springframework.util.StringUtils;
 import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IDGenerator;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
@@ -198,7 +199,7 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, String inputs, String callbackUrl, String responseMode, String triggerFrom) {
+    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, WorkflowRun op, String inputs) {
         WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
 
         String runId = IDGenerator.newWorkflowRunId();
@@ -212,13 +213,17 @@ public class WorkflowRepo implements BaseRepo {
         rec.setInputs(inputs);
         rec.setOutputs("");
         rec.setError("");
-        rec.setTriggerFrom(triggerFrom);
-        if(callbackUrl != null) {
-            rec.setCallbackUrl(callbackUrl);
+        rec.setTriggerFrom(op.getTriggerFrom());
+        if(op.getCallbackUrl() != null) {
+            rec.setCallbackUrl(op.getCallbackUrl());
         }
-        if(responseMode != null) {
-            rec.setResponseMode(responseMode);
+        if(op.getResponseMode() != null) {
+            rec.setResponseMode(op.getResponseMode());
         }
+        if(op.getTraceId() != null) {
+            rec.setTraceId(op.getTraceId());
+        }
+        rec.setSpanLev(op.getSpanLev());
 
         fillCreatorInfo(rec);
 

@@ -19,7 +19,6 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row20;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -128,6 +127,21 @@ API
     public final TableField<WorkflowRunRecord, Integer> CALLBACK_STATUS = createField(DSL.name("callback_status"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.inline("0", SQLDataType.INTEGER)), this, "");
 
     /**
+     * The column <code>workflow_run.workflow_scheduling_id</code>.
+     */
+    public final TableField<WorkflowRunRecord, String> WORKFLOW_SCHEDULING_ID = createField(DSL.name("workflow_scheduling_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
+     * The column <code>workflow_run.response_mode</code>.
+     */
+    public final TableField<WorkflowRunRecord, String> RESPONSE_MODE = createField(DSL.name("response_mode"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
+     * The column <code>workflow_run.trace_id</code>.
+     */
+    public final TableField<WorkflowRunRecord, String> TRACE_ID = createField(DSL.name("trace_id"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
      * The column <code>workflow_run.cuid</code>.
      */
     public final TableField<WorkflowRunRecord, Long> CUID = createField(DSL.name("cuid"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "");
@@ -158,9 +172,9 @@ API
     public final TableField<WorkflowRunRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
     /**
-     * The column <code>workflow_run.response_mode</code>.
+     * The column <code>workflow_run.span_lev</code>.
      */
-    public final TableField<WorkflowRunRecord, String> RESPONSE_MODE = createField(DSL.name("response_mode"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowRunRecord, Integer> SPAN_LEV = createField(DSL.name("span_lev"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.inline("0", SQLDataType.INTEGER)), this, "");
 
     private WorkflowRun(Name alias, Table<WorkflowRunRecord> aliased) {
         this(alias, aliased, null);
@@ -244,14 +258,5 @@ API
     @Override
     public WorkflowRun rename(Name name) {
         return new WorkflowRun(name, null);
-    }
-
-    // -------------------------------------------------------------------------
-    // Row20 type methods
-    // -------------------------------------------------------------------------
-
-    @Override
-    public Row20<Long, String, String, Long, String, String, String, String, String, String, String, String, Integer, Long, String, LocalDateTime, Long, String, LocalDateTime, String> fieldsRow() {
-        return (Row20) super.fieldsRow();
     }
 }

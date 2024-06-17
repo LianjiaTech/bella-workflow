@@ -95,11 +95,17 @@ public class WorkflowOps {
     public static class WorkflowRun extends WorkflowOp {
         @Builder.Default
         Map inputs = new HashMap();
+
         @Builder.Default
         String responseMode = ResponseMode.streaming.name();
+
         String callbackUrl;
+
         @Builder.Default
         String triggerFrom = TriggerFrom.DEBUG.name();
+
+        String traceId;
+        int spanLev;
     }
 
     @Getter

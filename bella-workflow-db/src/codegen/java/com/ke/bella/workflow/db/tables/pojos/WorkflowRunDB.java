@@ -31,13 +31,16 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        error;
     private String        callbackUrl;
     private Integer       callbackStatus;
+    private String        workflowSchedulingId;
+    private String        responseMode;
+    private String        traceId;
     private Long          cuid;
     private String        cuName;
     private LocalDateTime ctime;
     private Long          muid;
     private String        muName;
     private LocalDateTime mtime;
-    private String        responseMode;
+    private Integer       spanLev;
 
     public WorkflowRunDB() {}
 
@@ -55,13 +58,16 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.error = value.error;
         this.callbackUrl = value.callbackUrl;
         this.callbackStatus = value.callbackStatus;
+        this.workflowSchedulingId = value.workflowSchedulingId;
+        this.responseMode = value.responseMode;
+        this.traceId = value.traceId;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
         this.ctime = value.ctime;
         this.muid = value.muid;
         this.muName = value.muName;
         this.mtime = value.mtime;
-        this.responseMode = value.responseMode;
+        this.spanLev = value.spanLev;
     }
 
     public WorkflowRunDB(
@@ -78,13 +84,16 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        error,
         String        callbackUrl,
         Integer       callbackStatus,
+        String        workflowSchedulingId,
+        String        responseMode,
+        String        traceId,
         Long          cuid,
         String        cuName,
         LocalDateTime ctime,
         Long          muid,
         String        muName,
         LocalDateTime mtime,
-        String        responseMode
+        Integer       spanLev
     ) {
         this.id = id;
         this.tenantId = tenantId;
@@ -99,13 +108,16 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.error = error;
         this.callbackUrl = callbackUrl;
         this.callbackStatus = callbackStatus;
+        this.workflowSchedulingId = workflowSchedulingId;
+        this.responseMode = responseMode;
+        this.traceId = traceId;
         this.cuid = cuid;
         this.cuName = cuName;
         this.ctime = ctime;
         this.muid = muid;
         this.muName = muName;
         this.mtime = mtime;
-        this.responseMode = responseMode;
+        this.spanLev = spanLev;
     }
 
     /**
@@ -313,6 +325,48 @@ API
     }
 
     /**
+     * Getter for <code>workflow_run.workflow_scheduling_id</code>.
+     */
+    public String getWorkflowSchedulingId() {
+        return this.workflowSchedulingId;
+    }
+
+    /**
+     * Setter for <code>workflow_run.workflow_scheduling_id</code>.
+     */
+    public void setWorkflowSchedulingId(String workflowSchedulingId) {
+        this.workflowSchedulingId = workflowSchedulingId;
+    }
+
+    /**
+     * Getter for <code>workflow_run.response_mode</code>.
+     */
+    public String getResponseMode() {
+        return this.responseMode;
+    }
+
+    /**
+     * Setter for <code>workflow_run.response_mode</code>.
+     */
+    public void setResponseMode(String responseMode) {
+        this.responseMode = responseMode;
+    }
+
+    /**
+     * Getter for <code>workflow_run.trace_id</code>.
+     */
+    public String getTraceId() {
+        return this.traceId;
+    }
+
+    /**
+     * Setter for <code>workflow_run.trace_id</code>.
+     */
+    public void setTraceId(String traceId) {
+        this.traceId = traceId;
+    }
+
+    /**
      * Getter for <code>workflow_run.cuid</code>.
      */
     public Long getCuid() {
@@ -397,17 +451,17 @@ API
     }
 
     /**
-     * Getter for <code>workflow_run.response_mode</code>.
+     * Getter for <code>workflow_run.span_lev</code>.
      */
-    public String getResponseMode() {
-        return this.responseMode;
+    public Integer getSpanLev() {
+        return this.spanLev;
     }
 
     /**
-     * Setter for <code>workflow_run.response_mode</code>.
+     * Setter for <code>workflow_run.span_lev</code>.
      */
-    public void setResponseMode(String responseMode) {
-        this.responseMode = responseMode;
+    public void setSpanLev(Integer spanLev) {
+        this.spanLev = spanLev;
     }
 
     @Override
@@ -427,13 +481,16 @@ API
         sb.append(", ").append(error);
         sb.append(", ").append(callbackUrl);
         sb.append(", ").append(callbackStatus);
+        sb.append(", ").append(workflowSchedulingId);
+        sb.append(", ").append(responseMode);
+        sb.append(", ").append(traceId);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);
         sb.append(", ").append(ctime);
         sb.append(", ").append(muid);
         sb.append(", ").append(muName);
         sb.append(", ").append(mtime);
-        sb.append(", ").append(responseMode);
+        sb.append(", ").append(spanLev);
 
         sb.append(")");
         return sb.toString();

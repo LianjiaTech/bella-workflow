@@ -23,8 +23,8 @@ import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
@@ -207,7 +207,16 @@ public class DifyController {
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         Assert.notNull(wf, String.format("工作流当前无draft版本，无法单独调试节点", op.workflowId));
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", "", TriggerFrom.DEBUG_NODE.name());
+        WorkflowRun op2 = WorkflowRun.builder()
+                .userId(op.getUserId())
+                .userName(op.getUserName())
+                .tenantId(op.getTenantId())
+                .workflowId(op.getWorkflowId())
+                .inputs(op.getInputs())
+                .responseMode(op.getResponseMode())
+                .triggerFrom(WorkflowOps.TriggerFrom.DEBUG.name())
+                .build();
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
 
         DifySingleNodeRunBlockingCallback callback = new DifySingleNodeRunBlockingCallback();
         ws.runNode(wr, nodeId, op.inputs, callback);
@@ -245,9 +254,9 @@ public class DifyController {
         Assert.notNull(op.inputs, "inputs不能为空");
 
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
-        Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法单独调试节点", op.workflowId));
+        Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法调试", op.workflowId));
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op.inputs, "", "", TriggerFrom.DEBUG.name());
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op);
         if(mode == WorkflowOps.ResponseMode.blocking) {
             WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, 300000L);
             TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, callback));

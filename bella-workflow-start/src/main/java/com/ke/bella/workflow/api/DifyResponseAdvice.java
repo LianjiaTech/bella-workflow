@@ -28,7 +28,6 @@ public class DifyResponseAdvice implements ResponseBodyAdvice<Object> {
         return clazz.getName().startsWith("com.ke.bella.workflow.api.DifyController");
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
             Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {

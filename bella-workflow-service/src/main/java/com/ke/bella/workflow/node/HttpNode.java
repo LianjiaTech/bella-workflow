@@ -23,9 +23,9 @@ import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
-import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult.NodeRunResultBuilder;
+import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 
 import lombok.Getter;
@@ -104,9 +104,11 @@ public class HttpNode extends BaseNode {
             outputs.put("body", extractBody(response));
             outputs.put("headers", response.headers().toMultimap());
             outputs.put("files", extractFiles(response));
+            boolean success = statusCode >= 200 && statusCode <= 299;
             return resultBuilder
                     .outputs(outputs)
-                    .status(statusCode >= 200 && statusCode <= 299 ? NodeRunResult.Status.succeeded : NodeRunResult.Status.failed)
+                    .status(success ? NodeRunResult.Status.succeeded : NodeRunResult.Status.failed)
+                    .error(success ? null : new IllegalStateException(response.message()))
                     .build();
         } catch (Exception e) {
             return NodeRunResult.builder()

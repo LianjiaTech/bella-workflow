@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.util.StringUtils;
+
 import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
+import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.WorkflowSchema;
 
 import lombok.Data;
@@ -20,6 +23,27 @@ class BaseNodeData {
     private String title;
     private String desc;
     private String type;
+
+    @lombok.Getter
+    @lombok.Setter
+    @lombok.Builder
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
+    public static class Authorization {
+        String apiKey;
+        String apiBaseUrl;
+
+        public String getToken() {
+            if(apiKey == null) {
+                apiKey = BellaContext.getApiKey();
+            }
+            return String.format("Bearer %s", apiKey);
+        }
+
+        public String getApiBaseUrl() {
+            return StringUtils.isEmpty(apiBaseUrl) ? Configs.API_BASE : apiBaseUrl;
+        }
+    }
 }
 
 @Slf4j

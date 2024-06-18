@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.Variables;
@@ -113,7 +112,7 @@ public class LlmNode extends BaseNode {
     }
 
     private Flowable<ChatCompletionChunk> invokeLlm(List<ChatMessage> chatMessages) {
-        OpenAiService service = new OpenAiService(data.getAuthorization().authorization(), Duration.ofSeconds(data.getTimeout().getReadSeconds()),
+        OpenAiService service = new OpenAiService(data.getAuthorization().getToken(), Duration.ofSeconds(data.getTimeout().getReadSeconds()),
                 data.getAuthorization().getApiBaseUrl());
         ChatCompletionRequest chatCompletionRequest = JsonUtils.fromJson(JsonUtils.toJson(data.getModel().getCompletionParams()),
                 ChatCompletionRequest.class);
@@ -180,22 +179,6 @@ public class LlmNode extends BaseNode {
         @Builder.Default
         private Authorization authorization = new Authorization();
 
-        @lombok.Data
-        @Builder
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class Authorization {
-            String apiKey;
-            @Builder.Default
-            String apiBaseUrl = "https://example.com/v1/";
-
-            public String authorization() {
-                if(apiKey == null) {
-                    apiKey = BellaContext.getApiKey();
-                }
-                return String.format("Bearer %s", apiKey);
-            }
-        }
 
         @lombok.Getter
         @lombok.Setter

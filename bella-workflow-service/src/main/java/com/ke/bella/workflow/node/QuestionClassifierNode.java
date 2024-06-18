@@ -7,7 +7,6 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.WorkflowContext;
@@ -28,8 +27,6 @@ public class QuestionClassifierNode extends BaseNode {
 
     private final Data data;
 
-    private final String OPENAI_API_BASE_URL = "https://example.com/v1/"; //todo 配置化
-
     @SuppressWarnings("unchecked")
     public QuestionClassifierNode(Node meta) {
         super(meta);
@@ -41,24 +38,24 @@ public class QuestionClassifierNode extends BaseNode {
     protected NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
 
         try {
-            //获取query
+            // 获取query
             Object query = context.getState().getVariableValue(data.getQueryVariableSelector());
             List<ChatMessage> chatMessages = getChatTemplate(this.data, String.valueOf(query));
 
-            //构造参数请求LLM
+            // 构造参数请求LLM
             ChatCompletionResult compResult = invokeOpenAPILlm(data.getAuthorization(), data.getModel(), chatMessages);
             Data.ClassConfig resultClass = parseAndCheckJsonMarkdown(compResult.getChoices().get(0).getMessage().getContent(),
                     Data.ClassConfig.class);
 
-            //获取第一个节点为默认节点
+            // 获取第一个节点为默认节点
             Data.ClassConfig category = data.getClasses().get(0);
 
-            //获取分类结果
+            // 获取分类结果
             if(resultClass.getId() != null && resultClass.getName() != null) {
                 category = data.getClasses().stream().filter(c -> c.getId().equals(resultClass.getId())).findFirst().orElse(category);
             }
 
-            //适配协议
+            // 适配协议
             Map<String, Object> variables = Maps.newHashMap();
             variables.put("query", query);
 
@@ -69,7 +66,6 @@ public class QuestionClassifierNode extends BaseNode {
             processData.put("model_mode", data.getModel().getMode());
             processData.put("prompts", this.chatTemplateToSaving(chatMessages));
             processData.put("usage", compResult.getUsage());
-
 
             return NodeRunResult.builder()
                     .status(NodeRunResult.Status.succeeded)
@@ -86,29 +82,12 @@ public class QuestionClassifierNode extends BaseNode {
     }
 
     private ChatCompletionResult invokeOpenAPILlm(Data.Authorization authorization, Data.ModelConfig modelConfig, List<ChatMessage> chatMessages) {
-
-        String token = null;
-        String apiBaseUrl = OPENAI_API_BASE_URL;
-        if(authorization != null) {
-            token = prefix() + authorization.getApiKey();
-            apiBaseUrl = authorization.getApiBaseUrl();
-        } else if(BellaContext.getApiKey() !=null) {
-            token = prefix() + BellaContext.getApiKey();
-        }
-
-        if(token == null) {
-            throw new IllegalArgumentException("Invalid authorization config");
-        }
-
-        OpenAiService service = new OpenAiService(token, Duration.ofSeconds(this.data.getTimeout().getRead()), apiBaseUrl);
+        OpenAiService service = new OpenAiService(authorization.getToken(), Duration.ofSeconds(this.data.getTimeout().getRead()),
+                data.authorization.getApiBaseUrl());
         return service.createChatCompletion(
                 ChatCompletionRequest.builder().model(modelConfig.getName()).frequencyPenalty(modelConfig.getParam().getFrequencyPenalty())
                         .presencePenalty(modelConfig.getParam().getPresencePenalty()).topP(modelConfig.getParam().getTopP())
                         .maxTokens(modelConfig.getParam().getMaxTokens()).messages(chatMessages).build());
-    }
-
-    public String prefix() {
-        return "Bearer ";
     }
 
     private List<Map<String, String>> chatTemplateToSaving(List<ChatMessage> chatMessages) {
@@ -177,19 +156,11 @@ public class QuestionClassifierNode extends BaseNode {
         ModelConfig model;
         List<ClassConfig> classes;
         String instruction;
-		@Builder.Default
+        @Builder.Default
         Timeout timeout = new Timeout();
-        Authorization authorization;
 
-        @lombok.Getter
-        @lombok.Setter
-        @lombok.Builder
-        @lombok.NoArgsConstructor
-        @lombok.AllArgsConstructor
-        public static class Authorization {
-            String apiKey;
-            String apiBaseUrl;
-        }
+        @Builder.Default
+        Authorization authorization = new Authorization();
 
         @lombok.Getter
         @lombok.Setter
@@ -250,24 +221,23 @@ public class QuestionClassifierNode extends BaseNode {
             + "    Here is the chat histories between human and assistant, inside <histories></histories> XML tags.\n" + "    <histories>\n"
             + "    {histories}\n" + "    </histories>";
 
-    private static final String QUESTION_CLASSIFIER_USER_PROMPT_1 =
-            " { \"input_text\": [\"I recently had a great experience with your company. The service was prompt and the staff was very friendly.\"],\n"
-                    + "    \"categories\": [{\"category_id\":\"f5660049-284f-41a7-b301-fd24176a711c\",\"category_name\":\"Customer Service\"},{\"category_id\":\"8d007d06-f2c9-4be5-8ff6-cd4381c13c60\",\"category_name\":\"Satisfaction\"},{\"category_id\":\"5fbbbb18-9843-466d-9b8e-b9bfbb9482c8\",\"category_name\":\"Sales\"},{\"category_id\":\"23623c75-7184-4a2e-8226-466c2e4631e4\",\"category_name\":\"Product\"}],\n"
-                    + "    \"classification_instructions\": [\"classify the text based on the feedback provided by customer\"]}";
+    private static final String QUESTION_CLASSIFIER_USER_PROMPT_1 = " { \"input_text\": [\"I recently had a great experience with your company. The service was prompt and the staff was very friendly.\"],\n"
+            + "    \"categories\": [{\"category_id\":\"f5660049-284f-41a7-b301-fd24176a711c\",\"category_name\":\"Customer Service\"},{\"category_id\":\"8d007d06-f2c9-4be5-8ff6-cd4381c13c60\",\"category_name\":\"Satisfaction\"},{\"category_id\":\"5fbbbb18-9843-466d-9b8e-b9bfbb9482c8\",\"category_name\":\"Sales\"},{\"category_id\":\"23623c75-7184-4a2e-8226-466c2e4631e4\",\"category_name\":\"Product\"}],\n"
+            + "    \"classification_instructions\": [\"classify the text based on the feedback provided by customer\"]}";
 
-    private static final String QUESTION_CLASSIFIER_ASSISTANT_PROMPT_1 =
-            "```json\n" + "    {\"keywords\": [\"recently\", \"great experience\", \"company\", \"service\", \"prompt\", \"staff\", \"friendly\"],\n"
-                    + "    \"category_id\": \"f5660049-284f-41a7-b301-fd24176a711c\",\n" + "    \"category_name\": \"Customer Service\"}\n" + "```";
+    private static final String QUESTION_CLASSIFIER_ASSISTANT_PROMPT_1 = "```json\n"
+            + "    {\"keywords\": [\"recently\", \"great experience\", \"company\", \"service\", \"prompt\", \"staff\", \"friendly\"],\n"
+            + "    \"category_id\": \"f5660049-284f-41a7-b301-fd24176a711c\",\n" + "    \"category_name\": \"Customer Service\"}\n" + "```";
 
     private static final String QUESTION_CLASSIFIER_USER_PROMPT_2 = "   {\"input_text\": [\"bad service, slow to bring the food\"],\n"
             + "    \"categories\": [{\"category_id\":\"80fb86a0-4454-4bf5-924c-f253fdd83c02\",\"category_name\":\"Food Quality\"},{\"category_id\":\"f6ff5bc3-aca0-4e4a-8627-e760d0aca78f\",\"category_name\":\"Experience\"},{\"category_id\":\"cc771f63-74e7-4c61-882e-3eda9d8ba5d7\",\"category_name\":\"Price\"}],\n"
             + "    \"classification_instructions\": []}";
 
-    private static final String QUESTION_CLASSIFIER_ASSISTANT_PROMPT_2 =
-            "```json\n" + "    {\"keywords\": [\"bad service\", \"slow\", \"food\", \"tip\", \"terrible\", \"waitresses\"],\n"
-                    + "    \"category_id\": \"f6ff5bc3-aca0-4e4a-8627-e760d0aca78f\",\n" + "    \"category_name\": \"Experience\"}\n" + "```";
+    private static final String QUESTION_CLASSIFIER_ASSISTANT_PROMPT_2 = "```json\n"
+            + "    {\"keywords\": [\"bad service\", \"slow\", \"food\", \"tip\", \"terrible\", \"waitresses\"],\n"
+            + "    \"category_id\": \"f6ff5bc3-aca0-4e4a-8627-e760d0aca78f\",\n" + "    \"category_name\": \"Experience\"}\n" + "```";
 
-    private static final String QUESTION_CLASSIFIER_USER_PROMPT_3 =
-            "    '{{\"input_text\": [\"%s\"],',\n" + "    '\"categories\": %s, ',\n" + "    '\"classification_instructions\": [\"%s\"]}}'";
+    private static final String QUESTION_CLASSIFIER_USER_PROMPT_3 = "    '{{\"input_text\": [\"%s\"],',\n" + "    '\"categories\": %s, ',\n"
+            + "    '\"classification_instructions\": [\"%s\"]}}'";
 
 }

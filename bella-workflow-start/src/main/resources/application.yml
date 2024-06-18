@@ -37,6 +37,7 @@ api:
     feign:
       keychains:
         example: { access-key-id: 123, access-key-secret: 456 }
+
 datasource:
   use-dynamic: true
   dynamic-default: master
@@ -49,3 +50,6 @@ datasource:
       url: ${DATASOURCE_POOL_SLAVE_URL}
       username: ${DATASOURCE_POOL_SLAVE_USERNAME}
       password: ${DATASOURCE_POOL_SLAVE_PASSWORD}
+
+bella:
+  apiBase: ${BELLA_API_BASE:https://example.com/v1/}

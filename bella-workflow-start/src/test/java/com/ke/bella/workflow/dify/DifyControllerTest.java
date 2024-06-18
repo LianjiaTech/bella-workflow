@@ -1,5 +1,15 @@
 package com.ke.bella.workflow.dify;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.andrewoma.dexx.collection.Maps;
 import com.ke.bella.workflow.AbstractTest;
@@ -11,23 +21,12 @@ import com.ke.bella.workflow.api.DifyController;
 import com.ke.bella.workflow.api.Operator;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
-import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-
-@Slf4j
+@SuppressWarnings("rawtypes")
 public class DifyControllerTest extends AbstractTest {
 
     @Autowired
@@ -49,6 +48,7 @@ public class DifyControllerTest extends AbstractTest {
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testWorkFlowRun() {
         String WORKFLOW_ID = IDGenerator.newWorkflowId();

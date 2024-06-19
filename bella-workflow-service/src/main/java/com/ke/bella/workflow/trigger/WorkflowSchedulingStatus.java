@@ -1,4 +1,4 @@
-package com.ke.bella.workflow;
+package com.ke.bella.workflow.trigger;
 
 public enum WorkflowSchedulingStatus {
 	init,

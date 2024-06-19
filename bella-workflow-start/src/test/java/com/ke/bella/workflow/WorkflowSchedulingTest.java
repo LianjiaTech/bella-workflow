@@ -12,16 +12,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.ke.bella.workflow.api.WorkflowOps;
-import com.ke.bella.workflow.api.WorkflowScheduleController;
+import com.ke.bella.workflow.trigger.WorkflowScheduler;
+import com.ke.bella.workflow.api.TriggerController;
 
 @AutoConfigureMockMvc
 public class WorkflowSchedulingTest extends AbstractTest {
 
     @Autowired
-    WorkflowScheduleController controller;
+    TriggerController controller;
 
     @Autowired
-    WorkflowSchedulingHelper workflowSchedulingHelper;
+    WorkflowScheduler workflowSchedulingHelper;
 
     @Autowired
     private MockMvc mockMvc;

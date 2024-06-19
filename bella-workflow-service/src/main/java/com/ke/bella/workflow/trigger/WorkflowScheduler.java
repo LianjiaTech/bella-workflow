@@ -1,4 +1,4 @@
-package com.ke.bella.workflow;
+package com.ke.bella.workflow.trigger;
 
 import java.util.concurrent.TimeUnit;
 
@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
-public class WorkflowSchedulingHelper implements ApplicationRunner, DisposableBean {
+public class WorkflowScheduler implements ApplicationRunner, DisposableBean {
 
     @Autowired
     WorkflowSchedulingTriggerHelper schedulingTriggerHelper;

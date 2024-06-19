@@ -1,4 +1,4 @@
-package com.ke.bella.workflow;
+package com.ke.bella.workflow.trigger;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Throwables;
+import com.ke.bella.workflow.TaskExecutor.NamedThreadFactory;
 import com.ke.bella.workflow.db.repo.InstanceRepo;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
+import com.ke.bella.workflow.service.WorkflowClient;
 import com.ke.bella.workflow.service.WorkflowSchedulingService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,13 +25,18 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class WorkflowSchedulingTriggerHelper {
-
     private static final ThreadFactory TRIGGER_THREAD_FACTORY = new NamedThreadFactory("workflow-scheduling-trigger", true);
     private static final Integer BATCH_SIZE = 100;
+
     @Autowired
     WorkflowSchedulingService ws;
+
     @Autowired
     InstanceRepo instanceRepo;
+
+    @Autowired
+    WorkflowClient workflowClient;
+
     private ThreadPoolExecutor triggerPool = null;
 
     public void start() {
@@ -53,7 +60,7 @@ public class WorkflowSchedulingTriggerHelper {
                 // "helper" thread to refresh trigger next time
                 ws.refreshTriggerNextTime(workflowScheduling);
                 CompletableFuture.runAsync(() -> {
-                    ws.triggerScheduling(workflowScheduling);
+                    workflowClient.workflowRun(workflowScheduling);
                 }, triggerPool).exceptionally(e -> {
                     LOGGER.error("workflow scheduling error, e: {}", Throwables.getStackTraceAsString(e));
                     return null;

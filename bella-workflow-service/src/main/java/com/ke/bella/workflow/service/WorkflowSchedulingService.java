@@ -10,31 +10,21 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 import com.ke.bella.workflow.JsonUtils;
-import com.ke.bella.workflow.WorkflowSchedulingStatus;
 import com.ke.bella.workflow.db.repo.WorkflowSchedulingRepo;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
+import com.ke.bella.workflow.trigger.WorkflowSchedulingStatus;
 import com.ke.bella.workflow.utils.CronUtils;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Component
-@Slf4j
 public class WorkflowSchedulingService {
 
     @Autowired
     WorkflowSchedulingRepo repo;
 
-    @Autowired
-    WorkflowClient workflowClient;
-
-    public WorkflowSchedulingDB createWorkflowScheduling(String workflowId, String cronExpression, Map inputs,
+    @SuppressWarnings("rawtypes")
+    public WorkflowSchedulingDB createSchedulingTrigger(String workflowId, String cronExpression, Map inputs,
             LocalDateTime nextTriggerTime) {
         return repo.insertWorkflowScheduling(workflowId, cronExpression, nextTriggerTime, JsonUtils.toJson(inputs));
-    }
-
-    public void triggerScheduling(WorkflowSchedulingDB scheduling) {
-        // invoke http api to run, todo: handle error response
-        workflowClient.workflowRun(scheduling);
     }
 
     public void refreshTriggerNextTime(WorkflowSchedulingDB scheduling) {

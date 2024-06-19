@@ -227,7 +227,7 @@ public class DifyController {
     public Object getPublish(@PathVariable String workflowId) {
         initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
-        WorkflowDB wf = ws.getPublishedWorkflow(workflowId);
+        WorkflowDB wf = ws.getPublishedWorkflow(workflowId, null);
         if(Objects.isNull(wf)) {
             return getDefaultWorkflowSchema();
         }

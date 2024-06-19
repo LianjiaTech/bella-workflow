@@ -76,8 +76,8 @@ public class WorkflowService {
         return repo.pageDraftWorkflow(op);
     }
 
-    public WorkflowDB getPublishedWorkflow(String workflowId) {
-        return repo.queryPublishedWorkflow(workflowId);
+    public WorkflowDB getPublishedWorkflow(String workflowId, Long version) {
+        return repo.queryPublishedWorkflow(workflowId, version);
     }
 
     public WorkflowDB getWorkflow(String workflowId, Long version) {

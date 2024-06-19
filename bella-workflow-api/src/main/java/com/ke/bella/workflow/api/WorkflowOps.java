@@ -32,6 +32,7 @@ public class WorkflowOps {
     @AllArgsConstructor
     public static class WorkflowOp extends Operator {
         String workflowId;
+        Long version;
     }
 
     @Getter

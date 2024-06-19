@@ -83,11 +83,11 @@ public class WorkflowRepo implements BaseRepo {
                 .fetchOneInto(WorkflowRunDB.class);
     }
 
-    public WorkflowDB queryPublishedWorkflow(String workflowId) {
+    public WorkflowDB queryPublishedWorkflow(String workflowId, Long version) {
         return db.selectFrom(WORKFLOW)
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
-                .and(WORKFLOW.VERSION.greaterThan(0l)) // 正式版
+                .and(version == null ? WORKFLOW.VERSION.greaterThan(0l) : WORKFLOW.VERSION.eq(version)) // 正式版
                 .orderBy(WORKFLOW.VERSION.desc())   // 最新版
                 .limit(1)
                 .fetchOneInto(WorkflowDB.class);

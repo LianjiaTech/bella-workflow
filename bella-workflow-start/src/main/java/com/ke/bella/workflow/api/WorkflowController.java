@@ -56,7 +56,7 @@ public class WorkflowController {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
-        return ws.getPublishedWorkflow(op.workflowId);
+        return ws.getPublishedWorkflow(op.workflowId, op.version);
     }
 
     @PostMapping("/draft/sync")
@@ -118,7 +118,7 @@ public class WorkflowController {
             Assert.notNull(op.callbackUrl, "callbackUrl不能为空");
         }
 
-        WorkflowDB wf = ver.equals("published") ? ws.getPublishedWorkflow(op.workflowId)
+        WorkflowDB wf = ver.equals("published") ? ws.getPublishedWorkflow(op.workflowId, op.getVersion())
                 : ws.getDraftWorkflow(op.workflowId);
         Assert.notNull(wf, String.format("没有找到对应的的工作流, %s(ver. %s)", op.workflowId, ver));
 

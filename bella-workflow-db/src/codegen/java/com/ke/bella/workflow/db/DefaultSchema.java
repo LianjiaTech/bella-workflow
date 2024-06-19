@@ -10,6 +10,7 @@ import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
+import com.ke.bella.workflow.db.tables.WorkflowScheduling;
 
 import java.util.Arrays;
 import java.util.List;
@@ -63,6 +64,11 @@ public class DefaultSchema extends SchemaImpl {
     public final WorkflowRunSharding WORKFLOW_RUN_SHARDING = WorkflowRunSharding.WORKFLOW_RUN_SHARDING;
 
     /**
+     * The table <code>workflow_scheduling</code>.
+     */
+    public final WorkflowScheduling WORKFLOW_SCHEDULING = WorkflowScheduling.WORKFLOW_SCHEDULING;
+
+    /**
      * No further instances allowed
      */
     private DefaultSchema() {
@@ -83,6 +89,7 @@ public class DefaultSchema extends SchemaImpl {
             Workflow.WORKFLOW,
             WorkflowNodeRun.WORKFLOW_NODE_RUN,
             WorkflowRun.WORKFLOW_RUN,
-            WorkflowRunSharding.WORKFLOW_RUN_SHARDING);
+            WorkflowRunSharding.WORKFLOW_RUN_SHARDING,
+            WorkflowScheduling.WORKFLOW_SCHEDULING);
     }
 }

@@ -10,6 +10,7 @@ import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
+import com.ke.bella.workflow.db.tables.WorkflowScheduling;
 
 
 /**
@@ -47,4 +48,9 @@ public class Tables {
      * The table <code>workflow_run_sharding</code>.
      */
     public static final WorkflowRunSharding WORKFLOW_RUN_SHARDING = WorkflowRunSharding.WORKFLOW_RUN_SHARDING;
+
+    /**
+     * The table <code>workflow_scheduling</code>.
+     */
+    public static final WorkflowScheduling WORKFLOW_SCHEDULING = WorkflowScheduling.WORKFLOW_SCHEDULING;
 }

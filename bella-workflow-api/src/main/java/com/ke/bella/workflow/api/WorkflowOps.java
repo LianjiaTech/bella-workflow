@@ -134,4 +134,19 @@ public class WorkflowOps {
         String tenantName;
         String parentTenantId;
     }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @SuppressWarnings("rawtypes")
+    public static class WorkflowScheduling extends WorkflowOp {
+        @Builder.Default
+        Map inputs = new HashMap();
+        /**
+         * quartz标准的cron表达式
+         */
+        String cronExpression;
+    }
 }

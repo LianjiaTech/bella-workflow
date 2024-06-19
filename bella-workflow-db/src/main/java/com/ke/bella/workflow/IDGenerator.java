@@ -72,6 +72,10 @@ public class IDGenerator {
         return "WKFL-" + UUID.randomUUID().toString();
     }
 
+    public static String newWorkflowSchedulingId() {
+        return "SCHD-" + UUID.randomUUID().toString();
+    }
+
     public static String timeStrFromCode(String code) {
         int index = code.indexOf('-') + 1;
         String str = code.substring(index, index + 12);

@@ -1,5 +1,9 @@
 package com.ke.bella.workflow.db.repo;
 
+import static com.ke.bella.workflow.db.tables.Instance.INSTANCE;
+
+import java.time.LocalDateTime;
+
 import javax.annotation.Resource;
 
 import org.jooq.DSLContext;
@@ -7,9 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ke.bella.workflow.db.tables.records.InstanceRecord;
-import static com.ke.bella.workflow.db.tables.Instance.*;
-
-import java.time.LocalDateTime;
 
 @Component
 public class InstanceRepo {
@@ -50,5 +51,9 @@ public class InstanceRepo {
             rec.attach(db.configuration());
         }
         return rec;
+    }
+
+    public void forUpdateInstance1() {
+        db.select(INSTANCE.ID).from(INSTANCE).where(INSTANCE.ID.eq(1L)).forUpdate().fetch();
     }
 }

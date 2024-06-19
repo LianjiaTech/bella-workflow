@@ -57,3 +57,11 @@ logging:
     org:
       springframework: INFO
       jooq: DEBUG
+
+bella:
+  workflow:
+    domain: http://example.com
+    trigger:
+      scheduling:
+        callback-path: /v1/workflow/trigger/scheduling
+    run-path: /v1/workflow/run

@@ -10,6 +10,7 @@ import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
+import com.ke.bella.workflow.db.tables.WorkflowScheduling;
 
 import org.jooq.Index;
 import org.jooq.OrderField;
@@ -31,6 +32,7 @@ public class Indexes {
     public static final Index INSTANCE_IDX_IP_PORT = Internal.createIndex(DSL.name("idx_ip_port"), Instance.INSTANCE, new OrderField[] { Instance.INSTANCE.IP, Instance.INSTANCE.PORT }, false);
     public static final Index WORKFLOW_RUN_SHARDING_IDX_LAST_KEY = Internal.createIndex(DSL.name("idx_last_key"), WorkflowRunSharding.WORKFLOW_RUN_SHARDING, new OrderField[] { WorkflowRunSharding.WORKFLOW_RUN_SHARDING.LAST_KEY }, false);
     public static final Index TENANT_IDX_PARENT_ID = Internal.createIndex(DSL.name("idx_parent_id"), Tenant.TENANT, new OrderField[] { Tenant.TENANT.PARENT_ID }, false);
+    public static final Index WORKFLOW_SCHEDULING_IDX_STATUS_TRIGGER_NEXT_TIME = Internal.createIndex(DSL.name("idx_status_trigger_next_time"), WorkflowScheduling.WORKFLOW_SCHEDULING, new OrderField[] { WorkflowScheduling.WORKFLOW_SCHEDULING.TRIGGER_NEXT_TIME, WorkflowScheduling.WORKFLOW_SCHEDULING.STATUS }, false);
     public static final Index WORKFLOW_RUN_IDX_TENANT_ID = Internal.createIndex(DSL.name("idx_tenant_id"), WorkflowRun.WORKFLOW_RUN, new OrderField[] { WorkflowRun.WORKFLOW_RUN.TENANT_ID, WorkflowRun.WORKFLOW_RUN.CTIME }, false);
     public static final Index WORKFLOW_NODE_RUN_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowNodeRun.WORKFLOW_NODE_RUN, new OrderField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.WORKFLOW_ID, WorkflowNodeRun.WORKFLOW_NODE_RUN.CTIME, WorkflowNodeRun.WORKFLOW_NODE_RUN.STATUS }, false);
     public static final Index WORKFLOW_RUN_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowRun.WORKFLOW_RUN, new OrderField[] { WorkflowRun.WORKFLOW_RUN.WORKFLOW_ID, WorkflowRun.WORKFLOW_RUN.CTIME, WorkflowRun.WORKFLOW_RUN.STATUS }, false);

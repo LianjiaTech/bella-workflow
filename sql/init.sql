@@ -162,3 +162,32 @@ INSERT INTO `workflow_run_sharding` (`id`, `key`, `key_time`, `last_key`, `count
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+DROP TABLE IF EXISTS `workflow_scheduling`;
+CREATE TABLE `workflow_scheduling`
+(
+    `id`                     bigint unsigned NOT NULL AUTO_INCREMENT,
+    `tenant_id`              varchar(64)  NOT NULL DEFAULT '',
+    `workflow_id`            varchar(128) NOT NULL DEFAULT '',
+    `workflow_scheduling_id` varchar(128) NOT NULL DEFAULT '',
+    `cron_expression`        varchar(128) NOT NULL DEFAULT '' COMMENT 'cron表达式',
+    `trigger_next_time`      datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `inputs`                 text         NOT NULL,
+    `status`                 varchar(32)  NOT NULL DEFAULT 'init' COMMENT '调度任务状态；\ninit:待执行\nrunning:进行中\nfinished:已完成',
+    `ctime`                  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `cu_name`                varchar(64)  NOT NULL DEFAULT '',
+    `cuid`                   bigint       NOT NULL DEFAULT '0',
+    `mtime`                  datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `mu_name`                varchar(255) NOT NULL DEFAULT '',
+    `muid`                   bigint       NOT NULL DEFAULT '0',
+    PRIMARY KEY (`id`) USING BTREE,
+    unique key `idx_workflow_scheduling_id` (`workflow_scheduling_id`),
+    index                    `idx_status_trigger_next_time` (`trigger_next_time`, `status`)
+) ENGINE = InnoDB
+  AUTO_INCREMENT = 1
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_0900_ai_ci;
+
+
+alter table `workflow_run`
+    add column `workflow_scheduling_id` varchar(128) NOT NULL DEFAULT '' after callback_status;

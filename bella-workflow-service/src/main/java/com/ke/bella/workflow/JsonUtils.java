@@ -17,6 +17,7 @@ public class JsonUtils {
         mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        mapper.setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL);
 
         mapper.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         SimpleModule module = new SimpleModule();

@@ -8,6 +8,7 @@ public enum NodeType {
     HTTP_REQUEST("http-request"),
     QUESTION_CLASSIFIER("question-classifier"),
     TEMPLATE_TRANSFORM("template-transform"),
+    KNOWLEDGE_RETRIEVAL("knowledge-retrieval"),
     ;
 
     public final String name;

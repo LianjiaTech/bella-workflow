@@ -12,8 +12,8 @@ import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
-import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.service.Configs;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +56,7 @@ public abstract class BaseNode implements RunnableNode {
         register(NodeType.HTTP_REQUEST.name, HttpNode.class);
         register(NodeType.TEMPLATE_TRANSFORM.name, TemplateTransformNode.class);
         register(NodeType.QUESTION_CLASSIFIER.name, QuestionClassifierNode.class);
+        register(NodeType.KNOWLEDGE_RETRIEVAL.name, KnowledgeRetrievalNode.class);
         register(NodeType.LLM.name, LlmNode.class);
     }
 

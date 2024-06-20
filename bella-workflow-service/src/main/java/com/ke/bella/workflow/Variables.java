@@ -79,6 +79,15 @@ public class Variables {
     }
 
     @SuppressWarnings("rawtypes")
+    public static String getValueAsString(Map pool, List<String> selectors) {
+        Object v = getValue(pool, selectors);
+        if(v == null || v instanceof String) {
+            return (String) v;
+        }
+        return JsonUtils.toJson(v);
+    }
+
+    @SuppressWarnings("rawtypes")
     public static String format(String text, Map pool) {
         return format(text, "{{#", "#}}", pool);
     }

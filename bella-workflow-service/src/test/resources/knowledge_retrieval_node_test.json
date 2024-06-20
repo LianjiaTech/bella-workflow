@@ -1,0 +1,145 @@
+{
+  "graph": {
+    "edges": [
+      {
+        "data": {
+          "isInIteration": false,
+          "sourceType": "start",
+          "targetType": "knowledge-retrieval"
+        },
+        "id": "1718789991246-source-1718790018841-target",
+        "source": "1718789991246",
+        "sourceHandle": "source",
+        "target": "1718790018841",
+        "targetHandle": "target",
+        "type": "custom",
+        "zIndex": 0
+      },
+      {
+        "data": {
+          "isInIteration": false,
+          "sourceType": "knowledge-retrieval",
+          "targetType": "end"
+        },
+        "id": "1718790018841-source-1718790026120-target",
+        "source": "1718790018841",
+        "sourceHandle": "source",
+        "target": "1718790026120",
+        "targetHandle": "target",
+        "type": "custom",
+        "zIndex": 0
+      }
+    ],
+    "nodes": [
+      {
+        "data": {
+          "desc": "",
+          "selected": false,
+          "title": "开始",
+          "type": "start",
+          "variables": [
+            {
+              "label": "query",
+              "max_length": 48,
+              "options": [],
+              "required": true,
+              "type": "text-input",
+              "variable": "query"
+            }
+          ]
+        },
+        "height": 90,
+        "id": "1718789991246",
+        "position": {
+          "x": 80,
+          "y": 282
+        },
+        "positionAbsolute": {
+          "x": 80,
+          "y": 282
+        },
+        "selected": true,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244
+      },
+      {
+        "data": {
+          "dataset_ids": [
+            "F856202896709095424"
+          ],
+          "desc": "",
+          "query_variable_selector": [
+            "1718789991246",
+            "query"
+          ],
+          "retrieval_mode": "single",
+          "selected": false,
+          "single_retrieval_config": {
+            "model": {
+              "completion_params": {},
+              "mode": "chat",
+              "name": "gpt-4",
+              "provider": "openai"
+            }
+          },
+          "title": "知识检索",
+          "type": "knowledge-retrieval"
+        },
+        "height": 92,
+        "id": "1718790018841",
+        "position": {
+          "x": 383,
+          "y": 282
+        },
+        "positionAbsolute": {
+          "x": 383,
+          "y": 282
+        },
+        "selected": false,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244
+      },
+      {
+        "data": {
+          "desc": "",
+          "outputs": [
+            {
+              "value_selector": [
+                "1718790018841",
+                "result"
+              ],
+              "variable": "result"
+            }
+          ],
+          "selected": false,
+          "title": "结束",
+          "type": "end"
+        },
+        "height": 90,
+        "id": "1718790026120",
+        "position": {
+          "x": 688,
+          "y": 282
+        },
+        "positionAbsolute": {
+          "x": 688,
+          "y": 282
+        },
+        "selected": false,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244
+      }
+    ],
+    "viewport": {
+      "x": -362,
+      "y": 27,
+      "zoom": 1
+    }
+  }
+}

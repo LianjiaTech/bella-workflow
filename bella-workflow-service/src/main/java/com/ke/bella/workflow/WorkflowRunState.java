@@ -32,6 +32,13 @@ public class WorkflowRunState {
     @Setter
     WorkflowRunStatus status;
 
+    public WorkflowRunState() {
+        if(BellaContext.getOperator() != null) {
+            putVariable("sys", "user_id", BellaContext.getOperator().getUserId());
+            putVariable("sys", "user_name", BellaContext.getOperator().getUserName());
+        }
+    }
+
     synchronized boolean isEmpty() {
         return nodeCompletedStates.isEmpty();
     }

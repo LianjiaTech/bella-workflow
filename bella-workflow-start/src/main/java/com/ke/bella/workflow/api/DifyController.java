@@ -49,11 +49,13 @@ public class DifyController {
     WorkflowService ws;
 
     private void initContext() {
-        BellaContext.setOperator(Operator.builder()
-                .userId(userIdL)
-                .tenantId("test")
-                .userName("test")
-                .build());
+        if(Objects.isNull(BellaContext.getOperator())) {
+            BellaContext.setOperator(Operator.builder()
+                    .userId(userIdL)
+                    .tenantId("test")
+                    .userName("test")
+                    .build());
+        }
         BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
     }
 

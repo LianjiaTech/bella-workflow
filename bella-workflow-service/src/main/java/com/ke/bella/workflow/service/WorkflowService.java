@@ -64,7 +64,11 @@ public class WorkflowService {
         if(wf == null) {
             repo.addDraftWorkflow(op);
         } else if(!StringUtils.equals(wf.getGraph(), op.getGraph())) {
-            repo.updateDraftWorkflow(op);
+            WorkflowSchema old = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+            WorkflowSchema opg = JsonUtils.fromJson(op.getGraph(), WorkflowSchema.class);
+            if(!opg.equals(old)) {
+                repo.updateDraftWorkflow(op);
+            }
         }
     }
 

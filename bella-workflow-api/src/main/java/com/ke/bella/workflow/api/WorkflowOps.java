@@ -48,6 +48,8 @@ public class WorkflowOps {
         int pageSize = 30;
 
         String name;
+
+        String workflowId;
     }
 
     @Getter

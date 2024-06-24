@@ -106,6 +106,15 @@ public class DifyController {
         return JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
     }
 
+    @GetMapping("/{workflowId}/workflows")
+    public Page<WorkflowDB> getWorkflows(@PathVariable String workflowId, @RequestParam(required = false, defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int limit) {
+        initContext();
+        Assert.hasText(workflowId, "workflowId不能为空");
+        WorkflowPage op = WorkflowPage.builder().page(page).pageSize(limit).workflowId(workflowId).build();
+        return ws.pageWorkflows(op);
+    }
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

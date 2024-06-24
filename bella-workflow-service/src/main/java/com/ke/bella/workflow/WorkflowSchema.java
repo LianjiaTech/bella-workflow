@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @lombok.Data
@@ -19,6 +20,8 @@ public class WorkflowSchema {
     public static class Graph {
         private List<Edge> edges;
         private List<Node> nodes;
+
+        @EqualsAndHashCode.Exclude
         private Viewport viewport;
     }
 
@@ -61,15 +64,33 @@ public class WorkflowSchema {
         static final String FIELD_TITLE = "title";
 
         private Map data;
+
+        @EqualsAndHashCode.Exclude
         private boolean dragging;
+
+        @EqualsAndHashCode.Exclude
         private int height;
+
         private String id;
+
+        @EqualsAndHashCode.Exclude
         private Position position;
+
+        @EqualsAndHashCode.Exclude
         private Position positionAbsolute;
+
+        @EqualsAndHashCode.Exclude
         private boolean selected;
+
+        @EqualsAndHashCode.Exclude
         private String sourcePosition;
+
+        @EqualsAndHashCode.Exclude
         private String targetPosition;
+
         private String type;
+
+        @EqualsAndHashCode.Exclude
         private int width;
 
         public String getType() {

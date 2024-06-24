@@ -1,10 +1,10 @@
 package com.ke.bella.workflow.db.repo;
 
-import static com.ke.bella.workflow.db.tables.Tenant.*;
-import static com.ke.bella.workflow.db.tables.Workflow.*;
-import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.*;
-import static com.ke.bella.workflow.db.tables.WorkflowRun.*;
-import static com.ke.bella.workflow.db.tables.WorkflowRunSharding.*;
+import static com.ke.bella.workflow.db.tables.Tenant.TENANT;
+import static com.ke.bella.workflow.db.tables.Workflow.WORKFLOW;
+import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.WORKFLOW_NODE_RUN;
+import static com.ke.bella.workflow.db.tables.WorkflowRun.WORKFLOW_RUN;
+import static com.ke.bella.workflow.db.tables.WorkflowRunSharding.WORKFLOW_RUN_SHARDING;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -373,5 +373,14 @@ public class WorkflowRepo implements BaseRepo {
         return db(shardKey).selectFrom(WORKFLOW_NODE_RUN)
                 .where(WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID.eq(workflowRunId))
                 .fetchInto(WorkflowNodeRunDB.class);
+    }
+
+    public Page<WorkflowDB> pageWorkflows(WorkflowPage op) {
+        SelectSeekStep1<WorkflowRecord, Long> sql = db.selectFrom(WORKFLOW)
+                .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition() : WORKFLOW.TITLE.like("%" + op.getName() + "%"))
+                .and(StringUtils.isEmpty(op.getWorkflowId()) ? DSL.noCondition() : WORKFLOW.WORKFLOW_ID.eq(op.getWorkflowId()))
+                .orderBy(WORKFLOW.ID.desc());
+        return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowDB.class);
     }
 }

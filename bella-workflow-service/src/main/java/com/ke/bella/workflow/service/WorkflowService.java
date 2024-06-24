@@ -365,4 +365,8 @@ public class WorkflowService {
                 .build()));
         return state;
     }
+
+    public Page<WorkflowDB> pageWorkflows(WorkflowPage op) {
+        return repo.pageWorkflows(op);
+    }
 }

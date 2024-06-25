@@ -46,10 +46,11 @@ public class DatasetService {
     public Page<Dataset> pageDataset(DatasetOps.DatasetPage op) {
         Map<String, String> header = ImmutableMap.of(X_BELLA_TENANT_ID, BELLA_WORKFLOW_TENANT_ID, X_BELLA_OPERATOR_ID,
                 String.valueOf(BellaContext.getOperator().getUserId()), X_BELLA_OPERATOR_NAME, BellaContext.getOperator().getUserName());
-        // fixme: 暂时只支持pageNo和pageSize
+        // fixme: 暂时只支持pageNo、pageSize、ids
         BellaKnowledgeFileSearchReq searchReq = BellaKnowledgeFileSearchReq.builder()
                 .pageNo(op.getPage())
                 .pageSize(op.getLimit())
+                .fileIds(op.getIds())
                 .build();
         BellaResp bellaResp = HttpUtils.postJson(header, bellaKnowledgeFileSearchUrl, JsonUtils.toJson(searchReq), new TypeReference<BellaResp>() {
         });
@@ -99,6 +100,7 @@ public class DatasetService {
     public static class BellaKnowledgeFileSearchReq {
         private int pageNo;
         private int pageSize;
+        private List<String> fileIds;
         @Builder.Default
         private String sort = "ALL";
     }

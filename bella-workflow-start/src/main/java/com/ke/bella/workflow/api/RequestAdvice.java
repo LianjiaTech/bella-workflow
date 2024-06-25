@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.api;
 
 import java.lang.reflect.Type;
+import java.util.Optional;
 
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -30,6 +31,11 @@ public class RequestAdvice extends RequestBodyAdviceAdapter {
 
         if(body instanceof Operator) {
             Operator oper = (Operator) body;
+            Optional.ofNullable(BellaContext.getOperator()).ifPresent(oldOperator -> {
+                oper.setUserId(oldOperator.getUserId());
+                oper.setUserName(oldOperator.getUserName());
+                oper.setTenantId(oldOperator.getTenantId());
+            });
             BellaContext.setOperator(oper);
         }
 

@@ -10,6 +10,10 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.ke.bella.workflow.BellaContext;
 
+/**
+ * Unified processing request from bella, transfer header info to operator
+ * information of BellaContext
+ */
 @Component
 public class DifyRequestInterceptor extends HandlerInterceptorAdapter {
     @Override
@@ -17,7 +21,6 @@ public class DifyRequestInterceptor extends HandlerInterceptorAdapter {
         String tenantId = request.getHeader("X-BELLA-TENANT-ID");
         // Bella带的tenantId
         if(StringUtils.hasText(tenantId) && tenantId.equals("04633c4f-8638-43a3-a02e-af23c29f821f")) {
-            request.setAttribute("key1", "value1");
             String userId = request.getHeader("X-BELLA-OPERATOR-ID");
             String userName = request.getHeader("X-BELLA-OPERATOR-NAME");
             Assert.notNull(userId, "获取用户信息失败");

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -65,8 +66,8 @@ public class WorkflowService {
             repo.addDraftWorkflow(op);
         } else if(!StringUtils.equals(wf.getGraph(), op.getGraph())) {
             WorkflowSchema old = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
-            WorkflowSchema opg = JsonUtils.fromJson(op.getGraph(), WorkflowSchema.class);
-            if(!opg.equals(old)) {
+            WorkflowSchema opg = Objects.isNull(op.getGraph()) ? null : JsonUtils.fromJson(op.getGraph(), WorkflowSchema.class);
+            if(!old.equals(opg)) {
                 repo.updateDraftWorkflow(op);
             }
         }

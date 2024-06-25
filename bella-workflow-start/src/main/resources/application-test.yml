@@ -65,3 +65,5 @@ bella:
       scheduling:
         callback-path: /v1/workflow/trigger/scheduling
     run-path: /v1/workflow/run
+  knowledge-file:
+    search: http://example.com/api/v1/knowledge/searchNew/forWorkflow

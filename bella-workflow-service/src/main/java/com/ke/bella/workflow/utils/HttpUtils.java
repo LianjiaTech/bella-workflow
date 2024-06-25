@@ -2,11 +2,11 @@ package com.ke.bella.workflow.utils;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nullable;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.workflow.JsonUtils;
@@ -44,19 +44,33 @@ public class HttpUtils {
         }
     }
 
-    @Nullable
+    public static <T> T postJson(Map<String, String> headers, String url, String json, TypeReference<T> typeReference) {
+        RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
+        return executePost(headers, url, requestBody, typeReference);
+    }
+
     public static <T> T postFrom(Map<String, String> headers, String url, Map<String, String> params, TypeReference<T> typeReference) {
-        Request.Builder requestBuilder = new Request.Builder()
-                .url(url);
-        if(headers != null) {
-            headers.forEach(requestBuilder::addHeader);
-        }
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
         params.forEach(formBodyBuilder::add);
-        requestBuilder.post(formBodyBuilder.build());
+        RequestBody requestBody = formBodyBuilder.build();
+        return executePost(headers, url, requestBody, typeReference);
+    }
+
+    private static <T> T executePost(Map<String, String> headers, String url, RequestBody requestBody, TypeReference<T> typeReference) {
+        Request.Builder requestBuilder = new Request.Builder()
+                .url(url);
         Response resp = null;
         ResponseBody respBody = null;
         try {
+            if(headers != null) {
+                for (Map.Entry<String, String> entry : headers.entrySet()) {
+                    String k = entry.getKey();
+                    String v = entry.getValue();
+                    requestBuilder.addHeader(URLEncoder.encode(k, StandardCharsets.UTF_8.toString()),
+                            URLEncoder.encode(v, StandardCharsets.UTF_8.toString()));
+                }
+            }
+            requestBuilder.post(requestBody);
             resp = client.newCall(requestBuilder.build()).execute();
             respBody = resp.body();
             if(!resp.isSuccessful()) {
@@ -69,13 +83,14 @@ public class HttpUtils {
             String responseBodyStr = respBody.string();
             return JsonUtils.fromJson(responseBodyStr, typeReference);
         } catch (IOException e) {
-            if(resp != null) {
-                resp.close();
-            }
+            throw new UncheckedIOException(e);
+        } finally {
             if(respBody != null) {
                 respBody.close();
             }
-            throw new UncheckedIOException(e);
+            if(resp != null) {
+                resp.close();
+            }
         }
     }
 }

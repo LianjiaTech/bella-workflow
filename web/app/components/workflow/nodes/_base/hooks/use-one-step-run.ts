@@ -214,6 +214,7 @@ const useOneStepRun = <T>({
       if (!originalVar) {
         return {
           label: item.label || item.variable,
+          alias: `#${item.value_selector.join('.')}#`,
           variable: item.variable,
           type: InputVarType.textInput,
           required: true,
@@ -221,6 +222,7 @@ const useOneStepRun = <T>({
       }
       return {
         label: item.label || item.variable,
+        alias: `#${item.value_selector.join('.')}#`,
         variable: item.variable,
         type: varTypeToInputVarType(originalVar.type, {
           isSelect: !!originalVar.isSelect,

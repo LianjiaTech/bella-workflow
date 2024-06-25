@@ -20,7 +20,7 @@ COPY yarn.lock .
 # RUN yarn install --frozen-lockfile --registry https://registry.npmmirror.com/
 
 RUN yarn install --frozen-lockfile
-#RUN yarn install --immutable
+
 # build resources
 FROM base as builder
 WORKDIR /app/web

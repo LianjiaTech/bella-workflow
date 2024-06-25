@@ -1,141 +1,103 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useClickAway } from 'ahooks'
-import Image from 'next/image'
-import { useSearchParams } from 'next/navigation'
-import { useContext } from 'use-context-selector'
-import edit from './assets/edit.png'
-import back from './assets/back.png'
-import { ToastContext } from '@/app/components/base/toast'
-import { fetchAppDetail, updateAppInfo } from '@/service/apps'
-import { fetchDraftInfo } from '@/service/v1'
-import { getQueryParams } from '@/utils/getQueryParams'
-import Modal from '@/app/components/base/modal'
-import Button from '@/app/components/base/button'
+import Link from 'next/link'
+import { useBoolean, useClickAway } from 'ahooks'
+import { useSelectedLayoutSegment } from 'next/navigation'
+import { Bars3Icon } from '@heroicons/react/20/solid'
+import HeaderBillingBtn from '../billing/header-billing-btn'
+import AccountDropdown from './account-dropdown'
+import AppNav from './app-nav'
+import EnvNav from './env-nav'
+import { WorkspaceProvider } from '@/context/workspace-context'
+import { useAppContext } from '@/context/app-context'
+import LogoSite from '@/app/components/base/logo/logo-site'
+import PlanComp from '@/app/components/billing/plan'
+import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
+import { useProviderContext } from '@/context/provider-context'
+
+const navClassName = `
+  flex items-center relative mr-0 sm:mr-3 px-3 h-8 rounded-xl
+  font-medium text-sm
+  cursor-pointer
+`
 
 const Header = () => {
-  const { t } = useTranslation()
-  const searchParams = useSearchParams()
-  const timstamp = new Date().getTime()
-  const _workflowName = `未命名工作流_${timstamp}}`
-  const [workflowName, setWorkflowName] = useState('')
-  const [isEdit, setIsEdit] = useState(false)
-  const inputRef = useRef(null)
-  const { notify } = useContext(ToastContext)
-  const [isOpen, setIsOpen] = useState(false)
+  const { isCurrentWorkspaceManager, langeniusVersionInfo } = useAppContext()
+  const [showUpgradePanel, setShowUpgradePanel] = useState(false)
+  const upgradeBtnRef = useRef<HTMLElement>(null)
+  useClickAway(() => {
+    setShowUpgradePanel(false)
+  }, upgradeBtnRef)
 
-  // 获取当前工作流的appid
-  const getAppId = () => {
-    const pathname = window.location.pathname
-    const pathnameSplitArr = pathname.split('/')
-    return pathnameSplitArr[2]
-  }
-  const appID = getAppId()
+  const selectedSegment = useSelectedLayoutSegment()
+  const media = useBreakpoints()
+  const isMobile = media === MediaType.mobile
+  const [isShowNavMenu, { toggle, setFalse: hideNavMenu }] = useBoolean(false)
+  const { enableBilling } = useProviderContext()
+
   useEffect(() => {
-    console.log(window.location, 'dddd')
-    fetchAppDetail({ url: '/apps', id: appID }).then((res) => {
-      res?.name && setWorkflowName(res?.name)
-    })
-  }, [])
-  // 编辑工作流名称
-  const handleEdit = (flag) => {
-    setIsEdit(flag)
-  }
-  // 退出工作流
-  const exitWorkflow = () => {
-    const bellaId = getQueryParams('bellaId')
-    // 创建or编辑
-    const bellaUrl = `http://example.com/#/createagent?applicationId=${bellaId}&workflowId=${getAppId()}`
-    window.parent.location.href = bellaUrl
-  }
-  // 返回bella
-  const goBackBella = () => {
-    const page = 1
-    const limit = 1
-    fetchDraftInfo(getAppId(), page, limit).then((res) => {
-      console.log('是否发布', res)
-      const { data } = res
-      data[0]?.version === 0 ? setIsOpen(true) : exitWorkflow()
-    })
-  }
-
-  // 继续编辑工作流
-  const continueExitWorkflow = () => {
-    setIsOpen(false)
-  }
-  useClickAway(async () => {
-    if (workflowName.trim() === '') {
-      notify({
-        type: 'error',
-        message: '工作流名称不能为空',
-      })
-      return
-    }
-    try {
-      const updateName = await updateAppInfo({
-        appID,
-        name: workflowName,
-        icon: '',
-        icon_background: '',
-        description: '',
-      })
-      handleEdit(false)
-    }
-    catch (e) {
-      console.log('更新工作流名称失败', e)
-    }
-  }, inputRef)
+    hideNavMenu()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSegment])
   return (
-    <div className="flex flex-1 items-center justify-between px-4">
-      <div className="flex items-center" ref={inputRef}>
-        <Image
-          className="cursor-pointer"
-          src={back}
-          width={24}
-          onClick={goBackBella}
-        />
-        {isEdit
-          ? (
-            <input
-              value={workflowName}
-              onChange={e => setWorkflowName(e.target.value)}
-              className="grow h-8 px-3 mx-4 min-w-[200px] text-sm font-normal bg-white rounded-lg border outline-none appearance-none caret-primary-600 placeholder:text-gray-400 focus:bg-gray-50 focus:border focus:border-gray-300 focus:shadow-xs"
-            />
-          )
-          : (
-            <span className="px-4">{workflowName}</span>
-          )}
-
-        <Image
-          className="cursor-pointer"
-          onClick={() => handleEdit(true)}
-          src={edit}
-          width={18}
-        />
+    <div className='flex flex-1 items-center justify-between px-4'>
+      <div className='flex items-center'>
+        {isMobile && <div
+          className='flex items-center justify-center h-8 w-8 cursor-pointer'
+          onClick={toggle}
+        >
+          <Bars3Icon className="h-4 w-4 text-gray-500" />
+        </div>}
+        {!isMobile && <>
+          <Link href="/apps" className='flex items-center mr-4'>
+            <LogoSite className='object-contain' />
+          </Link>
+          {/* <GithubStar /> */}
+        </>}
       </div>
-      <Modal
-        isShow={isOpen}
-        onClose={() => {}}
-        wrapperClassName="z-40"
-        className="relative !max-w-[480px] px-8"
-      >
-        <div className="mb-9">
-          当前工作流还未成功发布，可能会影响智能体的正常运行，是否继续编辑工作流？
+      {isMobile && (
+        <div className='flex'>
+          <Link href="/apps" className='flex items-center mr-4'>
+            <LogoSite />
+          </Link>
+          {/* <GithubStar /> */}
         </div>
-        <div className="flex justify-end">
-          <Button className="w-24 mr-2" onClick={exitWorkflow}>
-            退出
-          </Button>
-          <Button
-            className="w-24 "
-            type="primary"
-            onClick={continueExitWorkflow}
-          >
-            继续
-          </Button>
+      )}
+      {!isMobile && (
+        <div className='flex items-center'>
+          {/* <ExploreNav className={navClassName} /> */}
+          <AppNav />
+          {/* {isCurrentWorkspaceManager && <DatasetNav />}
+          <ToolsNav className={navClassName} /> */}
         </div>
-      </Modal>
+      )}
+      <div className='flex items-center flex-shrink-0'>
+        <EnvNav />
+        {enableBilling && (
+          <div className='mr-3 select-none'>
+            <HeaderBillingBtn onClick={() => setShowUpgradePanel(true)} />
+            {showUpgradePanel && (
+              <div
+                ref={upgradeBtnRef as any}
+                className='fixed z-10 top-12 right-1 w-[360px]'
+              >
+                <PlanComp loc='header' />
+              </div>
+            )}
+          </div>
+        )}
+        <WorkspaceProvider>
+          <AccountDropdown isMobile={isMobile} />
+        </WorkspaceProvider>
+      </div>
+      {(isMobile && isShowNavMenu) && (
+        <div className='w-full flex flex-col p-2 gap-y-1'>
+          {/* <ExploreNav className={navClassName} /> */}
+          <AppNav />
+          {/* {isCurrentWorkspaceManager && <DatasetNav />}
+          <ToolsNav className={navClassName} /> */}
+        </div>
+      )}
     </div>
   )
 }

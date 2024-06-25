@@ -15,14 +15,12 @@ const AddDataset: FC<Props> = ({
   selectedIds,
   onChange,
 }) => {
-  console.log('AddDataset>>>', selectedIds)
   const [isShowModal, {
     setTrue: showModal,
     setFalse: hideModal,
   }] = useBoolean(false)
 
   const handleSelect = useCallback((datasets: DataSet[]) => {
-    console.log('datasets>>>', datasets)
     onChange(datasets)
     hideModal()
   }, [onChange, hideModal])

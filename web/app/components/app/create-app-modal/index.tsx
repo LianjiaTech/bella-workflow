@@ -302,7 +302,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
       )}
       <div className='px-8 py-6 flex justify-end'>
         <Button className='mr-2 text-gray-700 text-sm font-medium' onClick={onClose}>{t('app.newApp.Cancel')}</Button>
-        <Button className='text-sm font-medium' disabled={isAppsFull || !name} type="primary" onClick={onCreate}>{t('app.newApp.Create')}111</Button>
+        <Button className='text-sm font-medium' disabled={isAppsFull || !name} type="primary" onClick={onCreate}>{t('app.newApp.Create')}</Button>
       </div>
       <div className='absolute right-6 top-6 p-2 cursor-pointer z-20' onClick={onClose}>
         <XClose className='w-4 h-4 text-gray-500' />

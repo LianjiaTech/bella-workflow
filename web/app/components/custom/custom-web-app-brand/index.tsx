@@ -71,7 +71,7 @@ const CustomWebAppBrand = () => {
         replace_webapp_logo: fileId,
       },
     })
-    // mutateCurrentWorkspace()
+    mutateCurrentWorkspace()
     setFileId('')
   }
 
@@ -83,7 +83,7 @@ const CustomWebAppBrand = () => {
         replace_webapp_logo: null,
       },
     })
-    // mutateCurrentWorkspace()
+    mutateCurrentWorkspace()
   }
 
   const handleSwitch = async (checked: boolean) => {
@@ -94,7 +94,7 @@ const CustomWebAppBrand = () => {
         replace_webapp_logo: webappLogo,
       },
     })
-    // mutateCurrentWorkspace()
+    mutateCurrentWorkspace()
   }
 
   const handleCancel = () => {

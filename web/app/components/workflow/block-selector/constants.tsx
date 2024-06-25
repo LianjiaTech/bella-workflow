@@ -14,11 +14,11 @@ export const BLOCKS: Block[] = [
     type: BlockEnum.LLM,
     title: 'LLM',
   },
-  {
-    classification: BlockClassificationEnum.Default,
-    type: BlockEnum.KnowledgeRetrieval,
-    title: 'Knowledge Retrieval',
-  },
+  // {
+  //   classification: BlockClassificationEnum.Default,
+  //   type: BlockEnum.KnowledgeRetrieval,
+  //   title: 'Knowledge Retrieval',
+  // },
   {
     classification: BlockClassificationEnum.Default,
     type: BlockEnum.End,

@@ -29,6 +29,7 @@ const Blocks = ({
 
   const tools = useMemo(() => {
     const currentTools = isCustom ? customTools : buildInTools
+
     return currentTools.filter((toolWithProvider) => {
       return toolWithProvider.tools.some((tool) => {
         return tool.label[language].toLowerCase().includes(searchText.toLowerCase())

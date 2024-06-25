@@ -1,12 +1,12 @@
 'use client'
 
-import { createRef, useMemo, useRef, useState } from 'react'
+import { createRef, useCallback, useMemo, useRef, useState } from 'react'
 import useSWR from 'swr'
 import { createContext, useContext, useContextSelector } from 'use-context-selector'
 import type { FC, ReactNode } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { fetchAppList } from '@/service/apps'
 import Loading from '@/app/components/base/loading'
+import { fetchCurrentWorkspace, fetchLanggeniusVersion, fetchUserProfile } from '@/service/common'
 import type { App } from '@/types/app'
 import type { ICurrentWorkspace, LangGeniusVersionResponse, UserProfileResponse } from '@/models/common'
 import MaintenanceNotice from '@/app/components/header/maintenance-notice'
@@ -75,15 +75,11 @@ export type AppContextProviderProps = {
 }
 
 export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) => {
-  const searchParams = useSearchParams()
   const pageContainerRef = useRef<HTMLDivElement>(null)
-  const [userName, setUserName] = useState(searchParams.get('userName'))
-  const [ucid, setUcid] = useState(searchParams.get('ucid'))
-  localStorage.setItem('userName', userName || '')
-  localStorage.setItem('ucid', ucid || '')
+
   const { data: appList, mutate: mutateApps } = useSWR({ url: '/apps', params: { page: 1, limit: 30, name: '' } }, fetchAppList)
-  // const { data: userProfileResponse, mutate: mutateUserProfile } = useSWR({ url: '/account/profile', params: {} }, fetchUserProfile)
-  // const { data: currentWorkspaceResponse, mutate: mutateCurrentWorkspace } = useSWR({ url: '/workspaces/current', params: {} }, fetchCurrentWorkspace)
+  const { data: userProfileResponse, mutate: mutateUserProfile } = useSWR({ url: '/account/profile', params: {} }, fetchUserProfile)
+  const { data: currentWorkspaceResponse, mutate: mutateCurrentWorkspace } = useSWR({ url: '/workspaces/current', params: {} }, fetchCurrentWorkspace)
 
   const [userProfile, setUserProfile] = useState<UserProfileResponse>({
     id: '1',
@@ -96,16 +92,16 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
   const [currentWorkspace, setCurrentWorkspace] = useState<ICurrentWorkspace>(initialWorkspaceInfo)
   const isCurrentWorkspaceManager = useMemo(() => ['owner', 'admin'].includes(currentWorkspace.role), [currentWorkspace.role])
   const isCurrentWorkspaceOwner = useMemo(() => currentWorkspace.role === 'owner', [currentWorkspace.role])
-  // const updateUserProfileAndVersion = useCallback(async () => {
-  //   if (userProfileResponse && !userProfileResponse.bodyUsed) {
-  //     const result = await userProfileResponse.json()
-  //     setUserProfile(result)
-  //     const current_version = userProfileResponse.headers.get('x-version')
-  //     const current_env = process.env.NODE_ENV === 'development' ? 'DEVELOPMENT' : userProfileResponse.headers.get('x-env')
-  //     const versionData = await fetchLanggeniusVersion({ url: '/version', params: { current_version } })
-  //     setLangeniusVersionInfo({ ...versionData, current_version, latest_version: versionData.version, current_env })
-  //   }
-  // }, [userProfileResponse])
+  const updateUserProfileAndVersion = useCallback(async () => {
+    if (userProfileResponse && !userProfileResponse.bodyUsed) {
+      const result = await userProfileResponse.json()
+      setUserProfile(result)
+      const current_version = userProfileResponse.headers.get('x-version')
+      const current_env = process.env.NODE_ENV === 'development' ? 'DEVELOPMENT' : userProfileResponse.headers.get('x-env')
+      const versionData = await fetchLanggeniusVersion({ url: '/version', params: { current_version } })
+      setLangeniusVersionInfo({ ...versionData, current_version, latest_version: versionData.version, current_env })
+    }
+  }, [userProfileResponse])
 
   // useEffect(() => {
   //   updateUserProfileAndVersion()
@@ -124,14 +120,14 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
       apps: appList.data,
       mutateApps,
       userProfile,
-      // mutateUserProfile,
+      mutateUserProfile,
       pageContainerRef,
       langeniusVersionInfo,
       useSelector,
       currentWorkspace,
       isCurrentWorkspaceManager: true,
       isCurrentWorkspaceOwner: true,
-      // mutateCurrentWorkspace,
+      mutateCurrentWorkspace,
     }}>
       <div className='flex flex-col h-full overflow-y-auto'>
         {globalThis.document?.body?.getAttribute('data-public-maintenance-notice') && <MaintenanceNotice />}

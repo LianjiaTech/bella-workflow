@@ -149,8 +149,7 @@ const PanelOperatorPopup = ({
           </>
         )
       }
-      {/* 帮助链接 */}
-      {/* <div className='p-1'>
+      <div className='p-1'>
         <a
           href={
             language === 'zh_Hans'
@@ -162,10 +161,9 @@ const PanelOperatorPopup = ({
         >
           {t('workflow.panel.helpLink')}
         </a>
-      </div> */}
+      </div>
       <div className='h-[1px] bg-gray-100'></div>
-      {/* 关于 */}
-      {/* <div className='p-1'>
+      <div className='p-1'>
         <div className='px-3 py-2 text-xs text-gray-500'>
           <div className='flex items-center mb-1 h-[22px] font-medium'>
             {t('workflow.panel.about').toLocaleUpperCase()}
@@ -175,7 +173,7 @@ const PanelOperatorPopup = ({
             {t('workflow.panel.createdBy')} {author}
           </div>
         </div>
-      </div> */}
+      </div>
     </div>
   )
 }

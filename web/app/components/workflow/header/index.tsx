@@ -139,8 +139,7 @@ const Header: FC = () => {
           <div className='flex items-center'>
             <RunAndHistory />
             <div className='mx-2 w-[1px] h-3.5 bg-gray-200'></div>
-            {/* 功能 */}
-            {/* <Button
+            <Button
               className={`
                 mr-2 px-3 py-0 h-8 bg-white text-[13px] font-medium text-gray-700
                 border-[0.5px] border-gray-200 shadow-xs
@@ -150,7 +149,7 @@ const Header: FC = () => {
             >
               <Grid01 className='w-4 h-4 mr-1 text-gray-500' />
               {t('workflow.common.features')}
-            </Button> */}
+            </Button>
             <AppPublisher
               {...{
                 publishedAt,

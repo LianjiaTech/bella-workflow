@@ -1,10 +1,16 @@
 'use client'
 
 import { createContext, useContext } from 'use-context-selector'
+import useSWR from 'swr'
 import { useEffect, useState } from 'react'
-
+import {
+  fetchModelList,
+  fetchModelProviders,
+  fetchSupportRetrievalMethods,
+} from '@/service/common'
 import {
   ModelStatusEnum,
+  ModelTypeEnum,
 } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import type { Model, ModelProvider } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import type { RETRIEVE_METHOD } from '@/types/app'
@@ -59,13 +65,10 @@ type ProviderContextProviderProps = {
 export const ProviderContextProvider = ({
   children,
 }: ProviderContextProviderProps) => {
-  const { data: providersData } = {
-    data: [],
-  }
-  // useSWR('/workspaces/current/model-providers', fetchModelProviders)
+  const { data: providersData } = useSWR('/workspaces/current/model-providers', fetchModelProviders)
   const fetchModelListUrlPrefix = '/workspaces/current/models/model-types/'
-  const { data: textGenerationModelList } = { data: [{}] }// useSWR(`${fetchModelListUrlPrefix}${ModelTypeEnum.textGeneration}`, fetchModelList)
-  // const { data: supportRetrievalMethods } = useSWR('/datasets/retrieval-setting', fetchSupportRetrievalMethods)
+  const { data: textGenerationModelList } = useSWR(`${fetchModelListUrlPrefix}${ModelTypeEnum.textGeneration}`, fetchModelList)
+  const { data: supportRetrievalMethods } = useSWR('/datasets/retrieval-setting', fetchSupportRetrievalMethods)
 
   const [plan, setPlan] = useState(defaultPlan)
   const [isFetchedPlan, setIsFetchedPlan] = useState(false)
@@ -90,8 +93,8 @@ export const ProviderContextProvider = ({
     <ProviderContext.Provider value={{
       modelProviders: providersData?.data || [],
       textGenerationModelList: textGenerationModelList?.data || [],
-      hasSettedApiKey: !!textGenerationModelList?.data?.some(model => model.status === ModelStatusEnum.active),
-      // supportRetrievalMethods: supportRetrievalMethods?.retrieval_method || [],
+      hasSettedApiKey: !!textGenerationModelList?.data.some(model => model.status === ModelStatusEnum.active),
+      supportRetrievalMethods: supportRetrievalMethods?.retrieval_method || [],
       plan,
       isFetchedPlan,
       enableBilling,

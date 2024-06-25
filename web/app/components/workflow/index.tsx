@@ -218,7 +218,7 @@ const Workflow: FC<WorkflowProps> = memo(({
       ref={workflowContainerRef}
     >
       <CandidateNode />
-      <Header/>
+      <Header />
       <Panel />
       <Operator />
       {

@@ -278,7 +278,6 @@ export type SiteConfig = {
  * App
  */
 export type App = {
-  [x: string]: string
   /** App ID */
   id: string
   /** Name */

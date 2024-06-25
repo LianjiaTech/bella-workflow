@@ -108,14 +108,15 @@ const PanelContextmenu = () => {
         </div>
       </div>
       <div className='h-[1px] bg-gray-100'></div>
-      <div className='p-1'>
+      {/* 导出DSL */}
+      {/* <div className='p-1'>
         <div
           className='flex items-center justify-between px-3 h-8 text-sm text-gray-700 rounded-lg cursor-pointer hover:bg-gray-50'
           onClick={() => onExport()}
         >
           {t('app.export')}
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }

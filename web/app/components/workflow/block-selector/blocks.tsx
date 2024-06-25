@@ -50,7 +50,7 @@ const Blocks = ({
 
   const renderGroup = useCallback((classification: string) => {
     const list = groups[classification]
-
+    console.log('list>>>>', list)
     return (
       <div
         key={classification}

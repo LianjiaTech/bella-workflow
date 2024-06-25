@@ -19,10 +19,7 @@ import {
 } from './declarations'
 import I18n from '@/context/i18n'
 import {
-  fetchDefaultModal,
-  fetchModelList,
   fetchModelProviderCredentials,
-  fetchModelProviders,
   getPayUrl,
   submitFreeQuota,
 } from '@/service/common'
@@ -101,7 +98,11 @@ export const useProviderCrenditialsFormSchemasValue = (
 }
 
 export const useModelList = (type: ModelTypeEnum) => {
-  const { data, mutate, isLoading } = useSWR(`/workspaces/current/models/model-types/${type}`, fetchModelList)
+  const { data, mutate, isLoading } = {
+    data: [],
+    mutate: () => {},
+    isLoading: false,
+  }// useSWR(`/workspaces/current/models/model-types/${type}`, fetchModelList)
 
   return {
     data: [
@@ -152,7 +153,8 @@ export const useModelList = (type: ModelTypeEnum) => {
 }
 
 export const useDefaultModel = (type: ModelTypeEnum) => {
-  const { data, mutate, isLoading } = useSWR(`/workspaces/current/default-model?model_type=${type}`, fetchDefaultModal)
+  const { data, mutate, isLoading } = { data: null }
+  // useSWR(`/workspaces/current/default-model?model_type=${type}`, fetchDefaultModal)
 
   return {
     data: {
@@ -298,7 +300,12 @@ export const useFreeQuota = (onSuccess: () => void) => {
 }
 
 export const useModelProviders = () => {
-  const { data: providersData, mutate, isLoading } = useSWR('/workspaces/current/model-providers', fetchModelProviders)
+  const { data: providersData, mutate, isLoading } = {
+    data: [],
+    mutate: () => {},
+    isLoading: false,
+  }
+  // useSWR('/workspaces/current/model-providers', fetchModelProviders)
 
   return {
     data: providersData?.data || [],

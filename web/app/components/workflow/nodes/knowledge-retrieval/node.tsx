@@ -15,9 +15,11 @@ const Node: FC<NodeProps<KnowledgeRetrievalNodeType>> = ({
     (async () => {
       updateTime.current = updateTime.current + 1
       const currUpdateTime = updateTime.current
-
+      console.log('>>>>>>>>')
       if (data.dataset_ids?.length > 0) {
+        console.log('<<fetchDatasets>>>>', data.dataset_ids)
         const { data: dataSetsWithDetail } = await fetchDatasets({ url: '/datasets', params: { page: 1, ids: data.dataset_ids } })
+        console.log('fetchDatasets>>>>', data.dataset_ids)
         //  avoid old data overwrite new data
         if (currUpdateTime < updateTime.current)
           return

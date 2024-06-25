@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import s from './style.module.css'
 import { useStore } from '@/app/components/app/store'
-import AppSideBar from '@/app/components/app-sidebar'
 import type { NavIcon } from '@/app/components/app-sidebar/navLink'
 import { fetchAppDetail } from '@/service/apps'
 import { useAppContext } from '@/context/app-context'
@@ -45,12 +44,13 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
     selectedIcon: NavIcon
   }>>([])
 
-  const getNavigations = useCallback((appId: string, isCurrentWorkspaceManager: boolean, mode: string) => {
+  const getNavigations = useCallback((appId: string, isCurrentWorkspaceManager: boolean, mode: string, workflowName: string) => {
+    console.log('eee')
     const navs = [
       ...(isCurrentWorkspaceManager
         ? [{
           name: t('common.appMenus.promptEng'),
-          href: `/app/${appId}/${(mode === 'workflow' || mode === 'advanced-chat') ? 'workflow' : 'configuration'}`,
+          href: `/app/${appId}/${(mode === 'workflow' || mode === 'advanced-chat') ? 'workflow' : 'configuration'}?workflowName=${workflowName}`,
           icon: PromptEngineering,
           selectedIcon: PromptEngineeringSolid,
         }]
@@ -77,10 +77,12 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
       //   selectedIcon: BarChartSquare02Solid,
       // },
     ]
+    console.log(navs, 'navs>>>>>>')
     return navs
   }, [t])
 
   useEffect(() => {
+    console.log('appDetailLayout mounted<<<<', appDetail)
     if (appDetail) {
       document.title = `${(appDetail.name || 'App')} - Bella`
       const localeMode = localStorage.getItem('app-detail-collapse-or-expand') || 'expand'
@@ -97,14 +99,15 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
     fetchAppDetail({ url: '/apps', id: appId }).then((res) => {
       // redirections
       if ((res.mode === 'workflow' || res.mode === 'advanced-chat') && (pathname).endsWith('configuration')) {
-        router.replace(`/app/${appId}/workflow`)
+        router.replace(`/app/${appId}/workflow?workflowName=${res?.name}`)
       }
       else if ((res.mode !== 'workflow' && res.mode !== 'advanced-chat') && (pathname).endsWith('workflow')) {
         router.replace(`/app/${appId}/configuration`)
       }
       else {
+        console.log('no redirection>>>')
         setAppDetail(res)
-        setNavigation(getNavigations(appId, isCurrentWorkspaceManager, res.mode))
+        setNavigation(getNavigations(appId, isCurrentWorkspaceManager, res.mode, res?.name))
       }
     })
   }, [appId, isCurrentWorkspaceManager])
@@ -123,9 +126,9 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
 
   return (
     <div className={cn(s.app, 'flex', 'overflow-hidden')}>
-      {appDetail && (
+      {/* {appDetail && (
         <AppSideBar title={appDetail.name} icon={appDetail.icon} icon_background={appDetail.icon_background} desc={appDetail.mode} navigation={navigation} />
-      )}
+      )} */}
       <div className="bg-white grow overflow-hidden">
         {children}
       </div>

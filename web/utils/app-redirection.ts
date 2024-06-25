@@ -8,7 +8,7 @@ export const getRedirection = (
   }
   else {
     if (app.mode === 'workflow' || app.mode === 'advanced-chat')
-      redirectionFunc(`/app/${app.id}/workflow`)
+      redirectionFunc(`/app/${app.id}/workflow?workflowName=${app?.name}&userName=${app?.userName}&ucid=${app?.ucid}`)
     else
       redirectionFunc(`/app/${app.id}/configuration`)
   }

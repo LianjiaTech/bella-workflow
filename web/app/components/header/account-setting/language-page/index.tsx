@@ -38,7 +38,7 @@ export default function LanguagePage() {
       setEditing(true)
       await updateUserProfile({ url, body: { [bodyKey]: item.value } })
       notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
-      mutateUserProfile()
+      // mutateUserProfile()
       setEditing(false)
     }
     catch (e) {

@@ -15,8 +15,9 @@ const PanelContextmenu = () => {
   const { handleNodeContextmenuCancel } = usePanelInteractions()
   const nodeMenu = useStore(s => s.nodeMenu)
   const currentNode = nodes.find(node => node.id === nodeMenu?.nodeId) as Node
-
+  console.log(currentNode, 'currentNode>>>>>>>')
   useClickAway(() => {
+    console.log('cancle>>>>')
     handleNodeContextmenuCancel()
   }, ref)
 

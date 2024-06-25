@@ -19,6 +19,7 @@ const ContentType = {
   download: 'application/octet-stream', // for download
   upload: 'multipart/form-data', // for upload
 }
+const userName = globalThis.localStorage?.getItem('userName')
 
 const baseOptions = {
   method: 'GET',
@@ -26,10 +27,13 @@ const baseOptions = {
   credentials: 'include', // always send cookies、HTTP Basic authentication.
   headers: new Headers({
     'Content-Type': ContentType.json,
+    'X-BELLA-TENANT-ID': '04633c4f-8638-43a3-a02e-af23c29f821f',
+    'X-BELLA-OPERATOR-ID': globalThis.localStorage?.getItem('ucid'),
+    'X-BELLA-OPERATOR-NAME': encodeURI(userName),
   }),
   redirect: 'follow',
 }
-
+console.log(1)
 export type IOnDataMoreInfo = {
   conversationId?: string
   taskId?: string

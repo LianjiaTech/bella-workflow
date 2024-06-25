@@ -49,7 +49,7 @@ export default function AccountPage() {
       setEditing(true)
       await updateUserProfile({ url: 'account/name', body: { name: editName } })
       notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
-      mutateUserProfile()
+      // mutateUserProfile()
       setEditNameModalVisible(false)
       setEditing(false)
     }
@@ -101,7 +101,7 @@ export default function AccountPage() {
         },
       })
       notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
-      mutateUserProfile()
+      // mutateUserProfile()
       setEditPasswordModalVisible(false)
       resetPasswordForm()
       setEditing(false)

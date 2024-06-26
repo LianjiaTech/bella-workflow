@@ -40,7 +40,8 @@ public class DatasetService {
         return Dataset.builder()
                 .id(bellaFile.getFileId())
                 .name(bellaFile.getFileName())
-                .embedding_available(BellaResp.Page.KnowledgeFile.Status.upload_success.name().equals(bellaFile.getStatus()))
+                // fixme：此处和bella保持一致，无脑返回可用状态
+                .embedding_available(true)
                 .permission(BellaResp.Page.KnowledgeFile.Visibility.PRIVATE.desc.equals(bellaFile.getVisibility())
                         ? Dataset.Permission.only_me.name()
                         : Dataset.Permission.all_team_members.name())

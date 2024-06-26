@@ -8,6 +8,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
+import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.api.SseHelper;
 
 import lombok.AllArgsConstructor;
@@ -84,6 +85,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                 .event("workflow_finished")
                 .data(DifyData.builder()
                         .id(context.getRunId())
+                        .status(WorkflowRunState.WorkflowRunStatus.failed.name())
                         .workflowId(context.getWorkflowId())
                         .inputs(context.getUserInputs())
                         .error(error)

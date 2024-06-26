@@ -87,6 +87,8 @@ public class WorkflowOps {
 
         @Builder.Default
         int pageSize = 30;
+
+        String lastId;
     }
 
     @Getter

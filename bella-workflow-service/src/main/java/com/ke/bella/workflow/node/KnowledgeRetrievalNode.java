@@ -46,6 +46,7 @@ public class KnowledgeRetrievalNode extends BaseNode {
         if(StringUtils.isEmpty(query)) {
             return WorkflowRunState.NodeRunResult.builder()
                     .inputs(inputs)
+                    .status(WorkflowRunState.NodeRunResult.Status.failed)
                     .error(new IllegalArgumentException("query is required")).build();
         }
         try {
@@ -75,7 +76,7 @@ public class KnowledgeRetrievalNode extends BaseNode {
         BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postFrom(headers, fileRetrieveUrl, params,
                 new TypeReference<BellaFileRetrieveResult>() {
                 });
-        if(Objects.isNull(bellaFileRetrieveResult) || !StringUtils.hasText(bellaFileRetrieveResult.getErrno())) {
+        if(Objects.isNull(bellaFileRetrieveResult) || StringUtils.hasText(bellaFileRetrieveResult.getErrno())) {
             throw new IllegalStateException(
                     String.format("invoke bella file retrieve error, response body: %s", JsonUtils.toJson(bellaFileRetrieveResult)));
         }

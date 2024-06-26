@@ -187,7 +187,8 @@ public class WorkflowRepo implements BaseRepo {
             WorkflowRunShardingDB sharding = shardings.get(i);
             SelectConditionStep<WorkflowRunRecord> sql = db(sharding.getKey()).selectFrom(WORKFLOW_RUN)
                     .where(WORKFLOW_RUN.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
-                    .and(WORKFLOW_RUN.WORKFLOW_ID.eq(op.getWorkflowId()));
+                    .and(WORKFLOW_RUN.WORKFLOW_ID.eq(op.getWorkflowId()))
+                    .and(StringUtils.isEmpty(op.getLastId()) ? DSL.noCondition() : WORKFLOW_RUN.WORKFLOW_RUN_ID.ge(op.getLastId()));
             if(i == 0) {
                 query = sql;
             } else {

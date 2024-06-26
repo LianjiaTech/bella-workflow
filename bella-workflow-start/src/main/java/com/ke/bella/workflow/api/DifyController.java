@@ -285,6 +285,15 @@ public class DifyController {
         return ws.listWorkflowRun(WorkflowRunPage.builder().workflowId(workflowId).build());
     }
 
+    @RequestMapping("/{workflowId}/workflow-runs")
+    public Page<WorkflowRunDB> pageWorkflowRuns(@PathVariable String workflowId, @RequestParam(value = "last_id", required = false) String lastId,
+            @RequestParam(value = "limit", defaultValue = "20") int limit) {
+        initContext();
+        Assert.isTrue(limit > 0, "limit必须大于0");
+        Assert.isTrue(limit < 100, "limit必须小于100");
+        return ws.listWorkflowRun(WorkflowRunPage.builder().lastId(lastId).pageSize(limit).workflowId(workflowId).build());
+    }
+
     @Data
     @Builder
     @NoArgsConstructor

@@ -1,5 +1,7 @@
 package com.ke.bella.workflow.node;
 
+import static okhttp3.internal.Util.EMPTY_REQUEST;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -100,15 +102,16 @@ public class HttpNode extends BaseNode {
 
             Map outputs = new LinkedHashMap<>();
             int statusCode = response.code();
+            String body = extractBody(response);
             outputs.put("status_code", statusCode);
-            outputs.put("body", extractBody(response));
+            outputs.put("body", body);
             outputs.put("headers", response.headers().toMultimap());
             outputs.put("files", extractFiles(response));
             boolean success = statusCode >= 200 && statusCode <= 299;
             return resultBuilder
                     .outputs(outputs)
                     .status(success ? NodeRunResult.Status.succeeded : NodeRunResult.Status.failed)
-                    .error(success ? null : new IllegalStateException(response.message()))
+                    .error(success ? null : new IllegalStateException(body))
                     .build();
         } catch (Exception e) {
             return NodeRunResult.builder()
@@ -286,7 +289,7 @@ public class HttpNode extends BaseNode {
             return RequestBody.create(text, MediaType.parse("text/plain"));
         }
 
-        return null;
+        return EMPTY_REQUEST;
     }
 
     private Headers buildHeaders(WorkflowContext context) {

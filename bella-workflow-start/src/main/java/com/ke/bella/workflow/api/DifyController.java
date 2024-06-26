@@ -211,6 +211,7 @@ public class DifyController {
     @PostMapping("/{workflowId}/workflows/draft/nodes/{nodeId}/run")
     public Object nodeRun(@PathVariable String workflowId, @PathVariable String nodeId, @RequestBody WorkflowOps.WorkflowNodeRun op) {
         initContext();
+        op.setWorkflowId(workflowId);
         Assert.hasText(workflowId, "workflowId不能为空");
         Assert.hasText(nodeId, "nodeId不能为空");
         Assert.notNull(op.inputs, "inputs不能为空");
@@ -260,6 +261,7 @@ public class DifyController {
     @PostMapping("/{workflowId}/workflows/draft/run")
     public Object workflowRun(@PathVariable String workflowId, @RequestBody WorkflowOps.WorkflowRun op) {
         initContext();
+        op.setWorkflowId(workflowId);
         WorkflowOps.ResponseMode mode = WorkflowOps.ResponseMode.valueOf(op.responseMode);
         Assert.hasText(workflowId, "workflowId不能为空");
         Assert.notNull(op.inputs, "inputs不能为空");

@@ -1,9 +1,12 @@
 package com.ke.bella.workflow.api;
 
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -31,6 +34,7 @@ import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.db.repo.Page;
+import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.node.NodeType;
@@ -290,13 +294,62 @@ public class DifyController {
         return ws.listWorkflowRun(WorkflowRunPage.builder().workflowId(workflowId).build());
     }
 
+    private static WorkflowRunHistory transfer(Map<String, TenantDB> tenantsMap,
+            WorkflowRunDB e) {
+        TenantDB tenantDB = tenantsMap.get(e.getTenantId());
+        return WorkflowRunHistory.builder()
+                .id(e.getWorkflowId())
+                .version(String.valueOf(e.getWorkflowVersion()))
+                .created_by_account(
+                        WorkflowRunHistory.Account.builder().id(tenantDB.getTenantId()).name(tenantDB.getCuName()).email("").build())
+                .created_at(e.getCtime().toEpochSecond(ZoneOffset.UTC))
+                .finished_at(e.getMtime().toEpochSecond(ZoneOffset.UTC)).build();
+    }
+
     @RequestMapping("/{workflowId}/workflow-runs")
-    public Page<WorkflowRunDB> pageWorkflowRuns(@PathVariable String workflowId, @RequestParam(value = "last_id", required = false) String lastId,
+    public Page<WorkflowRunHistory> pageWorkflowRuns(@PathVariable String workflowId,
+            @RequestParam(value = "last_id", required = false) String lastId,
             @RequestParam(value = "limit", defaultValue = "20") int limit) {
         initContext();
         Assert.isTrue(limit > 0, "limit必须大于0");
         Assert.isTrue(limit < 100, "limit必须小于100");
-        return ws.listWorkflowRun(WorkflowRunPage.builder().lastId(lastId).pageSize(limit).workflowId(workflowId).build());
+        WorkflowRunPage page = WorkflowRunPage.builder().lastId(lastId).pageSize(limit).workflowId(workflowId).build();
+        Page<WorkflowRunDB> workflowDbs = ws.listWorkflowRun(
+                page);
+        List<String> tenantIds = workflowDbs.getData().stream().map(WorkflowRunDB::getTenantId).collect(Collectors.toList());
+        List<TenantDB> tenantDbs = ws.listTenants(tenantIds);
+        Map<String, TenantDB> tenantsMap = tenantDbs.stream().collect(Collectors.toMap(TenantDB::getTenantId, Function.identity(), (k1, k2) -> k1));
+        List<WorkflowRunHistory> list = workflowDbs.getData().stream().map(e -> transfer(tenantsMap, e))
+                .collect(Collectors.toList());
+        Page<WorkflowRunHistory> result = new Page<>();
+        result.setPage(page.getPage());
+        result.pageSize(page.getPageSize());
+        result.total(workflowDbs.getTotal());
+        result.list(list);
+        return result;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @Builder
+    public static class WorkflowRunHistory {
+
+        private String id;
+        private String version;
+        private Account created_by_account;
+        private Long created_at;
+        private Long finished_at;
+
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Data
+        @Builder
+        public static class Account {
+            private String id;
+            private String name;
+            private String email;
+        }
     }
 
     @Data

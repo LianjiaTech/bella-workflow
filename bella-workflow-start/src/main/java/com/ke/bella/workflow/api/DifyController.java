@@ -305,6 +305,7 @@ public class DifyController {
         return WorkflowRunHistory.builder()
                 .id(e.getWorkflowId())
                 .version(String.valueOf(e.getWorkflowVersion()))
+                .status(e.getStatus())
                 .created_by_account(
                         WorkflowRunHistory.Account.builder().id(tenantDB.getTenantId()).name(tenantDB.getCuName()).email("").build())
                 .created_at(e.getCtime().toEpochSecond(ZoneOffset.UTC))
@@ -343,6 +344,7 @@ public class DifyController {
         private String id;
         private String version;
         private Account created_by_account;
+        private String status;
         private Long created_at;
         private Long finished_at;
 

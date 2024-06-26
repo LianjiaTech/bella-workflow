@@ -1,5 +1,8 @@
 package com.ke.bella.workflow.service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,8 +47,15 @@ public class DatasetService {
     }
 
     public Page<Dataset> pageDataset(DatasetOps.DatasetPage op) {
-        Map<String, String> header = ImmutableMap.of(X_BELLA_TENANT_ID, BELLA_WORKFLOW_TENANT_ID, X_BELLA_OPERATOR_ID,
-                String.valueOf(BellaContext.getOperator().getUserId()), X_BELLA_OPERATOR_NAME, BellaContext.getOperator().getUserName());
+        Map<String, String> header = null;
+        try {
+            header = ImmutableMap.of(X_BELLA_TENANT_ID, BELLA_WORKFLOW_TENANT_ID, X_BELLA_OPERATOR_ID,
+                    String.valueOf(BellaContext.getOperator().getUserId()), X_BELLA_OPERATOR_NAME,
+                    URLEncoder.encode(BellaContext.getOperator().getUserName(),
+                            StandardCharsets.UTF_8.toString()));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
         // fixme: 暂时只支持pageNo、pageSize、ids
         BellaKnowledgeFileSearchReq searchReq = BellaKnowledgeFileSearchReq.builder()
                 .pageNo(op.getPage())

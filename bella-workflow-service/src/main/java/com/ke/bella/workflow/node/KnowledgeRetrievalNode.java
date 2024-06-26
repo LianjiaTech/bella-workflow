@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -74,10 +75,15 @@ public class KnowledgeRetrievalNode extends BaseNode {
         BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postFrom(headers, fileRetrieveUrl, params,
                 new TypeReference<BellaFileRetrieveResult>() {
                 });
-        if(Objects.isNull(bellaFileRetrieveResult)) {
-            throw new IllegalStateException("invoke bella file retrieve error");
+        if(Objects.isNull(bellaFileRetrieveResult) || !StringUtils.hasText(bellaFileRetrieveResult.getErrno())) {
+            throw new IllegalStateException(
+                    String.format("invoke bella file retrieve error, response body: %s", JsonUtils.toJson(bellaFileRetrieveResult)));
         }
-        return bellaFileRetrieveResult.getList().stream().map(KnowledgeRetrievalResult::transfer).collect(Collectors.toList());
+        List<BellaFileRetrieveResult.Chunk> retrieveResult = bellaFileRetrieveResult.getList();
+        if(CollectionUtils.isEmpty(retrieveResult)) {
+            return Collections.emptyList();
+        }
+        return retrieveResult.stream().map(KnowledgeRetrievalResult::transfer).collect(Collectors.toList());
     }
 
     @Getter
@@ -98,6 +104,8 @@ public class KnowledgeRetrievalNode extends BaseNode {
     @AllArgsConstructor
     @Builder
     public static class BellaFileRetrieveResult {
+        private String errno;
+        private String errmsg;
         List<Chunk> list;
         private String id;
         private String object;

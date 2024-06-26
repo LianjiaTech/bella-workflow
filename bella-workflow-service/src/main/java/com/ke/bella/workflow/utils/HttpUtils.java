@@ -2,8 +2,6 @@ package com.ke.bella.workflow.utils;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -66,8 +64,7 @@ public class HttpUtils {
                 for (Map.Entry<String, String> entry : headers.entrySet()) {
                     String k = entry.getKey();
                     String v = entry.getValue();
-                    requestBuilder.addHeader(URLEncoder.encode(k, StandardCharsets.UTF_8.toString()),
-                            URLEncoder.encode(v, StandardCharsets.UTF_8.toString()));
+                    requestBuilder.addHeader(k, v);
                 }
             }
             requestBuilder.post(requestBody);

@@ -194,7 +194,12 @@ public class DifyController {
                 .build();
         ws.syncWorkflow(op);
 
-        return app;
+        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
+        return DifyApp.builder()
+                .id(workflowId)
+                .name(wf.getTitle())
+                .description(wf.getDesc())
+                .build();
     }
 
     @PostMapping("/{workflowId}/workflows/draft")

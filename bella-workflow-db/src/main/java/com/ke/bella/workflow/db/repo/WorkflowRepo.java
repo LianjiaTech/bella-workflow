@@ -173,6 +173,10 @@ public class WorkflowRepo implements BaseRepo {
         return rec.into(TenantDB.class);
     }
 
+    public List<TenantDB> listTenants(List<String> tenantId) {
+        return db.selectFrom(TENANT).where(TENANT.TENANT_ID.in(tenantId)).fetch().into(TenantDB.class);
+    }
+
     public WorkflowRunDB queryWorkflowRun(String workflowRunId) {
         String shardKey = shardingKeyByworkflowRunId(workflowRunId);
         return db(shardKey).selectFrom(WORKFLOW_RUN)

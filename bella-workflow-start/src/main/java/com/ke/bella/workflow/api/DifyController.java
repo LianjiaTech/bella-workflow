@@ -233,7 +233,7 @@ public class DifyController {
                 .workflowId(op.getWorkflowId())
                 .inputs(op.getInputs())
                 .responseMode(op.getResponseMode())
-                .triggerFrom(WorkflowOps.TriggerFrom.DEBUG.name())
+                .triggerFrom(WorkflowOps.TriggerFrom.DEBUG_NODE.name())
                 .build();
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
 

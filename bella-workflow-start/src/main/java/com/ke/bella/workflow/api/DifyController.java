@@ -49,7 +49,10 @@ public class DifyController {
     WorkflowService ws;
 
     private void initContext() {
-        if(Objects.isNull(BellaContext.getOperator())) {
+        if(Objects.isNull(BellaContext.getOperator()) ||
+                Objects.isNull(BellaContext.getOperator().getUserId()) ||
+                Objects.isNull(BellaContext.getOperator().getTenantId()) ||
+                Objects.isNull(BellaContext.getOperator().getUserName())) {
             BellaContext.setOperator(Operator.builder()
                     .userId(userIdL)
                     .tenantId("test")

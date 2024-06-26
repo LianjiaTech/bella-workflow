@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.api.callbacks;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -50,7 +51,9 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                         .id(context.getRunId())
                         .workflowId(context.getWorkflowId())
                         .inputs(context.getUserInputs())
-                        .error(context.getWorkflowRunResult().getError().getMessage())
+                        .error(Objects.isNull(context.getWorkflowRunResult().getError())
+                                ? null
+                                : context.getWorkflowRunResult().getError().getMessage())
                         .outputs(context.getWorkflowRunResult().getOutputs())
                         .status(context.getWorkflowRunResult().getStatus().name())
                         .createdAt(System.currentTimeMillis())

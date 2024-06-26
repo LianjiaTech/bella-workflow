@@ -3,6 +3,7 @@ package com.ke.bella.workflow.service;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -74,7 +75,7 @@ public class DatasetService {
         Page<Dataset> result = Page.from(page, pageSize);
         BellaResp.Page bellaPage = bellaResp.getData();
         if(Objects.isNull(bellaPage) || CollectionUtils.isEmpty(bellaPage.getList())) {
-            return result;
+            return result.list(Collections.emptyList());
         }
         List<BellaResp.Page.KnowledgeFile> bellaFiles = bellaPage.getList();
         List<Dataset> entities = bellaFiles.stream().map(DatasetService::transfer).collect(Collectors.toList());

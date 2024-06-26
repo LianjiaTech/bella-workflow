@@ -1,16 +1,18 @@
 package com.ke.bella.workflow.api.callbacks;
 
+import java.util.Map;
+
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.api.SseHelper;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import java.util.Map;
 
 public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
 
@@ -48,6 +50,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                         .id(context.getRunId())
                         .workflowId(context.getWorkflowId())
                         .inputs(context.getUserInputs())
+                        .error(context.getWorkflowRunResult().getError().getMessage())
                         .outputs(context.getWorkflowRunResult().getOutputs())
                         .status(context.getWorkflowRunResult().getStatus().name())
                         .createdAt(System.currentTimeMillis())
@@ -61,12 +64,12 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowRunSuspended(WorkflowContext context) {
-        //no-op
+        // no-op
     }
 
     @Override
     public void onWorkflowRunResumed(WorkflowContext context) {
-        //no-op
+        // no-op
     }
 
     @Override
@@ -110,7 +113,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData pdata) {
-        //no-op
+        // no-op
     }
 
     @Override

@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,6 +54,9 @@ public class DifyController {
     @Autowired
     WorkflowService ws;
 
+    @Value("${bella.open.api.key}")
+    private String openApiKey;
+
     private void initContext() {
         if(Objects.isNull(BellaContext.getOperator()) ||
                 StringUtils.hasText(BellaContext.getOperator().getTenantId()) ||
@@ -64,7 +68,7 @@ public class DifyController {
                     .userName("test")
                     .build());
         }
-        BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
+        BellaContext.setApiKey(openApiKey);
     }
 
     @GetMapping

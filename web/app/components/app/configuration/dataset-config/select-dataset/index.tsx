@@ -11,7 +11,6 @@ import Modal from '@/app/components/base/modal'
 import type { DataSet } from '@/models/datasets'
 import Button from '@/app/components/base/button'
 import Loading from '@/app/components/base/loading'
-import { formatNumber } from '@/utils/format'
 import { fetchDatasets } from '@/service/datasets'
 
 export type ISelectDataSetProps = {
@@ -213,13 +212,13 @@ const SelectDataSet: FC<ISelectDataSetProps> = ({
                   )}
                 </div>
 
-                <div className={cn('shrink-0 flex text-xs text-gray-500 overflow-hidden whitespace-nowrap', !item.embedding_available && 'opacity-50')}>
+                {/* <div className={cn('shrink-0 flex text-xs text-gray-500 overflow-hidden whitespace-nowrap', !item.embedding_available && 'opacity-50')}>
                   <span className='max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap'>{formatNumber(item.word_count)}</span>
                   {t('appDebug.feature.dataSet.words')}
                   <span className='px-0.5'>·</span>
                   <span className='max-w-[100px] min-w-[8px] overflow-hidden text-ellipsis whitespace-nowrap'>{formatNumber(item.document_count)} </span>
                   {t('appDebug.feature.dataSet.textBlocks')}
-                </div>
+                </div> */}
               </div>
             ))}
           </div>

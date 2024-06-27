@@ -98,7 +98,7 @@ const Header = () => {
       : 'http://example.com:5173'
 
     // 构建URL
-    let bellaUrl = `${bellaHost}/#/createagent?workflowId=${appId}&workflowName=${workflowName}`
+    let bellaUrl = `https://example.com/#/createagent?workflowId=${appId}&workflowName=${workflowName}`
     if (bellaId !== 'undefined')
       bellaUrl += `&applicationId=${bellaId}`
 

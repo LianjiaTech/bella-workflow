@@ -59,8 +59,8 @@ public class DifyController {
 
     private void initContext() {
         if(Objects.isNull(BellaContext.getOperator()) ||
-                StringUtils.hasText(BellaContext.getOperator().getTenantId()) ||
-                StringUtils.hasText(BellaContext.getOperator().getUserName()) ||
+                !StringUtils.hasText(BellaContext.getOperator().getTenantId()) ||
+                !StringUtils.hasText(BellaContext.getOperator().getUserName()) ||
                 Objects.isNull(BellaContext.getOperator().getUserId())) {
             BellaContext.setOperator(Operator.builder()
                     .userId(userIdL)

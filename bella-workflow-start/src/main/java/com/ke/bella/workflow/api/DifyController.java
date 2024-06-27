@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,9 +55,9 @@ public class DifyController {
 
     private void initContext() {
         if(Objects.isNull(BellaContext.getOperator()) ||
-                Objects.isNull(BellaContext.getOperator().getUserId()) ||
-                Objects.isNull(BellaContext.getOperator().getTenantId()) ||
-                Objects.isNull(BellaContext.getOperator().getUserName())) {
+                StringUtils.hasText(BellaContext.getOperator().getTenantId()) ||
+                StringUtils.hasText(BellaContext.getOperator().getUserName()) ||
+                Objects.isNull(BellaContext.getOperator().getUserId())) {
             BellaContext.setOperator(Operator.builder()
                     .userId(userIdL)
                     .tenantId("test")

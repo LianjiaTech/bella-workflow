@@ -121,7 +121,11 @@ public class DifyController {
         initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
         WorkflowPage op = WorkflowPage.builder().page(page).pageSize(limit).workflowId(workflowId).build();
-        return ws.pageWorkflows(op);
+        Page<WorkflowDB> result = ws.pageWorkflows(op);
+        List<WorkflowDB> sortedWorkflows = result.getData().stream().sorted(Comparator.comparing(WorkflowDB::getMtime).reversed())
+                .collect(Collectors.toList());
+        result.list(sortedWorkflows);
+        return result;
     }
 
     @Data

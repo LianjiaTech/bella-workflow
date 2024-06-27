@@ -101,7 +101,7 @@ const PopupItem: FC<PopupItemProps> = ({
                 showFeatures
               />
               {
-                defaultModel?.model === modelItem.model && defaultModel.provider === currentProvider.provider && (
+                defaultModel?.model === modelItem?.model && defaultModel?.provider === currentProvider?.provider && (
                   <Check className='shrink-0 w-4 h-4 text-primary-600' />
                 )
               }

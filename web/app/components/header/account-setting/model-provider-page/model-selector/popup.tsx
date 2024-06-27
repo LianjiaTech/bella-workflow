@@ -73,7 +73,7 @@ const Popup: FC<PopupProps> = ({
         {
           filteredModelList.map(model => (
             <PopupItem
-              key={model.provider}
+              key={model?.provider}
               defaultModel={defaultModel}
               model={model}
               onSelect={onSelect}

@@ -1,5 +1,7 @@
+'use client'
 import React from 'react'
 import type { ReactNode } from 'react'
+import { useSearchParams } from 'next/navigation'
 import SwrInitor from '@/app/components/swr-initor'
 import { AppContextProvider } from '@/context/app-context'
 import GA, { GaType } from '@/app/components/base/ga'
@@ -10,6 +12,11 @@ import { ProviderContextProvider } from '@/context/provider-context'
 import { ModalContextProvider } from '@/context/modal-context'
 
 const Layout = ({ children }: { children: ReactNode }) => {
+  const searchParams = useSearchParams()
+  const userName = searchParams.get('userName') || ''
+  const ucid = searchParams.get('ucid') || ''
+  globalThis.localStorage?.setItem('userName', userName)
+  globalThis.localStorage?.setItem('ucid', ucid)
   return (
     <>
       <GA gaType={GaType.admin} />
@@ -31,8 +38,8 @@ const Layout = ({ children }: { children: ReactNode }) => {
   )
 }
 
-export const metadata = {
-  title: 'Dify',
-}
+// export const metadata = {
+//   title: 'Bella工作流',
+// }
 
 export default Layout

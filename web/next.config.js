@@ -43,6 +43,15 @@ const nextConfig = {
       },
     ]
   },
+  // 后端代理
+  async rewrites() {
+    return [
+      {
+        source: '/',
+        destination: 'http://example.com/console/api',
+      },
+    ]
+  },
   output: 'standalone',
 }
 

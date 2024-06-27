@@ -33,13 +33,13 @@ const NodeControl: FC<NodeControlProps> = ({
   const handleOpenChange = useCallback((newOpen: boolean) => {
     setOpen(newOpen)
   }, [])
-
   return (
     <div
       className={`
       hidden group-hover:flex pb-1 absolute right-0 -top-7 h-7
       ${data.selected && '!flex'}
       ${open && '!flex'}
+      ${data.type === 'start' && '!hidden'}
       `}
     >
       <div

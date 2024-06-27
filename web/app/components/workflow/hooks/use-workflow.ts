@@ -42,16 +42,12 @@ import { useWorkflowTemplate } from './use-workflow-template'
 import { useNodesSyncDraft } from './use-nodes-sync-draft'
 import { useStore as useAppStore } from '@/app/components/app/store'
 import {
-  fetchNodesDefaultConfigs,
   fetchPublishedWorkflow,
   fetchWorkflowDraft,
   syncWorkflowDraft,
 } from '@/service/workflow'
 import type { FetchWorkflowDraftResponse } from '@/types/workflow'
-import {
-  fetchAllBuiltInTools,
-  fetchAllCustomTools,
-} from '@/service/tools'
+
 import I18n from '@/context/i18n'
 
 export const useIsChatMode = () => {
@@ -357,14 +353,14 @@ export const useFetchToolsData = () => {
 
   const handleFetchAllTools = useCallback(async (type: string) => {
     if (type === 'builtin') {
-      const buildInTools = await fetchAllBuiltInTools()
+      const buildInTools = []// await fetchAllBuiltInTools()
 
       workflowStore.setState({
         buildInTools: buildInTools || [],
       })
     }
     if (type === 'custom') {
-      const customTools = await fetchAllCustomTools()
+      const customTools = []// await fetchAllCustomTools()
 
       workflowStore.setState({
         customTools: customTools || [],
@@ -428,7 +424,10 @@ export const useWorkflowInit = () => {
 
   const handleFetchPreloadData = useCallback(async () => {
     try {
-      const nodesDefaultConfigsData = await fetchNodesDefaultConfigs(`/apps/${appDetail?.id}/workflows/default-workflow-block-configs`)
+      const nodesDefaultConfigsData = {
+        data: [],
+      }
+      // await fetchNodesDefaultConfigs(`/apps/${appDetail?.id}/workflows/default-workflow-block-configs`)
       const publishedWorkflow = await fetchPublishedWorkflow(`/apps/${appDetail?.id}/workflows/publish`)
       workflowStore.setState({
         nodesDefaultConfigs: nodesDefaultConfigsData.reduce((acc, block) => {

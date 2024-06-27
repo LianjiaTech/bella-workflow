@@ -43,7 +43,6 @@ const AddBlock = ({
   const { handlePaneContextmenuCancel } = usePanelInteractions()
   const [open, setOpen] = useState(false)
   const availableNextNodes = nodesExtraData[BlockEnum.Start].availableNextNodes
-
   const handleOpenChange = useCallback((open: boolean) => {
     setOpen(open)
     if (!open)

@@ -1,9 +1,7 @@
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import ModelIcon from '../model-icon'
-import { AlertTriangle } from '@/app/components/base/icons/src/vender/line/alertsAndFeedback'
 import { useProviderContext } from '@/context/provider-context'
-import TooltipPlus from '@/app/components/base/tooltip-plus'
 
 type ModelTriggerProps = {
   modelName: string
@@ -34,11 +32,12 @@ const ModelTrigger: FC<ModelTriggerProps> = ({
       <div className='mr-1 text-[13px] font-medium text-gray-800 truncate'>
         {modelName}
       </div>
-      <div className='shrink-0 flex items-center justify-center w-4 h-4'>
+      {/* 已废弃 */}
+      {/* <div className='shrink-0 flex items-center justify-center w-4 h-4'>
         <TooltipPlus popupContent={t('common.modelProvider.deprecated')}>
           <AlertTriangle className='w-4 h-4 text-[#F79009]' />
         </TooltipPlus>
-      </div>
+      </div> */}
     </div>
   )
 }

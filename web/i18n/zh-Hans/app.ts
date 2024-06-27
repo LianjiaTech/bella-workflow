@@ -63,7 +63,7 @@ const translation = {
     appCreateFailed: '应用创建失败',
   },
   editApp: '编辑信息',
-  editAppTitle: '编辑应用信息',
+  editAppTitle: '编辑工作流信息',
   editDone: '应用信息已更新',
   editFailed: '更新应用信息失败',
   emoji: {

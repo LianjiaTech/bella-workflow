@@ -13,7 +13,6 @@ import type { ModerationConfig, ModerationContentConfig } from '@/models/debug'
 import { useToastContext } from '@/app/components/base/toast'
 import {
   fetchCodeBasedExtensionList,
-  fetchModelProviders,
 } from '@/service/common'
 import type { CodeBasedExtensionItem } from '@/models/common'
 import I18n from '@/context/i18n'
@@ -44,7 +43,12 @@ const ModerationSettingModal: FC<ModerationSettingModalProps> = ({
   const { t } = useTranslation()
   const { notify } = useToastContext()
   const { locale } = useContext(I18n)
-  const { data: modelProviders, isLoading, mutate } = useSWR('/workspaces/current/model-providers', fetchModelProviders)
+  const { data: modelProviders, isLoading, mutate } = {
+    data: [],
+    isLoading: false,
+    mutate: () => {},
+  }
+  // useSWR('/workspaces/current/model-providers', fetchModelProviders)
   const [localeData, setLocaleData] = useState<ModerationConfig>(data)
   const { setShowAccountSettingModal } = useModalContext()
   const handleOpenSettingsModal = () => {

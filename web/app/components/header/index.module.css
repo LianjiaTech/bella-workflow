@@ -13,3 +13,16 @@
   height: 12px;
   background: url(./assets/alpha.svg) center center no-repeat;
 }
+.navSave {
+  width: 64px;
+  height: 40px;
+  border: 1px solid #1227E6;
+  border-radius: 2px;
+  background: #FFF;
+  font-size: 16px;
+  color: #1227E6;
+  font-family: PingFangSC-Medium;
+}
+.navSaveBack {
+
+}

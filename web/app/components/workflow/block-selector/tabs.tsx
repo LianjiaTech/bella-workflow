@@ -22,7 +22,6 @@ const Tabs: FC<TabsProps> = ({
 }) => {
   const tabs = useTabs()
   const [activeTab, setActiveTab] = useState(tabs[0].key)
-
   return (
     <div onClick={e => e.stopPropagation()}>
       <div className='flex items-center px-3 border-b-[0.5px] border-b-black/5'>

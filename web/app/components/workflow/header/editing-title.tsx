@@ -21,11 +21,11 @@ const EditingTitle = () => {
         )
       }
       <span className='flex items-center mx-1'>·</span>
-      {
+      {/* {
         publishedAt
           ? `${t('workflow.common.published')} ${formatTimeFromNow(publishedAt)}`
           : t('workflow.common.unpublished')
-      }
+      } */}
     </div>
   )
 }

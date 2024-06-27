@@ -8,7 +8,6 @@ import AppIcon from '@/app/components/base/app-icon'
 import EmojiPicker from '@/app/components/base/emoji-picker'
 import { useProviderContext } from '@/context/provider-context'
 import AppsFull from '@/app/components/billing/apps-full-in-dialog'
-import { XClose } from '@/app/components/base/icons/src/vender/line/general'
 
 export type CreateAppModalProps = {
   show: boolean
@@ -27,7 +26,7 @@ export type CreateAppModalProps = {
 }
 
 const CreateAppModal = ({
-  show = false,
+  show = true,
   isEditModal = false,
   appIcon,
   appIconBackground,
@@ -67,9 +66,10 @@ const CreateAppModal = ({
         wrapperClassName='z-40'
         className='relative !max-w-[480px] px-8'
       >
-        <div className='absolute right-4 top-4 p-2 cursor-pointer' onClick={onHide}>
+        {/* 注释关闭按钮 */}
+        {/* <div className='absolute right-4 top-4 p-2 cursor-pointer' onClick={onHide}>
           <XClose className='w-4 h-4 text-gray-500' />
-        </div>
+        </div> */}
         {isEditModal && (
           <div className='mb-9 font-semibold text-xl leading-[30px] text-gray-900'>{t('app.editAppTitle')}</div>
         )}
@@ -81,7 +81,8 @@ const CreateAppModal = ({
           <div className='pt-2'>
             <div className='py-2 text-sm font-medium leading-[20px] text-gray-900'>{t('app.newApp.captionName')}</div>
             <div className='flex items-center justify-between space-x-2'>
-              <AppIcon size='large' onClick={() => { setShowEmojiPicker(true) }} className='cursor-pointer' icon={emoji.icon} background={emoji.icon_background} />
+              {/* 取消AppIcon头像的点击事件onClick={() => { setShowEmojiPicker(true) }} */}
+              <AppIcon size='large' className='cursor-pointer' icon={emoji.icon} background={emoji.icon_background} />
               <input
                 value={name}
                 onChange={e => setName(e.target.value)}
@@ -95,7 +96,7 @@ const CreateAppModal = ({
             <div className='py-2 text-sm font-medium leading-[20px] text-gray-900'>{t('app.newApp.captionDescription')}</div>
             <textarea
               className='w-full h-10 px-3 py-2 text-sm font-normal bg-gray-100 rounded-lg border border-transparent outline-none appearance-none caret-primary-600 placeholder:text-gray-400 hover:bg-gray-50 hover:border hover:border-gray-300 focus:bg-gray-50 focus:border focus:border-gray-300 focus:shadow-xs h-[80px] resize-none'
-              placeholder={t('app.newApp.appDescriptionPlaceholder') || ''}
+              placeholder='请输入工作流描述，请确保描述含义清晰且符合平台规范。'
               value={description}
               onChange={e => setDescription(e.target.value)}
             />
@@ -104,7 +105,7 @@ const CreateAppModal = ({
         </div>
         <div className='flex flex-row-reverse'>
           <Button disabled={!isEditModal && isAppsFull} className='w-24 ml-2' type='primary' onClick={submit}>{!isEditModal ? t('common.operation.create') : t('common.operation.save')}</Button>
-          <Button className='w-24' onClick={onHide}>{t('common.operation.cancel')}</Button>
+          {/* <Button className='w-24' onClick={onHide}>{t('common.operation.cancel')}</Button> */}
         </div>
       </Modal>
       {showEmojiPicker && <EmojiPicker

@@ -21,13 +21,15 @@ export const useTabs = () => {
       key: TabsEnum.Blocks,
       name: t('workflow.tabs.blocks'),
     },
-    {
-      key: TabsEnum.BuiltInTool,
-      name: t('workflow.tabs.builtInTool'),
-    },
-    {
-      key: TabsEnum.CustomTool,
-      name: t('workflow.tabs.customTool'),
-    },
+    // 内置工具
+    // {
+    //   key: TabsEnum.BuiltInTool,
+    //   name: t('workflow.tabs.builtInTool'),
+    // },
+    // 自定义工具
+    // {
+    //   key: TabsEnum.CustomTool,
+    //   name: t('workflow.tabs.customTool'),
+    // },
   ]
 }

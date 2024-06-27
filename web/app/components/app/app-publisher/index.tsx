@@ -124,9 +124,9 @@ const AppPublisher = ({
       <PortalToFollowElemContent className='z-[11]'>
         <div className='w-[320px] bg-white rounded-2xl border-[0.5px] border-gray-200 shadow-xl'>
           <div className='p-4 pt-3'>
-            <div className='flex items-center h-6 text-xs font-medium text-gray-500 uppercase'>
+            {/* <div className='flex items-center h-6 text-xs font-medium text-gray-500 uppercase'>
               {publishedAt ? t('workflow.common.latestPublished') : t('workflow.common.currentDraftUnpublished')}
-            </div>
+            </div> */}
             {publishedAt
               ? (
                 <div className='flex justify-between items-center h-[18px]'>

@@ -40,7 +40,6 @@ const PanelOperator = ({
     if (onOpenChange)
       onOpenChange(newOpen)
   }, [onOpenChange])
-
   return (
     <PortalToFollowElem
       placement='bottom-end'
@@ -55,6 +54,7 @@ const PanelOperator = ({
             hover:bg-black/5
             ${open && 'bg-black/5'}
             ${triggerClassName}
+            ${data.type === 'start' && '!hidden'}
           `}
         >
           <DotsHorizontal className={`w-4 h-4 ${inNode ? 'text-gray-500' : 'text-gray-700'}`} />

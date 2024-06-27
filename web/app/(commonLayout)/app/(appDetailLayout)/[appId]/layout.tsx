@@ -6,16 +6,19 @@ import { usePathname, useRouter } from 'next/navigation'
 import cn from 'classnames'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
+import { useContext, useContextSelector } from 'use-context-selector'
 import s from './style.module.css'
 import { useStore } from '@/app/components/app/store'
-import AppSideBar from '@/app/components/app-sidebar'
 import type { NavIcon } from '@/app/components/app-sidebar/navLink'
-import { fetchAppDetail } from '@/service/apps'
-import { useAppContext } from '@/context/app-context'
+import { fetchAppDetail, updateAppInfo } from '@/service/apps'
+import AppsContext, { useAppContext } from '@/context/app-context'
 import Loading from '@/app/components/base/loading'
 import { FileHeart02, PromptEngineering, TerminalSquare } from '@/app/components/base/icons/src/vender/line/development'
 import { FileHeart02 as FileHeart02Solid, PromptEngineering as PromptEngineeringSolid, TerminalSquare as TerminalSquareSolid } from '@/app/components/base/icons/src/vender/solid/development'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
+import CreateAppModal from '@/app/components/explore/create-app-modal'
+import { ToastContext } from '@/app/components/base/toast'
+import type { CreateAppModalProps } from '@/app/components/explore/create-app-modal'
 
 export type IAppDetailLayoutProps = {
   children: React.ReactNode
@@ -38,19 +41,22 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
     setAppDetail: state.setAppDetail,
     setAppSiderbarExpand: state.setAppSiderbarExpand,
   })))
+  const { notify } = useContext(ToastContext)
+  const [showEditModal, setShowEditModal] = useState(true)
+  // const [showEditModal, setShowEditModal] = useState<boolean>(true)
   const [navigation, setNavigation] = useState<Array<{
     name: string
     href: string
     icon: NavIcon
     selectedIcon: NavIcon
   }>>([])
-
-  const getNavigations = useCallback((appId: string, isCurrentWorkspaceManager: boolean, mode: string) => {
+  const mutateApps = useContextSelector(AppsContext, state => state.mutateApps)
+  const getNavigations = useCallback((appId: string, isCurrentWorkspaceManager: boolean, mode: string, workflowName: string) => {
     const navs = [
       ...(isCurrentWorkspaceManager
         ? [{
           name: t('common.appMenus.promptEng'),
-          href: `/app/${appId}/${(mode === 'workflow' || mode === 'advanced-chat') ? 'workflow' : 'configuration'}`,
+          href: `/app/${appId}/${(mode === 'workflow' || mode === 'advanced-chat') ? 'workflow' : 'configuration'}?workflowName=${workflowName}`,
           icon: PromptEngineering,
           selectedIcon: PromptEngineeringSolid,
         }]
@@ -79,7 +85,38 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
     ]
     return navs
   }, [t])
-
+  const onEdit: CreateAppModalProps['onConfirm'] = useCallback(async ({
+    name,
+    icon,
+    icon_background,
+    description,
+  }) => {
+    if (!appDetail)
+      return
+    if (description === '' || description.trim() === '') {
+      notify({ type: 'error', message: '描述不能为空' })
+      return
+    }
+    try {
+      const app = await updateAppInfo({
+        appID: appDetail.id,
+        name,
+        icon,
+        icon_background,
+        description,
+      })
+      setShowEditModal(false)
+      notify({
+        type: 'success',
+        message: t('app.editDone'),
+      })
+      setAppDetail(app)
+      mutateApps()
+    }
+    catch (e) {
+      notify({ type: 'error', message: t('app.editFailed') })
+    }
+  }, [appDetail, mutateApps, notify, setAppDetail, t])
   useEffect(() => {
     if (appDetail) {
       document.title = `${(appDetail.name || 'App')} - Bella`
@@ -89,6 +126,8 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
       // TODO: consider screen size and mode
       // if ((appDetail.mode === 'advanced-chat' || appDetail.mode === 'workflow') && (pathname).endsWith('workflow'))
       //   setAppSiderbarExpand('collapse')
+      console.log('appDetail>>>>', appDetail.description)
+      appDetail.description && setShowEditModal(false)
     }
   }, [appDetail, isMobile])
 
@@ -97,14 +136,14 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
     fetchAppDetail({ url: '/apps', id: appId }).then((res) => {
       // redirections
       if ((res.mode === 'workflow' || res.mode === 'advanced-chat') && (pathname).endsWith('configuration')) {
-        router.replace(`/app/${appId}/workflow`)
+        router.replace(`/app/${appId}/workflow?workflowName=${res?.name}`)
       }
       else if ((res.mode !== 'workflow' && res.mode !== 'advanced-chat') && (pathname).endsWith('workflow')) {
         router.replace(`/app/${appId}/configuration`)
       }
       else {
         setAppDetail(res)
-        setNavigation(getNavigations(appId, isCurrentWorkspaceManager, res.mode))
+        setNavigation(getNavigations(appId, isCurrentWorkspaceManager, res.mode, res?.name))
       }
     })
   }, [appId, isCurrentWorkspaceManager])
@@ -123,9 +162,19 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
 
   return (
     <div className={cn(s.app, 'flex', 'overflow-hidden')}>
-      {appDetail && (
+      {/* {appDetail && (
         <AppSideBar title={appDetail.name} icon={appDetail.icon} icon_background={appDetail.icon_background} desc={appDetail.mode} navigation={navigation} />
-      )}
+      )} */}
+      <CreateAppModal
+        isEditModal
+        appIcon={appDetail.icon}
+        appIconBackground={appDetail.icon_background}
+        appName={appDetail.name}
+        appDescription={appDetail.description}
+        show={showEditModal}
+        onConfirm={onEdit}
+        onHide={() => {}}
+      />
       <div className="bg-white grow overflow-hidden">
         {children}
       </div>

@@ -4,7 +4,6 @@ import { useContext, useContextSelector } from 'use-context-selector'
 import cn from 'classnames'
 import React, { useCallback, useState } from 'react'
 import AppIcon from '../base/app-icon'
-import SwitchAppModal from '../app/switch-app-modal'
 import s from './style.module.css'
 import {
   PortalToFollowElem,
@@ -21,7 +20,6 @@ import { useProviderContext } from '@/context/provider-context'
 import { copyApp, deleteApp, exportAppConfig, updateAppInfo } from '@/service/apps'
 import DuplicateAppModal from '@/app/components/app/duplicate-modal'
 import type { DuplicateAppModalProps } from '@/app/components/app/duplicate-modal'
-import CreateAppModal from '@/app/components/explore/create-app-modal'
 import { AiText, ChatBot, CuteRobote } from '@/app/components/base/icons/src/vender/solid/communication'
 import { Route } from '@/app/components/base/icons/src/vender/solid/mapsAndTravel'
 import type { CreateAppModalProps } from '@/app/components/explore/create-app-modal'
@@ -342,7 +340,7 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
             </div>
           </div>
         </PortalToFollowElemContent>
-        {showSwitchModal && (
+        {/* {showSwitchModal && (
           <SwitchAppModal
             inAppDetail
             show={showSwitchModal}
@@ -350,8 +348,8 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
             onClose={() => setShowSwitchModal(false)}
             onSuccess={() => setShowSwitchModal(false)}
           />
-        )}
-        {showEditModal && (
+        )} */}
+        {/* {showEditModal && (
           <CreateAppModal
             isEditModal
             appIcon={appDetail.icon}
@@ -362,7 +360,8 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
             onConfirm={onEdit}
             onHide={() => setShowEditModal(false)}
           />
-        )}
+        )} */}
+
         {showDuplicateModal && (
           <DuplicateAppModal
             appName={appDetail.name}

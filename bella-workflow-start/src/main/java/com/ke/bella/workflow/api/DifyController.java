@@ -265,9 +265,9 @@ public class DifyController {
         try {
             ws.publish(workflowId);
         } catch (Exception e) {
-            return DifyResponse.builder().code("invalid_param").message(e.getMessage()).status(400).build();
+            return DifyResponse.builder().code(400).message(e.getMessage()).status("invalid_param").build();
         }
-        return DifyResponse.builder().code("success").message("发布成功").status(200).build();
+        return DifyResponse.builder().code(200).message("发布成功").status("success").build();
     }
 
     @PostMapping("/{workflowId}/workflows/draft/run")
@@ -365,8 +365,8 @@ public class DifyController {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class DifyResponse {
-        private String code;
-        private Integer status;
+        private Integer code;
+        private String status;
         private String message;
     }
 

@@ -1,7 +1,8 @@
 package com.ke.bella.workflow.api;
 
-import com.ke.bella.workflow.BellaContext;
-import lombok.extern.slf4j.Slf4j;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import com.ke.bella.workflow.BellaContext;
+
+import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
 @Slf4j
@@ -34,7 +36,7 @@ public class DifyResponseAdvice implements ResponseBodyAdvice<Object> {
         try {
             response.getHeaders().add("Cache-Control", "no-cache");
             if(body instanceof DifyController.DifyResponse) {
-                response.setStatusCode(HttpStatus.valueOf(((DifyController.DifyResponse) body).getStatus()));
+                response.setStatusCode(HttpStatus.valueOf(((DifyController.DifyResponse) body).getCode()));
                 return body;
             }
             return body;

@@ -77,10 +77,6 @@ public class WorkflowService {
         }
     }
 
-    public List<TenantDB> listTenants(List<String> tenantIds) {
-        return repo.listTenants(tenantIds);
-    }
-
     public WorkflowDB getDraftWorkflow(String workflowId) {
         return repo.queryDraftWorkflow(workflowId);
     }

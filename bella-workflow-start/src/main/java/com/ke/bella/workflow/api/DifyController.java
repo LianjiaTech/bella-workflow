@@ -2,10 +2,11 @@ package com.ke.bella.workflow.api;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,6 @@ import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.db.repo.Page;
-import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.node.NodeType;
@@ -299,15 +299,13 @@ public class DifyController {
         return ws.listWorkflowRun(WorkflowRunPage.builder().workflowId(workflowId).build());
     }
 
-    private static WorkflowRunHistory transfer(Map<String, TenantDB> tenantsMap,
-            WorkflowRunDB e) {
-        TenantDB tenantDB = tenantsMap.get(e.getTenantId());
+    private static WorkflowRunHistory transfer(WorkflowRunDB e) {
         return WorkflowRunHistory.builder()
                 .id(e.getWorkflowId())
                 .version(String.valueOf(e.getWorkflowVersion()))
                 .status(e.getStatus())
                 .created_by_account(
-                        WorkflowRunHistory.Account.builder().id(tenantDB.getTenantId()).name(tenantDB.getCuName()).email("").build())
+                        WorkflowRunHistory.Account.builder().id(String.valueOf(e.getCuid())).name(e.getCuName()).email("").build())
                 .created_at(e.getCtime().toEpochSecond(ZoneOffset.UTC))
                 .finished_at(e.getMtime().toEpochSecond(ZoneOffset.UTC)).build();
     }
@@ -320,17 +318,19 @@ public class DifyController {
         Assert.isTrue(limit > 0, "limit必须大于0");
         Assert.isTrue(limit < 100, "limit必须小于100");
         WorkflowRunPage page = WorkflowRunPage.builder().lastId(lastId).pageSize(limit).workflowId(workflowId).build();
-        Page<WorkflowRunDB> workflowDbs = ws.listWorkflowRun(
+        Page<WorkflowRunDB> workflowRunsDbPage = ws.listWorkflowRun(
                 page);
-        List<String> tenantIds = workflowDbs.getData().stream().map(WorkflowRunDB::getTenantId).collect(Collectors.toList());
-        List<TenantDB> tenantDbs = ws.listTenants(tenantIds);
-        Map<String, TenantDB> tenantsMap = tenantDbs.stream().collect(Collectors.toMap(TenantDB::getTenantId, Function.identity(), (k1, k2) -> k1));
-        List<WorkflowRunHistory> list = workflowDbs.getData().stream().map(e -> transfer(tenantsMap, e))
+        List<WorkflowRunDB> workflowRunsDb = workflowRunsDbPage.getData();
+        AtomicInteger counter = new AtomicInteger(1);
+        List<WorkflowRunHistory> list = workflowRunsDb.stream()
+                .map(DifyController::transfer)
+                .peek(result -> result.setSequence_number(counter.getAndIncrement()))
+                .sorted(Comparator.comparing(WorkflowRunHistory::getFinished_at).reversed())
                 .collect(Collectors.toList());
         Page<WorkflowRunHistory> result = new Page<>();
         result.setPage(page.getPage());
         result.pageSize(page.getPageSize());
-        result.total(workflowDbs.getTotal());
+        result.total(workflowRunsDbPage.getTotal());
         result.list(list);
         return result;
     }
@@ -342,6 +342,7 @@ public class DifyController {
     public static class WorkflowRunHistory {
 
         private String id;
+        private Integer sequence_number;
         private String version;
         private Account created_by_account;
         private String status;

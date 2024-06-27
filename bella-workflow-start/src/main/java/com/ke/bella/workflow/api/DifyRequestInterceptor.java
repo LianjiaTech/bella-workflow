@@ -1,5 +1,9 @@
 package com.ke.bella.workflow.api;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,6 +29,11 @@ public class DifyRequestInterceptor extends HandlerInterceptorAdapter {
             String userName = request.getHeader("X-BELLA-OPERATOR-NAME");
             Assert.notNull(userId, "获取用户信息失败");
             Assert.notNull(userName, "获取用户信息失败");
+            try {
+                // fixme: url解码失败先吞掉异常
+                userName = URLDecoder.decode(userName, StandardCharsets.UTF_8.name());
+            } catch (UnsupportedEncodingException e) {
+            }
             BellaContext.setOperator(Operator.builder().userId(Long.valueOf(userId)).userName(userName).tenantId(tenantId).build());
         }
         return true;

@@ -26,6 +26,7 @@ import type {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import './style.css'
+import { useSearchParams } from 'next/navigation'
 import type {
   Edge,
   Node,
@@ -87,6 +88,11 @@ const Workflow: FC<WorkflowProps> = memo(({
   edges: originalEdges,
   viewport,
 }) => {
+  const searchParams = useSearchParams()
+  const userName = searchParams.get('userName') || ''
+  const ucid = searchParams.get('ucid') || ''
+  globalThis.localStorage?.setItem('userName', userName)
+  globalThis.localStorage?.setItem('ucid', ucid)
   const workflowContainerRef = useRef<HTMLDivElement>(null)
   const workflowStore = useWorkflowStore()
   const [nodes, setNodes] = useNodesState(originalNodes)

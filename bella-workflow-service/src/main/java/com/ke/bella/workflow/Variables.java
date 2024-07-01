@@ -144,8 +144,8 @@ public class Variables {
                     offset = src.length;
                 } else {
                     String key = text.substring(start + openToken.length(), end);
-                    Object value = getValue(map, key);
-                    builder.append(value == null ? "" : JsonUtils.toJson(value).replaceAll("\\\\", "/"));
+                    String value = getValueAsString(map, key);
+                    builder.append(value == null ? "" : value.replaceAll("\\\\", "/"));
                     offset = end + closeToken.length();
                 }
             }

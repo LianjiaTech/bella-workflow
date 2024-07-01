@@ -13,6 +13,8 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.IWorkflowCallback.Delta;
+import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
@@ -98,8 +100,20 @@ public class LlmNode extends BaseNode {
         Disposable subscribe = llmResult.subscribe(chunk -> {
             String content = chunk.getChoices().get(0).getMessage().getContent();
             fullText.append(content);
-            callback.onWorkflowNodeRunProgress(context, meta.getId(),
-                    IWorkflowCallback.ProgressData.builder().data(chunk).build());
+
+            if(data.isGenerateDeltaContent()) {
+                Delta delta = Delta.builder().content(Delta.fromText(content)).build();
+                callback.onWorkflowNodeRunProgress(context, meta.getId(),
+                        ProgressData.builder()
+                                .data(delta)
+                                .object(ProgressData.ObjectType.DELTA_CONTENT)
+                                .build());
+            } else {
+                callback.onWorkflowNodeRunProgress(context, meta.getId(),
+                        ProgressData.builder()
+                                .data(chunk)
+                                .build());
+            }
         }, completionFuture::completeExceptionally, () -> completionFuture.complete(fullText.toString()));
         try {
             return completionFuture.get(timeout.getReadSeconds(), TimeUnit.SECONDS);
@@ -178,7 +192,6 @@ public class LlmNode extends BaseNode {
         private Timeout timeout = new Timeout();
         @Builder.Default
         private Authorization authorization = new Authorization();
-
 
         @lombok.Getter
         @lombok.Setter

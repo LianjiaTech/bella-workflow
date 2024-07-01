@@ -23,6 +23,7 @@ class BaseNodeData {
     private String title;
     private String desc;
     private String type;
+    private boolean generateDeltaContent;
 
     @lombok.Getter
     @lombok.Setter

@@ -34,13 +34,13 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        workflowSchedulingId;
     private String        responseMode;
     private String        traceId;
+    private Integer       spanLev;
     private Long          cuid;
     private String        cuName;
     private LocalDateTime ctime;
     private Long          muid;
     private String        muName;
     private LocalDateTime mtime;
-    private Integer       spanLev;
 
     public WorkflowRunDB() {}
 
@@ -61,13 +61,13 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.workflowSchedulingId = value.workflowSchedulingId;
         this.responseMode = value.responseMode;
         this.traceId = value.traceId;
+        this.spanLev = value.spanLev;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
         this.ctime = value.ctime;
         this.muid = value.muid;
         this.muName = value.muName;
         this.mtime = value.mtime;
-        this.spanLev = value.spanLev;
     }
 
     public WorkflowRunDB(
@@ -87,13 +87,13 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        workflowSchedulingId,
         String        responseMode,
         String        traceId,
+        Integer       spanLev,
         Long          cuid,
         String        cuName,
         LocalDateTime ctime,
         Long          muid,
         String        muName,
-        LocalDateTime mtime,
-        Integer       spanLev
+        LocalDateTime mtime
     ) {
         this.id = id;
         this.tenantId = tenantId;
@@ -111,13 +111,13 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.workflowSchedulingId = workflowSchedulingId;
         this.responseMode = responseMode;
         this.traceId = traceId;
+        this.spanLev = spanLev;
         this.cuid = cuid;
         this.cuName = cuName;
         this.ctime = ctime;
         this.muid = muid;
         this.muName = muName;
         this.mtime = mtime;
-        this.spanLev = spanLev;
     }
 
     /**
@@ -367,6 +367,20 @@ API
     }
 
     /**
+     * Getter for <code>workflow_run.span_lev</code>.
+     */
+    public Integer getSpanLev() {
+        return this.spanLev;
+    }
+
+    /**
+     * Setter for <code>workflow_run.span_lev</code>.
+     */
+    public void setSpanLev(Integer spanLev) {
+        this.spanLev = spanLev;
+    }
+
+    /**
      * Getter for <code>workflow_run.cuid</code>.
      */
     public Long getCuid() {
@@ -450,20 +464,6 @@ API
         this.mtime = mtime;
     }
 
-    /**
-     * Getter for <code>workflow_run.span_lev</code>.
-     */
-    public Integer getSpanLev() {
-        return this.spanLev;
-    }
-
-    /**
-     * Setter for <code>workflow_run.span_lev</code>.
-     */
-    public void setSpanLev(Integer spanLev) {
-        this.spanLev = spanLev;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("WorkflowRunDB (");
@@ -484,13 +484,13 @@ API
         sb.append(", ").append(workflowSchedulingId);
         sb.append(", ").append(responseMode);
         sb.append(", ").append(traceId);
+        sb.append(", ").append(spanLev);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);
         sb.append(", ").append(ctime);
         sb.append(", ").append(muid);
         sb.append(", ").append(muName);
         sb.append(", ").append(mtime);
-        sb.append(", ").append(spanLev);
 
         sb.append(")");
         return sb.toString();

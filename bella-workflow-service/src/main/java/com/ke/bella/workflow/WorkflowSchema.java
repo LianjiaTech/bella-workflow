@@ -2,6 +2,7 @@ package com.ke.bella.workflow;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 
@@ -11,12 +12,30 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
-@lombok.Data
+@Data
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class WorkflowSchema {
     private Graph graph;
 
-    @lombok.Data
+    public WorkflowSchema iterationSchema(String iterationId) {
+        List<Edge> es = graph.edges.stream()
+                .filter(e -> e.getData().isInIteration() && e.getData().getIterationId().equals(iterationId))
+                .collect(Collectors.toList());
+        List<Node> ns = graph.nodes.stream()
+                .filter(n -> n.isInIteration() && n.getIterationId().equals(iterationId))
+                .collect(Collectors.toList());
+        Graph subg = Graph.builder().edges(es).nodes(ns).build();
+        return WorkflowSchema.builder()
+                .graph(subg)
+                .build();
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Graph {
         private List<Edge> edges;
         private List<Node> nodes;
@@ -43,6 +62,12 @@ public class WorkflowSchema {
         public static class Data {
             private String sourceType;
             private String targetType;
+
+            @JsonAlias({ "isInIteration" })
+            private boolean inIteration;
+
+            @JsonAlias({ "iteration_id" })
+            private String iterationId;
         }
     }
 
@@ -102,6 +127,20 @@ public class WorkflowSchema {
 
         public String getTitle() {
             return (String) data.get(FIELD_TITLE);
+        }
+
+        public boolean isInIteration() {
+            Object v = data.get("isInIteration");
+            return v != null && v.equals(Boolean.TRUE);
+        }
+
+        public boolean isIterationStart() {
+            Object v = data.get("isIterationStart");
+            return v != null && v.equals(Boolean.TRUE);
+        }
+
+        public String getIterationId() {
+            return (String) data.get("iteration_id");
         }
     }
 

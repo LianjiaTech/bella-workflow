@@ -4,6 +4,7 @@ public enum NodeType {
     START("start"),
     END("end"),
     IF_ELSE("if-else"),
+    ITERATION("iteration"),
     LLM("llm"),
     HTTP_REQUEST("http-request"),
     QUESTION_CLASSIFIER("question-classifier"),

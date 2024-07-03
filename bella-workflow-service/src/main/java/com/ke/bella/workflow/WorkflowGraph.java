@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.google.common.graph.Graphs;
@@ -25,9 +26,15 @@ public class WorkflowGraph {
     final Map<String, WorkflowSchema.Node> nodeMap;
     final Map<String, WorkflowSchema.Edge> edgeMap;
     final MutableNetwork<String, WorkflowSchema.Edge> graph;
+    final String iterationId;
 
     public WorkflowGraph(WorkflowSchema meta) {
+        this(meta, null);
+    }
+
+    public WorkflowGraph(WorkflowSchema meta, String iterationId) {
         this.meta = meta;
+        this.iterationId = iterationId;
         this.nodeMap = meta.getGraph().getNodes()
                 .stream()
                 .collect(Collectors.toMap(WorkflowSchema.Node::getId, n -> n));
@@ -36,10 +43,18 @@ public class WorkflowGraph {
                 .collect(Collectors.toMap(WorkflowSchema.Edge::getKey, e -> e));
         this.start = meta.getGraph().getNodes()
                 .stream()
-                .filter(n -> NodeType.START.name.equals(n.getType()))
+                .filter(startNodePredicate())
                 .findFirst()
                 .get();
         this.graph = buildGraph(meta, this.nodeMap);
+    }
+
+    private Predicate<Node> startNodePredicate() {
+        if(iterationId == null) {
+            return n -> NodeType.START.name.equals(n.getType());
+        } else {
+            return n -> n.isIterationStart() && n.getIterationId().equals(iterationId);
+        }
     }
 
     public Node getStartNode() {
@@ -59,18 +74,34 @@ public class WorkflowGraph {
     }
 
     public Set<String> nodeIds() {
-        return new HashSet<>(nodeMap.keySet());
+        return new HashSet<>(graph.nodes());
     }
 
-    private static MutableNetwork<String, Edge> buildGraph(WorkflowSchema meta, Map<String, Node> nodes) {
+    private MutableNetwork<String, Edge> buildGraph(WorkflowSchema meta, Map<String, Node> nodes) {
         MutableNetwork<String, WorkflowSchema.Edge> graph = NetworkBuilder
                 .directed()
                 .allowsParallelEdges(true)
                 .allowsSelfLoops(false)
                 .build();
 
-        nodes.values().forEach(n -> graph.addNode(n.getId()));
-        meta.getGraph().getEdges().forEach(e -> graph.addEdge(e.getSource(), e.getTarget(), e));
+        nodes.values().forEach(n -> {
+            if(iterationId != null) {
+                graph.addNode(n.getId());
+            } else {
+                if(!n.isInIteration()) {
+                    graph.addNode(n.getId());
+                }
+            }
+        });
+        meta.getGraph().getEdges().forEach(e -> {
+            if(iterationId != null) {
+                graph.addEdge(e.getSource(), e.getTarget(), e);
+            } else {
+                if(!e.getData().isInIteration()) {
+                    graph.addEdge(e.getSource(), e.getTarget(), e);
+                }
+            }
+        });
 
         return graph;
     }
@@ -82,7 +113,7 @@ public class WorkflowGraph {
         // 判断有且只有一个start
         int startCount = meta.getGraph().getNodes()
                 .stream()
-                .filter(n -> NodeType.START.name.equals(n.getType()))
+                .filter(startNodePredicate())
                 .collect(Collectors.counting()).intValue();
         if(startCount != 1) {
             throw new IllegalArgumentException("工作流必须有且只有一个start");
@@ -101,7 +132,7 @@ public class WorkflowGraph {
         it.forEach(reachableNodes::add);
         for (String nodeId : this.graph.nodes()) {
             if(!reachableNodes.contains(nodeId)) {
-                throw new IllegalArgumentException("工作流不连通，存在孤立节点： " + nodeId);
+                throw new IllegalArgumentException(String.format("工作流不连通，存在孤立节点： %s-%s", nodeId, node(nodeId).getTitle()));
             }
 
             Integer handleSize = (Integer) node(nodeId).getData().get("source_handles_size");
@@ -111,9 +142,11 @@ public class WorkflowGraph {
         }
 
         // 所有终止节点都必须是END
-        for (String nodeId : this.graph.nodes()) {
-            if(this.graph.outDegree(nodeId) == 0 && !NodeType.END.name.equals(node(nodeId).getType())) {
-                throw new IllegalArgumentException("所有终止节点都必须是END，存在非END节点： " + nodeId);
+        if(iterationId == null) {
+            for (String nodeId : this.graph.nodes()) {
+                if(this.graph.outDegree(nodeId) == 0 && !NodeType.END.name.equals(node(nodeId).getType())) {
+                    throw new IllegalArgumentException("所有终止节点都必须是END，存在非END节点： " + nodeId);
+                }
             }
         }
     }

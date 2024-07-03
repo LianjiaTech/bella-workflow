@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row21;
+import org.jooq.Row22;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -70,6 +70,11 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
      * The column <code>workflow_node_run.workflow_run_id</code>.
      */
     public final TableField<WorkflowNodeRunRecord, String> WORKFLOW_RUN_ID = createField(DSL.name("workflow_run_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
+
+    /**
+     * The column <code>workflow_node_run.node_run_id</code>.
+     */
+    public final TableField<WorkflowNodeRunRecord, String> NODE_RUN_ID = createField(DSL.name("node_run_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow_node_run.node_id</code>.
@@ -241,11 +246,11 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row21 type methods
+    // Row22 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row21<Long, String, String, String, String, String, String, String, String, String, String, String, String, String, Long, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row21) super.fieldsRow();
+    public Row22<Long, String, String, String, String, String, String, String, String, String, String, String, String, String, String, Long, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
+        return (Row22) super.fieldsRow();
     }
 }

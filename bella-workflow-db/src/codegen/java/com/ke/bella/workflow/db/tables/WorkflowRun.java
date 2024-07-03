@@ -142,6 +142,11 @@ API
     public final TableField<WorkflowRunRecord, String> TRACE_ID = createField(DSL.name("trace_id"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
+     * The column <code>workflow_run.span_lev</code>.
+     */
+    public final TableField<WorkflowRunRecord, Integer> SPAN_LEV = createField(DSL.name("span_lev"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.inline("0", SQLDataType.INTEGER)), this, "");
+
+    /**
      * The column <code>workflow_run.cuid</code>.
      */
     public final TableField<WorkflowRunRecord, Long> CUID = createField(DSL.name("cuid"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "");
@@ -170,11 +175,6 @@ API
      * The column <code>workflow_run.mtime</code>.
      */
     public final TableField<WorkflowRunRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
-
-    /**
-     * The column <code>workflow_run.span_lev</code>.
-     */
-    public final TableField<WorkflowRunRecord, Integer> SPAN_LEV = createField(DSL.name("span_lev"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.inline("0", SQLDataType.INTEGER)), this, "");
 
     private WorkflowRun(Name alias, Table<WorkflowRunRecord> aliased) {
         this(alias, aliased, null);

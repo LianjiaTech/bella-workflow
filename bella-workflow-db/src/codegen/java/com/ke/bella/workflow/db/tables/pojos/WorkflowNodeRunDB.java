@@ -22,6 +22,7 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
     private String        tenantId;
     private String        workflowId;
     private String        workflowRunId;
+    private String        nodeRunId;
     private String        nodeId;
     private String        nodeType;
     private String        title;
@@ -47,6 +48,7 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
         this.tenantId = value.tenantId;
         this.workflowId = value.workflowId;
         this.workflowRunId = value.workflowRunId;
+        this.nodeRunId = value.nodeRunId;
         this.nodeId = value.nodeId;
         this.nodeType = value.nodeType;
         this.title = value.title;
@@ -71,6 +73,7 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
         String        tenantId,
         String        workflowId,
         String        workflowRunId,
+        String        nodeRunId,
         String        nodeId,
         String        nodeType,
         String        title,
@@ -93,6 +96,7 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
         this.tenantId = tenantId;
         this.workflowId = workflowId;
         this.workflowRunId = workflowRunId;
+        this.nodeRunId = nodeRunId;
         this.nodeId = nodeId;
         this.nodeType = nodeType;
         this.title = title;
@@ -166,6 +170,20 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
      */
     public void setWorkflowRunId(String workflowRunId) {
         this.workflowRunId = workflowRunId;
+    }
+
+    /**
+     * Getter for <code>workflow_node_run.node_run_id</code>.
+     */
+    public String getNodeRunId() {
+        return this.nodeRunId;
+    }
+
+    /**
+     * Setter for <code>workflow_node_run.node_run_id</code>.
+     */
+    public void setNodeRunId(String nodeRunId) {
+        this.nodeRunId = nodeRunId;
     }
 
     /**
@@ -414,6 +432,7 @@ public class WorkflowNodeRunDB implements Operator, Serializable {
         sb.append(", ").append(tenantId);
         sb.append(", ").append(workflowId);
         sb.append(", ").append(workflowRunId);
+        sb.append(", ").append(nodeRunId);
         sb.append(", ").append(nodeId);
         sb.append(", ").append(nodeType);
         sb.append(", ").append(title);

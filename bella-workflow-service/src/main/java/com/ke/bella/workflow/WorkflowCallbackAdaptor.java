@@ -76,4 +76,16 @@ public class WorkflowCallbackAdaptor implements IWorkflowCallback {
     public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId) {
     }
 
+    @Override
+    public void onWorkflowIterationStarted(WorkflowContext context, String nodeId) {
+    }
+
+    @Override
+    public void onWorkflowIterationNext(WorkflowContext context, String nodeId, int index) {
+    }
+
+    @Override
+    public void onWorkflowIterationCompleted(WorkflowContext context, String nodeId) {
+    }
+
 }

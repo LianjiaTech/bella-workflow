@@ -268,101 +268,101 @@ API
     }
 
     /**
-     * Setter for <code>workflow_run.cuid</code>.
-     */
-    public void setCuid(Long value) {
-        set(16, value);
-    }
-
-    /**
-     * Getter for <code>workflow_run.cuid</code>.
-     */
-    public Long getCuid() {
-        return (Long) get(16);
-    }
-
-    /**
-     * Setter for <code>workflow_run.cu_name</code>.
-     */
-    public void setCuName(String value) {
-        set(17, value);
-    }
-
-    /**
-     * Getter for <code>workflow_run.cu_name</code>.
-     */
-    public String getCuName() {
-        return (String) get(17);
-    }
-
-    /**
-     * Setter for <code>workflow_run.ctime</code>.
-     */
-    public void setCtime(LocalDateTime value) {
-        set(18, value);
-    }
-
-    /**
-     * Getter for <code>workflow_run.ctime</code>.
-     */
-    public LocalDateTime getCtime() {
-        return (LocalDateTime) get(18);
-    }
-
-    /**
-     * Setter for <code>workflow_run.muid</code>.
-     */
-    public void setMuid(Long value) {
-        set(19, value);
-    }
-
-    /**
-     * Getter for <code>workflow_run.muid</code>.
-     */
-    public Long getMuid() {
-        return (Long) get(19);
-    }
-
-    /**
-     * Setter for <code>workflow_run.mu_name</code>.
-     */
-    public void setMuName(String value) {
-        set(20, value);
-    }
-
-    /**
-     * Getter for <code>workflow_run.mu_name</code>.
-     */
-    public String getMuName() {
-        return (String) get(20);
-    }
-
-    /**
-     * Setter for <code>workflow_run.mtime</code>.
-     */
-    public void setMtime(LocalDateTime value) {
-        set(21, value);
-    }
-
-    /**
-     * Getter for <code>workflow_run.mtime</code>.
-     */
-    public LocalDateTime getMtime() {
-        return (LocalDateTime) get(21);
-    }
-
-    /**
      * Setter for <code>workflow_run.span_lev</code>.
      */
     public void setSpanLev(Integer value) {
-        set(22, value);
+        set(16, value);
     }
 
     /**
      * Getter for <code>workflow_run.span_lev</code>.
      */
     public Integer getSpanLev() {
-        return (Integer) get(22);
+        return (Integer) get(16);
+    }
+
+    /**
+     * Setter for <code>workflow_run.cuid</code>.
+     */
+    public void setCuid(Long value) {
+        set(17, value);
+    }
+
+    /**
+     * Getter for <code>workflow_run.cuid</code>.
+     */
+    public Long getCuid() {
+        return (Long) get(17);
+    }
+
+    /**
+     * Setter for <code>workflow_run.cu_name</code>.
+     */
+    public void setCuName(String value) {
+        set(18, value);
+    }
+
+    /**
+     * Getter for <code>workflow_run.cu_name</code>.
+     */
+    public String getCuName() {
+        return (String) get(18);
+    }
+
+    /**
+     * Setter for <code>workflow_run.ctime</code>.
+     */
+    public void setCtime(LocalDateTime value) {
+        set(19, value);
+    }
+
+    /**
+     * Getter for <code>workflow_run.ctime</code>.
+     */
+    public LocalDateTime getCtime() {
+        return (LocalDateTime) get(19);
+    }
+
+    /**
+     * Setter for <code>workflow_run.muid</code>.
+     */
+    public void setMuid(Long value) {
+        set(20, value);
+    }
+
+    /**
+     * Getter for <code>workflow_run.muid</code>.
+     */
+    public Long getMuid() {
+        return (Long) get(20);
+    }
+
+    /**
+     * Setter for <code>workflow_run.mu_name</code>.
+     */
+    public void setMuName(String value) {
+        set(21, value);
+    }
+
+    /**
+     * Getter for <code>workflow_run.mu_name</code>.
+     */
+    public String getMuName() {
+        return (String) get(21);
+    }
+
+    /**
+     * Setter for <code>workflow_run.mtime</code>.
+     */
+    public void setMtime(LocalDateTime value) {
+        set(22, value);
+    }
+
+    /**
+     * Getter for <code>workflow_run.mtime</code>.
+     */
+    public LocalDateTime getMtime() {
+        return (LocalDateTime) get(22);
     }
 
     // -------------------------------------------------------------------------
@@ -388,7 +388,7 @@ API
     /**
      * Create a detached, initialised WorkflowRunRecord
      */
-    public WorkflowRunRecord(Long id, String tenantId, String workflowId, Long workflowVersion, String workflowRunId, String workflowRunShardingKey, String triggerFrom, String inputs, String outputs, String status, String error, String callbackUrl, Integer callbackStatus, String workflowSchedulingId, String responseMode, String traceId, Long cuid, String cuName, LocalDateTime ctime, Long muid, String muName, LocalDateTime mtime, Integer spanLev) {
+    public WorkflowRunRecord(Long id, String tenantId, String workflowId, Long workflowVersion, String workflowRunId, String workflowRunShardingKey, String triggerFrom, String inputs, String outputs, String status, String error, String callbackUrl, Integer callbackStatus, String workflowSchedulingId, String responseMode, String traceId, Integer spanLev, Long cuid, String cuName, LocalDateTime ctime, Long muid, String muName, LocalDateTime mtime) {
         super(WorkflowRun.WORKFLOW_RUN);
 
         setId(id);
@@ -407,12 +407,12 @@ API
         setWorkflowSchedulingId(workflowSchedulingId);
         setResponseMode(responseMode);
         setTraceId(traceId);
+        setSpanLev(spanLev);
         setCuid(cuid);
         setCuName(cuName);
         setCtime(ctime);
         setMuid(muid);
         setMuName(muName);
         setMtime(mtime);
-        setSpanLev(spanLev);
     }
 }

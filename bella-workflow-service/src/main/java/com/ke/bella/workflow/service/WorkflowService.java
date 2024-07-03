@@ -1,14 +1,11 @@
 package com.ke.bella.workflow.service;
 
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -28,7 +25,6 @@ import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
-import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
@@ -268,6 +264,7 @@ public class WorkflowService {
         wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
         wnr.setActivedTargetHandles(JsonUtils.toJson(nodeState.getActivatedSourceHandles()));
         wnr.setElapsedTime(nodeState.getElapsedTime());
+        wnr.setNodeRunId(nodeState.getNodeRunId());
 
         repo.updateWorkflowNodeRun(wnr);
     }
@@ -286,6 +283,7 @@ public class WorkflowService {
         wnr.setOutputs(JsonUtils.toJson(nodeState.getOutputs()));
         wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
         wnr.setElapsedTime(nodeState.getElapsedTime());
+        wnr.setNodeRunId(nodeState.getNodeRunId());
 
         repo.updateWorkflowNodeRun(wnr);
     }

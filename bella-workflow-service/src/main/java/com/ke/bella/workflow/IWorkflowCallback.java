@@ -69,4 +69,10 @@ public interface IWorkflowCallback {
     void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId);
 
     void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t);
+
+    void onWorkflowIterationStarted(WorkflowContext context, String nodeId);
+
+    void onWorkflowIterationNext(WorkflowContext context, String nodeId, int index);
+
+    void onWorkflowIterationCompleted(WorkflowContext context, String nodeId);
 }

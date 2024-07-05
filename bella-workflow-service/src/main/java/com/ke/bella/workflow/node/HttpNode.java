@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.util.StringUtils;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
@@ -56,6 +55,7 @@ public class HttpNode extends BaseNode {
     static OkHttpClient client = new OkHttpClient.Builder()
             .addInterceptor(logging)
             .build();
+    private OkHttpClient exclusiveClient = null;
     static {
         logging.setLevel(Level.BASIC);
     }
@@ -65,6 +65,11 @@ public class HttpNode extends BaseNode {
     public HttpNode(Node meta) {
         super(meta);
         this.data = JsonUtils.convertValue(meta.getData(), Data.class);
+        exclusiveClient = client.newBuilder()
+                .connectTimeout(data.getTimeout().getConnect(), TimeUnit.SECONDS)
+                .readTimeout(data.getTimeout().getRead(), TimeUnit.SECONDS)
+                .writeTimeout(data.getTimeout().getWrite(), TimeUnit.SECONDS)
+                .build();
     }
 
     @SuppressWarnings("unchecked")
@@ -98,7 +103,7 @@ public class HttpNode extends BaseNode {
                 return requestWithCallback(context, request, resultBuilder, callback);
             }
 
-            response = client.newCall(request).execute();
+            response = exclusiveClient.newCall(request).execute();
 
             Map outputs = new LinkedHashMap<>();
             int statusCode = response.code();
@@ -128,7 +133,7 @@ public class HttpNode extends BaseNode {
     private NodeRunResult requestWithCallback(WorkflowContext context, Request request, NodeRunResultBuilder resultBuilder,
             IWorkflowCallback callback) throws IOException {
 
-        Response response = client.newCall(request).execute();
+        Response response = exclusiveClient.newCall(request).execute();
         int statusCode = response.code();
         return resultBuilder
                 .status(statusCode >= 200 && statusCode <= 299 ? NodeRunResult.Status.waiting : NodeRunResult.Status.failed)
@@ -207,9 +212,9 @@ public class HttpNode extends BaseNode {
             }
         });
 
-        eventSource.connect(client);
+        eventSource.connect(exclusiveClient);
 
-        eventLatch.await(data.getTimeout().getRead(), TimeUnit.MILLISECONDS);
+        eventLatch.await(data.getTimeout().getRead(), TimeUnit.SECONDS);
 
         return builder.build();
     }
@@ -444,12 +449,9 @@ public class HttpNode extends BaseNode {
         @Getter
         @Setter
         public static class Timeout {
-            @JsonAlias("max_connect_timeout")
-            int connect = 10 * 1000;
-            @JsonAlias("max_read_timeout")
-            int read = 300 * 1000;
-            @JsonAlias("max_write_timeout")
-            int write = 60 * 1000;
+            int connect = 10;
+            int read = 300;
+            int write = 60;
         }
     }
 }

@@ -26,8 +26,8 @@ else {
   apiPrefix = 'http://example.com/console/api'
   // 'http://example.com/console/api'
   // 'http://localhost:8080/console/api'
-  publicApiPrefix = 'http://example.com/console/api'
-  // 'http://example.com/api'
+  publicApiPrefix = 'http://example.com/api'
+  // 'http://example.com/console/api'
   // 'http://localhost:5001/api' // avoid browser private mode api cross origin
 }
 

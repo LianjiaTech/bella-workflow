@@ -92,6 +92,10 @@ const formatItem = (item: any, isChatMode: boolean, filterVar: (payload: Var, se
         variable: 'sys.files',
         type: VarType.arrayFile,
       })
+      res.vars.push({
+        variable: 'sys.date',
+        type: VarType.string,
+      })
       break
     }
 

@@ -144,7 +144,7 @@ const ObjectChildren: FC<ObjectChildrenProps> = ({
   const [isItemHovering, setIsItemHovering] = useState(false)
   const _ = useHover(itemRef, {
     onChange: (hovering) => {
-      if (hovering) {
+      if (hovering || isHovering) {
         setIsItemHovering(true)
       }
       else {
@@ -166,7 +166,7 @@ const ObjectChildren: FC<ObjectChildrenProps> = ({
   }, [isItemHovering])
   // absolute top-[-2px]
   return (
-    <div ref={itemRef} className=' bg-white rounded-lg border border-gray-200 shadow-lg space-y-1' style={{
+    <div ref={itemRef} className='p-1 bg-white rounded-lg border border-gray-200 shadow-lg space-y-1' style={{
       right: itemWidth ? itemWidth - 10 : 215,
       minWidth: 252,
     }}>

@@ -3,43 +3,41 @@ import type { FC } from 'react'
 import React, { useCallback, useEffect } from 'react'
 import produce from 'immer'
 import cn from 'classnames'
-import type { Body } from '../../types'
-import { BodyType } from '../../types'
-import useKeyValueList from '../../hooks/use-key-value-list'
-import KeyValue from '../key-value'
-import useAvailableVarList from '../../../_base/hooks/use-available-var-list'
 import InputWithVar from '@/app/components/workflow/nodes/_base/components/prompt/editor'
 import type { Var } from '@/app/components/workflow/types'
-import { VarType } from '@/app/components/workflow/types'
+import {ResponseType, VarType} from '@/app/components/workflow/types'
+import useAvailableVarList from "@/app/components/workflow/nodes/_base/hooks/use-available-var-list";
+import useKeyValueList from "@/app/components/workflow/nodes/http/hooks/use-key-value-list";
+import {ResponseBody} from "@/app/components/workflow/nodes/http/types";
+import {useTranslation} from "react-i18next";
 
 type Props = {
   readonly: boolean
   nodeId: string
-  payload: Body
-  onChange: (payload: Body) => void
+  payload: ResponseBody
+  placeholder: string
+  onChange: (payload: ResponseBody) => void
 }
 
 const allTypes = [
-  BodyType.none,
-  BodyType.formData,
-  BodyType.xWwwFormUrlencoded,
-  BodyType.rawText,
-  BodyType.json,
+  ResponseType.string,
+  ResponseType.json,
 ]
 const bodyTextMap = {
-  [BodyType.none]: 'none',
-  [BodyType.formData]: 'form-data',
-  [BodyType.xWwwFormUrlencoded]: 'x-www-form-urlencoded',
-  [BodyType.rawText]: 'raw text',
-  [BodyType.json]: 'JSON',
+  [ResponseType.string]: 'String',
+  [ResponseType.json]: 'JSON',
 }
 
-const EditBody: FC<Props> = ({
+const ResponseBody: FC<Props> = ({
   readonly,
   nodeId,
   payload,
+  placeholder,
   onChange,
 }) => {
+
+  const { t } = useTranslation()
+
   const { type } = payload
   const { availableVars, availableNodes } = useAvailableVarList(nodeId, {
     onlyLeafNodeVar: false,
@@ -49,17 +47,19 @@ const EditBody: FC<Props> = ({
   })
 
   const handleTypeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newType = e.target.value as BodyType
+    console.info('newType', e)
+    const newType = e.target.value as ResponseType
+    console.info('newType', newType)
     onChange({
       type: newType,
       data: '',
     })
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    setBody([])
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onChange])
 
-  const isCurrentKeyValue = type === BodyType.formData || type === BodyType.xWwwFormUrlencoded
+  const isCurrentKeyValue = false
 
   const {
     list: body,
@@ -69,17 +69,17 @@ const EditBody: FC<Props> = ({
     if (!isCurrentKeyValue)
       return
 
-    const newBody = produce(payload, (draft: Body) => {
+    const newBody = produce(payload, (draft: ResponseBody) => {
       draft.data = value
     })
     onChange(newBody)
-  }, type === BodyType.json)
+  }, type === ResponseType.json)
 
   useEffect(() => {
     if (!isCurrentKeyValue)
       return
 
-    const newBody = produce(payload, (draft: Body) => {
+    const newBody = produce(payload, (draft: ResponseBody) => {
       draft.data = body.map((item) => {
         if (!item.key && !item.value)
           return ''
@@ -91,7 +91,7 @@ const EditBody: FC<Props> = ({
   }, [isCurrentKeyValue])
 
   const handleBodyValueChange = useCallback((value: string) => {
-    const newBody = produce(payload, (draft: Body) => {
+    const newBody = produce(payload, (draft: ResponseBody) => {
       draft.data = value
     })
     onChange(newBody)
@@ -102,10 +102,10 @@ const EditBody: FC<Props> = ({
       {/* body type */}
       <div className='flex flex-wrap'>
         {allTypes.map(t => (
-          <label key={t} htmlFor={`body-type-${t}`} className='mr-4 flex items-center h-7 space-x-2'>
+          <label key={t} htmlFor={`response-type-${t}`} className='mr-4 flex items-center h-7 space-x-2'>
             <input
               type="radio"
-              id={`body-type-${t}`}
+              id={`response-type-${t}`}
               value={t}
               checked={type === t}
               onChange={handleTypeChange}
@@ -116,47 +116,19 @@ const EditBody: FC<Props> = ({
         ))}
       </div>
       {/* body value */}
-      <div className={cn(type !== BodyType.none && 'mt-1')}>
-        {type === BodyType.none && null}
-        {(type === BodyType.formData || type === BodyType.xWwwFormUrlencoded) && (
-          <KeyValue
-            readonly={readonly}
-            nodeId={nodeId}
-            list={body}
-            onChange={setBody}
-            onAdd={addBody}
-          />
-        )}
-
-        {type === BodyType.rawText && (
+      <div className={cn(type !== ResponseType.string && 'mt-1')}>
+        {type === ResponseType.json && (
           <InputWithVar
-            instanceId={'http-body-raw'}
-            title={<div className='uppercase'>Raw text</div>}
-            onChange={handleBodyValueChange}
-            value={payload.data}
-            justVar
-            nodesOutputVars={availableVars}
-            availableNodes={availableNodes}
-            readOnly={readonly}
-            isShowVariable
-          />
-        )}
-
-        {type === BodyType.json && (
-          <InputWithVar
-            instanceId={'http-body-json'}
+            instanceId={'http-response-json'}
             title='JSON'
             value={payload.data}
             onChange={handleBodyValueChange}
-            justVar
-            nodesOutputVars={availableVars}
-            availableNodes={availableNodes}
             readOnly={readonly}
-            isShowVariable
+            placeholder={placeholder}
           />
         )}
       </div>
     </div>
   )
 }
-export default React.memo(EditBody)
+export default React.memo(ResponseBody)

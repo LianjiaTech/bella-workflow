@@ -41,11 +41,7 @@ type VarItemProps = {
   name: string
   type: string
   description: string
-  subItems?: {
-    name: string
-    type: string
-    description: string
-  }[]
+  subItems?: VarItemProps[]
 }
 
 export const VarItem: FC<VarItemProps> = ({
@@ -70,6 +66,7 @@ export const VarItem: FC<VarItemProps> = ({
                 name={item.name}
                 type={item.type}
                 description={item.description}
+                subItems={item.subItems}
               />
             ))}
           </div>

@@ -1,4 +1,5 @@
-import type { CommonNodeType, Variable } from '@/app/components/workflow/types'
+import type {CommonNodeType, Var, Variable} from '@/app/components/workflow/types'
+import {ResponseType} from "@/app/components/workflow/types";
 
 export enum Method {
   get = 'get',
@@ -25,6 +26,11 @@ export type KeyValue = {
 
 export type Body = {
   type: BodyType
+  data: string
+}
+
+export type ResponseBody = {
+  type: ResponseType
   data: string
 }
 
@@ -66,4 +72,6 @@ export type HttpNodeType = CommonNodeType & {
   body: Body
   authorization: Authorization
   timeout: Timeout
+  output: Var
+  response: ResponseBody
 }

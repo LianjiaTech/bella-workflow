@@ -1,29 +1,14 @@
-import {
-  Position,
-  getConnectedEdges,
-  getOutgoers,
-} from 'reactflow'
+import {getConnectedEdges, getOutgoers, Position,} from 'reactflow'
 import dagre from 'dagre'
-import { v4 as uuid4 } from 'uuid'
-import {
-  cloneDeep,
-  uniqBy,
-} from 'lodash-es'
-import type {
-  Edge,
-  InputVar,
-  Node,
-  ToolWithProvider,
-} from './types'
-import { BlockEnum } from './types'
-import {
-  NODE_WIDTH_X_OFFSET,
-  START_INITIAL_POSITION,
-} from './constants'
-import type { QuestionClassifierNodeType } from './nodes/question-classifier/types'
-import type { ToolNodeType } from './nodes/tool/types'
-import { CollectionType } from '@/app/components/tools/types'
-import { toolParametersToFormSchemas } from '@/app/components/tools/utils/to-form-schema'
+import {v4 as uuid4} from 'uuid'
+import {cloneDeep, uniqBy,} from 'lodash-es'
+import type {Edge, InputVar, Node, ToolWithProvider, Var,} from './types'
+import {BlockEnum, VarType} from './types'
+import {NODE_WIDTH_X_OFFSET, START_INITIAL_POSITION,} from './constants'
+import type {QuestionClassifierNodeType} from './nodes/question-classifier/types'
+import type {ToolNodeType} from './nodes/tool/types'
+import {CollectionType} from '@/app/components/tools/types'
+import {toolParametersToFormSchemas} from '@/app/components/tools/utils/to-form-schema'
 
 const WHITE = 'WHITE'
 const GRAY = 'GRAY'
@@ -413,4 +398,41 @@ export const isEventTargetInputArea = (target: HTMLElement) => {
 
   if (target.contentEditable === 'true')
     return true
+}
+
+
+export const convertJsonToVariables = (json: string): Var[]| undefined => {
+  if (!json) return undefined
+  // 快速判断是否为json格式
+  try {
+    const obj = JSON.parse(json)
+    return convertObjToJsonValue(obj)
+  } catch (e) {
+    return undefined
+  }
+}
+
+export const convertObjToJsonValue = (obj: any): any => {
+  return Object.keys(obj).map((key, v): Var => {
+      const type: VarType = convertJsonValueToVarType(obj[key])
+      return {
+        "variable": key,
+        "type": type,
+        "children": type === VarType.object || type === VarType.array ? convertObjToJsonValue(obj[key]) : undefined
+      }
+    })
+}
+
+export const convertJsonValueToVarType = (obj: any):VarType => {
+  if (typeof obj === "string") return VarType.string
+  if (typeof obj === 'number') return VarType.number
+  if (typeof obj === 'boolean') return VarType.boolean
+  if (Array.isArray(obj)) {
+    if (obj.length === 0) return VarType.array
+    if (typeof obj[0] === 'object') return VarType.arrayObject
+    if (typeof obj[0] === 'string') return VarType.arrayString
+    if (typeof obj[0] === 'number') return VarType.arrayNumber
+  }
+  if (typeof obj === 'object') return VarType.object
+  throw new Error('不支持的类型')
 }

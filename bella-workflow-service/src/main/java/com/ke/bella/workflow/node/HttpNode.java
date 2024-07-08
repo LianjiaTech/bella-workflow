@@ -1,11 +1,12 @@
 package com.ke.bella.workflow.node;
 
-import static okhttp3.internal.Util.EMPTY_REQUEST;
+import static okhttp3.internal.Util.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -16,6 +17,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.BellaContext;
@@ -28,6 +30,7 @@ import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult.NodeRunResultBuilder;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.utils.KeIAM;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -301,7 +304,7 @@ public class HttpNode extends BaseNode {
         return EMPTY_REQUEST;
     }
 
-    private Headers buildHeaders(WorkflowContext context) {
+    private Headers buildHeaders(WorkflowContext context) throws Exception {
 
         Builder builder = new Headers.Builder();
         // common header
@@ -313,12 +316,16 @@ public class HttpNode extends BaseNode {
         String authType = data.getAuthorization().type;
         String apiKey = null;
         if("api-key".equals(authType)) {
-            apiKey = data.getAuthorization().getConfig().apiKey;
-        } else if("bella-key".equals(authType)) {
-            apiKey = BellaContext.getApiKey();
-        }
-
-        if(!"no-auth".equals(authType)) {
+            authType = config.getType();
+            if("bella-key".equals(authType)) {
+                apiKey = BellaContext.getApiKey();
+            } else if("ke-IAM".equals(authType)) {
+                URL url = buildUrl(context).toURL();
+                apiKey = KeIAM.generateAuthorization(config.getApiKey(), config.getSecret(),
+                        RandomStringUtils.randomNumeric(9), data.getMethod().toUpperCase(), url.getPath(), url.getHost(), url.getQuery());
+            } else {
+                apiKey = data.getAuthorization().getConfig().apiKey;
+            }
             builder.add(config.header(), config.prefix() + apiKey);
         }
 
@@ -419,9 +426,10 @@ public class HttpNode extends BaseNode {
             @Getter
             @Setter
             public static class Config {
-                // 'basic', 'bearer', 'custom'
+                // 'basic', 'bearer', 'custom', 'bella-key', 'ke-IAM'
                 String type;
                 String apiKey;
+                String secret;
                 String header;
 
                 public String header() {
@@ -438,7 +446,7 @@ public class HttpNode extends BaseNode {
                 }
             }
 
-            // 'no-auth', 'api-key', 'bella-key'
+            // 'no-auth', 'api-key'
             String type;
             Config config;
         }

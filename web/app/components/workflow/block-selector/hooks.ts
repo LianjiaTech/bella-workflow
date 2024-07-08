@@ -27,9 +27,9 @@ export const useTabs = () => {
     //   name: t('workflow.tabs.builtInTool'),
     // },
     // 自定义工具
-    // {
-    //   key: TabsEnum.CustomTool,
-    //   name: t('workflow.tabs.customTool'),
-    // },
+    {
+      key: TabsEnum.CustomTool,
+      name: t('workflow.tabs.customTool'),
+    },
   ]
 }

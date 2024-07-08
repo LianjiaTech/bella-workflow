@@ -270,8 +270,8 @@ const translation = {
         writePlaceholder: '输入写入超时（以秒为单位）',
       },
       response: {
-        placeholder: '请输入完整的JSON内容'
-      }
+        placeholder: '请输入完整的JSON内容',
+      },
     },
     code: {
       inputVars: '输入变量',
@@ -332,7 +332,7 @@ const translation = {
       toAuthorize: '授权',
       inputVars: '输入变量',
       outputVars: {
-        text: '工具生成的内容',
+        result: '工具生成的内容',
         files: {
           title: '工具生成的文件',
           type: '支持类型。现在只支持图片',
@@ -340,6 +340,9 @@ const translation = {
           url: '图片链接',
           upload_file_id: '上传文件ID',
         },
+      },
+      result: {
+        placeholder: '请输入完整的JSON内容',
       },
     },
     questionClassifiers: {

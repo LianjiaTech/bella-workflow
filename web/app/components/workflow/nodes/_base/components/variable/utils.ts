@@ -129,14 +129,14 @@ const formatItem = (item: any, isChatMode: boolean, filterVar: (payload: Var, se
     }
 
     case BlockEnum.HttpRequest: {
-        const {
-            output,
-        } = data as HttpNodeType
-        if (output) {
-            res.vars = [output, ...HTTP_REQUEST_OUTPUT_STRUCT]
-        }else{
-            res.vars = [...HTTP_REQUEST_OUTPUT_STRUCT]
-        }
+      const {
+        output,
+      } = data as HttpNodeType
+      if (output)
+        res.vars = [output, ...HTTP_REQUEST_OUTPUT_STRUCT]
+      else
+        res.vars = [...HTTP_REQUEST_OUTPUT_STRUCT]
+
       break
     }
 
@@ -154,7 +154,14 @@ const formatItem = (item: any, isChatMode: boolean, filterVar: (payload: Var, se
     }
 
     case BlockEnum.Tool: {
-      res.vars = TOOL_OUTPUT_STRUCT
+      const {
+        output,
+      } = data as ToolNodeType
+      if (output)
+        res.vars = [output]
+      else
+        res.vars = []
+
       break
     }
   }

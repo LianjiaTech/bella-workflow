@@ -1,7 +1,9 @@
 package com.ke.bella.workflow;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +40,9 @@ public class WorkflowRunState {
             putVariable("sys", "user_id", BellaContext.getOperator().getUserId());
             putVariable("sys", "user_name", BellaContext.getOperator().getUserName());
         }
+
+        String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        putVariable("sys", "date", date);
     }
 
     synchronized boolean isEmpty() {

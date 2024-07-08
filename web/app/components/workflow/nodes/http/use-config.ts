@@ -1,17 +1,16 @@
-import { useCallback, useEffect } from 'react'
+import {useCallback, useEffect} from 'react'
 import produce from 'immer'
-import { useBoolean } from 'ahooks'
+import {useBoolean} from 'ahooks'
 import useVarList from '../_base/hooks/use-var-list'
-import { VarType } from '../../types'
-import type { Var } from '../../types'
-import { useStore } from '../../store'
-import type { Authorization, Body, HttpNodeType, Method, Timeout } from './types'
+import type {Var} from '../../types'
+import {ResponseType, VarType} from '../../types'
+import {useStore} from '../../store'
+import type {Authorization, Body, HttpNodeType, Method, ResponseBody, Timeout} from './types'
 import useKeyValueList from './hooks/use-key-value-list'
 import useNodeCrud from '@/app/components/workflow/nodes/_base/hooks/use-node-crud'
 import useOneStepRun from '@/app/components/workflow/nodes/_base/hooks/use-one-step-run'
-import {
-  useNodesReadOnly,
-} from '@/app/components/workflow/hooks'
+import {useNodesReadOnly,} from '@/app/components/workflow/hooks'
+import {convertJsonToVariables} from "@/app/components/workflow/utils";
 
 const useConfig = (id: string, payload: HttpNodeType) => {
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
@@ -143,6 +142,30 @@ const useConfig = (id: string, payload: HttpNodeType) => {
     setRunInputData(newPayload)
   }, [setRunInputData])
 
+  const setResponseBody = useCallback((body: ResponseBody) => {
+    const newInputs = produce(inputs, (draft: HttpNodeType) => {
+      draft.response = body;
+      draft.output = {
+        type: body.type === ResponseType.json ? VarType.object : VarType.string,
+        variable: "body",
+        ...(body.type === ResponseType.json && { children: convertJsonToVariables(body.data) })
+      };
+    });
+    setInputs(newInputs);
+  }, [inputs, setInputs]);
+
+  const convertVarToVarItemProps = (item: Var): any => {
+    if (!item) return undefined;
+    const {variable, type, children} = item;
+    return {
+      name: variable,
+      type: type,
+      description: '',
+      subItems: children ? children.map(convertVarToVarItemProps) : undefined
+    };
+  };
+  const outputVar = convertVarToVarItemProps(inputs.output)
+
   return {
     readOnly,
     inputs,
@@ -181,6 +204,8 @@ const useConfig = (id: string, payload: HttpNodeType) => {
     inputVarValues,
     setInputVarValues,
     runResult,
+    outputVar,
+    setResponseBody
   }
 }
 

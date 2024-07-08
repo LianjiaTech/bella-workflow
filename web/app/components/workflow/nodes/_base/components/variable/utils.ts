@@ -129,7 +129,14 @@ const formatItem = (item: any, isChatMode: boolean, filterVar: (payload: Var, se
     }
 
     case BlockEnum.HttpRequest: {
-      res.vars = HTTP_REQUEST_OUTPUT_STRUCT
+        const {
+            output,
+        } = data as HttpNodeType
+        if (output) {
+            res.vars = [output, ...HTTP_REQUEST_OUTPUT_STRUCT]
+        }else{
+            res.vars = [...HTTP_REQUEST_OUTPUT_STRUCT]
+        }
       break
     }
 
@@ -167,7 +174,6 @@ const formatItem = (item: any, isChatMode: boolean, filterVar: (payload: Var, se
 
     return findExceptVarInObject(v, filterVar, selector)
   })
-
   return res
 }
 export const toNodeOutputVars = (nodes: any[], isChatMode: boolean, filterVar = (_payload: Var, _selector: ValueSelector) => true): NodeOutPutVar[] => {

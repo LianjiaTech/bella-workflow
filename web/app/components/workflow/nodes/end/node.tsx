@@ -39,7 +39,7 @@ const Node: FC<NodeProps<EndNodeType>> = ({
     const isSystem = isSystemVar(value);
     (value).slice(1).forEach((key, i) => {
       const isLast = i === value.length - 2
-      curr = curr.find((v: any) => v.variable === isSystem ? `sys.${key}` : key)
+      // curr = curr.find((v: any) => v.variable === isSystem ? `sys.${key}` : key)
       if (isLast) {
         type = curr.type
       }

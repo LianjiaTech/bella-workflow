@@ -292,10 +292,6 @@ export const QUESTION_CLASSIFIER_OUTPUT_STRUCT = [
 
 export const HTTP_REQUEST_OUTPUT_STRUCT: Var[] = [
   {
-    variable: 'body',
-    type: VarType.string,
-  },
-  {
     variable: 'status_code',
     type: VarType.number,
   },

@@ -16,6 +16,7 @@ import { Settings01 } from '@/app/components/base/icons/src/vender/line/general'
 import type { NodePanelProps } from '@/app/components/workflow/types'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
+import ResponseBody from "@/app/components/workflow/nodes/_base/components/output-response-body";
 
 const i18nPrefix = 'workflow.nodes.http'
 
@@ -52,6 +53,8 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
     inputVarValues,
     setInputVarValues,
     runResult,
+    outputVar,
+    setResponseBody
   } = useConfig(id, data)
 
   return (
@@ -135,16 +138,24 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
       <div className='px-4 pt-4 pb-2'>
         <OutputVars>
           <>
-            <VarItem
-              name='body'
-              type='string'
-              description={t(`${i18nPrefix}.outputVars.body`)}
-            />
-            <VarItem
-              name='status_code'
-              type='number'
-              description={t(`${i18nPrefix}.outputVars.statusCode`)}
-            />
+           <Field
+              title="Response"
+            >
+              <ResponseBody
+                nodeId={id}
+                readonly={readOnly}
+                payload={inputs.response}
+                onChange={setResponseBody}
+                placeholder={t(`${i18nPrefix}.response.placeholder`)}
+              />
+            </Field>
+            {outputVar &&
+              <VarItem
+                  name={outputVar.name}
+                  type={outputVar.type}
+                  description={t(`${i18nPrefix}.outputVars.body`)}
+                  subItems= {outputVar.subItems}
+                />}
             <VarItem
               name='headers'
               type='object'

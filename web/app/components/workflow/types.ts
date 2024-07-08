@@ -299,3 +299,8 @@ export type MoreInfo = {
 export type ToolWithProvider = Collection & {
   tools: Tool[]
 }
+
+export enum ResponseType {
+  string = 'string',
+  json = 'json',
+}

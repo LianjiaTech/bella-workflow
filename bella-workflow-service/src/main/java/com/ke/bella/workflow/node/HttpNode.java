@@ -109,10 +109,14 @@ public class HttpNode extends BaseNode {
             int statusCode = response.code();
             String body = extractBody(response);
             outputs.put("status_code", statusCode);
-            outputs.put("body", body);
             outputs.put("headers", response.headers().toMultimap());
             outputs.put("files", extractFiles(response));
             boolean success = statusCode >= 200 && statusCode <= 299;
+            if(Objects.nonNull(data.getResponse()) && "json".equals(data.getResponse().getType())) {
+                outputs.put("body", JsonUtils.fromJson(body, Map.class));
+            } else {
+                outputs.put("body", body);
+            }
             return resultBuilder
                     .outputs(outputs)
                     .status(success ? NodeRunResult.Status.succeeded : NodeRunResult.Status.failed)
@@ -395,6 +399,7 @@ public class HttpNode extends BaseNode {
         Authorization authorization;
         String mode = "blocking";
         List<WorkflowSchema.Variable> variables;
+        Response response;
 
         boolean isStreaming() {
             return "streaming".equalsIgnoreCase(mode);
@@ -436,6 +441,14 @@ public class HttpNode extends BaseNode {
             // 'no-auth', 'api-key', 'bella-key'
             String type;
             Config config;
+        }
+
+        @Getter
+        @Setter
+        public static class Response {
+            // 'string', 'json'
+            String type;
+            String data;
         }
 
         @Getter

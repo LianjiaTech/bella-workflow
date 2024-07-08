@@ -47,7 +47,7 @@ import {
   syncWorkflowDraft,
 } from '@/service/workflow'
 import type { FetchWorkflowDraftResponse } from '@/types/workflow'
-
+import { fetchAllCustomTools } from '@/service/tools'
 import I18n from '@/context/i18n'
 
 export const useIsChatMode = () => {
@@ -360,7 +360,7 @@ export const useFetchToolsData = () => {
       })
     }
     if (type === 'custom') {
-      const customTools = []// await fetchAllCustomTools()
+      const customTools = await fetchAllCustomTools()
 
       workflowStore.setState({
         customTools: customTools || [],

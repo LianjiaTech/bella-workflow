@@ -1,5 +1,4 @@
-import type {CommonNodeType, Var, Variable} from '@/app/components/workflow/types'
-import {ResponseType} from "@/app/components/workflow/types";
+import type { CommonNodeType, ResponseType, Var, Variable } from '@/app/components/workflow/types'
 
 export enum Method {
   get = 'get',
@@ -43,6 +42,8 @@ export enum APIType {
   basic = 'basic',
   bearer = 'bearer',
   custom = 'custom',
+  bella = 'bella',
+  ke_iam = 'ke-IAM',
 }
 
 export type Authorization = {
@@ -50,6 +51,7 @@ export type Authorization = {
   config?: {
     type: APIType
     api_key: string
+    secret?: string
     header?: string
   } | null
 }

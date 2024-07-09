@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
@@ -428,6 +429,7 @@ public class HttpNode extends BaseNode {
             public static class Config {
                 // 'basic', 'bearer', 'custom', 'bella-key', 'ke-IAM'
                 String type;
+                @JsonAlias({ "api_key" })
                 String apiKey;
                 String secret;
                 String header;

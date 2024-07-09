@@ -133,6 +133,8 @@ export const VAR_ITEM_TEMPLATE_IN_WORKFLOW = {
   max_length: DEFAULT_VALUE_MAX_LEN,
   required: true,
   options: [],
+  varType: 'object',
+  Children: [],
 }
 
 export const appDefaultIconBackground = '#D5F5F6'

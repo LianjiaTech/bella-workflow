@@ -42,8 +42,6 @@ export enum APIType {
   basic = 'basic',
   bearer = 'bearer',
   custom = 'custom',
-  bella = 'bella',
-  ke_iam = 'ke-IAM',
 }
 
 export type Authorization = {
@@ -51,7 +49,6 @@ export type Authorization = {
   config?: {
     type: APIType
     api_key: string
-    secret?: string
     header?: string
   } | null
 }

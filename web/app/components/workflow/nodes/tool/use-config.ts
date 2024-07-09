@@ -11,13 +11,15 @@ import { updateBuiltInToolCredential } from '@/service/tools'
 import { addDefaultValue, toolParametersToFormSchemas } from '@/app/components/tools/utils/to-form-schema'
 import Toast from '@/app/components/base/toast'
 import type { Props as FormProps } from '@/app/components/workflow/nodes/_base/components/before-run-form/form'
-import { VarType as VarVarType } from '@/app/components/workflow/types'
+import { ResponseType, VarType as VarVarType } from '@/app/components/workflow/types'
 import type { InputVar, ValueSelector, Var } from '@/app/components/workflow/types'
 import useOneStepRun from '@/app/components/workflow/nodes/_base/hooks/use-one-step-run'
 import {
   useFetchToolsData,
   useNodesReadOnly,
 } from '@/app/components/workflow/hooks'
+import { convertJsonToVariables } from '@/app/components/workflow/utils'
+import type { ResponseBody } from '@/app/components/workflow/nodes/http/types'
 
 const useConfig = (id: string, payload: ToolNodeType) => {
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
@@ -164,6 +166,31 @@ const useConfig = (id: string, payload: ToolNodeType) => {
     return res
   }
 
+  const setResponseBody = useCallback((body: ResponseBody) => {
+    const newInputs = produce(inputs, (draft: ToolNodeType) => {
+      draft.result = body
+      draft.output = {
+        type: body.type === ResponseType.json ? VarVarType.object : VarVarType.string,
+        variable: 'result',
+        ...(body.type === ResponseType.json && { children: convertJsonToVariables(body.data) }),
+      }
+    })
+    setInputs(newInputs)
+  }, [inputs, setInputs])
+
+  const convertVarToVarItemProps = (item: Var): any => {
+    if (!item)
+      return undefined
+    const { variable, type, children } = item
+    return {
+      name: variable,
+      type,
+      description: '',
+      subItems: children ? children.map(convertVarToVarItemProps) : undefined,
+    }
+  }
+  const outputVar = convertVarToVarItemProps(inputs.output)
+
   const {
     isShowSingleRun,
     hideSingleRun,
@@ -264,6 +291,8 @@ const useConfig = (id: string, payload: ToolNodeType) => {
     handleRun,
     handleStop,
     runResult,
+    outputVar,
+    setResponseBody,
   }
 }
 

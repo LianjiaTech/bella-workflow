@@ -175,7 +175,10 @@ export enum VarType {
   arrayObject = 'array[object]',
   arrayFile = 'array[file]',
 }
-
+export type MethodOption = {
+  label: string
+  value: string
+}
 export type Var = {
   variable: string
   type: VarType

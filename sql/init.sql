@@ -191,3 +191,25 @@ CREATE TABLE `workflow_scheduling`
 
 alter table `workflow_run`
     add column `workflow_scheduling_id` varchar(128) NOT NULL DEFAULT '' after callback_status;
+
+
+CREATE TABLE `workflow_aggregate`
+(
+    `id`                     bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'workflow配置自增主键',
+    `tenant_id`              varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci   NOT NULL COMMENT '租户id',
+    `workflow_id`            varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci  NOT NULL,
+    `title`                  varchar(255)                                                   NOT NULL DEFAULT '',
+    `desc`                   varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+    `graph`                  text                                                           NOT NULL COMMENT '工作流DAG配置',
+    `version`                bigint unsigned NOT NULL DEFAULT '0' COMMENT '工作流版本，0: draft, >0 正式版时间戳',
+    `latest_publish_version` bigint unsigned NOT NULL DEFAULT '0' COMMENT '工作流最新发布版本，0: draft, >0 正式版时间戳',
+    `cuid`                   bigint                                                         NOT NULL DEFAULT '0',
+    `cu_name`                varchar(32)                                                    NOT NULL DEFAULT '',
+    `ctime`                  datetime                                                       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `muid`                   bigint                                                         NOT NULL DEFAULT '0',
+    `mu_name`                varchar(32)                                                    NOT NULL DEFAULT '',
+    `mtime`                  datetime                                                       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_tenant_id` (`tenant_id`,`workflow_id`) USING BTREE,
+    KEY                      `idx_cuid_time` (`cuid`,`ctime`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

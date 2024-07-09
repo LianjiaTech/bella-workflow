@@ -32,6 +32,7 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
@@ -56,19 +57,23 @@ public class WorkflowService {
 
     @Transactional(rollbackFor = Exception.class)
     public WorkflowDB newWorkflow(WorkflowSync op) {
-        return repo.addDraftWorkflow(op);
+        WorkflowDB workflowDb = repo.addDraftWorkflow(op);
+        repo.addWorkflowAggregate(workflowDb);
+        return workflowDb;
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void syncWorkflow(WorkflowSync op) {
         WorkflowDB wf = repo.queryDraftWorkflow(op.getWorkflowId());
         if(wf == null) {
-            repo.addDraftWorkflow(op);
+            WorkflowDB workflowDb = repo.addDraftWorkflow(op);
+            repo.addWorkflowAggregate(workflowDb);
         } else if(!StringUtils.equals(wf.getGraph(), op.getGraph())) {
             WorkflowSchema old = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
             WorkflowSchema opg = Objects.isNull(op.getGraph()) ? null : JsonUtils.fromJson(op.getGraph(), WorkflowSchema.class);
             if(!old.equals(opg)) {
                 repo.updateDraftWorkflow(op);
+                repo.updateWorkflowAggregate(op);
             }
         }
     }
@@ -101,7 +106,8 @@ public class WorkflowService {
             throw new IllegalArgumentException("工作流还未调试通过，请至少完整执行成功一次");
         }
 
-        repo.publishWorkflow(workflowId);
+        long version = repo.publishWorkflow(workflowId);
+        repo.publishWorkflowAggregate(workflowId, version);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -371,5 +377,9 @@ public class WorkflowService {
 
     public Page<WorkflowDB> pageWorkflows(WorkflowPage op) {
         return repo.pageWorkflows(op);
+    }
+
+    public Page<WorkflowAggregateDB> pageWorkflowAggregate(WorkflowPage op) {
+        return repo.pageWorkflowAggregate(op);
     }
 }

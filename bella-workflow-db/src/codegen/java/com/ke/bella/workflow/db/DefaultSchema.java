@@ -7,6 +7,7 @@ package com.ke.bella.workflow.db;
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.Workflow;
+import com.ke.bella.workflow.db.tables.WorkflowAggregate;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
@@ -49,6 +50,11 @@ public class DefaultSchema extends SchemaImpl {
     public final Workflow WORKFLOW = Workflow.WORKFLOW;
 
     /**
+     * The table <code>workflow_aggregate</code>.
+     */
+    public final WorkflowAggregate WORKFLOW_AGGREGATE = WorkflowAggregate.WORKFLOW_AGGREGATE;
+
+    /**
      * The table <code>workflow_node_run</code>.
      */
     public final WorkflowNodeRun WORKFLOW_NODE_RUN = WorkflowNodeRun.WORKFLOW_NODE_RUN;
@@ -87,6 +93,7 @@ public class DefaultSchema extends SchemaImpl {
             Instance.INSTANCE,
             Tenant.TENANT,
             Workflow.WORKFLOW,
+                WorkflowAggregate.WORKFLOW_AGGREGATE,
             WorkflowNodeRun.WORKFLOW_NODE_RUN,
             WorkflowRun.WORKFLOW_RUN,
             WorkflowRunSharding.WORKFLOW_RUN_SHARDING,

@@ -72,7 +72,7 @@ public class WorkflowController {
     }
 
     @PostMapping("/copy")
-    public void copy(@RequestBody WorkflowCopy op) {
+    public WorkflowDB copy(@RequestBody WorkflowCopy op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
         Assert.notNull(op.version, "version不能为空");
@@ -83,7 +83,7 @@ public class WorkflowController {
                 .title(wf.getTitle())
                 .desc(wf.getDesc())
                 .build();
-        ws.newWorkflow(sync);
+        return ws.newWorkflow(sync);
     }
 
     @PostMapping("/draft/publish")

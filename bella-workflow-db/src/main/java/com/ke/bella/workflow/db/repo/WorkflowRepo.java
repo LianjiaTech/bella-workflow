@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.db.repo;
 
+import static com.ke.bella.workflow.db.Tables.WORKFLOW_AGGREGATE;
 import static com.ke.bella.workflow.db.tables.Tenant.TENANT;
 import static com.ke.bella.workflow.db.tables.Workflow.WORKFLOW;
 import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.WORKFLOW_NODE_RUN;
@@ -9,6 +10,7 @@ import static com.ke.bella.workflow.db.tables.WorkflowRunSharding.WORKFLOW_RUN_S
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -16,6 +18,7 @@ import javax.annotation.Resource;
 import org.jooq.DSLContext;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectSeekStep1;
+import org.jooq.SelectSeekStep2;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,15 +32,21 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunShardingDB;
 import com.ke.bella.workflow.db.tables.records.TenantRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowAggregateRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunShardingRecord;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Component
 public class WorkflowRepo implements BaseRepo {
@@ -122,6 +131,52 @@ public class WorkflowRepo implements BaseRepo {
         return rec.into(WorkflowDB.class);
     }
 
+    public WorkflowAggregateDB addWorkflowAggregate(WorkflowDB workflowDb) {
+        WorkflowAggregateRecord rec = WORKFLOW_AGGREGATE.newRecord();
+        rec.from(workflowDb);
+        rec.setId(null);
+        if(workflowDb.getVersion() > 0L) {
+            rec.setLatestPublishVersion(workflowDb.getVersion());
+        }
+        db.insertInto(WORKFLOW_AGGREGATE).set(rec).execute();
+
+        return rec.into(WorkflowAggregateDB.class);
+    }
+
+    public void updateWorkflowAggregate(WorkflowSync op) {
+        WorkflowAggregateRecord rec = WORKFLOW_AGGREGATE.newRecord();
+        if(!StringUtils.isEmpty(op.getGraph())) {
+            rec.setGraph(op.getGraph());
+        }
+        if(!StringUtils.isEmpty(op.getTitle())) {
+            rec.setTitle(op.getTitle());
+        }
+        if(!StringUtils.isEmpty(op.getDesc())) {
+            rec.setDesc(op.getDesc());
+        }
+        fillUpdatorInfo(rec);
+
+        int num = db.update(WORKFLOW_AGGREGATE)
+                .set(rec)
+                .where(WORKFLOW_AGGREGATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW_AGGREGATE.WORKFLOW_ID.eq(op.getWorkflowId()))
+                .execute();
+        Assert.isTrue(num == 1, "工作流聚合实体配置更新失败，请检查工作流聚合实体是否存在");
+    }
+
+    public void publishWorkflowAggregate(String workflowId, Long latestPublishVersion) {
+        WorkflowAggregateRecord rec = WORKFLOW_AGGREGATE.newRecord();
+        rec.setLatestPublishVersion(latestPublishVersion);
+        fillUpdatorInfo(rec);
+
+        int num = db.update(WORKFLOW_AGGREGATE)
+                .set(rec)
+                .where(WORKFLOW_AGGREGATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW_AGGREGATE.WORKFLOW_ID.eq(workflowId))
+                .execute();
+        Assert.isTrue(num == 1, "工作流聚合实体配置发布失败，请检查工作流聚合实体是否存在");
+    }
+
     public void updateDraftWorkflow(WorkflowSync op) {
         WorkflowRecord rec = WORKFLOW.newRecord();
         if(!StringUtils.isEmpty(op.getGraph())) {
@@ -144,17 +199,19 @@ public class WorkflowRepo implements BaseRepo {
         Assert.isTrue(num == 1, "工作流配置更新失败，请检查工作流配置版本是否为draft");
     }
 
-    public void publishWorkflow(String workflowId) {
+    public long publishWorkflow(String workflowId) {
         WorkflowRecord rec = WORKFLOW.newRecord();
         WorkflowDB wf = queryDraftWorkflow(workflowId);
+        long version = System.currentTimeMillis();
         rec.from(wf);
         rec.setId(null);
-        rec.setVersion(System.currentTimeMillis());
+        rec.setVersion(version);
         fillUpdatorInfo(rec);
 
         int num = db.insertInto(WORKFLOW).set(rec).execute();
 
         Assert.isTrue(num == 1, "工作流配置发布失败，请检查工作流配置版本是否为draft");
+        return version;
     }
 
     public TenantDB addTenant(String tenantName, String parentTenantId) {
@@ -387,5 +444,27 @@ public class WorkflowRepo implements BaseRepo {
                 .and(StringUtils.isEmpty(op.getWorkflowId()) ? DSL.noCondition() : WORKFLOW.WORKFLOW_ID.eq(op.getWorkflowId()))
                 .orderBy(WORKFLOW.ID.desc());
         return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowDB.class);
+    }
+
+    public Page<WorkflowAggregateDB> pageWorkflowAggregate(WorkflowPage op) {
+        SelectSeekStep2<WorkflowAggregateRecord, Integer, LocalDateTime> sql = db.selectFrom(WORKFLOW_AGGREGATE)
+                .where(WORKFLOW_AGGREGATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(Objects.isNull(BellaContext.getOperator().getUserId()) ? DSL.noCondition()
+                        : WORKFLOW_AGGREGATE.CUID.eq(BellaContext.getOperator().getUserId()))
+                .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition()
+                        : WORKFLOW_AGGREGATE.TITLE.like("%" + DSL.escape(op.getName(), '\\') + "%"))
+                .and(StringUtils.isEmpty(op.getWorkflowId()) ? DSL.noCondition() : WORKFLOW_AGGREGATE.WORKFLOW_ID.eq(op.getWorkflowId()))
+                .orderBy(DSL.when(WORKFLOW_AGGREGATE.LATEST_PUBLISH_VERSION.gt(0L), 0).otherwise(1).asc(), WORKFLOW_AGGREGATE.MTIME.desc());
+        return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowAggregateDB.class);
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class WorkflowWithPublished extends WorkflowDB {
+        /**
+         * 曾经发布过
+         */
+        private Boolean hasPublished;
     }
 }

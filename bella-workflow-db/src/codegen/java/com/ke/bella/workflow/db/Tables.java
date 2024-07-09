@@ -7,6 +7,7 @@ package com.ke.bella.workflow.db;
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.Workflow;
+import com.ke.bella.workflow.db.tables.WorkflowAggregate;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
@@ -33,6 +34,11 @@ public class Tables {
      * The table <code>workflow</code>.
      */
     public static final Workflow WORKFLOW = Workflow.WORKFLOW;
+
+    /**
+     * The table <code>workflow_aggregate</code>.
+     */
+    public static final WorkflowAggregate WORKFLOW_AGGREGATE = WorkflowAggregate.WORKFLOW_AGGREGATE;
 
     /**
      * The table <code>workflow_node_run</code>.

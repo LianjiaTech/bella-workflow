@@ -16,10 +16,10 @@ import type { InputVar, ValueSelector, Var } from '@/app/components/workflow/typ
 import useOneStepRun from '@/app/components/workflow/nodes/_base/hooks/use-one-step-run'
 import {
   useFetchToolsData,
-  useNodesReadOnly,
+  useNodesReadOnly, useWorkflow,
 } from '@/app/components/workflow/hooks'
 import { convertJsonToVariables } from '@/app/components/workflow/utils'
-import type { ResponseBody } from '@/app/components/workflow/nodes/http/types'
+import type {HttpNodeType, ResponseBody} from '@/app/components/workflow/nodes/http/types'
 
 const useConfig = (id: string, payload: ToolNodeType) => {
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
@@ -47,6 +47,14 @@ const useConfig = (id: string, payload: ToolNodeType) => {
     setTrue: showSetAuthModal,
     setFalse: hideSetAuthModal,
   }] = useBoolean(false)
+  const [isShowRemoveVarConfirm, {
+    setTrue: showRemoveVarConfirm,
+    setFalse: hideRemoveVarConfirm,
+  }] = useBoolean(false)
+  const {handleOutVarRenameChange, isVarUsedInNodes, removeUsedVarInNodes} = useWorkflow()
+  const [removedVar, setRemovedVar] = useState<ValueSelector[]>([])
+  const [key, setKey] = useState<number>(1)
+  const [newResult, setNewResult] = useState<ResponseBody>()
 
   const handleSaveAuth = useCallback(async (value: any) => {
     await updateBuiltInToolCredential(currCollection?.name as string, value)
@@ -166,17 +174,73 @@ const useConfig = (id: string, payload: ToolNodeType) => {
     return res
   }
 
-  const setResponseBody = useCallback((body: ResponseBody) => {
+  const convert = function (body: ResponseBody) {
+    return {type: body.type === ResponseType.json ? VarVarType.object : VarVarType.string,
+      variable: 'result',
+      ...(body.type === ResponseType.json && { children: convertJsonToVariables(body.data) })}
+  }
+  const varSelectorConvert = function (path:string[], vars:Var[]): string[[]]{
+    let varResult = []
+    vars.map((v)=>{
+      let paths = [...path, v.variable]
+      varResult.push(paths)
+      if (v.children && v.children.length > 0) {
+        varResult.push(...varSelectorConvert(paths, v.children))
+      }
+    })
+    return varResult
+  }
+
+  const handleResponseBody = useCallback((body: ResponseBody) => {
+    if(body.type ===inputs.result.type && body.type === ResponseType.json &&!convertJsonToVariables(body.data)){
+      return
+    }
+    setNewResult(body)
+    const newOutput = convert(body)
+    const newVars = varSelectorConvert([id],[newOutput])
+    const oldVars = varSelectorConvert([id], [inputs.output])
+    const newVarSelectors = newVars.map(v=>v.join('.'))
+    const deleteVarSelectorList = []
+    oldVars.forEach((v)=>{
+      if (!newVarSelectors.includes(v.join('.'))) {
+        deleteVarSelectorList.push(v)
+      }
+    })
+
+    let removeVarSelectorList = []
+    deleteVarSelectorList.forEach((v)=>{
+      if (isVarUsedInNodes(v)){
+        removeVarSelectorList.push(v)
+      }
+    })
+    if (removeVarSelectorList.length>0){
+      setRemovedVar(removeVarSelectorList)
+      showRemoveVarConfirm()
+      return
+    }
+
     const newInputs = produce(inputs, (draft: ToolNodeType) => {
       draft.result = body
-      draft.output = {
-        type: body.type === ResponseType.json ? VarVarType.object : VarVarType.string,
-        variable: 'result',
-        ...(body.type === ResponseType.json && { children: convertJsonToVariables(body.data) }),
-      }
+      draft.output = convert(body)
     })
     setInputs(newInputs)
   }, [inputs, setInputs])
+
+  const removeVarInNode = useCallback(() => {
+    removedVar.map(removeUsedVarInNodes)
+    hideRemoveVarConfirm()
+    const newInputs = produce(inputs, (draft: ToolNodeType) => {
+      draft.result = newResult
+      draft.output = convert(newResult)
+    })
+    setInputs(newInputs)
+  }, [hideRemoveVarConfirm, removeUsedVarInNodes, removedVar])
+
+  const handleRemoveVarConfirm = useCallback(()=>{
+    hideRemoveVarConfirm()
+    setKey(key+1)
+  },[hideRemoveVarConfirm, inputs, setInputs, key,setKey])
+
 
   const convertVarToVarItemProps = (item: Var): any => {
     if (!item)
@@ -292,7 +356,11 @@ const useConfig = (id: string, payload: ToolNodeType) => {
     handleStop,
     runResult,
     outputVar,
-    setResponseBody,
+    handleResponseBody,
+    isShowRemoveVarConfirm,
+    handleRemoveVarConfirm,
+    removeVarInNode,
+    key
   }
 }
 

@@ -47,9 +47,7 @@ const ResponseBody: FC<Props> = ({
   })
 
   const handleTypeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    console.info('newType', e)
     const newType = e.target.value as ResponseType
-    console.info('newType', newType)
     onChange({
       type: newType,
       data: '',

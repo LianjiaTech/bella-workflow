@@ -17,6 +17,7 @@ import type { NodePanelProps } from '@/app/components/workflow/types'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
 import ResponseBody from "@/app/components/workflow/nodes/_base/components/output-response-body";
+import RemoveEffectVarConfirm from "@/app/components/workflow/nodes/_base/components/remove-effect-var-confirm";
 
 const i18nPrefix = 'workflow.nodes.http'
 
@@ -54,7 +55,11 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
     setInputVarValues,
     runResult,
     outputVar,
-    setResponseBody
+    handleResponseBody,
+    isShowRemoveVarConfirm,
+    handleRemoveVarConfirm,
+    removeVarInNode,
+    key
   } = useConfig(id, data)
 
   return (
@@ -142,10 +147,11 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
               title="Response"
             >
               <ResponseBody
+                key={key}
                 nodeId={id}
                 readonly={readOnly}
                 payload={inputs.response}
-                onChange={setResponseBody}
+                onChange={handleResponseBody}
                 placeholder={t(`${i18nPrefix}.response.placeholder`)}
               />
             </Field>
@@ -186,6 +192,11 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
           result={<ResultPanel {...runResult} showSteps={false} />}
         />
       )}
+      <RemoveEffectVarConfirm
+        isShow={isShowRemoveVarConfirm}
+        onCancel={handleRemoveVarConfirm}
+        onConfirm={removeVarInNode}
+      />
     </div >
   )
 }

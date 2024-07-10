@@ -138,23 +138,22 @@ public class ApiTool implements ITool {
             Map<String, Map> requestBody = (Map<String, Map>) toolBundle.getOperation().get("requestBody");
             if(requestBody.containsKey("content")) {
                 Map<String, Map> content = requestBody.get("content");
-                for (Map.Entry<String, Map> contentEntry : content.entrySet()) {
-                    headers.put("Content-Type", contentEntry.getKey());
-                    Map<String, Object> bodySchema = (Map<String, Object>) contentEntry.getValue().get("schema");
-                    Map<String, Object> properties = (Map<String, Object>) bodySchema.getOrDefault("properties", new HashMap<>());
-                    for (String name : properties.keySet()) {
-                        Map<String, Object> property = (Map<String, Object>) properties.get(name);
-                        if(inputParams.containsKey(name)) {
-                            Object o = convertBodyPropertyType(property, inputParams.get(name));
-                            body.put(name, o);
-                        } else if(bodySchema.containsKey("required") && ((List<String>) bodySchema.get("required")).contains(name)) {
-                            throw new IllegalArgumentException(
-                                    "Missing required parameter " + name + " in operation " + toolBundle.getOperationId());
-                        } else {
-                            body.put(name, property.getOrDefault("default", null));
-                        }
+                Map.Entry<String, Map> contentEntry = content.entrySet().iterator().next();
+
+                headers.put("Content-Type", contentEntry.getKey());
+                Map<String, Object> bodySchema = (Map<String, Object>) contentEntry.getValue().get("schema");
+                Map<String, Object> properties = (Map<String, Object>) bodySchema.getOrDefault("properties", new HashMap<>());
+                for (String name : properties.keySet()) {
+                    Map<String, Object> property = (Map<String, Object>) properties.get(name);
+                    if(inputParams.containsKey(name)) {
+                        Object o = convertBodyPropertyType(property, inputParams.get(name));
+                        body.put(name, o);
+                    } else if(bodySchema.containsKey("required") && ((List<String>) bodySchema.get("required")).contains(name)) {
+                        throw new IllegalArgumentException(
+                                "Missing required parameter " + name + " in operation " + toolBundle.getOperationId());
+                    } else {
+                        body.put(name, property.getOrDefault("default", null));
                     }
-                    break;
                 }
             }
         }

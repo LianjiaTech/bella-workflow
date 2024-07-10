@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { useTranslation } from 'react-i18next'
 import Image from 'next/image'
-import { useSearchParams } from 'next/navigation'
 import { useContext, useContextSelector } from 'use-context-selector'
 import edit from './assets/edit.png'
 import back from './assets/back.png'
@@ -20,13 +19,10 @@ import AppsContext from '@/context/app-context'
 
 const Header = () => {
   const { t } = useTranslation()
-  const searchParams = useSearchParams()
-  const timstamp = new Date().getTime()
-  const _workflowName = `未命名工作流_${timstamp}}`
   const [workflowName, setWorkflowName] = useState('')
-  const [isEdit, setIsEdit] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const inputRef = useRef(null)
+  // const [isEdit, setIsEdit] = useState(false)
   const { notify } = useContext(ToastContext)
   const [isOpen, setIsOpen] = useState(false)
   // const appDetail = useAppStore(state => state.appDetail)
@@ -46,7 +42,7 @@ const Header = () => {
     fetchAppDetail({ url: '/apps', id: appID }).then((res) => {
       res?.name && setWorkflowName(res?.name)
     })
-  }, [])
+  }, [appID])
   useEffect(() => {
     setWorkflowName(appDetail?.name)
   }, [appDetail])
@@ -83,36 +79,66 @@ const Header = () => {
     }
   }, [appDetail, mutateApps, notify, setAppDetail, t])
   // 编辑工作流名称
-  const handleEdit = (flag: any) => {
-    setIsEdit(flag)
+  const handleEdit = () => {
+    // setIsEdit(flag)
     setShowEditModal(true)
   }
   // 退出工作流
   const exitWorkflow = () => {
     const bellaId = getQueryParams('bellaId')
+    const source = getQueryParams('source')
     const appId = getAppId()
-
+    const hostName = window.location.hostname
+    let bellaHost = 'http://example.com:5173'
     // 根据环境设置bellaHost
-    const bellaHost = window.location.hostname.includes('example.com')
-      ? 'http://example.com'
-      : 'http://example.com:5173'
+    if (hostName.includes('example.com'))
+      bellaHost = 'http://example.com'
+
+    if (hostName.includes('example.com'))
+      bellaHost = 'https://example.com'
 
     // 构建URL
-    let bellaUrl = `https://example.com/#/createagent?workflowId=${appId}&workflowName=${workflowName}`
+    let bellaUrl = `${bellaHost}/#/createagent?workflowId=${appId}&workflowName=${workflowName}`
     if (bellaId !== 'undefined')
       bellaUrl += `&applicationId=${bellaId}`
 
     // 重定向
-    window.parent.location.href = bellaUrl
+    if (source === 'workflowList')
+      window.parent.location.href = `${bellaHost}/#/${source}`
+
+    else
+      window.parent.location.href = bellaUrl
   }
-  // 返回bella
-  const goBackBella = () => {
+  const fetchWorkflowInfo = () => {
     const page = 1
     const limit = 1
-    fetchDraftInfo(getAppId(), page, limit).then((res) => {
-      const { data } = res
+    return fetchDraftInfo(getAppId(), page, limit)
+  }
+  // 是否展示提示弹窗
+  const isShowTip = async () => {
+    try {
+      const result = await fetchWorkflowInfo()
+      const { data } = result
+      if (data.length > 1 && data[0]?.version === 0)
+        notify({ type: 'error', message: t('custom.tips.unfinished') })
+    }
+    catch (e) {
+      console.log('接口报错')
+    }
+  }
+  useEffect(() => {
+    isShowTip()
+  }, [])
+  // 返回bella
+  const goBackBella = async () => {
+    try {
+      const result = await fetchWorkflowInfo()
+      const { data } = result
       data[0]?.version === 0 ? setIsOpen(true) : exitWorkflow()
-    })
+    }
+    catch (e) {
+      console.log('接口报错')
+    }
   }
 
   // 继续编辑工作流
@@ -164,7 +190,7 @@ const Header = () => {
         <span className="px-4">{workflowName}</span>
         <Image
           className="cursor-pointer"
-          onClick={() => handleEdit(true)}
+          onClick={handleEdit}
           src={edit}
           width={18}
         />

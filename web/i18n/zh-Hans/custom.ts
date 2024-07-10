@@ -25,6 +25,9 @@ const translation = {
     prefix: '如需在 Dify 内自定义品牌图标，请',
     suffix: '升级至企业版。',
   },
+  tips: {
+    unfinished: '您已经重新编辑了工作流。在其重新发布之前，智能体引用的工作流仍然是之前发布的版本',
+  },
 }
 
 export default translation

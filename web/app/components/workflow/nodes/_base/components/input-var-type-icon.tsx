@@ -14,6 +14,7 @@ const getIcon = (type: InputVarType) => {
   return ({
     [InputVarType.textInput]: LetterSpacing01,
     [InputVarType.paragraph]: AlignLeft,
+    [InputVarType.json]: AlignLeft,
     [InputVarType.select]: CheckDone01,
     [InputVarType.number]: Hash02,
   } as any)[type] || LetterSpacing01

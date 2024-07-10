@@ -1,0 +1,56 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Health Check API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://example.com"
+    }
+  ],
+  "paths": {
+    "/bclever/bella/{model_service_name}/healthCheck": {
+      "get": {
+        "operationId": "modelServiceHealthCheck",
+        "summary": "Health Check for Model Service",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "model_service_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "cookie",
+            "name": "lianjia_cookie",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "lianjia_ssid=1787e6f7-06e9-4b59-9519-edc11524e633; lianjia_uuid=12eccb7b-0906-4113-a6d1-7a458c48801e"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Health check successful"
+          },
+          "default": {
+            "description": "Error occurred"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

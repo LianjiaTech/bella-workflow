@@ -60,6 +60,7 @@ public abstract class BaseNode implements RunnableNode {
         register(NodeType.KNOWLEDGE_RETRIEVAL.name, KnowledgeRetrievalNode.class);
         register(NodeType.LLM.name, LlmNode.class);
         register(NodeType.ITERATION.name, Iteration.class);
+        register(NodeType.TOOL.name, ToolNode.class);
     }
 
     protected WorkflowSchema.Node meta;

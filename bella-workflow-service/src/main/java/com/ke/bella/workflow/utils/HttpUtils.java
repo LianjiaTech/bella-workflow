@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.workflow.JsonUtils;
 
 import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -54,25 +55,47 @@ public class HttpUtils {
         return executePost(headers, url, requestBody, typeReference);
     }
 
+    public static <T> T get(String url, Map<String, String> queryParams, TypeReference<T> typeReference) {
+        return get(null, url, queryParams, typeReference);
+    }
+
+    public static <T> T get(Map<String, String> headers, String url, Map<String, String> queryParams, TypeReference<T> typeReference) {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(url)).newBuilder();
+        if(queryParams != null) {
+            for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+                urlBuilder.addQueryParameter(entry.getKey(), entry.getValue());
+            }
+        }
+        String finalUrl = urlBuilder.build().toString();
+        return executeRequest(headers, finalUrl, null, typeReference, "GET");
+    }
+
     private static <T> T executePost(Map<String, String> headers, String url, RequestBody requestBody, TypeReference<T> typeReference) {
-        Request.Builder requestBuilder = new Request.Builder()
-                .url(url);
+        return executeRequest(headers, url, requestBody, typeReference, "POST");
+    }
+
+    private static <T> T executeRequest(Map<String, String> headers, String url, RequestBody requestBody, TypeReference<T> typeReference,
+            String method) {
+        Request.Builder requestBuilder = new Request.Builder().url(url);
         Response resp = null;
         ResponseBody respBody = null;
         try {
             if(headers != null) {
                 for (Map.Entry<String, String> entry : headers.entrySet()) {
-                    String k = entry.getKey();
-                    String v = entry.getValue();
-                    requestBuilder.addHeader(k, v);
+                    requestBuilder.addHeader(entry.getKey(), entry.getValue());
                 }
             }
-            requestBuilder.post(requestBody);
+            if("POST".equalsIgnoreCase(method) && requestBody != null) {
+                requestBuilder.post(requestBody);
+            } else {
+                requestBuilder.get();
+            }
             resp = client.newCall(requestBuilder.build()).execute();
             respBody = resp.body();
             if(!resp.isSuccessful()) {
-                throw new IllegalStateException("failed to post to " + url + ": url: " + url + ", code: " + resp.code() + ", body: "
-                        + (Objects.isNull(respBody) ? "" : respBody.string()));
+                throw new IllegalStateException(
+                        "failed to " + method.toLowerCase() + " to " + url + ": url: " + url + ", code: " + resp.code() + ", body: "
+                                + (Objects.isNull(respBody) ? "" : respBody.string()));
             }
             if(Objects.isNull(respBody)) {
                 return null;

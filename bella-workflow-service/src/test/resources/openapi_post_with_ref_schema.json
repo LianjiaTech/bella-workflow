@@ -1,0 +1,200 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "OpenAI API",
+    "version": "1.0.0",
+    "description": "API for interacting with OpenAI's language models."
+  },
+  "servers": [
+    {
+      "url": "https://example.com/v1"
+    }
+  ],
+  "paths": {
+    "/chat/completions": {
+      "post": {
+        "summary": "Create a chat completion",
+        "operationId": "createChatCompletion",
+        "requestBody": {
+          "description": "Request payload for creating a chat completion",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string",
+                    "description": "The model to use for the completion."
+                  },
+                  "messages": {
+                    "type": "array",
+                    "description": "The messages to generate chat completions for.",
+                    "items": {
+                      "$ref": "#/components/schemas/Message"
+                    }
+                  },
+                  "temperature": {
+                    "type": "number",
+                    "description": "Sampling temperature to use, between 0 and 2.",
+                    "default": 1
+                  },
+                  "max_tokens": {
+                    "type": "integer",
+                    "description": "The maximum number of tokens to generate.",
+                    "default": 2048
+                  },
+                  "top_p": {
+                    "type": "number",
+                    "description": "Nucleus sampling probability.",
+                    "default": 1
+                  },
+                  "frequency_penalty": {
+                    "type": "number",
+                    "description": "Penalty for frequency of tokens.",
+                    "default": 0
+                  },
+                  "presence_penalty": {
+                    "type": "number",
+                    "description": "Penalty for presence of tokens.",
+                    "default": 0
+                  }
+                },
+                "required": [
+                  "model",
+                  "messages"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "The ID of the completion."
+                    },
+                    "object": {
+                      "type": "string",
+                      "description": "The object type, e.g., 'chat.completion'."
+                    },
+                    "created": {
+                      "type": "integer",
+                      "description": "Timestamp of creation."
+                    },
+                    "model": {
+                      "type": "string",
+                      "description": "The model used for the completion."
+                    },
+                    "choices": {
+                      "type": "array",
+                      "description": "The list of completion choices.",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "message": {
+                            "$ref": "#/components/schemas/Message"
+                          },
+                          "finish_reason": {
+                            "type": "string",
+                            "description": "The reason the completion finished."
+                          },
+                          "index": {
+                            "type": "integer",
+                            "description": "The index of the choice."
+                          }
+                        }
+                      }
+                    },
+                    "usage": {
+                      "type": "object",
+                      "properties": {
+                        "prompt_tokens": {
+                          "type": "integer",
+                          "description": "The number of tokens in the prompt."
+                        },
+                        "completion_tokens": {
+                          "type": "integer",
+                          "description": "The number of tokens in the completion."
+                        },
+                        "total_tokens": {
+                          "type": "integer",
+                          "description": "The total number of tokens used."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Error response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Error message."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Error type."
+                        },
+                        "param": {
+                          "type": "string",
+                          "description": "Parameter that caused the error."
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "Error code."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Message": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "system",
+              "user",
+              "assistant"
+            ],
+            "description": "The role of the message sender."
+          },
+          "content": {
+            "type": "string",
+            "description": "The content of the message."
+          }
+        },
+        "required": [
+          "role",
+          "content"
+        ]
+      }
+    }
+  }
+}

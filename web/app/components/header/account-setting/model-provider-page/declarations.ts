@@ -12,6 +12,8 @@ export enum FormTypeEnum {
   secretInput = 'secret-input',
   select = 'select',
   radio = 'radio',
+  array = 'array',
+  json = 'object',
 }
 
 export type FormOption = {

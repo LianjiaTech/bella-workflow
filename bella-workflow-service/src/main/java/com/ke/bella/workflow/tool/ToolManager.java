@@ -3,10 +3,11 @@ package com.ke.bella.workflow.tool;
 import java.util.List;
 
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.tool.ApiTool.Credentials;
 import com.ke.bella.workflow.tool.BellaToolService.BellaTool;
-import com.ke.bella.workflow.tool.BellaToolService.BellaToolCredentials;
+import com.ke.bella.workflow.tool.BellaToolService.BellaToolCredentialsType;
 import com.ke.bella.workflow.utils.OpenapiUtil;
 
 public class ToolManager {
@@ -26,22 +27,27 @@ public class ToolManager {
 
     private static Credentials getCredentials(BellaTool tool) {
         Integer authType = tool.getAuthType();
-        BellaToolCredentials credential = BellaToolCredentials.from(authType);
-        if(credential.equals(BellaToolCredentials.None)) {
+        BellaToolCredentialsType credential = BellaToolCredentialsType.from(authType);
+        if(credential.equals(BellaToolCredentialsType.None)) {
             return null;
         }
         BellaTool.AuthData authData = tool.getAuthData();
         List<BellaTool.AuthData.Param> params = authData.getParams();
         String key = null;
-        String value = null;
+        String apiKey = null;
+        String secret = null;
+
         for (BellaTool.AuthData.Param param : params) {
-            if(param.getKey().equals(credential.getKeyName())) {
+            if(param.getKey().equals(credential.getKey())) {
                 key = param.getValue();
-            } else if(param.getKey().equals(credential.getValueName())) {
-                value = param.getValue();
+            } else if(param.getKey().equals(credential.getApiKey())) {
+                apiKey = param.getValue();
+            } else if(param.getKey().equals(credential.getSecret())) {
+                secret = param.getValue();
             }
         }
-        value = credential.getPrefix() + value;
-        return new Credentials(key, value);
+        // fixme:bella对于iam没有注册此字段到工具集市，此处干脆直接对空的全部兜底
+        key = StringUtils.isEmpty(key) ? "Authorization" : key;
+        return new Credentials(credential.getAuthType(), credential.getPrefix(), key, apiKey, secret);
     }
 }

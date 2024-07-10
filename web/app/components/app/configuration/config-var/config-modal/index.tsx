@@ -109,7 +109,7 @@ const ConfigModal: FC<IConfigModalProps> = ({
     //   return
     // }
     if (tempPayload.type === 'json')
-      tempPayload.label = 'object'
+      tempPayload.label = tempPayload.variable
 
     if (!tempPayload.label) {
       Toast.notify({ type: 'error', message: t('appDebug.variableConig.errorMsg.labelNameRequired') })

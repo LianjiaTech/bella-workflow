@@ -134,7 +134,7 @@ export const VAR_ITEM_TEMPLATE_IN_WORKFLOW = {
   required: true,
   options: [],
   varType: 'object',
-  Children: [],
+  children: [],
 }
 
 export const appDefaultIconBackground = '#D5F5F6'

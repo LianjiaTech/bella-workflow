@@ -8,13 +8,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.util.CollectionUtils;
 
-import com.google.common.collect.ImmutableMap;
 import com.ke.bella.workflow.JsonUtils;
+import com.ke.bella.workflow.utils.KeIAM;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -89,6 +89,11 @@ public class ApiTool implements ITool {
     @Override
     public String execute(Map<String, Object> params) {
         // parameters validating
+        validate(params);
+        return doHttpRequest(toolBundle.getServerUrl(), toolBundle.getMethod().toUpperCase(), params);
+    }
+
+    private void validate(Map<String, Object> params) {
         for (ToolBundle.ToolParameter parameter : toolBundle.getParams()) {
             if(parameter.getRequired() && !params.containsKey(parameter.getName())) {
                 if(Objects.isNull(parameter.get_default())) {
@@ -96,13 +101,11 @@ public class ApiTool implements ITool {
                 }
             }
         }
-        Map<String, String> header = Optional.ofNullable(credentials).map(c -> ImmutableMap.of(c.getKey(), c.getValue())).orElse(ImmutableMap.of());
-        return doHttpRequest(toolBundle.getServerUrl(), toolBundle.getMethod().toUpperCase(), header, params);
     }
 
     @SuppressWarnings("unchecked")
-    private String doHttpRequest(String serverUrl, String method, Map<String, String> header, Map<String, Object> inputParams) {
-        Map<String, String> headers = new HashMap<>(header);
+    private String doHttpRequest(String serverUrl, String method, Map<String, Object> inputParams) {
+        Map<String, String> headers = new HashMap<>();
         Map<String, String> params = new HashMap<>();
         Map<String, String> pathParams = new HashMap<>();
         Map<String, Object> body = new HashMap<>();
@@ -166,15 +169,28 @@ public class ApiTool implements ITool {
         RequestBody requestBody = getRequestBody(method, headers, body);
         Response response = null;
         try {
-            Headers.Builder headerBuilder = new Headers.Builder();
+            // build url
             HttpUrl.Builder urlBuilder = HttpUrl.parse(serverUrl).newBuilder();
             for (Map.Entry<String, String> paramEntry : params.entrySet()) {
                 urlBuilder.addQueryParameter(paramEntry.getKey(), paramEntry.getValue());
             }
+            HttpUrl url = urlBuilder.build();
+
+            // build headers
+            Headers.Builder headerBuilder = new Headers.Builder();
+            if(Objects.nonNull(credentials)) {
+                if("ke-IAM".equals(credentials.getAuthType())) {
+                    String signed = KeIAM.generateAuthorization(credentials.getApiKey(), credentials.getSecret(),
+                            RandomStringUtils.randomNumeric(9), method, url.encodedPath(), url.host(), url.query());
+                    headers.put(credentials.getKey(), credentials.getPrefix() + signed);
+                } else {
+                    headers.put(credentials.getKey(), credentials.getPrefix() + credentials.getApiKey());
+                }
+            }
             headers.forEach(headerBuilder::add);
             cookies.forEach(headerBuilder::add);
             Request request = new Request.Builder()
-                    .url(urlBuilder.build())
+                    .url(url)
                     .headers(headerBuilder.build())
                     .method(method, requestBody)
                     .build();
@@ -311,8 +327,11 @@ public class ApiTool implements ITool {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Credentials {
+        private String authType;
+        private String prefix;
         private String key;
-        private String value;
+        private String apiKey;
+        private String secret;
     }
 
     @Data

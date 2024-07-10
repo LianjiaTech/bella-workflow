@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.ke.bella.workflow.tool.ApiTool;
+import com.ke.bella.workflow.tool.BellaToolService;
 import com.ke.bella.workflow.utils.OpenapiUtil;
 import com.theokanning.openai.completion.chat.UserMessage;
 
@@ -21,7 +22,8 @@ public class ApiToolTest {
         Map openapi = JsonUtils.fromJson(new String(Files.readAllBytes(Paths.get("src/test/resources/openapi_post_with_ref_schema.json"))),
                 Map.class);
         ApiTool.ToolBundle toolBundle = OpenapiUtil.extractToolBundleFromOpenapi(openapi, "createChatCompletion");
-        ApiTool apiTool = new ApiTool(toolBundle, new ApiTool.Credentials("Authorization", "Bearer 2Z7cobwsMMShaTKhA108F5wGWoSxmtUt"));
+        ApiTool apiTool = new ApiTool(toolBundle, new ApiTool.Credentials(BellaToolService.BellaToolCredentialsType.Bearer.getAuthType(),
+                "Bearer", "Authorization", "2Z7cobwsMMShaTKhA108F5wGWoSxmtUt", null));
         ImmutableMap<String, Object> inputs = ImmutableMap.of("model", "gpt-4", "messages", Lists.newArrayList(new UserMessage("你好")));
         String execute = apiTool.execute(inputs);
         Assertions.assertNotNull(execute);
@@ -32,7 +34,8 @@ public class ApiToolTest {
         Map openapi = JsonUtils.fromJson(new String(Files.readAllBytes(Paths.get("src/test/resources/openapi_post_with_ref_schema.json"))),
                 Map.class);
         ApiTool.ToolBundle toolBundle = OpenapiUtil.extractToolBundleFromOpenapi(openapi, "createChatCompletion");
-        ApiTool apiTool = new ApiTool(toolBundle, new ApiTool.Credentials("Authorization", "Bearer 2Z7cobwsMMShaTKhA108F5wGWoSxmtUt"));
+        ApiTool apiTool = new ApiTool(toolBundle, new ApiTool.Credentials(BellaToolService.BellaToolCredentialsType.Bearer.getAuthType(),
+                "Bearer", "Authorization", "2Z7cobwsMMShaTKhA108F5wGWoSxmtUt", null));
         ImmutableMap<String, Object> inputs = ImmutableMap.of("messages", Lists.newArrayList(new UserMessage("你好")));
         Assertions.assertThrows(IllegalArgumentException.class, () -> apiTool.execute(inputs));
     }
@@ -57,6 +60,17 @@ public class ApiToolTest {
         ImmutableMap<String, Object> inputs = ImmutableMap.of("model_service_name", "not_found_model_service", "lianjia_cookie",
                 "lianjia_ssid=1787e6f7-06e9-4b59-9519-edc11524e633; lianjia_uuid=12eccb7b-0906-4113-a6d1-7a458c48801e");
         Assertions.assertThrows(IllegalStateException.class, () -> apiTool.execute(inputs));
+    }
+
+    @Test
+    public void whenPostWithIAM() throws IOException {
+        Map openapi = JsonUtils.fromJson(new String(Files.readAllBytes(Paths.get("src/test/resources/openapi_post_with_iam_credentials.json"))),
+                Map.class);
+        ApiTool.ToolBundle toolBundle = OpenapiUtil.extractToolBundleFromOpenapi(openapi, "approval");
+        ApiTool apiTool = new ApiTool(toolBundle, new ApiTool.Credentials(BellaToolService.BellaToolCredentialsType.KeIam.getAuthType(), "",
+                "Authorization", "L7ER3D1BQBEQ2ZQW3066", "FZd/HTJlpsDgaLeuwJ0Kehv5doUzCYs4Vl+r5KxE"));
+        ImmutableMap<String, Object> inputs = ImmutableMap.of();
+        Assertions.assertDoesNotThrow(() -> apiTool.execute(inputs));
     }
 
 }

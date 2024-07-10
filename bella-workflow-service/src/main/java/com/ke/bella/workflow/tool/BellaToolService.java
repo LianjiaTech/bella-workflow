@@ -66,20 +66,22 @@ public class BellaToolService {
     @AllArgsConstructor
     @Getter
     @SuppressWarnings("all")
-    public enum BellaToolCredentials {
-        None(0, "", "", ""),
-        ApiKey(1, "", "key", "ak"),
-        Base(2, "Basic ", "key", "ak"),
-        Bearer(3, "Bearer ", "key", "ak"),
-        Iam(4, "", "ak", "sk");
+    public enum BellaToolCredentialsType {
+        None(0, "", "none", "", "", ""),
+        Custom(1, "", "custom", "key", "ak", ""),
+        Basic(2, "Basic ", "basic", "key", "ak", ""),
+        Bearer(3, "Bearer ", "bearer", "key", "ak", ""),
+        KeIam(4, "", "ke-IAM", "", "ak", "sk");
 
-        private Integer authType;
+        private Integer code;
         private String prefix;
-        private String keyName;
-        private String valueName;
+        private String authType;
+        private String key;
+        private String apiKey;
+        private String secret;
 
-        public static BellaToolCredentials from(Integer authType) {
-            return Arrays.stream(BellaToolCredentials.values()).filter(i -> i.getAuthType().equals(authType))
+        public static BellaToolCredentialsType from(Integer authType) {
+            return Arrays.stream(BellaToolCredentialsType.values()).filter(i -> i.getCode().equals(authType))
                     .findFirst().orElseThrow(() -> new IllegalArgumentException("Credential not found. authType: " + authType));
         }
     }

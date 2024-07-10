@@ -30,7 +30,8 @@ import { VAR_REGEX } from '@/config'
 const inputVarTypeToVarType = (type: InputVarType): VarType => {
   if (type === InputVarType.number)
     return VarType.number
-
+  if (type === InputVarType.json)
+    return VarType.object
   return VarType.string
 }
 
@@ -64,7 +65,7 @@ const formatItem = (item: any, isChatMode: boolean, filterVar: (payload: Var, se
       const {
         variables,
       } = data as StartNodeType
-      res.vars = variables.map((v) => {
+      const handler = (v: any) => {
         return {
           variable: v.variable,
           type: inputVarTypeToVarType(v.type),
@@ -72,8 +73,10 @@ const formatItem = (item: any, isChatMode: boolean, filterVar: (payload: Var, se
           isSelect: v.type === InputVarType.select,
           options: v.options,
           required: v.required,
+          children: v.children && v.children?.length > 0 ? v.children.map(handler) : undefined,
         }
-      })
+      }
+      res.vars = variables.map(handler)
       if (isChatMode) {
         res.vars.push({
           variable: 'sys.query',

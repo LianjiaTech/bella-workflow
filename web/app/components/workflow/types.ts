@@ -117,6 +117,7 @@ export type InputVar = {
   hint?: string
   options?: string[]
   alias?: string
+  children?: InputVar[]
 }
 
 export type ModelConfig = {

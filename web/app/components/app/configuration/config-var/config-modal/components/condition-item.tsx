@@ -11,7 +11,7 @@ type VariableConfig = {
   varType: string
   required: boolean
   description: string
-  Children?: VariableConfig[]
+  children?: VariableConfig[]
 }
 
 type VariableItemProps = {
@@ -52,7 +52,7 @@ const Item: React.FC<VariableItemProps> = ({ payload, onChange, onDelete, child 
   const addNewItem = useCallback(() => {
     const updatedPayload = {
       ...tempPayload,
-      Children: [...(tempPayload.Children || []), { ...defaultNewItem }],
+      children: [...(tempPayload.children || []), { ...defaultNewItem }],
     }
     setTempPayload(updatedPayload)
     onChange(updatedPayload)
@@ -61,10 +61,10 @@ const Item: React.FC<VariableItemProps> = ({ payload, onChange, onDelete, child 
   const handleChildChange = useCallback(
     (index: number, newChildPayload: VariableConfig) => {
       setTempPayload((prev) => {
-        const updatedChildren = prev.Children!.map((child, i) =>
+        const updatedChildren = prev.children!.map((child, i) =>
           i === index ? newChildPayload : child,
         )
-        const updatedPayload = { ...prev, Children: updatedChildren }
+        const updatedPayload = { ...prev, children: updatedChildren }
         onChange(updatedPayload)
         return updatedPayload
       })
@@ -76,10 +76,10 @@ const Item: React.FC<VariableItemProps> = ({ payload, onChange, onDelete, child 
     (index: number) => {
       setTempPayload((prev) => {
         const updatedChildren = [
-          ...prev.Children!.slice(0, index),
-          ...prev.Children!.slice(index + 1),
+          ...prev.children!.slice(0, index),
+          ...prev.children!.slice(index + 1),
         ]
-        const updatedPayload = { ...prev, Children: updatedChildren }
+        const updatedPayload = { ...prev, children: updatedChildren }
         setTempPayload(updatedPayload)
         onChange(updatedPayload)
       })
@@ -199,9 +199,9 @@ const Item: React.FC<VariableItemProps> = ({ payload, onChange, onDelete, child 
               </div>
             )}
           </div>
-          {tempPayload?.Children && tempPayload?.Children.length > 0 && (
+          {tempPayload?.children && tempPayload?.children.length > 0 && (
             <div className='ml-4'>
-              {tempPayload.Children.map((item, index) => (
+              {tempPayload.children.map((item, index) => (
                 <div key={`bella${index}`} className='flex items-center'>
                   <Item
                     payload={item}

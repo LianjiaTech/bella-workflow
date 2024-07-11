@@ -15,7 +15,7 @@ import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/befo
 import OutputVars, { VarItem } from '@/app/components/workflow/nodes/_base/components/output-vars'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
 import ResponseBody from '@/app/components/workflow/nodes/_base/components/output-response-body'
-import RemoveEffectVarConfirm from "@/app/components/workflow/nodes/_base/components/remove-effect-var-confirm";
+import RemoveEffectVarConfirm from '@/app/components/workflow/nodes/_base/components/remove-effect-var-confirm'
 
 const i18nPrefix = 'workflow.nodes.tool'
 
@@ -54,7 +54,7 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
     isShowRemoveVarConfirm,
     handleRemoveVarConfirm,
     removeVarInNode,
-    key
+    key,
   } = useConfig(id, data)
 
   if (isLoading) {

@@ -16,8 +16,8 @@ import { Settings01 } from '@/app/components/base/icons/src/vender/line/general'
 import type { NodePanelProps } from '@/app/components/workflow/types'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
-import ResponseBody from "@/app/components/workflow/nodes/_base/components/output-response-body";
-import RemoveEffectVarConfirm from "@/app/components/workflow/nodes/_base/components/remove-effect-var-confirm";
+import ResponseBody from '@/app/components/workflow/nodes/_base/components/output-response-body'
+import RemoveEffectVarConfirm from '@/app/components/workflow/nodes/_base/components/remove-effect-var-confirm'
 
 const i18nPrefix = 'workflow.nodes.http'
 
@@ -59,7 +59,7 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
     isShowRemoveVarConfirm,
     handleRemoveVarConfirm,
     removeVarInNode,
-    key
+    key,
   } = useConfig(id, data)
 
   return (
@@ -143,7 +143,7 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
       <div className='px-4 pt-4 pb-2'>
         <OutputVars>
           <>
-           <Field
+            <Field
               title="Response"
             >
               <ResponseBody
@@ -155,13 +155,13 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
                 placeholder={t(`${i18nPrefix}.response.placeholder`)}
               />
             </Field>
-            {outputVar &&
-              <VarItem
-                  name={outputVar.name}
-                  type={outputVar.type}
-                  description={t(`${i18nPrefix}.outputVars.body`)}
-                  subItems= {outputVar.subItems}
-                />}
+            {outputVar
+              && <VarItem
+                name={outputVar.name}
+                type={outputVar.type}
+                description={t(`${i18nPrefix}.outputVars.body`)}
+                subItems= {outputVar.subItems}
+              />}
             <VarItem
               name='headers'
               type='object'

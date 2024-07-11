@@ -3,13 +3,13 @@ import type { FC } from 'react'
 import React, { useCallback, useEffect } from 'react'
 import produce from 'immer'
 import cn from 'classnames'
+import { useTranslation } from 'react-i18next'
 import InputWithVar from '@/app/components/workflow/nodes/_base/components/prompt/editor'
 import type { Var } from '@/app/components/workflow/types'
-import {ResponseType, VarType} from '@/app/components/workflow/types'
-import useAvailableVarList from "@/app/components/workflow/nodes/_base/hooks/use-available-var-list";
-import useKeyValueList from "@/app/components/workflow/nodes/http/hooks/use-key-value-list";
-import {ResponseBody} from "@/app/components/workflow/nodes/http/types";
-import {useTranslation} from "react-i18next";
+import { ResponseType, VarType } from '@/app/components/workflow/types'
+import useAvailableVarList from '@/app/components/workflow/nodes/_base/hooks/use-available-var-list'
+import useKeyValueList from '@/app/components/workflow/nodes/http/hooks/use-key-value-list'
+import type { ResponseBody } from '@/app/components/workflow/nodes/http/types'
 
 type Props = {
   readonly: boolean
@@ -28,14 +28,13 @@ const bodyTextMap = {
   [ResponseType.json]: 'JSON',
 }
 
-const ResponseBody: FC<Props> = ({
+const OutputResponseBody: FC<Props> = ({
   readonly,
   nodeId,
   payload,
   placeholder,
   onChange,
 }) => {
-
   const { t } = useTranslation()
 
   const { type } = payload
@@ -52,9 +51,6 @@ const ResponseBody: FC<Props> = ({
       type: newType,
       data: '',
     })
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onChange])
 
   const isCurrentKeyValue = false
@@ -129,4 +125,4 @@ const ResponseBody: FC<Props> = ({
     </div>
   )
 }
-export default React.memo(ResponseBody)
+export default React.memo(OutputResponseBody)

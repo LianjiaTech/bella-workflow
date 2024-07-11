@@ -19,7 +19,7 @@ import {
   useNodesReadOnly, useWorkflow,
 } from '@/app/components/workflow/hooks'
 import { convertJsonToVariables } from '@/app/components/workflow/utils'
-import type {HttpNodeType, ResponseBody} from '@/app/components/workflow/nodes/http/types'
+import type { ResponseBody } from '@/app/components/workflow/nodes/http/types'
 
 const useConfig = (id: string, payload: ToolNodeType) => {
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
@@ -51,7 +51,7 @@ const useConfig = (id: string, payload: ToolNodeType) => {
     setTrue: showRemoveVarConfirm,
     setFalse: hideRemoveVarConfirm,
   }] = useBoolean(false)
-  const {handleOutVarRenameChange, isVarUsedInNodes, removeUsedVarInNodes} = useWorkflow()
+  const { handleOutVarRenameChange, isVarUsedInNodes, removeUsedVarInNodes } = useWorkflow()
   const [removedVar, setRemovedVar] = useState<ValueSelector[]>([])
   const [key, setKey] = useState<number>(1)
   const [newResult, setNewResult] = useState<ResponseBody>()
@@ -175,45 +175,44 @@ const useConfig = (id: string, payload: ToolNodeType) => {
   }
 
   const convert = function (body: ResponseBody) {
-    return {type: body.type === ResponseType.json ? VarVarType.object : VarVarType.string,
+    return {
+      type: body.type === ResponseType.json ? VarVarType.object : VarVarType.string,
       variable: 'result',
-      ...(body.type === ResponseType.json && { children: convertJsonToVariables(body.data) })}
+      ...(body.type === ResponseType.json && { children: convertJsonToVariables(body.data) }),
+    }
   }
-  const varSelectorConvert = function (path:string[], vars:Var[]): string[[]]{
-    let varResult = []
-    vars.map((v)=>{
-      let paths = [...path, v.variable]
+  const varSelectorConvert = function (path: string[], vars: Var[]): string[[]] {
+    const varResult = []
+    vars.forEach((v) => {
+      const paths = [...path, v.variable]
       varResult.push(paths)
-      if (v.children && v.children.length > 0) {
+      if (v.children && v.children.length > 0)
         varResult.push(...varSelectorConvert(paths, v.children))
-      }
     })
     return varResult
   }
 
   const handleResponseBody = useCallback((body: ResponseBody) => {
-    if(body.type ===inputs.result.type && body.type === ResponseType.json &&!convertJsonToVariables(body.data)){
+    if (body.type === inputs.result.type && body.type === ResponseType.json && !convertJsonToVariables(body.data))
       return
-    }
+
     setNewResult(body)
     const newOutput = convert(body)
-    const newVars = varSelectorConvert([id],[newOutput])
+    const newVars = varSelectorConvert([id], [newOutput])
     const oldVars = varSelectorConvert([id], [inputs.output])
-    const newVarSelectors = newVars.map(v=>v.join('.'))
+    const newVarSelectors = newVars.map(v => v.join('.'))
     const deleteVarSelectorList = []
-    oldVars.forEach((v)=>{
-      if (!newVarSelectors.includes(v.join('.'))) {
+    oldVars.forEach((v) => {
+      if (!newVarSelectors.includes(v.join('.')))
         deleteVarSelectorList.push(v)
-      }
     })
 
-    let removeVarSelectorList = []
-    deleteVarSelectorList.forEach((v)=>{
-      if (isVarUsedInNodes(v)){
+    const removeVarSelectorList = []
+    deleteVarSelectorList.forEach((v) => {
+      if (isVarUsedInNodes(v))
         removeVarSelectorList.push(v)
-      }
     })
-    if (removeVarSelectorList.length>0){
+    if (removeVarSelectorList.length > 0) {
       setRemovedVar(removeVarSelectorList)
       showRemoveVarConfirm()
       return
@@ -236,11 +235,10 @@ const useConfig = (id: string, payload: ToolNodeType) => {
     setInputs(newInputs)
   }, [hideRemoveVarConfirm, removeUsedVarInNodes, removedVar])
 
-  const handleRemoveVarConfirm = useCallback(()=>{
+  const handleRemoveVarConfirm = useCallback(() => {
     hideRemoveVarConfirm()
-    setKey(key+1)
-  },[hideRemoveVarConfirm, inputs, setInputs, key,setKey])
-
+    setKey(key + 1)
+  }, [hideRemoveVarConfirm, inputs, setInputs, key, setKey])
 
   const convertVarToVarItemProps = (item: Var): any => {
     if (!item)
@@ -309,7 +307,7 @@ const useConfig = (id: string, payload: ToolNodeType) => {
 
   const handleRun = (submitData: Record<string, any>) => {
     const varTypeInputKeys = Object.keys(inputs.tool_parameters)
-      .filter(key => inputs.tool_parameters[key].type === VarType.variable)
+      .filter(key => inputs.tool_parameters[key].type === VarType.constant)
     const shouldAdd = varTypeInputKeys.length > 0
     if (!shouldAdd) {
       doHandleRun(submitData)
@@ -360,7 +358,7 @@ const useConfig = (id: string, payload: ToolNodeType) => {
     isShowRemoveVarConfirm,
     handleRemoveVarConfirm,
     removeVarInNode,
-    key
+    key,
   }
 }
 

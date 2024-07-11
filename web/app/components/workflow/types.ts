@@ -111,6 +111,7 @@ export type InputVar = {
     variable: string
   }
   variable: string
+  varType?: string
   max_length?: number
   default?: string
   required: boolean

@@ -25,6 +25,13 @@ type VariableItemProps = {
 const MethodOptions: MethodOption[] = [
   { label: 'string', value: 'string' },
   { label: 'object', value: 'object' },
+  { label: 'boolean', value: 'boolean' },
+  { label: 'number', value: 'number' },
+  { label: 'array[string]', value: 'array[string]' },
+  { label: 'array[object]', value: 'array[object]' },
+  { label: 'object[boolean]', value: 'array[boolean]' },
+  { label: 'array[number]', value: 'array[number]' },
+
 ]
 
 const defaultNewItem: VariableConfig = {
@@ -74,7 +81,7 @@ const Item: React.FC<VariableItemProps> = ({ payload, onChange, onDelete, child 
 
   const handleChildDelete = useCallback(
     (index: number) => {
-      setTempPayload((prev) => {
+      setTempPayload((prev): any => {
         const updatedChildren = [
           ...prev.children!.slice(0, index),
           ...prev.children!.slice(index + 1),

@@ -12,6 +12,8 @@ import org.springframework.util.Assert;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Edge;
 import com.ke.bella.workflow.node.BaseNode;
+import com.ke.bella.workflow.node.NodeType;
+import com.ke.bella.workflow.node.Start;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -39,6 +41,19 @@ public class WorkflowContext {
         Assert.isTrue(state != null, "工作流运行状态不能为null");
         Assert.isTrue(userInputs != null, "userInput不能为null");
         graph.validate();
+        validateInputs();
+    }
+
+    private void validateInputs() {
+        if(NodeType.START.name.equals(graph.getStartNode().getType())) {
+            Start start = (Start) BaseNode.from(graph.getStartNode());
+            List<WorkflowSchema.VariableEntity> variables = start.getData().getVariables();
+            for (WorkflowSchema.VariableEntity variable : variables) {
+                if(variable.isRequired() && !userInputs.containsKey(variable.getVariable())) {
+                    throw new IllegalArgumentException(String.format("%s is required", variable.getVariable()));
+                }
+            }
+        }
     }
 
     public boolean isSuspended() {

@@ -46,27 +46,6 @@ public class ToolNodeTest {
             }
 
             @Override
-            public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
-            }
-
-            @Override
-            public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
-                System.out.println("Node run started: " + nodeId);
-            }
-
-            @Override
-            public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
-                System.out.println("Node run progress: " + nodeId + " processData: " + JsonUtils.toJson(data));
-            }
-
-            @Override
-            public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
-                System.out.println("Node run failed: " + nodeId + " " + error);
-                errorRef.set(t);
-                latch.countDown();
-            }
-
-            @Override
             public void onWorkflowRunSuspended(WorkflowContext context) {
                 // TODO Auto-generated method stub
             }
@@ -113,27 +92,6 @@ public class ToolNodeTest {
 
             @Override
             public void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t) {
-                errorRef.set(t);
-                latch.countDown();
-            }
-
-            @Override
-            public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
-            }
-
-            @Override
-            public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
-                System.out.println("Node run started: " + nodeId);
-            }
-
-            @Override
-            public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
-                System.out.println("Node run progress: " + nodeId + " processData: " + JsonUtils.toJson(data));
-            }
-
-            @Override
-            public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
-                System.out.println("Node run failed: " + nodeId + " " + error);
                 errorRef.set(t);
                 latch.countDown();
             }

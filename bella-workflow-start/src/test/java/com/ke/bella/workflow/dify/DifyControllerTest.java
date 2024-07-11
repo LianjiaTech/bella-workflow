@@ -60,13 +60,12 @@ public class DifyControllerTest extends AbstractTest {
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
 
         Object response = dify.workflowRun(WORKFLOW_ID, WorkflowOps.WorkflowRun.builder()
-                        .responseMode(WorkflowOps.ResponseMode.blocking.name())
-                        .inputs(Maps.of("#1715941054541.q#", "我想要烧一个红烧肉").asMap())
+                .responseMode(WorkflowOps.ResponseMode.blocking.name())
+                .inputs(Maps.of("#1715941054541.q#", "我想要烧一个红烧肉", "q", "mock").asMap())
                 .build());
-        Map<String,Object> callback = (Map<String, Object>) response;
+        Map<String, Object> callback = (Map<String, Object>) response;
         Assertions.assertNotNull(callback);
-        Assertions.assertEquals(callback.get("status"),"succeeded" , JsonUtils.toJson(callback));
-
+        Assertions.assertEquals(callback.get("status"), "succeeded", JsonUtils.toJson(callback));
 
     }
 
@@ -114,7 +113,7 @@ public class DifyControllerTest extends AbstractTest {
 
     private String readResource(String path) {
         try {
-            //获取 测试资源文件
+            // 获取 测试资源文件
             File file = new File(Thread.currentThread()
                     .getContextClassLoader()
                     .getResource(path).getFile());

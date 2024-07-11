@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @SuppressWarnings("rawtypes")
+@Getter
 public class Start extends BaseNode {
 
     private Data data;

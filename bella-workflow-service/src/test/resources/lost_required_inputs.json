@@ -1,0 +1,108 @@
+{
+  "graph": {
+    "edges": [
+      {
+        "data": {
+          "sourceType": "start",
+          "targetType": "end",
+          "inIteration": false
+        },
+        "id": "1720617803305-1720617809946",
+        "source": "1720617803305",
+        "sourceHandle": "source",
+        "target": "1720617809946",
+        "targetHandle": "target",
+        "type": "custom",
+        "key": "1720617803305/source-1720617809946/target"
+      }
+    ],
+    "nodes": [
+      {
+        "data": {
+          "variables": [
+            {
+              "variable": "input_required_1",
+              "label": "input_required_1",
+              "type": "text-input",
+              "max_length": 48,
+              "required": true,
+              "options": []
+            },
+            {
+              "variable": "input_required_2",
+              "label": "input_required_2",
+              "type": "text-input",
+              "max_length": 48,
+              "required": true,
+              "options": []
+            }
+          ],
+          "name": "开始",
+          "type": "start",
+          "title": "开始节点",
+          "selected": true
+        },
+        "dragging": false,
+        "height": 116,
+        "id": "1720617803305",
+        "position": {
+          "x": 100,
+          "y": 100
+        },
+        "positionAbsolute": {
+          "x": 100,
+          "y": 100
+        },
+        "selected": true,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "start",
+        "width": 244,
+        "title": "开始节点",
+        "inIteration": false,
+        "iterationStart": false
+      },
+      {
+        "data": {
+          "type": "end",
+          "title": "结束",
+          "desc": "",
+          "outputs": [
+            {
+              "variable": "input_required_1",
+              "value_selector": [
+                "1720617803305",
+                "input_required_1"
+              ]
+            }
+          ],
+          "selected": false
+        },
+        "dragging": false,
+        "height": 90,
+        "id": "1720617809946",
+        "position": {
+          "x": 400,
+          "y": 100
+        },
+        "positionAbsolute": {
+          "x": 400,
+          "y": 100
+        },
+        "selected": false,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "end",
+        "width": 244,
+        "title": "结束",
+        "inIteration": false,
+        "iterationStart": false
+      }
+    ],
+    "viewport": {
+      "x": 34,
+      "y": 28,
+      "zoom": 1.0
+    }
+  }
+}

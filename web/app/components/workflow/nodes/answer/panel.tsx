@@ -36,6 +36,7 @@ const Panel: FC<NodePanelProps<AnswerNodeType>> = ({
         onChange={handleAnswerChange}
         nodesOutputVars={availableVars}
         availableNodes={availableNodes}
+        isShowVariable
       />
     </div>
   )

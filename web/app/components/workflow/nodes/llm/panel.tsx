@@ -235,6 +235,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
                 isShowContext={false}
                 isChatApp
                 isChatModel
+                isShowVariable
                 hasSetBlockStatus={hasSetBlockStatus}
                 nodesOutputVars={availableVars}
                 availableNodes={availableNodes}

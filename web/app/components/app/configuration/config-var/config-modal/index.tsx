@@ -154,7 +154,6 @@ const ConfigModal: FC<IConfigModalProps> = ({
           <Field title={t('appDebug.variableConig.fieldType')}>
             <div className='flex space-x-2'>
               <SelectTypeItem type={InputVarType.textInput} selected={type === InputVarType.textInput} onClick={() => handlePayloadChange('type')(InputVarType.textInput)} />
-              <SelectTypeItem type={InputVarType.json} selected={type === InputVarType.json} onClick={() => handlePayloadChange('type')(InputVarType.json)} />
               <SelectTypeItem type={InputVarType.select} selected={type === InputVarType.select} onClick={() => handlePayloadChange('type')(InputVarType.select)} />
               <SelectTypeItem type={InputVarType.number} selected={type === InputVarType.number} onClick={() => handlePayloadChange('type')(InputVarType.number)} />
             </div>

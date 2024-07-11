@@ -98,7 +98,7 @@ const Header = () => {
       bellaHost = 'https://example.com'
 
     // 构建URL
-    let bellaUrl = `${bellaHost}/#/createagent?workflowId=${appId}&workflowName=${workflowName}`
+    let bellaUrl = `${bellaHost}/#/createagent?workflowName=${workflowName}`
     if (bellaId !== 'undefined')
       bellaUrl += `&applicationId=${bellaId}`
 
@@ -118,8 +118,9 @@ const Header = () => {
   const isShowTip = async () => {
     try {
       const result = await fetchWorkflowInfo()
-      const { data } = result
-      if (data.length > 1 && data[0]?.version === 0)
+      const { data, total } = result
+      console.log(data[0].version, total, '>>>>', total > 1 && data[0]?.version === 0)
+      if (total > 1 && data[0]?.version === 0)
         notify({ type: 'error', message: t('custom.tips.unfinished') })
     }
     catch (e) {

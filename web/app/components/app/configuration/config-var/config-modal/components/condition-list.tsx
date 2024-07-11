@@ -1,18 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import Item from './condition-item'
 
-const newItem = {
-  varibale: '',
-  varType: 'string',
-  required: true,
-  description: '',
-}
 const ConditionList = ({
   list,
   onChange,
 }) => {
-  // if (list.length === 0) return null;
-  const [selected, setSelected] = useState(false)
   const [data, setData] = useState(list)
 
   useEffect(() => {
@@ -40,7 +32,7 @@ const ConditionList = ({
       && data.map((item, i) => (
         <Item
           payload={item}
-          key={i}
+          key={`${i}${i}`}
           onChange={newItem => handleItemChange(i, newItem)}
           onDelete={() => handleItemDelete(i)}
         />

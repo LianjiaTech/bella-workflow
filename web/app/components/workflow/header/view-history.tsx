@@ -162,16 +162,16 @@ const ViewHistory = ({
                           'flex mb-0.5 px-2 py-[7px] rounded-lg hover:bg-primary-50 cursor-pointer',
                           item.id === historyWorkflowData?.id && 'bg-primary-50',
                         )}
-                        onClick={() => {
-                          workflowStore.setState({
-                            historyWorkflowData: item,
-                            showInputsPanel: false,
-                          })
-                          handleBackupDraft()
-                          setOpen(false)
-                          handleNodesCancelSelected()
-                          handleCancelDebugAndPreviewPanel()
-                        }}
+                        // onClick={() => {
+                        //   workflowStore.setState({
+                        //     historyWorkflowData: item,
+                        //     showInputsPanel: false,
+                        //   })
+                        //   handleBackupDraft()
+                        //   setOpen(false)
+                        //   handleNodesCancelSelected()
+                        //   handleCancelDebugAndPreviewPanel()
+                        // }}
                       >
                         {
                           !isChatMode && item.status === WorkflowRunningStatus.Stopped && (

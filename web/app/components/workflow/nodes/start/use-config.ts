@@ -42,7 +42,7 @@ const useConfig = (id: string, payload: StartNodeType) => {
   }
 
   const handleVarListChange = useCallback((newList: InputVar[], moreInfo?: { index: number; payload: MoreInfo }) => {
-    if (newList[0].type === InputVarType.json) {
+    if (newList[0]?.type === InputVarType.json) {
       setNewVarList(newList)
       const newVars = varSelectorConvert([id], newList)
       const oldVars = varSelectorConvert([id], inputs.variables)

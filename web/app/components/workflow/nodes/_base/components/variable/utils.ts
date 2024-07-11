@@ -28,7 +28,7 @@ import type { PromptItem } from '@/models/debug'
 import { VAR_REGEX } from '@/config'
 
 const inputVarTypeToVarType = (type: InputVarType, varType: string): VarType => {
-  if (varType) {
+  if (!type && varType) {
     switch (varType) {
       case 'string':
         return VarType.string

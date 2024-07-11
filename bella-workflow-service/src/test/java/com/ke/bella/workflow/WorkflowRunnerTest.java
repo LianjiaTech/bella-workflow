@@ -38,26 +38,26 @@ public class WorkflowRunnerTest {
             }
 
             @Override
-            public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
+            public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
                 System.out.println("Node run succeeded: " + nodeId);
                 System.out.println(JsonUtils.toJson(context.getState().getVariablePool()));
 
             }
 
             @Override
-            public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
+            public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId) {
                 System.out.println("Node run started: " + nodeId);
 
             }
 
             @Override
-            public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
+            public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData data) {
                 System.out.println("Node run progress: " + nodeId);
 
             }
 
             @Override
-            public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
+            public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
                 System.out.println("Node run failed: " + nodeId + " " + error);
                 t.printStackTrace();
             }

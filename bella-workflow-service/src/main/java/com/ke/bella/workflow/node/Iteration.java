@@ -115,43 +115,43 @@ public class Iteration extends BaseNode {
 
         @Override
         public void onWorkflowRunStarted(WorkflowContext context) {
-            parent.onWorkflowIterationStarted(context, getNodeId());
+            parent.onWorkflowIterationStarted(context, getNodeId(), nodeRunId);
         }
 
         @Override
         public void onWorkflowRunSucceeded(WorkflowContext context) {
-            parent.onWorkflowIterationCompleted(context, getNodeId());
+            parent.onWorkflowIterationCompleted(context, getNodeId(), nodeRunId);
         }
 
         @Override
         public void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t) {
-            parent.onWorkflowIterationCompleted(context, getNodeId());
+            parent.onWorkflowIterationCompleted(context, getNodeId(), nodeRunId);
         }
 
         @Override
-        public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
-            parent.onWorkflowNodeRunStarted(context, nodeId);
+        public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId) {
+            parent.onWorkflowNodeRunStarted(context, nodeId, nodeRunId);
         }
 
         @Override
-        public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
-            parent.onWorkflowNodeRunProgress(context, nodeId, data);
+        public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData data) {
+            parent.onWorkflowNodeRunProgress(context, nodeId, nodeRunId, data);
         }
 
         @Override
-        public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
-            parent.onWorkflowNodeRunSucceeded(context, nodeId);
-            nodeRunIds.add(context.getState().getNodeState(nodeId).getNodeRunId());
+        public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
+            parent.onWorkflowNodeRunSucceeded(context, nodeId, nodeRunId);
+            nodeRunIds.add(nodeRunId);
         }
 
         @Override
-        public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
-            parent.onWorkflowNodeRunFailed(context, nodeId, error, t);
-            nodeRunIds.add(context.getState().getNodeState(nodeId).getNodeRunId());
+        public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
+            parent.onWorkflowNodeRunFailed(context, nodeId, nodeRunId, error, t);
+            nodeRunIds.add(nodeRunId);
         }
 
         @Override
-        public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId) {
+        public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId, String nodeRunId) {
             throw new IllegalArgumentException("迭代节点不支持挂起");
         }
     }

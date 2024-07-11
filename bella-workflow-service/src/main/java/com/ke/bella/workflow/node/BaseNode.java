@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.util.StringUtils;
@@ -64,9 +65,15 @@ public abstract class BaseNode implements RunnableNode {
     }
 
     protected WorkflowSchema.Node meta;
+    protected String nodeRunId;
 
     protected BaseNode(WorkflowSchema.Node meta) {
+        this(meta, UUID.randomUUID().toString());
+    }
+
+    protected BaseNode(WorkflowSchema.Node meta, String nodeRunId) {
         this.meta = meta;
+        this.nodeRunId = nodeRunId;
     }
 
     protected abstract NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback);
@@ -93,16 +100,16 @@ public abstract class BaseNode implements RunnableNode {
             appendUserInputsAsVariables(context);
         }
 
-        callback.onWorkflowNodeRunStarted(context, meta.getId());
+        callback.onWorkflowNodeRunStarted(context, meta.getId(), nodeRunId);
 
         NodeRunResult result = execute(context, callback);
         context.putNodeRunResult(meta.getId(), result);
         if(result.getStatus() == NodeRunResult.Status.succeeded) {
-            callback.onWorkflowNodeRunSucceeded(context, meta.getId());
+            callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
         } else if(result.getStatus() == NodeRunResult.Status.failed) {
-            callback.onWorkflowNodeRunFailed(context, meta.getId(), result.getError().getMessage(), result.getError());
+            callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().getMessage(), result.getError());
         } else if(result.getStatus() == NodeRunResult.Status.waiting) {
-            callback.onWorkflowNodeRunWaited(context, meta.getId());
+            callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
         }
 
         result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);
@@ -138,11 +145,11 @@ public abstract class BaseNode implements RunnableNode {
     private void appendBuiltinVariables(WorkflowContext context) {
         // append callbackUrl
         if(isCallback()) {
-            String url = String.format("%s/v1/workflow/callback/%s/%s/%s/%s ",
+            String url = String.format("%s/v1/workflow/callback/%s/%s/%s/%s/%s ",
                     BellaContext.getDomain(),
                     context.getTenantId(),
                     context.getWorkflowId(),
-                    context.getRunId(), getNodeId());
+                    context.getRunId(), getNodeId(), nodeRunId);
             context.getState().putVariable(getNodeId(), "callbackUrl", url);
         }
     }

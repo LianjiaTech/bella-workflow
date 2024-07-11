@@ -201,17 +201,18 @@ public class WorkflowController {
     }
 
     @SuppressWarnings("rawtypes")
-    @PostMapping("/callback/{tenantId}/{workflowId}/{workflowRunId}/{nodeId}")
+    @PostMapping("/callback/{tenantId}/{workflowId}/{workflowRunId}/{nodeId}/{nodeRunId}")
     public BellaResponse callback(@PathVariable String tenantId,
             @PathVariable String workflowId,
             @PathVariable String workflowRunId,
             @PathVariable String nodeId,
+            @PathVariable String nodeRunId,
             @RequestBody Map inputs) {
 
         WorkflowRunDB wr = ws.getWorkflowRun(workflowRunId);
         Assert.notNull(wr, String.format("找不到对应的工作流运行实例", workflowRunId));
 
-        ws.notifyWorkflowRun(wr, nodeId, inputs);
+        ws.notifyWorkflowRun(wr, nodeId, nodeRunId, inputs);
 
         boolean isCallback = wr.getResponseMode().equals(ResponseMode.callback.name());
 

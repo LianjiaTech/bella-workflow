@@ -209,7 +209,7 @@ public class WorkflowService {
         repo.updateWorkflowRun(wr);
     }
 
-    public void createWorkflowNodeRun(WorkflowContext context, String nodeId, String status) {
+    public void createWorkflowNodeRun(WorkflowContext context, String nodeId, String nodeRunId, String status) {
         WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
         wnr.setTenantId(context.getTenantId());
         wnr.setWorkflowId(context.getWorkflowId());
@@ -221,6 +221,7 @@ public class WorkflowService {
         wnr.setError("");
         wnr.setProcessData("");
         wnr.setNotifyData("");
+        wnr.setNodeRunId(nodeRunId);
 
         Node meta = context.getGraph().node(nodeId);
         wnr.setNodeType(meta.getType());
@@ -229,23 +230,25 @@ public class WorkflowService {
         repo.addWorkflowRunNode(wnr);
     }
 
-    public void updateWorkflowNodeRun(WorkflowContext context, String nodeId, String status) {
+    public void updateWorkflowNodeRun(WorkflowContext context, String nodeId, String nodeRunId, String status) {
         WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
         wnr.setTenantId(context.getTenantId());
         wnr.setWorkflowId(context.getWorkflowId());
         wnr.setWorkflowRunId(context.getRunId());
         wnr.setNodeId(nodeId);
+        wnr.setNodeRunId(nodeRunId);
         wnr.setStatus(status);
 
         repo.updateWorkflowNodeRun(wnr);
     }
 
-    public void updateWorkflowNodeRunWaited(WorkflowContext context, String nodeId) {
+    public void updateWorkflowNodeRunWaited(WorkflowContext context, String nodeId, String nodeRunId) {
         WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
         wnr.setTenantId(context.getTenantId());
         wnr.setWorkflowId(context.getWorkflowId());
         wnr.setWorkflowRunId(context.getRunId());
         wnr.setNodeId(nodeId);
+        wnr.setNodeRunId(nodeRunId);
         wnr.setStatus(NodeRunResult.Status.waiting.name());
 
         NodeRunResult nodeState = context.getState().getNodeState(nodeId);
@@ -256,12 +259,13 @@ public class WorkflowService {
         repo.updateWorkflowNodeRun(wnr);
     }
 
-    public void updateWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
+    public void updateWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
         WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
         wnr.setTenantId(context.getTenantId());
         wnr.setWorkflowId(context.getWorkflowId());
         wnr.setWorkflowRunId(context.getRunId());
         wnr.setNodeId(nodeId);
+        wnr.setNodeRunId(nodeRunId);
         wnr.setStatus(NodeRunResult.Status.succeeded.name());
 
         NodeRunResult nodeState = context.getState().getNodeState(nodeId);
@@ -270,17 +274,17 @@ public class WorkflowService {
         wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
         wnr.setActivedTargetHandles(JsonUtils.toJson(nodeState.getActivatedSourceHandles()));
         wnr.setElapsedTime(nodeState.getElapsedTime());
-        wnr.setNodeRunId(nodeState.getNodeRunId());
 
         repo.updateWorkflowNodeRun(wnr);
     }
 
-    public void updateWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error) {
+    public void updateWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error) {
         WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
         wnr.setTenantId(context.getTenantId());
         wnr.setWorkflowId(context.getWorkflowId());
         wnr.setWorkflowRunId(context.getRunId());
         wnr.setNodeId(nodeId);
+        wnr.setNodeRunId(nodeRunId);
         wnr.setStatus(NodeRunResult.Status.failed.name());
         wnr.setError(error);
 
@@ -289,7 +293,6 @@ public class WorkflowService {
         wnr.setOutputs(JsonUtils.toJson(nodeState.getOutputs()));
         wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
         wnr.setElapsedTime(nodeState.getElapsedTime());
-        wnr.setNodeRunId(nodeState.getNodeRunId());
 
         repo.updateWorkflowNodeRun(wnr);
     }
@@ -299,7 +302,7 @@ public class WorkflowService {
     }
 
     @SuppressWarnings("rawtypes")
-    public void notifyWorkflowRun(WorkflowRunDB wr, String nodeId, Map inputs) {
+    public void notifyWorkflowRun(WorkflowRunDB wr, String nodeId, String nodeRunId, Map inputs) {
         WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
         wnr.setTenantId(wr.getTenantId());
         wnr.setWorkflowId(wr.getWorkflowId());
@@ -307,6 +310,7 @@ public class WorkflowService {
         wnr.setNodeId(nodeId);
         wnr.setStatus(NodeRunResult.Status.notified.name());
         wnr.setNotifyData(JsonUtils.toJson(inputs));
+        wnr.setNodeRunId(nodeRunId);
 
         repo.updateWorkflowNodeRun(wnr);
     }

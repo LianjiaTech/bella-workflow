@@ -161,7 +161,7 @@ public class HttpNode extends BaseNode {
                 Map<String, String> data = new LinkedHashMap<>();
                 data.put("event", "onOpne");
 
-                callback.onWorkflowNodeRunProgress(context, getNodeId(), ProgressData.builder()
+                callback.onWorkflowNodeRunProgress(context, getNodeId(), nodeRunId, ProgressData.builder()
                         .data(data)
                         .build());
 
@@ -180,7 +180,7 @@ public class HttpNode extends BaseNode {
                 data2.put("type", type);
                 data2.put("data", rawdata);
 
-                callback.onWorkflowNodeRunProgress(context, getNodeId(), ProgressData.builder()
+                callback.onWorkflowNodeRunProgress(context, getNodeId(), nodeRunId, ProgressData.builder()
                         .data(data)
                         .build());
                 bodyBuffer.append("\n")
@@ -194,7 +194,7 @@ public class HttpNode extends BaseNode {
                 Map<String, String> data = new LinkedHashMap<>();
                 data.put("event", "onClosed");
 
-                callback.onWorkflowNodeRunProgress(context, getNodeId(), ProgressData.builder()
+                callback.onWorkflowNodeRunProgress(context, getNodeId(), nodeRunId, ProgressData.builder()
                         .data(data)
                         .progress(100)
                         .build());
@@ -209,7 +209,7 @@ public class HttpNode extends BaseNode {
                 Map<String, String> data = new LinkedHashMap<>();
                 data.put("event", "onFailure");
 
-                callback.onWorkflowNodeRunProgress(context, getNodeId(), ProgressData.builder()
+                callback.onWorkflowNodeRunProgress(context, getNodeId(), nodeRunId, ProgressData.builder()
                         .data(data)
                         .progress(100)
                         .build());

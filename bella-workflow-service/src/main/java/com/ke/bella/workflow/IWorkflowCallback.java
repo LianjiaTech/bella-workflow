@@ -60,19 +60,19 @@ public interface IWorkflowCallback {
 
     void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t);
 
-    void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId);
+    void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId);
 
-    void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data);
+    void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData data);
 
-    void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId);
+    void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId, String nodeRunId);
 
-    void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId);
+    void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId);
 
-    void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t);
+    void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t);
 
-    void onWorkflowIterationStarted(WorkflowContext context, String nodeId);
+    void onWorkflowIterationStarted(WorkflowContext context, String nodeId, String nodeRunId);
 
-    void onWorkflowIterationNext(WorkflowContext context, String nodeId, int index);
+    void onWorkflowIterationNext(WorkflowContext context, String nodeId, String nodeRunId, int index);
 
-    void onWorkflowIterationCompleted(WorkflowContext context, String nodeId);
+    void onWorkflowIterationCompleted(WorkflowContext context, String nodeId, String nodeRunId);
 }

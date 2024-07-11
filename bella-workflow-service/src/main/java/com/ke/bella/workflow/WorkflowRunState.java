@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import lombok.Builder;
 import lombok.Data;
@@ -143,8 +142,6 @@ public class WorkflowRunState {
             failed;
         }
 
-        @Builder.Default
-        String nodeRunId = UUID.randomUUID().toString();
         Map inputs;
         Map processData;
         Map outputs;

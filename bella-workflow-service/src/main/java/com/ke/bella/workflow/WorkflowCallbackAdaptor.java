@@ -57,35 +57,35 @@ public class WorkflowCallbackAdaptor implements IWorkflowCallback {
     }
 
     @Override
-    public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId) {
     }
 
     @Override
-    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
+    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData data) {
     }
 
     @Override
-    public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
     }
 
     @Override
-    public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
+    public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
     }
 
     @Override
-    public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId, String nodeRunId) {
     }
 
     @Override
-    public void onWorkflowIterationStarted(WorkflowContext context, String nodeId) {
+    public void onWorkflowIterationStarted(WorkflowContext context, String nodeId, String nodeRunId) {
     }
 
     @Override
-    public void onWorkflowIterationNext(WorkflowContext context, String nodeId, int index) {
+    public void onWorkflowIterationNext(WorkflowContext context, String nodeId, String nodeRunId, int index) {
     }
 
     @Override
-    public void onWorkflowIterationCompleted(WorkflowContext context, String nodeId) {
+    public void onWorkflowIterationCompleted(WorkflowContext context, String nodeId, String nodeRunId) {
     }
 
 }

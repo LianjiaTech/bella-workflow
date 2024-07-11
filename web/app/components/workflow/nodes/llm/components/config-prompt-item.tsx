@@ -127,6 +127,7 @@ const ConfigPromptItem: FC<Props> = ({
       nodesOutputVars={availableVars}
       availableNodes={availableNodes}
       isSupportJinja
+      isShowVariable
       editionType={payload.edition_type}
       onEditionTypeChange={onEditionTypeChange}
       varList={varList}

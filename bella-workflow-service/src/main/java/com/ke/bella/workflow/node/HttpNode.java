@@ -222,7 +222,10 @@ public class HttpNode extends BaseNode {
 
         eventSource.connect(exclusiveClient);
 
-        eventLatch.await(data.getTimeout().getRead(), TimeUnit.SECONDS);
+        boolean timeout = !eventLatch.await(data.getTimeout().getRead(), TimeUnit.SECONDS);
+        if(timeout) {
+            builder.error(new IllegalStateException("SSE请求超时间上限"));
+        }
 
         return builder.build();
     }

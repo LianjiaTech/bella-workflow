@@ -439,11 +439,11 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     public Page<WorkflowDB> pageWorkflows(WorkflowPage op) {
-        SelectSeekStep1<WorkflowRecord, Long> sql = db.selectFrom(WORKFLOW)
+        SelectSeekStep1<WorkflowRecord, LocalDateTime> sql = db.selectFrom(WORKFLOW)
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition() : WORKFLOW.TITLE.like("%" + op.getName() + "%"))
                 .and(StringUtils.isEmpty(op.getWorkflowId()) ? DSL.noCondition() : WORKFLOW.WORKFLOW_ID.eq(op.getWorkflowId()))
-                .orderBy(WORKFLOW.ID.desc());
+                .orderBy(WORKFLOW.MTIME.desc());
         return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowDB.class);
     }
 

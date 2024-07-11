@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.node;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -57,6 +58,7 @@ public class ToolNode extends BaseNode {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String, Object> generateParameters(Map<String, Data.ToolInput> toolParameters, Map variablePool) {
         Map<String, Object> result = new HashMap<>();
         for (Map.Entry<String, Data.ToolInput> inputEntry : toolParameters.entrySet()) {
@@ -64,7 +66,7 @@ public class ToolNode extends BaseNode {
             if(toolInput.getType().equals(Data.ToolInput.Type.mixed.name())) {
                 result.put(inputEntry.getKey(), Variables.format(toolInput.getValue().toString(), variablePool));
             } else if(toolInput.getType().equals(Data.ToolInput.Type.variable.name())) {
-                result.put(inputEntry.getKey(), Variables.getValue(variablePool, toolInput.getValue().toString()));
+                result.put(inputEntry.getKey(), Variables.getValue(variablePool, (List) toolInput.getValue()));
             } else if(toolInput.getType().equals(Data.ToolInput.Type.constant.name())) {
                 result.put(inputEntry.getKey(), toolInput.getValue());
             }

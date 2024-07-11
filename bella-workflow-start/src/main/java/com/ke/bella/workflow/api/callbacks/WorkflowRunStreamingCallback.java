@@ -74,7 +74,7 @@ public class WorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
-    public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId) {
         Map<String, Object> data = new LinkedHashMap<>();
         responseWorkflowInfo(context, data);
         responseWorkflowNodeInfo(context, data, nodeId);
@@ -84,7 +84,7 @@ public class WorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
-    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData pdata) {
+    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData pdata) {
         Map<String, Object> data = new LinkedHashMap<>();
         responseWorkflowInfo(context, data);
         responseWorkflowNodeInfo(context, data, nodeId);
@@ -95,7 +95,7 @@ public class WorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
-    public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
         Map<String, Object> data = new LinkedHashMap<>();
         responseWorkflowInfo(context, data);
         responseWorkflowNodeInfo(context, data, nodeId);
@@ -105,7 +105,7 @@ public class WorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
-    public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
+    public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
         Map<String, Object> data = new LinkedHashMap<>();
         responseWorkflowInfo(context, data);
         responseWorkflowNodeInfo(context, data, nodeId);

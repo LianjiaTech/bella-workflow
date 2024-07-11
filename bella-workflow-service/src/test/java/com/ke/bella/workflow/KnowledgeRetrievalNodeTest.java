@@ -44,7 +44,7 @@ public class KnowledgeRetrievalNodeTest {
             }
 
             @Override
-            public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
+            public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
                 if("1718790018841".equals(nodeId)) {
                     WorkflowRunState.NodeRunResult result = context.getState().getNodeState(nodeId);
                     Assertions.assertNotNull(result);
@@ -60,19 +60,19 @@ public class KnowledgeRetrievalNodeTest {
             }
 
             @Override
-            public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
+            public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId) {
                 System.out.println("Node run started: " + nodeId);
 
             }
 
             @Override
-            public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
+            public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData data) {
                 System.out.println("Node run progress: " + nodeId + " processData: " + JsonUtils.toJson(data));
 
             }
 
             @Override
-            public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
+            public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
                 System.out.println("Node run failed: " + nodeId + " " + error);
                 t.printStackTrace();
             }
@@ -113,7 +113,7 @@ public class KnowledgeRetrievalNodeTest {
             }
 
             @Override
-            public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
+            public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
                 if("1718790018841".equals(nodeId)) {
                     WorkflowRunState.NodeRunResult result = context.getState().getNodeState(nodeId);
                     Assertions.assertNotNull(result);
@@ -129,19 +129,19 @@ public class KnowledgeRetrievalNodeTest {
             }
 
             @Override
-            public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
+            public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId) {
                 System.out.println("Node run started: " + nodeId);
 
             }
 
             @Override
-            public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
+            public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData data) {
                 System.out.println("Node run progress: " + nodeId + " processData: " + JsonUtils.toJson(data));
 
             }
 
             @Override
-            public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
+            public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
                 System.out.println("Node run failed: " + nodeId + " " + error);
                 t.printStackTrace();
             }

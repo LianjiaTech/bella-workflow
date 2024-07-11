@@ -14,7 +14,7 @@ public class SingleNodeRunBlockingCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
-    public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
         responseWorkflowInfo(context, data);
         responseWorkflowNodeInfo(context, data, nodeId);
         responseWorkflowNodeResult(context, data, nodeId);
@@ -22,7 +22,7 @@ public class SingleNodeRunBlockingCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
-    public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
+    public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
         responseWorkflowInfo(context, data);
         responseWorkflowNodeInfo(context, data, nodeId);
         responseWorkflowNodeResult(context, data, nodeId);

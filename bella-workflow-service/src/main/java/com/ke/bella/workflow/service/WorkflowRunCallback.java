@@ -65,46 +65,46 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
-    public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId) {
         LOGGER.info("{} onWorkflowNodeRunStarted", context.getRunId());
 
-        service.createWorkflowNodeRun(context, nodeId, NodeRunResult.Status.running.name());
+        service.createWorkflowNodeRun(context, nodeId, nodeRunId, NodeRunResult.Status.running.name());
 
-        delegate.onWorkflowNodeRunStarted(context, nodeId);
+        delegate.onWorkflowNodeRunStarted(context, nodeId, nodeRunId);
     }
 
     @Override
-    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, ProgressData data) {
+    public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData data) {
         LOGGER.info("{} onWorkflowNodeRunProgress", context.getRunId());
-        delegate.onWorkflowNodeRunProgress(context, nodeId, data);
+        delegate.onWorkflowNodeRunProgress(context, nodeId, nodeRunId, data);
     }
 
     @Override
-    public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId, String nodeRunId) {
         LOGGER.info("{} onWorkflowNodeRunWaited", context.getRunId());
 
-        service.updateWorkflowNodeRunWaited(context, nodeId);
+        service.updateWorkflowNodeRunWaited(context, nodeId, nodeRunId);
 
-        delegate.onWorkflowNodeRunWaited(context, nodeId);
+        delegate.onWorkflowNodeRunWaited(context, nodeId, nodeRunId);
 
     }
 
     @Override
-    public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
         LOGGER.info("{} onWorkflowNodeRunSucceeded", context.getRunId());
 
-        service.updateWorkflowNodeRunSucceeded(context, nodeId);
+        service.updateWorkflowNodeRunSucceeded(context, nodeId, nodeRunId);
 
-        delegate.onWorkflowNodeRunSucceeded(context, nodeId);
+        delegate.onWorkflowNodeRunSucceeded(context, nodeId, nodeRunId);
 
     }
 
     @Override
-    public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
+    public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
         LOGGER.info("{} onWorkflowNodeRunFailed. error:{}", context.getRunId(), error, t);
 
-        service.updateWorkflowNodeRunFailed(context, nodeId, error);
+        service.updateWorkflowNodeRunFailed(context, nodeId, nodeRunId, error);
 
-        delegate.onWorkflowNodeRunFailed(context, nodeId, error, t);
+        delegate.onWorkflowNodeRunFailed(context, nodeId, nodeRunId, error, t);
     }
 }

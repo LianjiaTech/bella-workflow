@@ -11,7 +11,7 @@ public class DifySingleNodeRunBlockingCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
-    public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId) {
+    public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
 
         data = DifyWorkflowRunStreamingCallback.DifyData.builder()
                 .id(context.getRunId() + nodeId)
@@ -30,7 +30,7 @@ public class DifySingleNodeRunBlockingCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
-    public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String error, Throwable t) {
+    public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
 
         data = DifyWorkflowRunStreamingCallback.DifyData.builder()
                 .id(context.getRunId() + nodeId)

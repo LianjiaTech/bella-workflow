@@ -103,13 +103,13 @@ public class LlmNode extends BaseNode {
 
             if(data.isGenerateDeltaContent()) {
                 Delta delta = Delta.builder().content(Delta.fromText(content)).build();
-                callback.onWorkflowNodeRunProgress(context, meta.getId(),
+                callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
                         ProgressData.builder()
                                 .data(delta)
                                 .object(ProgressData.ObjectType.DELTA_CONTENT)
                                 .build());
             } else {
-                callback.onWorkflowNodeRunProgress(context, meta.getId(),
+                callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
                         ProgressData.builder()
                                 .data(chunk)
                                 .build());

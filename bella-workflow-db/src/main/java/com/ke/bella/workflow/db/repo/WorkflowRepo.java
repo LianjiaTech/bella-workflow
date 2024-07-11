@@ -419,6 +419,7 @@ public class WorkflowRepo implements BaseRepo {
                 .and(WORKFLOW_NODE_RUN.WORKFLOW_ID.eq(wnr.getWorkflowId()))
                 .and(WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID.eq(wnr.getWorkflowRunId()))
                 .and((WORKFLOW_NODE_RUN.NODE_ID.eq(wnr.getNodeId())))
+                .and(WORKFLOW_NODE_RUN.NODE_RUN_ID.eq(wnr.getNodeRunId()))
                 .execute();
     }
 

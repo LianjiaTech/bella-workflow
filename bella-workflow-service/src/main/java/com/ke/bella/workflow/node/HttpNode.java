@@ -1,6 +1,6 @@
 package com.ke.bella.workflow.node;
 
-import static okhttp3.internal.Util.*;
+import static okhttp3.internal.Util.EMPTY_REQUEST;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -334,7 +334,7 @@ public class HttpNode extends BaseNode {
     }
 
     private URI buildUrl(WorkflowContext context) throws Exception {
-        String base = data.getUrl();
+        String base = Variables.format(data.getUrl(), context.getState().getVariablePool());
         Map<String, String> params = toFormattedMap(data.getParams(), context.getState().getVariablePool());
         String query = mapToUrlParams(params);
         return appendQueryToUrl(base, query);

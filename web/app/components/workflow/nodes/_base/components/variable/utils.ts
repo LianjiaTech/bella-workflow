@@ -9,11 +9,11 @@ import type { IfElseNodeType } from '../../../if-else/types'
 import type { TemplateTransformNodeType } from '../../../template-transform/types'
 import type { QuestionClassifierNodeType } from '../../../question-classifier/types'
 import type { HttpNodeType } from '../../../http/types'
-import { VarType as ToolVarType } from '../../../tool/types'
 import type { ToolNodeType } from '../../../tool/types'
+import { VarType as ToolVarType } from '../../../tool/types'
+import type { Node, NodeOutPutVar, ValueSelector, Var } from '@/app/components/workflow/types'
 import { BlockEnum, InputVarType, VarType } from '@/app/components/workflow/types'
 import type { StartNodeType } from '@/app/components/workflow/nodes/start/types'
-import type { Node, NodeOutPutVar, ValueSelector, Var } from '@/app/components/workflow/types'
 import type { VariableAssignerNodeType } from '@/app/components/workflow/nodes/variable-assigner/types'
 import {
   HTTP_REQUEST_OUTPUT_STRUCT,
@@ -27,7 +27,25 @@ import {
 import type { PromptItem } from '@/models/debug'
 import { VAR_REGEX } from '@/config'
 
-const inputVarTypeToVarType = (type: InputVarType): VarType => {
+const inputVarTypeToVarType = (type: InputVarType, varType: string): VarType => {
+  if (varType) {
+    switch (varType) {
+      case 'string':
+        return VarType.string
+      case 'number':
+        return VarType.number
+      case 'boolean':
+        return VarType.boolean
+      case 'object':
+        return VarType.object
+      case 'array[string]':
+        return VarType.arrayString
+      case 'array[number]':
+        return VarType.arrayNumber
+      case 'array[object]':
+        return VarType.arrayObject
+    }
+  }
   if (type === InputVarType.number)
     return VarType.number
   if (type === InputVarType.json)
@@ -68,7 +86,7 @@ const formatItem = (item: any, isChatMode: boolean, filterVar: (payload: Var, se
       const handler = (v: any) => {
         return {
           variable: v.variable,
-          type: inputVarTypeToVarType(v.type),
+          type: inputVarTypeToVarType(v.type, v.varType),
           isParagraph: v.type === InputVarType.paragraph,
           isSelect: v.type === InputVarType.select,
           options: v.options,

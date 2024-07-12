@@ -146,7 +146,7 @@ const Panel: FC<NodePanelProps<KnowledgeRetrievalNodeType>> = ({
                   variable: 'query',
                   type: InputVarType.paragraph,
                   required: true,
-                  alias: `#${inputs.query_variable_selector.join('.')}#`,
+                  alias: Array.isArray(inputs.query_variable_selector) ? `#${inputs.query_variable_selector?.join('.')}#` : '',
                 }],
                 values: { query },
                 onChange: keyValue => setQuery((keyValue as any).query),

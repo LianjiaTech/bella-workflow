@@ -70,6 +70,7 @@ public class WorkflowOps {
         String graph;
         String title;
         String desc;
+        String mode;
     }
 
     @Getter
@@ -109,6 +110,8 @@ public class WorkflowOps {
 
         @Builder.Default
         String triggerFrom = TriggerFrom.DEBUG.name();
+
+        String query;
 
         String traceId;
         int spanLev;

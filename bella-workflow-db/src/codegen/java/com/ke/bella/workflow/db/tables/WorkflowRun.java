@@ -91,6 +91,11 @@ API
     public final TableField<WorkflowRunRecord, String> TRIGGER_FROM = createField(DSL.name("trigger_from"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "工作流触发来源：\nDEBUG\nDEBUG_NODE\nAPI\n\n");
 
     /**
+     * The column <code>workflow_run.query</code>.
+     */
+    public final TableField<WorkflowRunRecord, String> QUERY = createField(DSL.name("query"), SQLDataType.VARCHAR(4096).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
      * The column <code>workflow_run.inputs</code>.
      */
     public final TableField<WorkflowRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");

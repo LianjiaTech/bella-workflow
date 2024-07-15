@@ -22,6 +22,7 @@ public class WorkflowDB implements Operator, Serializable {
     private String        tenantId;
     private String        workflowId;
     private String        title;
+    private String        mode;
     private String        desc;
     private String        graph;
     private Long          version;
@@ -39,6 +40,7 @@ public class WorkflowDB implements Operator, Serializable {
         this.tenantId = value.tenantId;
         this.workflowId = value.workflowId;
         this.title = value.title;
+        this.mode = value.mode;
         this.desc = value.desc;
         this.graph = value.graph;
         this.version = value.version;
@@ -55,6 +57,7 @@ public class WorkflowDB implements Operator, Serializable {
         String        tenantId,
         String        workflowId,
         String        title,
+        String        mode,
         String        desc,
         String        graph,
         Long          version,
@@ -69,6 +72,7 @@ public class WorkflowDB implements Operator, Serializable {
         this.tenantId = tenantId;
         this.workflowId = workflowId;
         this.title = title;
+        this.mode = mode;
         this.desc = desc;
         this.graph = graph;
         this.version = version;
@@ -134,6 +138,20 @@ public class WorkflowDB implements Operator, Serializable {
      */
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    /**
+     * Getter for <code>workflow.mode</code>.
+     */
+    public String getMode() {
+        return this.mode;
+    }
+
+    /**
+     * Setter for <code>workflow.mode</code>.
+     */
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
     /**
@@ -270,6 +288,7 @@ public class WorkflowDB implements Operator, Serializable {
         sb.append(", ").append(tenantId);
         sb.append(", ").append(workflowId);
         sb.append(", ").append(title);
+        sb.append(", ").append(mode);
         sb.append(", ").append(desc);
         sb.append(", ").append(graph);
         sb.append(", ").append(version);

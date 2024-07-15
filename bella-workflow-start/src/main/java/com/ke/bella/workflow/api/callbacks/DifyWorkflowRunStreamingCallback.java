@@ -118,11 +118,25 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData pdata) {
-        // no-op
+        if(ProgressData.ObjectType.DELTA_CONTENT.equals(pdata.getObject())) {
+            DifyEvent event = DifyEvent.builder()
+                    .workflowRunId(context.getRunId())
+                    .workflowId(context.getWorkflowId())
+                    .taskId(context.getRunId())
+                    .event("message")
+                    .answer(pdata.getData().toString())
+                    .build();
+
+            SseHelper.sendEvent(emitter, event);
+        }
     }
 
     @Override
     public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
+        Object metadata = null;
+        if(context.getState().getNodeState(nodeId).getProcessData() != null) {
+            metadata = context.getState().getNodeState(nodeId).getProcessData().get("meta_data");
+        }
         DifyEvent event = DifyEvent.builder()
                 .workflowRunId(context.getRunId())
                 .workflowId(context.getWorkflowId())
@@ -136,7 +150,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                         .outputs(context.getState().getNodeState(nodeId).getOutputs())
                         .processData(context.getState().getNodeState(nodeId).getProcessData())
                         .status(context.getState().getNodeState(nodeId).getStatus().name())
-                        .executionMetadata(null)
+                        .executionMetadata(metadata)
                         .createdAt(System.currentTimeMillis())
                         .finishedAt(System.currentTimeMillis())
                         .elapsedTime(context.getState().getNodeState(nodeId).getElapsedTime() / 1000d)
@@ -148,6 +162,10 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
+        Object metadata = null;
+        if(context.getState().getNodeState(nodeId).getProcessData() != null) {
+            metadata = context.getState().getNodeState(nodeId).getProcessData().get("meta_data");
+        }
         DifyEvent event = DifyEvent.builder()
                 .workflowRunId(context.getRunId())
                 .workflowId(context.getWorkflowId())
@@ -159,9 +177,10 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                         .title(context.getNode(nodeId).getMeta().getTitle())
                         .inputs(context.getState().getNodeState(nodeId).getInputs())
                         .outputs(context.getState().getNodeState(nodeId).getOutputs())
+                        .processData(context.getState().getNodeState(nodeId).getProcessData())
                         .error(error)
                         .status(context.getState().getNodeState(nodeId).getStatus().name())
-                        .executionMetadata(null)
+                        .executionMetadata(metadata)
                         .createdAt(System.currentTimeMillis())
                         .elapsedTime(context.getState().getNodeState(nodeId).getElapsedTime() / 1000d)
                         .build())
@@ -182,6 +201,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         @JsonProperty("task_id")
         private String taskId;
         private DifyData data;
+        private String answer;
     }
 
     @Data
@@ -197,7 +217,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         @JsonProperty("workflow_id")
         private String workflowId;
         @JsonProperty("execution_metadata")
-        private String executionMetadata;
+        private Object executionMetadata;
         private Map inputs;
         private Map outputs;
         @JsonProperty("process_data")
@@ -210,7 +230,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         private Long finishedAt;
         @JsonProperty("elapsed_time")
         private Double elapsedTime;
-
+        private String text;
     }
 
 }

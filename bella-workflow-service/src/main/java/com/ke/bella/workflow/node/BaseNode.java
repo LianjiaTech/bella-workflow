@@ -24,7 +24,7 @@ class BaseNodeData {
     private String title;
     private String desc;
     private String type;
-    private boolean generateDeltaContent;
+    private boolean generateDeltaContent = false;
 
     @lombok.Getter
     @lombok.Setter
@@ -103,6 +103,7 @@ public abstract class BaseNode implements RunnableNode {
         callback.onWorkflowNodeRunStarted(context, meta.getId(), nodeRunId);
 
         NodeRunResult result = execute(context, callback);
+        result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);
         context.putNodeRunResult(meta.getId(), result);
         if(result.getStatus() == NodeRunResult.Status.succeeded) {
             callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
@@ -111,8 +112,6 @@ public abstract class BaseNode implements RunnableNode {
         } else if(result.getStatus() == NodeRunResult.Status.waiting) {
             callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
         }
-
-        result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);
 
         LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
 

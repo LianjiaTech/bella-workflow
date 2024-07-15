@@ -11,6 +11,8 @@ import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.JsonUtils;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
+import com.ke.bella.workflow.IWorkflowCallback.Delta;
+import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.WorkflowSchema.Variable;
@@ -42,6 +44,15 @@ public class TemplateTransformNode extends BaseNode {
 
             String text = Variables.renderJinjia(data.getTemplate(), inputs);
             Assert.isTrue(text.length() <= MAX_TEMPLATE_TRANSFORM_OUTPUT_LENGTH, "Output length exceeds");
+
+            if(data.isGenerateDeltaContent()) {
+                Delta delta = Delta.builder().content(Delta.fromText(text)).build();
+                callback.onWorkflowNodeRunProgress(context, getNodeId(), nodeRunId, ProgressData
+                        .builder()
+                        .data(delta)
+                        .object(ProgressData.ObjectType.DELTA_CONTENT)
+                        .build());
+            }
 
             Map outputs = new LinkedHashMap();
             outputs.put("output", text);

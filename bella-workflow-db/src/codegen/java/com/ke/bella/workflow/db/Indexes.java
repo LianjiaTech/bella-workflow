@@ -30,8 +30,7 @@ public class Indexes {
     // -------------------------------------------------------------------------
 
     public static final Index WORKFLOW_IDX_CUID_TIME = Internal.createIndex(DSL.name("idx_cuid_time"), Workflow.WORKFLOW, new OrderField[] { Workflow.WORKFLOW.CUID, Workflow.WORKFLOW.CTIME }, false);
-    public static final Index WORKFLOW_AGGREGATE_IDX_CUID_TIME = Internal.createIndex(DSL.name("idx_cuid_time"), WorkflowAggregate.WORKFLOW_AGGREGATE,
-            new OrderField[] { WorkflowAggregate.WORKFLOW_AGGREGATE.CUID, WorkflowAggregate.WORKFLOW_AGGREGATE.CTIME }, false);
+    public static final Index WORKFLOW_AGGREGATE_IDX_CUID_TIME = Internal.createIndex(DSL.name("idx_cuid_time"), WorkflowAggregate.WORKFLOW_AGGREGATE, new OrderField[] { WorkflowAggregate.WORKFLOW_AGGREGATE.CUID, WorkflowAggregate.WORKFLOW_AGGREGATE.CTIME }, false);
     public static final Index INSTANCE_IDX_IP_PORT = Internal.createIndex(DSL.name("idx_ip_port"), Instance.INSTANCE, new OrderField[] { Instance.INSTANCE.IP, Instance.INSTANCE.PORT }, false);
     public static final Index WORKFLOW_RUN_SHARDING_IDX_LAST_KEY = Internal.createIndex(DSL.name("idx_last_key"), WorkflowRunSharding.WORKFLOW_RUN_SHARDING, new OrderField[] { WorkflowRunSharding.WORKFLOW_RUN_SHARDING.LAST_KEY }, false);
     public static final Index TENANT_IDX_PARENT_ID = Internal.createIndex(DSL.name("idx_parent_id"), Tenant.TENANT, new OrderField[] { Tenant.TENANT.PARENT_ID }, false);

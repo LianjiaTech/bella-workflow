@@ -3,6 +3,7 @@ package com.ke.bella.workflow;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.theokanning.openai.assistants.message.MessageContent;
 import com.theokanning.openai.assistants.message.content.DeltaContent;
 import com.theokanning.openai.assistants.message.content.Text;
 
@@ -25,6 +26,7 @@ public interface IWorkflowCallback {
         Object data;
 
         public interface ObjectType {
+            String MESSAGE = "message";
             String DELTA_CONTENT = "message.delta";
         }
     }
@@ -34,17 +36,42 @@ public interface IWorkflowCallback {
     @AllArgsConstructor
     @Builder
     public static class Delta {
-        /**
-         * The entity that produced the message. One of user or assistant.
-         */
         String role;
-
         List<DeltaContent> content;
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (DeltaContent dc : content) {
+                sb.append(dc.getText().getValue());
+            }
+            return sb.toString();
+        }
 
         public static List<DeltaContent> fromText(String... contents) {
             List<DeltaContent> ret = new ArrayList<>();
             for (String text : contents) {
                 ret.add(new DeltaContent(0, "text", new Text(text, null), null, null));
+            }
+            return ret;
+        }
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class Message {
+        String role;
+        List<MessageContent> content;
+
+        public static List<MessageContent> fromText(String... contents) {
+            List<MessageContent> ret = new ArrayList<>();
+            for (String text : contents) {
+                MessageContent mc = new MessageContent();
+                mc.setType("text");
+                mc.setText(new Text(text, null));
+                ret.add(mc);
             }
             return ret;
         }

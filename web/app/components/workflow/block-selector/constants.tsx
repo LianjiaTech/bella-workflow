@@ -24,11 +24,11 @@ export const BLOCKS: Block[] = [
     type: BlockEnum.End,
     title: 'End',
   },
-  {
-    classification: BlockClassificationEnum.Default,
-    type: BlockEnum.Answer,
-    title: 'Direct Answer',
-  },
+  // {
+  //   classification: BlockClassificationEnum.Default,
+  //   type: BlockEnum.Answer,
+  //   title: 'Direct Answer',
+  // },
   {
     classification: BlockClassificationEnum.QuestionUnderstand,
     type: BlockEnum.QuestionClassifier,

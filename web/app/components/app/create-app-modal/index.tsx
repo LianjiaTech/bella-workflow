@@ -21,6 +21,7 @@ import { Route } from '@/app/components/base/icons/src/vender/solid/mapsAndTrave
 import TooltipPlus from '@/app/components/base/tooltip-plus'
 import { NEED_REFRESH_APP_LIST_KEY } from '@/config'
 import { getRedirection } from '@/utils/app-redirection'
+import { ChatBot } from '@/app/components/base/icons/src/vender/solid/communication'
 
 type CreateAppDialogProps = {
   show: boolean
@@ -95,7 +96,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
       <div className='py-2 px-8'>
         <div className='py-2 text-sm leading-[20px] font-medium text-gray-900'>{t('app.newApp.captionAppType')}</div>
         <div className='flex'>
-          {/* <TooltipPlus
+          <TooltipPlus
             hideArrow
             popupContent={
               <div className='max-w-[280px] leading-[18px] text-xs text-gray-700'>{t('app.newApp.chatbotDescription')}</div>
@@ -116,7 +117,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
               <div className='h-5 text-[13px] font-medium leading-[18px]'>{t('app.types.chatbot')}</div>
             </div>
           </TooltipPlus>
-          <TooltipPlus
+          {/* <TooltipPlus
             hideArrow
             popupContent={
               <div className='flex flex-col max-w-[320px] leading-[18px] text-xs'>
@@ -190,7 +191,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
         <div className='py-2 px-8'>
           <div className='py-2 text-sm leading-[20px] font-medium text-gray-900'>{t('app.newApp.chatbotType')}</div>
           <div className='flex gap-2'>
-            <div
+            {/* <div
               className={cn(
                 'relative grow flex-[50%] pl-4 py-[10px] pr-[10px] rounded-lg border border-gray-100 bg-gray-25 text-gray-700 cursor-pointer hover:bg-white hover:shadow-xs hover:border-gray-300',
                 appMode === 'chat' && 'bg-white shadow-xs border-[1.5px] border-primary-400 hover:border-[1.5px] hover:border-primary-400',
@@ -220,7 +221,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
                 </div>
               </div>
               <div className='mt-[2px] text-gray-500 text-xs leading-[18px]'>{t('app.newApp.basicTip')}</div>
-            </div>
+            </div> */}
             <div
               className={cn(
                 'relative grow flex-[50%] pl-3 py-2 pr-2 rounded-lg border border-gray-100 bg-gray-25 text-gray-700 cursor-pointer hover:bg-white hover:shadow-xs hover:border-gray-300',
@@ -302,7 +303,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
       )}
       <div className='px-8 py-6 flex justify-end'>
         <Button className='mr-2 text-gray-700 text-sm font-medium' onClick={onClose}>{t('app.newApp.Cancel')}</Button>
-        <Button className='text-sm font-medium' disabled={isAppsFull || !name} type="primary" onClick={onCreate}>{t('app.newApp.Create')}111</Button>
+        <Button className='text-sm font-medium' disabled={isAppsFull || !name} type="primary" onClick={onCreate}>{t('app.newApp.Create')}</Button>
       </div>
       <div className='absolute right-6 top-6 p-2 cursor-pointer z-20' onClick={onClose}>
         <XClose className='w-4 h-4 text-gray-500' />

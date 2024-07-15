@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import MemoryConfig from '../_base/components/memory-config'
+import DirectlyAnswerConfig from '../_base/components/directly-answer-config'
 import useConfig from './use-config'
 import ResolutionPicker from './components/resolution-picker'
 import type { LLMNodeType } from './types'
@@ -68,6 +68,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
     handleStop,
     varInputs,
     runResult,
+    handleDeltaChange,
   } = useConfig(id, data)
 
   const model = inputs.model
@@ -122,13 +123,11 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
   })()
 
   return (
-    <div className='mt-2'>
-      <div className='px-4 pb-4 space-y-4'>
-        <Field
-          title={t(`${i18nPrefix}.model`)}
-        >
+    <div className="mt-2">
+      <div className="px-4 pb-4 space-y-4">
+        <Field title={t(`${i18nPrefix}.model`)}>
           <ModelParameterModal
-            popupClassName='!w-[387px]'
+            popupClassName="!w-[387px]"
             isInWorkflow
             isAdvancedMode={true}
             mode={model?.mode}
@@ -165,9 +164,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
 
         {/* Prompt */}
         {model.name && (
-          <Field
-            title={t(`${i18nPrefix}.prompt`)}
-          >
+          <Field title={t(`${i18nPrefix}.prompt`)}>
             <ConfigPrompt
               readOnly={readOnly}
               nodeId={id}
@@ -188,7 +185,11 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
           <Field
             title={t('workflow.nodes.templateTransform.inputVars')}
             operations={
-              !readOnly ? <AddButton2 onClick={handleAddEmptyVariable} /> : undefined
+              !readOnly
+                ? (
+                  <AddButton2 onClick={handleAddEmptyVariable} />
+                )
+                : undefined
             }
           >
             <VarList
@@ -204,31 +205,41 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
 
         {/* Memory put place examples. */}
         {isChatMode && isChatModel && !!inputs.memory && (
-          <div className='mt-4'>
-            <div className='flex justify-between items-center h-8 pl-3 pr-2 rounded-lg bg-gray-100'>
-              <div className='flex items-center space-x-1'>
-                <div className='text-xs font-semibold text-gray-700 uppercase'>{t('workflow.nodes.common.memories.title')}</div>
+          <div className="mt-4">
+            <div className="flex justify-between items-center h-8 pl-3 pr-2 rounded-lg bg-gray-100">
+              <div className="flex items-center space-x-1">
+                <div className="text-xs font-semibold text-gray-700 uppercase">
+                  {t('workflow.nodes.common.memories.title')}
+                </div>
                 <TooltipPlus
                   popupContent={t('workflow.nodes.common.memories.tip')}
                 >
-                  <HelpCircle className='w-3.5 h-3.5 text-gray-400' />
+                  <HelpCircle className="w-3.5 h-3.5 text-gray-400" />
                 </TooltipPlus>
               </div>
-              <div className='flex items-center h-[18px] px-1 rounded-[5px] border border-black/8 text-xs font-semibold text-gray-500 uppercase'>{t('workflow.nodes.common.memories.builtIn')}</div>
+              <div className="flex items-center h-[18px] px-1 rounded-[5px] border border-black/8 text-xs font-semibold text-gray-500 uppercase">
+                {t('workflow.nodes.common.memories.builtIn')}
+              </div>
             </div>
             {/* Readonly User Query */}
-            <div className='mt-4'>
+            <div className="mt-4">
               <Editor
-                title={<div className='flex items-center space-x-1'>
-                  <div className='text-xs font-semibold text-gray-700 uppercase'>user</div>
-                  <TooltipPlus
-                    popupContent={
-                      <div className='max-w-[180px]'>{t('workflow.nodes.llm.roleDescription.user')}</div>
-                    }
-                  >
-                    <HelpCircle className='w-3.5 h-3.5 text-gray-400' />
-                  </TooltipPlus>
-                </div>}
+                title={
+                  <div className="flex items-center space-x-1">
+                    <div className="text-xs font-semibold text-gray-700 uppercase">
+                      user
+                    </div>
+                    <TooltipPlus
+                      popupContent={
+                        <div className="max-w-[180px]">
+                          {t('workflow.nodes.llm.roleDescription.user')}
+                        </div>
+                      }
+                    >
+                      <HelpCircle className="w-3.5 h-3.5 text-gray-400" />
+                    </TooltipPlus>
+                  </div>
+                }
                 value={inputs.memory.query_prompt_template || '{{#sys.query#}}'}
                 onChange={handleSyeQueryChange}
                 readOnly={readOnly}
@@ -241,8 +252,13 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
                 availableNodes={availableNodes}
               />
 
-              {inputs.memory.query_prompt_template && !inputs.memory.query_prompt_template.includes('{{#sys.query#}}') && (
-                <div className='leading-[18px] text-xs font-normal text-[#DC6803]'>{t(`${i18nPrefix}.sysQueryInUser`)}</div>
+              {inputs.memory.query_prompt_template
+                && !inputs.memory.query_prompt_template.includes(
+                  '{{#sys.query#}}',
+                ) && (
+                <div className="leading-[18px] text-xs font-normal text-[#DC6803]">
+                  {t(`${i18nPrefix}.sysQueryInUser`)}
+                </div>
               )}
             </div>
           </div>
@@ -252,11 +268,16 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
         {isChatMode && (
           <>
             <Split />
-            <MemoryConfig
+            {/* <MemoryConfig
               readonly={readOnly}
               config={{ data: inputs.memory }}
               onChange={handleMemoryChange}
               canSetRoleName={isCompletionModel}
+            /> */}
+            <DirectlyAnswerConfig
+              readonly={readOnly}
+              generateDeltaContent={inputs.generateDeltaContent }
+              onChange={handleDeltaChange}
             />
           </>
         )}
@@ -269,7 +290,11 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
               title={t(`${i18nPrefix}.vision`)}
               tooltip={t('appDebug.vision.description')!}
               operations={
-                <Switch size='md' defaultValue={inputs.vision.enabled} onChange={handleVisionResolutionEnabledChange} />
+                <Switch
+                  size="md"
+                  defaultValue={inputs.vision.enabled}
+                  onChange={handleVisionResolutionEnabledChange}
+                />
               }
             >
               {inputs.vision.enabled
@@ -280,18 +305,17 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
                   />
                 )
                 : null}
-
             </Field>
           </>
         )}
       </div>
       <Split />
-      <div className='px-4 pt-4 pb-2'>
+      <div className="px-4 pt-4 pb-2">
         <OutputVars>
           <>
             <VarItem
-              name='text'
-              type='string'
+              name="text"
+              type="string"
               description={t(`${i18nPrefix}.outputVars.output`)}
             />
           </>

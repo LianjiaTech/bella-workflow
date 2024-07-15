@@ -123,12 +123,15 @@ public class WorkflowService {
         // 构建执行上下文
         WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
         WorkflowGraph graph = new WorkflowGraph(meta);
+        WorkflowRunState state = new WorkflowRunState();
+        state.putVariable("sys", "query", wr.getQuery());
+
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())
                 .workflowId(wr.getWorkflowId())
                 .runId(wr.getWorkflowRunId())
                 .graph(graph)
-                .state(new WorkflowRunState())
+                .state(state)
                 .userInputs(inputs)
                 .triggerFrom(wr.getTriggerFrom())
                 .build();

@@ -40,6 +40,9 @@ import lombok.Setter;
 public class LlmNode extends BaseNode {
 
     private Data data;
+    private long ttftStart;
+    private long ttftEnd;
+    private long tokens;
 
     public LlmNode(WorkflowSchema.Node meta) {
         super(meta);
@@ -53,11 +56,21 @@ public class LlmNode extends BaseNode {
             Map<String, Object> nodeInputs = new HashMap<>();
             // only support chat model currently
             List<ChatMessage> chatMessages = fetchChatMessages(context);
+
             // fill process data
             processData = fillProcessData(chatMessages);
+
             // invoke llm
             Flowable<ChatCompletionChunk> llmResult = invokeLlm(chatMessages);
             String result = handleInvokeResult(data.getTimeout(), context, llmResult, callback);
+
+            ProcessMetaData metadata = ProcessMetaData.builder()
+                    .ttlt((System.nanoTime() - ttftStart) / 1000000L)
+                    .ttft((this.ttftEnd - ttftStart) / 1000000L)
+                    .tokens(tokens)
+                    .build();
+            processData.put("meta_data", metadata);
+
             // fill outputs
             HashMap<String, Object> outputs = fillOutputs(result);
             return NodeRunResult.builder()
@@ -81,7 +94,7 @@ public class LlmNode extends BaseNode {
         return outputs;
     }
 
-    private static Map<String, Object> fillProcessData(List<ChatMessage> chatMessages) {
+    private Map<String, Object> fillProcessData(List<ChatMessage> chatMessages) {
         HashMap<String, Object> prompts = new HashMap<>();
         prompts.put("model_mode", "chat");
         prompts.put("prompt_messages", chatMessages);
@@ -98,8 +111,14 @@ public class LlmNode extends BaseNode {
         CompletableFuture<String> completionFuture = new CompletableFuture<>();
         // todo usage
         Disposable subscribe = llmResult.subscribe(chunk -> {
+            if(fullText.length() == 0) {
+                this.ttftEnd = System.nanoTime();
+            }
             String content = chunk.getChoices().get(0).getMessage().getContent();
             fullText.append(content);
+            if(chunk.getUsage() != null) {
+                tokens += chunk.getUsage().getCompletionTokens();
+            }
 
             if(data.isGenerateDeltaContent()) {
                 Delta delta = Delta.builder().content(Delta.fromText(content)).build();
@@ -132,6 +151,7 @@ public class LlmNode extends BaseNode {
                 ChatCompletionRequest.class);
         chatCompletionRequest.setMessages(chatMessages);
         chatCompletionRequest.setModel(data.getModel().getName());
+        this.ttftStart = System.nanoTime();
         return service.streamChatCompletion(chatCompletionRequest);
     }
 
@@ -169,6 +189,17 @@ public class LlmNode extends BaseNode {
             }
         }
         return result;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ProcessMetaData {
+        long ttft;
+        long ttlt;
+        long tokens;
     }
 
     @Getter

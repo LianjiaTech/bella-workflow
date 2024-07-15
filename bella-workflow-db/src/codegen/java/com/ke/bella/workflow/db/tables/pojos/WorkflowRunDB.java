@@ -25,6 +25,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        workflowRunId;
     private String        workflowRunShardingKey;
     private String        triggerFrom;
+    private String        query;
     private String        inputs;
     private String        outputs;
     private String        status;
@@ -52,6 +53,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.workflowRunId = value.workflowRunId;
         this.workflowRunShardingKey = value.workflowRunShardingKey;
         this.triggerFrom = value.triggerFrom;
+        this.query = value.query;
         this.inputs = value.inputs;
         this.outputs = value.outputs;
         this.status = value.status;
@@ -78,6 +80,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        workflowRunId,
         String        workflowRunShardingKey,
         String        triggerFrom,
+        String        query,
         String        inputs,
         String        outputs,
         String        status,
@@ -102,6 +105,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.workflowRunId = workflowRunId;
         this.workflowRunShardingKey = workflowRunShardingKey;
         this.triggerFrom = triggerFrom;
+        this.query = query;
         this.inputs = inputs;
         this.outputs = outputs;
         this.status = status;
@@ -226,6 +230,20 @@ API
      */
     public void setTriggerFrom(String triggerFrom) {
         this.triggerFrom = triggerFrom;
+    }
+
+    /**
+     * Getter for <code>workflow_run.query</code>.
+     */
+    public String getQuery() {
+        return this.query;
+    }
+
+    /**
+     * Setter for <code>workflow_run.query</code>.
+     */
+    public void setQuery(String query) {
+        this.query = query;
     }
 
     /**
@@ -475,6 +493,7 @@ API
         sb.append(", ").append(workflowRunId);
         sb.append(", ").append(workflowRunShardingKey);
         sb.append(", ").append(triggerFrom);
+        sb.append(", ").append(query);
         sb.append(", ").append(inputs);
         sb.append(", ").append(outputs);
         sb.append(", ").append(status);

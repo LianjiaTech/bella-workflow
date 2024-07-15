@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row13;
+import org.jooq.Row14;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -70,6 +70,11 @@ public class Workflow extends TableImpl<WorkflowRecord> {
      * The column <code>workflow.title</code>.
      */
     public final TableField<WorkflowRecord, String> TITLE = createField(DSL.name("title"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
+     * The column <code>workflow.mode</code>.
+     */
+    public final TableField<WorkflowRecord, String> MODE = createField(DSL.name("mode"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("workflow", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow.desc</code>.
@@ -201,11 +206,11 @@ public class Workflow extends TableImpl<WorkflowRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row13 type methods
+    // Row14 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row13<Long, String, String, String, String, String, Long, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row13) super.fieldsRow();
+    public Row14<Long, String, String, String, String, String, String, Long, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
+        return (Row14) super.fieldsRow();
     }
 }

@@ -93,7 +93,7 @@ public class DefaultSchema extends SchemaImpl {
             Instance.INSTANCE,
             Tenant.TENANT,
             Workflow.WORKFLOW,
-                WorkflowAggregate.WORKFLOW_AGGREGATE,
+            WorkflowAggregate.WORKFLOW_AGGREGATE,
             WorkflowNodeRun.WORKFLOW_NODE_RUN,
             WorkflowRun.WORKFLOW_RUN,
             WorkflowRunSharding.WORKFLOW_RUN_SHARDING,

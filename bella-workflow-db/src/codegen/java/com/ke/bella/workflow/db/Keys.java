@@ -28,7 +28,7 @@ import org.jooq.impl.Internal;
 
 
 /**
- * A class modelling foreign key relationships and constraints of tables in
+ * A class modelling foreign key relationships and constraints of tables in 
  * the default schema.
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
@@ -43,12 +43,8 @@ public class Keys {
     public static final UniqueKey<TenantRecord> KEY_TENANT_PRIMARY = Internal.createUniqueKey(Tenant.TENANT, DSL.name("KEY_tenant_PRIMARY"), new TableField[] { Tenant.TENANT.ID }, true);
     public static final UniqueKey<WorkflowRecord> KEY_WORKFLOW_IDX_TENANT_ID = Internal.createUniqueKey(Workflow.WORKFLOW, DSL.name("KEY_workflow_idx_tenant_id"), new TableField[] { Workflow.WORKFLOW.TENANT_ID, Workflow.WORKFLOW.WORKFLOW_ID, Workflow.WORKFLOW.VERSION }, true);
     public static final UniqueKey<WorkflowRecord> KEY_WORKFLOW_PRIMARY = Internal.createUniqueKey(Workflow.WORKFLOW, DSL.name("KEY_workflow_PRIMARY"), new TableField[] { Workflow.WORKFLOW.ID }, true);
-    public static final UniqueKey<WorkflowAggregateRecord> KEY_WORKFLOW_AGGREGATE_IDX_TENANT_ID = Internal.createUniqueKey(
-            WorkflowAggregate.WORKFLOW_AGGREGATE, DSL.name("KEY_workflow_aggregate_idx_tenant_id"),
-            new TableField[] { WorkflowAggregate.WORKFLOW_AGGREGATE.TENANT_ID, WorkflowAggregate.WORKFLOW_AGGREGATE.WORKFLOW_ID }, true);
-    public static final UniqueKey<WorkflowAggregateRecord> KEY_WORKFLOW_AGGREGATE_PRIMARY = Internal.createUniqueKey(
-            WorkflowAggregate.WORKFLOW_AGGREGATE, DSL.name("KEY_workflow_aggregate_PRIMARY"),
-            new TableField[] { WorkflowAggregate.WORKFLOW_AGGREGATE.ID }, true);
+    public static final UniqueKey<WorkflowAggregateRecord> KEY_WORKFLOW_AGGREGATE_IDX_TENANT_ID = Internal.createUniqueKey(WorkflowAggregate.WORKFLOW_AGGREGATE, DSL.name("KEY_workflow_aggregate_idx_tenant_id"), new TableField[] { WorkflowAggregate.WORKFLOW_AGGREGATE.TENANT_ID, WorkflowAggregate.WORKFLOW_AGGREGATE.WORKFLOW_ID }, true);
+    public static final UniqueKey<WorkflowAggregateRecord> KEY_WORKFLOW_AGGREGATE_PRIMARY = Internal.createUniqueKey(WorkflowAggregate.WORKFLOW_AGGREGATE, DSL.name("KEY_workflow_aggregate_PRIMARY"), new TableField[] { WorkflowAggregate.WORKFLOW_AGGREGATE.ID }, true);
     public static final UniqueKey<WorkflowNodeRunRecord> KEY_WORKFLOW_NODE_RUN_PRIMARY = Internal.createUniqueKey(WorkflowNodeRun.WORKFLOW_NODE_RUN, DSL.name("KEY_workflow_node_run_PRIMARY"), new TableField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.ID }, true);
     public static final UniqueKey<WorkflowRunRecord> KEY_WORKFLOW_RUN_IDX_WORKFLOW_RUN_ID = Internal.createUniqueKey(WorkflowRun.WORKFLOW_RUN, DSL.name("KEY_workflow_run_idx_workflow_run_id"), new TableField[] { WorkflowRun.WORKFLOW_RUN.WORKFLOW_RUN_ID }, true);
     public static final UniqueKey<WorkflowRunRecord> KEY_WORKFLOW_RUN_PRIMARY = Internal.createUniqueKey(WorkflowRun.WORKFLOW_RUN, DSL.name("KEY_workflow_run_PRIMARY"), new TableField[] { WorkflowRun.WORKFLOW_RUN.ID }, true);

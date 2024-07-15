@@ -84,6 +84,7 @@ public class DifyController {
                 .id(wf.getWorkflowId())
                 .name(wf.getTitle())
                 .description(wf.getDesc())
+                .mode(wf.getMode())
                 .build()));
 
         Page<DifyApp> ret = new Page<>();
@@ -103,6 +104,7 @@ public class DifyController {
                 .title(app.getName())
                 .desc(app.getDescription())
                 .graph(JsonUtils.toJson(schema))
+                .mode(app.getMode())
                 .build();
         WorkflowDB wf = ws.newWorkflow(sync);
         app.setId(wf.getWorkflowId());
@@ -138,7 +140,7 @@ public class DifyController {
         String name;
         String description;
         @Builder.Default
-        String mode = "workflow";
+        String mode = "advanced-chat";
         @Builder.Default
         String icon = "\ud83e\udd16";
         @Builder.Default
@@ -185,6 +187,7 @@ public class DifyController {
                 .id(workflowId)
                 .name(wf.getTitle())
                 .description(wf.getDesc())
+                .mode(wf.getMode())
                 .build();
     }
 
@@ -275,7 +278,7 @@ public class DifyController {
         return DifyResponse.builder().code(200).message("发布成功").status("success").build();
     }
 
-    @PostMapping("/{workflowId}/workflows/draft/run")
+    @PostMapping({ "/{workflowId}/workflows/draft/run", "/{workflowId}/advanced-chat/workflows/draft/run" })
     public Object workflowRun(@PathVariable String workflowId, @RequestBody WorkflowOps.WorkflowRun op) {
         initContext();
         op.setWorkflowId(workflowId);

@@ -43,6 +43,7 @@ export type CommonNodeType<T = {}> = {
   title: string
   desc: string
   type: BlockEnum
+  generateDeltaContent?: boolean
 } & T & Partial<Pick<ToolDefaultValue, 'provider_id' | 'provider_type' | 'provider_name' | 'tool_name'>>
 
 export type CommonEdgeType = {

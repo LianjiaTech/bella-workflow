@@ -109,7 +109,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
                 s['grid-bg-chat'],
               )}
               onClick={() => {
-                setAppMode('chat')
+                setAppMode('advanced-chat')
                 setShowChatBotType(true)
               }}
             >

@@ -64,16 +64,16 @@ export const useChecklist = (nodes: Node[], edges: Edge[]) => {
       }
     }
 
-    if (isChatMode && !nodes.find(node => node.data.type === BlockEnum.Answer)) {
-      list.push({
-        id: 'answer-need-added',
-        type: BlockEnum.Answer,
-        title: t('workflow.blocks.answer'),
-        errorMessage: t('workflow.common.needAnswerNode'),
-      })
-    }
+    // if (isChatMode && !nodes.find(node => node.data.type === BlockEnum.Answer)) {
+    //   list.push({
+    //     id: 'answer-need-added',
+    //     type: BlockEnum.Answer,
+    //     title: t('workflow.blocks.answer'),
+    //     errorMessage: t('workflow.common.needAnswerNode'),
+    //   })
+    // }
 
-    if (!isChatMode && !nodes.find(node => node.data.type === BlockEnum.End)) {
+    if (!nodes.find(node => node.data.type === BlockEnum.End)) {
       list.push({
         id: 'end-need-added',
         type: BlockEnum.End,

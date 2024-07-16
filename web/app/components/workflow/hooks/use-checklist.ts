@@ -133,12 +133,12 @@ export const useChecklistBeforePublish = () => {
       }
     }
 
-    if (isChatMode && !nodes.find(node => node.data.type === BlockEnum.Answer)) {
-      notify({ type: 'error', message: t('workflow.common.needAnswerNode') })
-      return false
-    }
+    // if (isChatMode && !nodes.find(node => node.data.type === BlockEnum.Answer)) {
+    //   notify({ type: 'error', message: t('workflow.common.needAnswerNode') })
+    //   return false
+    // }
 
-    if (!isChatMode && !nodes.find(node => node.data.type === BlockEnum.End)) {
+    if (nodes.find(node => node.data.type === BlockEnum.End)) {
       notify({ type: 'error', message: t('workflow.common.needEndNode') })
       return false
     }

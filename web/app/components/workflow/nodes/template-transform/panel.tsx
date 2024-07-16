@@ -2,6 +2,7 @@ import type { FC } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { CodeLanguage } from '../code/types'
+import DirectlyAnswerConfig from '../_base/components/directly-answer-config'
 import useConfig from './use-config'
 import type { TemplateTransformNodeType } from './types'
 import VarList from '@/app/components/workflow/nodes/_base/components/variable/var-list'
@@ -24,6 +25,7 @@ const Panel: FC<NodePanelProps<TemplateTransformNodeType>> = ({
   const { t } = useTranslation()
 
   const {
+    isChatMode,
     readOnly,
     inputs,
     availableVars,
@@ -43,6 +45,7 @@ const Panel: FC<NodePanelProps<TemplateTransformNodeType>> = ({
     inputVarValues,
     setInputVarValues,
     runResult,
+    handleDeltaChange,
   } = useConfig(id, data)
 
   return (
@@ -91,6 +94,19 @@ const Panel: FC<NodePanelProps<TemplateTransformNodeType>> = ({
           onChange={handleCodeChange}
         />
       </div>
+
+      {isChatMode && (
+        <div>
+          <Split />
+          <DirectlyAnswerConfig
+            readonly={readOnly}
+            generateDeltaContent={inputs.generateDeltaContent }
+            onChange={handleDeltaChange}
+            className='px-4 pt-4 pb-2'
+          />
+        </div>
+      )}
+
       <Split />
       <div className='px-4 pt-4 pb-2'>
         <OutputVars>

@@ -138,7 +138,7 @@ export const useChecklistBeforePublish = () => {
     //   return false
     // }
 
-    if (nodes.find(node => node.data.type === BlockEnum.End)) {
+    if (!nodes.find(node => node.data.type === BlockEnum.End)) {
       notify({ type: 'error', message: t('workflow.common.needEndNode') })
       return false
     }

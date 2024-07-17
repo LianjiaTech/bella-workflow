@@ -56,7 +56,7 @@ const JsonEditor: FC<Props> = ({
             </div>
           </div>
           {payload && payload.map((item, index) => (
-            <div key={item.variable} className='flex items-center space-x-1'>
+            <div key={index} className='flex items-center space-x-1'>
               <Item
                 index={index}
                 value={item}

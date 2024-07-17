@@ -124,6 +124,7 @@ export const VAR_ITEM_TEMPLATE = {
   type: 'string',
   max_length: DEFAULT_VALUE_MAX_LEN,
   required: true,
+  isRoot: true,
 }
 
 export const VAR_ITEM_TEMPLATE_IN_WORKFLOW = {
@@ -132,6 +133,7 @@ export const VAR_ITEM_TEMPLATE_IN_WORKFLOW = {
   type: InputVarType.textInput,
   max_length: DEFAULT_VALUE_MAX_LEN,
   required: true,
+  isRoot: true,
   options: [],
   varType: 'object',
   children: [],

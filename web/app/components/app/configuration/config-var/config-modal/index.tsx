@@ -3,12 +3,13 @@ import type { FC } from 'react'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
+import produce from 'immer'
 import ModalFoot from '../modal-foot'
 import ConfigSelect from '../config-select'
 import ConfigString from '../config-string'
 import SelectTypeItem from '../select-type-item'
 import Field from './field'
-import ConditionList from './components/condition-list'
+import JsonEditor from './components/json-editor'
 import Toast from '@/app/components/base/toast'
 import { checkKeys, getNewVarInWorkflow } from '@/utils/var'
 import ConfigContext from '@/context/debug-configuration'
@@ -66,15 +67,33 @@ const ConfigModal: FC<IConfigModalProps> = ({
       })
     }
   }, [t])
+
+  const handleCheckError = function (payload: InputVar[]): boolean {
+    let isError = false
+    payload.forEach((v) => {
+      if (v.variable === '')
+        isError = true
+
+      if (v.children)
+        isError = isError || handleCheckError(v.children)
+    })
+    return isError
+  }
+
   // 处理段落的数据
   const handleJsonChange = useCallback(
-    (key: string) => {
-      return (value: any) => {
-        // console.log(key, 'value', value)
-        setTempPayload(value[0])
+    (value: InputVar[]) => {
+      if (value) {
+        const newPayLoad = produce(payload, (draft: InputVar) => {
+          return {
+            ...draft,
+            ...value[0],
+          }
+        }) as InputVar
+        setTempPayload(newPayLoad)
       }
     },
-    [t],
+    [tempPayload, setTempPayload],
   )
 
   const handleVarKeyBlur = useCallback((e: any) => {
@@ -100,16 +119,14 @@ const ConfigModal: FC<IConfigModalProps> = ({
       Toast.notify({ type: 'error', message: t('appDebug.variableConig.errorMsg.varNameRequired') })
       return
     }
-    // TODO: check if key already exists. should the consider the edit case
-    // if (varKeys.map(key => key?.trim()).includes(tempPayload.variable.trim())) {
-    //   Toast.notify({
-    //     type: 'error',
-    //     message: t('appDebug.varKeyError.keyAlreadyExists', { key: tempPayload.variable }),
-    //   })
-    //   return
-    // }
+
     if (tempPayload.type === 'json')
       tempPayload.label = tempPayload.variable
+
+    if (handleCheckError([tempPayload])) {
+      Toast.notify({ type: 'error', message: t('appDebug.variableConig.errorMsg.varNameRequired') })
+      return
+    }
 
     if (!tempPayload.label) {
       Toast.notify({ type: 'error', message: t('appDebug.variableConig.errorMsg.labelNameRequired') })
@@ -146,7 +163,7 @@ const ConfigModal: FC<IConfigModalProps> = ({
       isShow={isShow}
       onClose={onClose}
       wrapperClassName='!z-[100]'
-      className='!max-w-[700px]'
+      className='!max-w-[700px] !overflow-visible'
     >
       <div className='mb-8'>
         <div className='space-y-2'>
@@ -154,15 +171,16 @@ const ConfigModal: FC<IConfigModalProps> = ({
           <Field title={t('appDebug.variableConig.fieldType')}>
             <div className='flex space-x-2'>
               <SelectTypeItem type={InputVarType.textInput} selected={type === InputVarType.textInput} onClick={() => handlePayloadChange('type')(InputVarType.textInput)} />
+              <SelectTypeItem type={InputVarType.json} selected={type === InputVarType.json} onClick={() => handlePayloadChange('type')(InputVarType.json)} />
               <SelectTypeItem type={InputVarType.select} selected={type === InputVarType.select} onClick={() => handlePayloadChange('type')(InputVarType.select)} />
               <SelectTypeItem type={InputVarType.number} selected={type === InputVarType.number} onClick={() => handlePayloadChange('type')(InputVarType.number)} />
             </div>
           </Field>
           {type === InputVarType.json
             ? (
-              <ConditionList
-                list={[tempPayload]}
-                onChange={handleJsonChange('dataList')}
+              <JsonEditor
+                value={[tempPayload]}
+                onChange={handleJsonChange}
               />
             )
             : (

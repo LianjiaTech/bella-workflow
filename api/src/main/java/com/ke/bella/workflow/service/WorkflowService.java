@@ -1,0 +1,384 @@
+package com.ke.bella.workflow.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ke.bella.workflow.service.WorkflowRunState.NodeRunResult;
+import com.ke.bella.workflow.service.WorkflowRunState.WorkflowRunStatus;
+import com.ke.bella.workflow.service.WorkflowSchema.Node;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
+import com.ke.bella.workflow.db.repo.Page;
+import com.ke.bella.workflow.db.repo.WorkflowRepo;
+import com.ke.bella.workflow.db.tables.pojos.TenantDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
+
+@Component
+public class WorkflowService {
+
+    @Resource
+    WorkflowRepo repo;
+
+    @Resource
+    WorkflowRunCountUpdator counter;
+
+    @PostConstruct
+    public void init() {
+        // update counter every 5s.
+        TaskExecutor.scheduleAtFixedRate(() -> counter.flush(), 5);
+
+        // try sharding every 60s.
+        TaskExecutor.scheduleAtFixedRate(() -> counter.trySharding(), 60);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public WorkflowDB newWorkflow(WorkflowSync op) {
+        WorkflowDB workflowDb = repo.addDraftWorkflow(op);
+        repo.addWorkflowAggregate(workflowDb);
+        return workflowDb;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void syncWorkflow(WorkflowSync op) {
+        WorkflowDB wf = repo.queryDraftWorkflow(op.getWorkflowId());
+        if(wf == null) {
+            WorkflowDB workflowDb = repo.addDraftWorkflow(op);
+            repo.addWorkflowAggregate(workflowDb);
+        } else if(!StringUtils.equals(wf.getGraph(), op.getGraph())) {
+            WorkflowSchema old = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+            WorkflowSchema opg = Objects.isNull(op.getGraph()) ? null : JsonUtils.fromJson(op.getGraph(), WorkflowSchema.class);
+            if(!old.equals(opg)) {
+                repo.updateDraftWorkflow(op);
+                repo.updateWorkflowAggregate(op);
+            }
+        }
+    }
+
+    public WorkflowDB getDraftWorkflow(String workflowId) {
+        return repo.queryDraftWorkflow(workflowId);
+    }
+
+    public Page<WorkflowDB> pageDraftWorkflow(WorkflowPage op) {
+        return repo.pageDraftWorkflow(op);
+    }
+
+    public WorkflowDB getPublishedWorkflow(String workflowId, Long version) {
+        return repo.queryPublishedWorkflow(workflowId, version);
+    }
+
+    public WorkflowDB getWorkflow(String workflowId, Long version) {
+        return repo.queryWorkflow(workflowId, version);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void publish(String workflowId) {
+        // 校验工作流配置是否合法
+        WorkflowDB wf = getDraftWorkflow(workflowId);
+        validateWorkflow(wf);
+
+        // 校验是否有过成功的调试记录
+        WorkflowRunDB wr = repo.queryDraftWorkflowRunSuccessed(wf);
+        if(wr == null) {
+            throw new IllegalArgumentException("工作流还未调试通过，请至少完整执行成功一次");
+        }
+
+        long version = repo.publishWorkflow(workflowId);
+        repo.publishWorkflowAggregate(workflowId, version);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public TenantDB createTenant(String tenantName, String parentTenantId) {
+        return repo.addTenant(tenantName, parentTenantId);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void runWorkflow(WorkflowRunDB wr, Map inputs, IWorkflowCallback callback) {
+        // 校验工作流是否合法
+        WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
+
+        // 构建执行上下文
+        WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        WorkflowGraph graph = new WorkflowGraph(meta);
+        WorkflowRunState state = new WorkflowRunState();
+        state.putVariable("sys", "query", wr.getQuery());
+
+        WorkflowContext context = WorkflowContext.builder()
+                .tenantId(wr.getTenantId())
+                .workflowId(wr.getWorkflowId())
+                .runId(wr.getWorkflowRunId())
+                .graph(graph)
+                .state(state)
+                .userInputs(inputs)
+                .triggerFrom(wr.getTriggerFrom())
+                .build();
+        new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void runNode(WorkflowRunDB wr, String nodeId, Map inputs, IWorkflowCallback callback) {
+        // 校验工作流是否合法
+        WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
+
+        // 构建执行上下文
+        WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        WorkflowGraph graph = new WorkflowGraph(meta);
+        WorkflowContext context = WorkflowContext.builder()
+                .tenantId(wr.getTenantId())
+                .workflowId(wr.getWorkflowId())
+                .runId(wr.getWorkflowRunId())
+                .graph(graph)
+                .state(new WorkflowRunState())
+                .userInputs(inputs)
+                .triggerFrom(wr.getTriggerFrom())
+                .build();
+        new WorkflowRunner().runNode(context, new WorkflowRunCallback(this, callback), nodeId);
+    }
+
+    public void validateWorkflow(WorkflowDB wf) {
+        // 校验工作流配置是否合法
+        String graphJson = wf.getGraph();
+        try {
+            WorkflowSchema meta = JsonUtils.fromJson(graphJson, WorkflowSchema.class);
+            WorkflowGraph graph = new WorkflowGraph(meta);
+            graph.validate();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("工作流配置不合法: " + e.getMessage());
+        }
+    }
+
+    public WorkflowRunDB newWorkflowRun(WorkflowDB wf, WorkflowRun op) {
+        final WorkflowRunDB wr = repo.addWorkflowRun(wf, op, JsonUtils.toJson(op.getInputs()));
+        TaskExecutor.submit(() -> counter.increase(wr));
+        return wr;
+    }
+
+    public void updateWorkflowRun(WorkflowContext context, String status) {
+        updateWorkflowRun(context, status, "");
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void updateWorkflowRun(WorkflowContext context, String status, Map outputs) {
+        WorkflowRunDB wr = new WorkflowRunDB();
+        wr.setTenantId(context.getTenantId());
+        wr.setWorkflowId(context.getWorkflowId());
+        wr.setWorkflowRunId(context.getRunId());
+        wr.setStatus(status);
+        if(outputs != null) {
+            wr.setOutputs(JsonUtils.toJson(outputs));
+        }
+
+        repo.updateWorkflowRun(wr);
+    }
+
+    public void updateWorkflowRun(WorkflowContext context, String status, String error) {
+        WorkflowRunDB wr = new WorkflowRunDB();
+        wr.setTenantId(context.getTenantId());
+        wr.setWorkflowId(context.getWorkflowId());
+        wr.setWorkflowRunId(context.getRunId());
+        wr.setStatus(status);
+        wr.setError(error);
+
+        repo.updateWorkflowRun(wr);
+    }
+
+    public void markWorkflowRunCallbacked(String workflowRunId) {
+        WorkflowRunDB wr = new WorkflowRunDB();
+        wr.setWorkflowRunId(workflowRunId);
+        wr.setCallbackStatus(1);
+        repo.updateWorkflowRun(wr);
+    }
+
+    public void createWorkflowNodeRun(WorkflowContext context, String nodeId, String nodeRunId, String status) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(context.getTenantId());
+        wnr.setWorkflowId(context.getWorkflowId());
+        wnr.setWorkflowRunId(context.getRunId());
+        wnr.setNodeId(nodeId);
+        wnr.setStatus(status);
+        wnr.setInputs("");
+        wnr.setOutputs("");
+        wnr.setError("");
+        wnr.setProcessData("");
+        wnr.setNotifyData("");
+        wnr.setNodeRunId(nodeRunId);
+
+        Node meta = context.getGraph().node(nodeId);
+        wnr.setNodeType(meta.getType());
+        wnr.setTitle(meta.getTitle());
+
+        repo.addWorkflowRunNode(wnr);
+    }
+
+    public void updateWorkflowNodeRun(WorkflowContext context, String nodeId, String nodeRunId, String status) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(context.getTenantId());
+        wnr.setWorkflowId(context.getWorkflowId());
+        wnr.setWorkflowRunId(context.getRunId());
+        wnr.setNodeId(nodeId);
+        wnr.setNodeRunId(nodeRunId);
+        wnr.setStatus(status);
+
+        repo.updateWorkflowNodeRun(wnr);
+    }
+
+    public void updateWorkflowNodeRunWaited(WorkflowContext context, String nodeId, String nodeRunId) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(context.getTenantId());
+        wnr.setWorkflowId(context.getWorkflowId());
+        wnr.setWorkflowRunId(context.getRunId());
+        wnr.setNodeId(nodeId);
+        wnr.setNodeRunId(nodeRunId);
+        wnr.setStatus(NodeRunResult.Status.waiting.name());
+
+        NodeRunResult nodeState = context.getState().getNodeState(nodeId);
+        wnr.setInputs(JsonUtils.toJson(nodeState.getInputs()));
+        wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
+        wnr.setElapsedTime(nodeState.getElapsedTime());
+
+        repo.updateWorkflowNodeRun(wnr);
+    }
+
+    public void updateWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(context.getTenantId());
+        wnr.setWorkflowId(context.getWorkflowId());
+        wnr.setWorkflowRunId(context.getRunId());
+        wnr.setNodeId(nodeId);
+        wnr.setNodeRunId(nodeRunId);
+        wnr.setStatus(NodeRunResult.Status.succeeded.name());
+
+        NodeRunResult nodeState = context.getState().getNodeState(nodeId);
+        wnr.setInputs(JsonUtils.toJson(nodeState.getInputs()));
+        wnr.setOutputs(JsonUtils.toJson(nodeState.getOutputs()));
+        wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
+        wnr.setActivedTargetHandles(JsonUtils.toJson(nodeState.getActivatedSourceHandles()));
+        wnr.setElapsedTime(nodeState.getElapsedTime());
+
+        repo.updateWorkflowNodeRun(wnr);
+    }
+
+    public void updateWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(context.getTenantId());
+        wnr.setWorkflowId(context.getWorkflowId());
+        wnr.setWorkflowRunId(context.getRunId());
+        wnr.setNodeId(nodeId);
+        wnr.setNodeRunId(nodeRunId);
+        wnr.setStatus(NodeRunResult.Status.failed.name());
+        wnr.setError(error);
+
+        NodeRunResult nodeState = context.getState().getNodeState(nodeId);
+        wnr.setInputs(JsonUtils.toJson(nodeState.getInputs()));
+        wnr.setOutputs(JsonUtils.toJson(nodeState.getOutputs()));
+        wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
+        wnr.setElapsedTime(nodeState.getElapsedTime());
+
+        repo.updateWorkflowNodeRun(wnr);
+    }
+
+    public Page<WorkflowRunDB> listWorkflowRun(WorkflowRunPage op) {
+        return repo.listWorkflowRun(op);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void notifyWorkflowRun(WorkflowRunDB wr, String nodeId, String nodeRunId, Map inputs) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(wr.getTenantId());
+        wnr.setWorkflowId(wr.getWorkflowId());
+        wnr.setWorkflowRunId(wr.getWorkflowRunId());
+        wnr.setNodeId(nodeId);
+        wnr.setStatus(NodeRunResult.Status.notified.name());
+        wnr.setNotifyData(JsonUtils.toJson(inputs));
+        wnr.setNodeRunId(nodeRunId);
+
+        repo.updateWorkflowNodeRun(wnr);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public boolean tryResumeWorkflow(WorkflowContext context, IWorkflowCallback callback) {
+        Set<String> nodeids = context.getState().waitingNodeIds();
+        List<WorkflowNodeRunDB> wrns = repo.queryWorkflowNodeRuns(context.getRunId(), nodeids);
+
+        List<String> ids = new ArrayList<>();
+        Map<String, Map> notifiedData = new HashMap<>();
+        wrns.forEach(r -> {
+            if(r.getStatus().equals(NodeRunResult.Status.notified.name())) {
+                ids.add(r.getNodeId());
+                notifiedData.put(r.getNodeId(), JsonUtils.fromJson(r.getNotifyData(), Map.class));
+            }
+        });
+
+        // 简化同步操作，等所有节点都回来再继续执行
+        if(!ids.isEmpty() && ids.size() != nodeids.size()) {
+            return false;
+        }
+
+        context.getState().putNotifyData(notifiedData);
+        new WorkflowRunner().resume(context, new WorkflowRunCallback(this, callback), ids);
+        return true;
+    }
+
+    public WorkflowRunDB getWorkflowRun(String workflowRunId) {
+        return repo.queryWorkflowRun(workflowRunId);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void tryResumeWorkflow(String workflowRunId, IWorkflowCallback callback) {
+        WorkflowRunDB wr = repo.queryWorkflowRun(workflowRunId);
+        if(WorkflowRunStatus.valueOf(wr.getStatus()) != WorkflowRunStatus.suspended) {
+            return;
+        }
+
+        // 构建执行上下文
+        WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
+        WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        WorkflowGraph graph = new WorkflowGraph(meta);
+        WorkflowContext context = WorkflowContext.builder()
+                .tenantId(wr.getTenantId())
+                .workflowId(wr.getWorkflowId())
+                .runId(wr.getWorkflowRunId())
+                .graph(graph)
+                .state(getWorkflowRunState(wr.getWorkflowRunId()))
+                .userInputs(new HashMap())
+                .triggerFrom(wr.getTriggerFrom())
+                .build();
+
+        tryResumeWorkflow(context, callback);
+    }
+
+    public WorkflowRunState getWorkflowRunState(String workflowRunId) {
+        List<WorkflowNodeRunDB> wrs = repo.queryWorkflowNodeRuns(workflowRunId);
+        WorkflowRunState state = new WorkflowRunState();
+        wrs.forEach(wr -> state.putNodeState(wr.getNodeId(), NodeRunResult.builder()
+                .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class))
+                .outputs(JsonUtils.fromJson(wr.getOutputs(), Map.class))
+                .processData(JsonUtils.fromJson(wr.getProcessData(), Map.class))
+                .status(NodeRunResult.Status.valueOf(wr.getStatus()))
+                .build()));
+        return state;
+    }
+
+    public Page<WorkflowDB> pageWorkflows(WorkflowPage op) {
+        return repo.pageWorkflows(op);
+    }
+
+    public Page<WorkflowAggregateDB> pageWorkflowAggregate(WorkflowPage op) {
+        return repo.pageWorkflowAggregate(op);
+    }
+}

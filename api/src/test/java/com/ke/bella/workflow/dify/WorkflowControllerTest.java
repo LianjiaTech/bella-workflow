@@ -17,12 +17,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ke.bella.workflow.AbstractTest;
-import com.ke.bella.workflow.service.JsonUtils;
 import com.ke.bella.workflow.api.BellaResponse;
 import com.ke.bella.workflow.api.WorkflowController;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.service.WorkflowService;
+import com.ke.bella.workflow.utils.JsonUtils;
 
 @SuppressWarnings("rawtypes")
 @Transactional

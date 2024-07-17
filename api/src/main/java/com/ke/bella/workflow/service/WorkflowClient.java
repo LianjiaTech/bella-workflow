@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
-import com.ke.bella.workflow.service.utils.HttpUtils;
+import com.ke.bella.workflow.utils.HttpUtils;
+import com.ke.bella.workflow.utils.JsonUtils;
 
 @Component
 public class WorkflowClient {

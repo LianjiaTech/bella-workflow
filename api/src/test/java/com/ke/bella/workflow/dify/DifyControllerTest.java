@@ -13,10 +13,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.andrewoma.dexx.collection.Maps;
 import com.ke.bella.workflow.AbstractTest;
+import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
-import com.ke.bella.workflow.service.JsonUtils;
-import com.ke.bella.workflow.service.WorkflowSchema;
+import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.api.DifyController;
 import com.ke.bella.workflow.api.Operator;
 import com.ke.bella.workflow.api.WorkflowOps;

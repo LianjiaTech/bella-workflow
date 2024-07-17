@@ -5,7 +5,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Collections;
 
-import com.ke.bella.workflow.service.JsonUtils;
+import com.ke.bella.workflow.trigger.WorkflowScheduler;
+import com.ke.bella.workflow.utils.JsonUtils;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,7 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.ke.bella.workflow.api.WorkflowOps;
-import com.ke.bella.workflow.service.trigger.WorkflowScheduler;
 import com.ke.bella.workflow.api.TriggerController;
 
 @AutoConfigureMockMvc

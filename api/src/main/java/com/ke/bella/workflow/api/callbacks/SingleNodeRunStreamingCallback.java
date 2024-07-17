@@ -3,10 +3,10 @@ package com.ke.bella.workflow.api.callbacks;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.ke.bella.workflow.service.WorkflowCallbackAdaptor;
-import com.ke.bella.workflow.service.WorkflowContext;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.ke.bella.workflow.WorkflowCallbackAdaptor;
+import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.api.SseHelper;
 
 public class SingleNodeRunStreamingCallback extends WorkflowCallbackAdaptor {

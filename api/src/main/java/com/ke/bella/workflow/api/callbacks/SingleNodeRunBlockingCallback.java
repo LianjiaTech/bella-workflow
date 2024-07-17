@@ -3,8 +3,8 @@ package com.ke.bella.workflow.api.callbacks;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.ke.bella.workflow.service.WorkflowCallbackAdaptor;
-import com.ke.bella.workflow.service.WorkflowContext;
+import com.ke.bella.workflow.WorkflowCallbackAdaptor;
+import com.ke.bella.workflow.WorkflowContext;
 
 public class SingleNodeRunBlockingCallback extends WorkflowCallbackAdaptor {
     Map<String, Object> data = new LinkedHashMap<>();

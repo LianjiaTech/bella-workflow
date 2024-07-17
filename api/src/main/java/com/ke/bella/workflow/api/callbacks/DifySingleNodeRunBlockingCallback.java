@@ -1,7 +1,7 @@
 package com.ke.bella.workflow.api.callbacks;
 
-import com.ke.bella.workflow.service.WorkflowCallbackAdaptor;
-import com.ke.bella.workflow.service.WorkflowContext;
+import com.ke.bella.workflow.WorkflowCallbackAdaptor;
+import com.ke.bella.workflow.WorkflowContext;
 
 public class DifySingleNodeRunBlockingCallback extends WorkflowCallbackAdaptor {
     DifyWorkflowRunStreamingCallback.DifyData data = DifyWorkflowRunStreamingCallback.DifyData.builder().build();

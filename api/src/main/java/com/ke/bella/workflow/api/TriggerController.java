@@ -5,6 +5,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import com.ke.bella.workflow.service.WorkflowSchedulingService;
+import com.ke.bella.workflow.utils.CronUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
-import com.ke.bella.workflow.service.utils.CronUtils;
 
 @RestController
 @RequestMapping("/v1/workflow/trigger")

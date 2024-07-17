@@ -3,11 +3,11 @@ package com.ke.bella.workflow.api.callbacks;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.ke.bella.workflow.service.TaskExecutor;
-import com.ke.bella.workflow.service.WorkflowCallbackAdaptor;
-import com.ke.bella.workflow.service.WorkflowContext;
+import com.ke.bella.workflow.TaskExecutor;
+import com.ke.bella.workflow.WorkflowCallbackAdaptor;
+import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.service.WorkflowService;
-import com.ke.bella.workflow.service.utils.HttpUtils;
+import com.ke.bella.workflow.utils.HttpUtils;
 
 public class WorkflowRunNotifyCallback extends WorkflowCallbackAdaptor {
     Map<String, Object> data = new LinkedHashMap<>();

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.ke.bella.workflow.service.TaskExecutor;
+import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunShardingDB;

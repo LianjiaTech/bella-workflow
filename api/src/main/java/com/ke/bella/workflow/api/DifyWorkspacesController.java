@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.ke.bella.workflow.service.JsonUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,13 +18,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
-import com.ke.bella.workflow.service.tool.ApiTool;
-import com.ke.bella.workflow.service.tool.BellaToolService;
-import com.ke.bella.workflow.service.tool.BellaToolService.ToolCollect;
-import com.ke.bella.workflow.service.utils.OpenapiUtil;
+import com.ke.bella.workflow.tool.ApiTool;
+import com.ke.bella.workflow.tool.BellaToolService;
+import com.ke.bella.workflow.tool.BellaToolService.ToolCollect;
+import com.ke.bella.workflow.utils.JsonUtils;
+import com.ke.bella.workflow.utils.OpenapiUtil;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -123,6 +124,7 @@ public class DifyWorkspacesController {
     @NoArgsConstructor
     @SuperBuilder(toBuilder = true)
     @Data
+    @SuppressWarnings("rawtypes")
     public static class DifyApiToolProvider {
         private String id;
         private String author;
@@ -136,6 +138,7 @@ public class DifyWorkspacesController {
         private Map original_credentials;
         private Boolean is_team_authorization;
         private TeamCredentials team_credentials;
+        @Default
         private Boolean allow_delete = true;
         private List<Tool> tools;
         private List<String> labels;

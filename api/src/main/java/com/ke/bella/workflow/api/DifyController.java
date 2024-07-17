@@ -9,11 +9,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.service.JsonUtils;
-import com.ke.bella.workflow.service.TaskExecutor;
-import com.ke.bella.workflow.service.WorkflowSchema;
-import com.ke.bella.workflow.service.WorkflowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
@@ -30,6 +25,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.ke.bella.workflow.TaskExecutor;
+import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
@@ -37,10 +34,14 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
-import com.ke.bella.workflow.service.node.NodeType;
+import com.ke.bella.workflow.node.NodeType;
+import com.ke.bella.workflow.service.Configs;
+import com.ke.bella.workflow.service.WorkflowService;
+import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -85,6 +86,7 @@ public class DifyController {
                 .name(wf.getTitle())
                 .description(wf.getDesc())
                 .mode(wf.getMode())
+                .api_base_url(Configs.API_BASE)
                 .build()));
 
         Page<DifyApp> ret = new Page<>();
@@ -150,8 +152,7 @@ public class DifyController {
         Object model_config;
         @Builder.Default
         Site site = new Site();
-        @Builder.Default
-        String api_base_url = "https://example.com/v1";
+        String api_base_url;
         int created_at;
         @Builder.Default
         Object[] deleted_tools = new Object[0];

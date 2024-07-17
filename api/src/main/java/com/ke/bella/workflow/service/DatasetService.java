@@ -18,7 +18,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
 import com.ke.bella.workflow.api.DatasetOps;
 import com.ke.bella.workflow.db.repo.Page;
-import com.ke.bella.workflow.service.utils.HttpUtils;
+import com.ke.bella.workflow.utils.HttpUtils;
+import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

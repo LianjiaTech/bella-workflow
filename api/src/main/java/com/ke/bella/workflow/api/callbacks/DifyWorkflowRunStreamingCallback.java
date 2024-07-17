@@ -6,9 +6,9 @@ import java.util.Objects;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ke.bella.workflow.service.WorkflowCallbackAdaptor;
-import com.ke.bella.workflow.service.WorkflowContext;
-import com.ke.bella.workflow.service.WorkflowRunState;
+import com.ke.bella.workflow.WorkflowCallbackAdaptor;
+import com.ke.bella.workflow.WorkflowContext;
+import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.api.SseHelper;
 
 import lombok.AllArgsConstructor;

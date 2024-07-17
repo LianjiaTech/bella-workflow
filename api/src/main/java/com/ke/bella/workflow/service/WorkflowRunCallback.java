@@ -1,7 +1,10 @@
 package com.ke.bella.workflow.service;
 
-import com.ke.bella.workflow.service.WorkflowRunState.NodeRunResult;
-import com.ke.bella.workflow.service.WorkflowRunState.WorkflowRunStatus;
+import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.WorkflowCallbackAdaptor;
+import com.ke.bella.workflow.WorkflowContext;
+import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
+import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 
 import lombok.extern.slf4j.Slf4j;
 

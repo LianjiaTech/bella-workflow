@@ -11,7 +11,7 @@ import SelectTypeItem from '../select-type-item'
 import Field from './field'
 import JsonEditor from './components/json-editor'
 import Toast from '@/app/components/base/toast'
-import { checkKeys, getNewVarInWorkflow } from '@/utils/var'
+import { checkKey, checkKeys, getNewVarInWorkflow } from '@/utils/var'
 import ConfigContext from '@/context/debug-configuration'
 import type { InputVar, MoreInfo } from '@/app/components/workflow/types'
 import Modal from '@/app/components/base/modal'
@@ -71,9 +71,15 @@ const ConfigModal: FC<IConfigModalProps> = ({
   const handleCheckError = function (payload: InputVar[]): boolean {
     let isError = false
     payload.forEach((v) => {
-      if (v.variable === '')
+      const isValid = checkKey(v.variable, false)
+      if (isValid !== true) {
+        Toast.notify({
+          type: 'error',
+          message: t(`appDebug.varKeyError.${isValid}`, { key: v.variable }),
+        })
         isError = true
-
+        return
+      }
       if (v.children)
         isError = isError || handleCheckError(v.children)
     })
@@ -123,10 +129,9 @@ const ConfigModal: FC<IConfigModalProps> = ({
     if (tempPayload.type === 'json')
       tempPayload.label = tempPayload.variable
 
-    if (handleCheckError([tempPayload])) {
-      Toast.notify({ type: 'error', message: t('appDebug.variableConig.errorMsg.varNameRequired') })
+    const isError = handleCheckError([tempPayload])
+    if (isError)
       return
-    }
 
     if (!tempPayload.label) {
       Toast.notify({ type: 'error', message: t('appDebug.variableConig.errorMsg.labelNameRequired') })

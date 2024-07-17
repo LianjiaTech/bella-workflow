@@ -72,9 +72,16 @@ const useConfig = (id: string, payload: StartNodeType) => {
     }
 
     if (moreInfo?.payload?.type === ChangeType.remove) {
-      if (isVarUsedInNodes([id, moreInfo?.payload?.payload?.beforeKey || ''])) {
+      const oldVars = varSelectorConvert([id], inputs.variables)
+      const removeVarSelectorList = []
+      oldVars.forEach((v) => {
+        if (isVarUsedInNodes(v))
+          removeVarSelectorList.push(v)
+      })
+
+      if (removeVarSelectorList.length > 0) {
         showRemoveVarConfirm()
-        setRemovedVar([[id, moreInfo?.payload?.payload?.beforeKey || '']])
+        setRemovedVar(removeVarSelectorList)
         setRemoveIndex(moreInfo?.index as number)
         return
       }

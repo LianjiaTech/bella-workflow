@@ -50,7 +50,7 @@ const TypeSelector: FC<Props> = ({
     setHide()
   }, ref)
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative w-[74px]" ref={ref}>
       {trigger
         ? (
           <div

@@ -115,10 +115,12 @@ export type InputVar = {
   varType?: string
   max_length?: number
   default?: string
+  isRoot?: boolean
   required: boolean
   hint?: string
   options?: string[]
   alias?: string
+  error?: string
   children?: InputVar[]
 }
 

@@ -98,7 +98,7 @@ const Panel: FC<NodePanelProps<StartNodeType>> = ({
                   <VarItem
                     readonly
                     payload={{
-                      variable: 'sys.conversation_id',
+                      variable: 'sys.thread_id',
                     } as any}
                     rightContent={
                       <div className='text-xs font-normal text-gray-500'>

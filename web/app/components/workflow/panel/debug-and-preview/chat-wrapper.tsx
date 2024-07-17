@@ -72,7 +72,7 @@ const ChatWrapper = forwardRef<ChatWrapperRefType>((_, ref) => {
         query,
         files,
         inputs: workflowStore.getState().inputs,
-        conversation_id: conversationId,
+        thread_id: conversationId,
       },
       {
         onGetSuggestedQuestions: (messageId, getAbortController) => fetchSuggestedQuestions(appDetail!.id, messageId, getAbortController),

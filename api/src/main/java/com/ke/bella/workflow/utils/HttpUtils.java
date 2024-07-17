@@ -2,6 +2,7 @@ package com.ke.bella.workflow.utils;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -111,5 +112,53 @@ public class HttpUtils {
                 resp.close();
             }
         }
+    }
+
+    private static final Map<String, String> MIME_TO_EXTENSION = new HashMap<>();
+    static {
+        // 初始化MIME类型到文件扩展名的映射
+        MIME_TO_EXTENSION.put("text/html", "html");
+        MIME_TO_EXTENSION.put("text/css", "css");
+        MIME_TO_EXTENSION.put("text/javascript", "js");
+        MIME_TO_EXTENSION.put("image/jpeg", "jpg");
+        MIME_TO_EXTENSION.put("image/png", "png");
+        MIME_TO_EXTENSION.put("image/gif", "gif");
+        MIME_TO_EXTENSION.put("application/pdf", "pdf");
+        MIME_TO_EXTENSION.put("application/zip", ".zip");
+        MIME_TO_EXTENSION.put("audio/mpeg", ".mp3");
+        MIME_TO_EXTENSION.put("video/mp4", ".mp4");
+
+        // Microsoft Word文档
+        MIME_TO_EXTENSION.put("application/msword", "doc");
+        MIME_TO_EXTENSION.put("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "docx");
+
+        // Microsoft Excel电子表格
+        MIME_TO_EXTENSION.put("application/vnd.ms-excel", "xls");
+        MIME_TO_EXTENSION.put("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx");
+
+        // 可以根据需要添加更多的MIME类型
+    }
+
+    public static String getExtensionFromMimeType(String mimeType) {
+        return MIME_TO_EXTENSION.getOrDefault(mimeType.toLowerCase(), ".bin");
+    }
+
+    public static String getFileType(String mimeType) {
+        String t = mimeType.toLowerCase();
+        if(t.startsWith("image")) {
+            return "image";
+        } else if(t.startsWith("audio")) {
+            return "audio";
+        } else if(t.startsWith("video")) {
+            return "video";
+        } else if(t.startsWith("text")) {
+            return "text";
+        } else {
+            return "binary";
+        }
+    }
+
+    public static boolean isMIMEFile(String mimeType) {
+        return MIME_TO_EXTENSION.containsKey(mimeType.toLowerCase());
     }
 }

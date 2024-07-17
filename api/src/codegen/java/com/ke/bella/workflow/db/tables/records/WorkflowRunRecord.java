@@ -144,31 +144,45 @@ API
     }
 
     /**
+     * Setter for <code>workflow_run.files</code>.
+     */
+    public void setFiles(String value) {
+        set(8, value);
+    }
+
+    /**
+     * Getter for <code>workflow_run.files</code>.
+     */
+    public String getFiles() {
+        return (String) get(8);
+    }
+
+    /**
      * Setter for <code>workflow_run.inputs</code>.
      */
     public void setInputs(String value) {
-        set(8, value);
+        set(9, value);
     }
 
     /**
      * Getter for <code>workflow_run.inputs</code>.
      */
     public String getInputs() {
-        return (String) get(8);
+        return (String) get(9);
     }
 
     /**
      * Setter for <code>workflow_run.outputs</code>. 最后一个节点的输出
      */
     public void setOutputs(String value) {
-        set(9, value);
+        set(10, value);
     }
 
     /**
      * Getter for <code>workflow_run.outputs</code>. 最后一个节点的输出
      */
     public String getOutputs() {
-        return (String) get(9);
+        return (String) get(10);
     }
 
     /**
@@ -181,7 +195,7 @@ API
 
      */
     public void setStatus(String value) {
-        set(10, value);
+        set(11, value);
     }
 
     /**
@@ -194,189 +208,189 @@ API
 
      */
     public String getStatus() {
-        return (String) get(10);
+        return (String) get(11);
     }
 
     /**
      * Setter for <code>workflow_run.error</code>.
      */
     public void setError(String value) {
-        set(11, value);
+        set(12, value);
     }
 
     /**
      * Getter for <code>workflow_run.error</code>.
      */
     public String getError() {
-        return (String) get(11);
+        return (String) get(12);
     }
 
     /**
      * Setter for <code>workflow_run.callback_url</code>.
      */
     public void setCallbackUrl(String value) {
-        set(12, value);
+        set(13, value);
     }
 
     /**
      * Getter for <code>workflow_run.callback_url</code>.
      */
     public String getCallbackUrl() {
-        return (String) get(12);
+        return (String) get(13);
     }
 
     /**
      * Setter for <code>workflow_run.callback_status</code>.
      */
     public void setCallbackStatus(Integer value) {
-        set(13, value);
+        set(14, value);
     }
 
     /**
      * Getter for <code>workflow_run.callback_status</code>.
      */
     public Integer getCallbackStatus() {
-        return (Integer) get(13);
+        return (Integer) get(14);
     }
 
     /**
      * Setter for <code>workflow_run.workflow_scheduling_id</code>.
      */
     public void setWorkflowSchedulingId(String value) {
-        set(14, value);
+        set(15, value);
     }
 
     /**
      * Getter for <code>workflow_run.workflow_scheduling_id</code>.
      */
     public String getWorkflowSchedulingId() {
-        return (String) get(14);
+        return (String) get(15);
     }
 
     /**
      * Setter for <code>workflow_run.response_mode</code>.
      */
     public void setResponseMode(String value) {
-        set(15, value);
+        set(16, value);
     }
 
     /**
      * Getter for <code>workflow_run.response_mode</code>.
      */
     public String getResponseMode() {
-        return (String) get(15);
+        return (String) get(16);
     }
 
     /**
      * Setter for <code>workflow_run.trace_id</code>.
      */
     public void setTraceId(String value) {
-        set(16, value);
+        set(17, value);
     }
 
     /**
      * Getter for <code>workflow_run.trace_id</code>.
      */
     public String getTraceId() {
-        return (String) get(16);
+        return (String) get(17);
     }
 
     /**
      * Setter for <code>workflow_run.span_lev</code>.
      */
     public void setSpanLev(Integer value) {
-        set(17, value);
+        set(18, value);
     }
 
     /**
      * Getter for <code>workflow_run.span_lev</code>.
      */
     public Integer getSpanLev() {
-        return (Integer) get(17);
+        return (Integer) get(18);
     }
 
     /**
      * Setter for <code>workflow_run.cuid</code>.
      */
     public void setCuid(Long value) {
-        set(18, value);
+        set(19, value);
     }
 
     /**
      * Getter for <code>workflow_run.cuid</code>.
      */
     public Long getCuid() {
-        return (Long) get(18);
+        return (Long) get(19);
     }
 
     /**
      * Setter for <code>workflow_run.cu_name</code>.
      */
     public void setCuName(String value) {
-        set(19, value);
+        set(20, value);
     }
 
     /**
      * Getter for <code>workflow_run.cu_name</code>.
      */
     public String getCuName() {
-        return (String) get(19);
+        return (String) get(20);
     }
 
     /**
      * Setter for <code>workflow_run.ctime</code>.
      */
     public void setCtime(LocalDateTime value) {
-        set(20, value);
+        set(21, value);
     }
 
     /**
      * Getter for <code>workflow_run.ctime</code>.
      */
     public LocalDateTime getCtime() {
-        return (LocalDateTime) get(20);
+        return (LocalDateTime) get(21);
     }
 
     /**
      * Setter for <code>workflow_run.muid</code>.
      */
     public void setMuid(Long value) {
-        set(21, value);
+        set(22, value);
     }
 
     /**
      * Getter for <code>workflow_run.muid</code>.
      */
     public Long getMuid() {
-        return (Long) get(21);
+        return (Long) get(22);
     }
 
     /**
      * Setter for <code>workflow_run.mu_name</code>.
      */
     public void setMuName(String value) {
-        set(22, value);
+        set(23, value);
     }
 
     /**
      * Getter for <code>workflow_run.mu_name</code>.
      */
     public String getMuName() {
-        return (String) get(22);
+        return (String) get(23);
     }
 
     /**
      * Setter for <code>workflow_run.mtime</code>.
      */
     public void setMtime(LocalDateTime value) {
-        set(23, value);
+        set(24, value);
     }
 
     /**
      * Getter for <code>workflow_run.mtime</code>.
      */
     public LocalDateTime getMtime() {
-        return (LocalDateTime) get(23);
+        return (LocalDateTime) get(24);
     }
 
     // -------------------------------------------------------------------------
@@ -402,7 +416,7 @@ API
     /**
      * Create a detached, initialised WorkflowRunRecord
      */
-    public WorkflowRunRecord(Long id, String tenantId, String workflowId, Long workflowVersion, String workflowRunId, String workflowRunShardingKey, String triggerFrom, String query, String inputs, String outputs, String status, String error, String callbackUrl, Integer callbackStatus, String workflowSchedulingId, String responseMode, String traceId, Integer spanLev, Long cuid, String cuName, LocalDateTime ctime, Long muid, String muName, LocalDateTime mtime) {
+    public WorkflowRunRecord(Long id, String tenantId, String workflowId, Long workflowVersion, String workflowRunId, String workflowRunShardingKey, String triggerFrom, String query, String files, String inputs, String outputs, String status, String error, String callbackUrl, Integer callbackStatus, String workflowSchedulingId, String responseMode, String traceId, Integer spanLev, Long cuid, String cuName, LocalDateTime ctime, Long muid, String muName, LocalDateTime mtime) {
         super(WorkflowRun.WORKFLOW_RUN);
 
         setId(id);
@@ -413,6 +427,7 @@ API
         setWorkflowRunShardingKey(workflowRunShardingKey);
         setTriggerFrom(triggerFrom);
         setQuery(query);
+        setFiles(files);
         setInputs(inputs);
         setOutputs(outputs);
         setStatus(status);

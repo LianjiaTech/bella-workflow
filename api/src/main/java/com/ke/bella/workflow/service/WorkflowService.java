@@ -115,8 +115,7 @@ public class WorkflowService {
         return repo.addTenant(tenantName, parentTenantId);
     }
 
-    @SuppressWarnings("rawtypes")
-    public void runWorkflow(WorkflowRunDB wr, Map inputs, IWorkflowCallback callback) {
+    public void runWorkflow(WorkflowRunDB wr, WorkflowRun op, IWorkflowCallback callback) {
         // 校验工作流是否合法
         WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
 
@@ -124,7 +123,8 @@ public class WorkflowService {
         WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
         WorkflowGraph graph = new WorkflowGraph(meta);
         WorkflowRunState state = new WorkflowRunState();
-        state.putVariable("sys", "query", wr.getQuery());
+        state.putVariable("sys", "query", op.getQuery());
+        state.putVariable("sys", "files", op.getFiles());
 
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())
@@ -132,7 +132,7 @@ public class WorkflowService {
                 .runId(wr.getWorkflowRunId())
                 .graph(graph)
                 .state(state)
-                .userInputs(inputs)
+                .userInputs(op.getInputs())
                 .triggerFrom(wr.getTriggerFrom())
                 .build();
         new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
@@ -171,7 +171,7 @@ public class WorkflowService {
     }
 
     public WorkflowRunDB newWorkflowRun(WorkflowDB wf, WorkflowRun op) {
-        final WorkflowRunDB wr = repo.addWorkflowRun(wf, op, JsonUtils.toJson(op.getInputs()));
+        final WorkflowRunDB wr = repo.addWorkflowRun(wf, op);
         TaskExecutor.submit(() -> counter.increase(wr));
         return wr;
     }

@@ -1,6 +1,6 @@
 package com.ke.bella.workflow.db.repo;
 
-import static com.ke.bella.workflow.db.Tables.WORKFLOW_AGGREGATE;
+import static com.ke.bella.workflow.db.Tables.*;
 import static com.ke.bella.workflow.db.tables.Tenant.TENANT;
 import static com.ke.bella.workflow.db.tables.Workflow.WORKFLOW;
 import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.WORKFLOW_NODE_RUN;
@@ -25,12 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
@@ -43,6 +43,7 @@ import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunShardingRecord;
+import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -264,7 +265,7 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, WorkflowRun op, String inputs) {
+    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, WorkflowRun op) {
         WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
 
         String runId = IDGenerator.newWorkflowRunId();
@@ -278,7 +279,10 @@ public class WorkflowRepo implements BaseRepo {
         if(op.getQuery() != null) {
             rec.setQuery(op.getQuery());
         }
-        rec.setInputs(inputs);
+        if(op.getFiles() != null) {
+            rec.setFiles(JsonUtils.toJson(op.getFiles()));
+        }
+        rec.setInputs(JsonUtils.toJson(op.getInputs()));
         rec.setOutputs("");
         rec.setError("");
         rec.setTriggerFrom(op.getTriggerFrom());
@@ -465,6 +469,7 @@ public class WorkflowRepo implements BaseRepo {
         return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowAggregateDB.class);
     }
 
+    @SuppressWarnings("serial")
     @Data
     @AllArgsConstructor
     @NoArgsConstructor

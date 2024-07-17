@@ -3,6 +3,7 @@ package com.ke.bella.workflow.api;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,10 +24,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
+import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
@@ -46,7 +52,10 @@ import com.ke.bella.workflow.utils.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @RestController
 @RequestMapping("/console/api/apps")
@@ -280,24 +289,37 @@ public class DifyController {
     }
 
     @PostMapping({ "/{workflowId}/workflows/draft/run", "/{workflowId}/advanced-chat/workflows/draft/run" })
-    public Object workflowRun(@PathVariable String workflowId, @RequestBody WorkflowOps.WorkflowRun op) {
+    public Object workflowRun(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
         initContext();
         op.setWorkflowId(workflowId);
         WorkflowOps.ResponseMode mode = WorkflowOps.ResponseMode.valueOf(op.responseMode);
         Assert.hasText(workflowId, "workflowId不能为空");
         Assert.notNull(op.inputs, "inputs不能为空");
 
-        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
-        Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法调试", op.workflowId));
+        WorkflowRun op2 = WorkflowRun.builder()
+                .userId(op.getUserId())
+                .userName(op.getUserName())
+                .tenantId(op.getTenantId())
+                .workflowId(op.getWorkflowId())
+                .inputs(op.getInputs())
+                .responseMode(op.getResponseMode())
+                .triggerFrom(op.triggerFrom)
+                .threadId(op.threadId)
+                .query(op.query)
+                .files(op.files)
+                .build();
 
-        WorkflowRunDB wr = ws.newWorkflowRun(wf, op);
+        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
+        Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法调试", op2.workflowId));
+
+        WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
         if(mode == WorkflowOps.ResponseMode.blocking) {
             WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, 300000L);
-            TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, callback));
+            TaskExecutor.submit(() -> ws.runWorkflow(wr, op2, callback));
             return callback.getWorkflowRunResult();
         } else {
             SseEmitter emitter = SseHelper.createSse(300000L, wr.getWorkflowRunId());
-            TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, new DifyWorkflowRunStreamingCallback(emitter)));
+            TaskExecutor.submit(() -> ws.runWorkflow(wr, op2, new DifyWorkflowRunStreamingCallback(emitter)));
             return emitter;
         }
     }
@@ -419,4 +441,27 @@ public class DifyController {
         return schema;
     }
 
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @SuppressWarnings("rawtypes")
+    public static class DifyWorkflowRun extends WorkflowOp {
+        @Builder.Default
+        Map inputs = new HashMap();
+
+        @Builder.Default
+        String responseMode = ResponseMode.streaming.name();
+
+        String callbackUrl;
+
+        @Builder.Default
+        String triggerFrom = TriggerFrom.DEBUG.name();
+
+        String query;
+        List<File> files;
+        @JsonAlias({ "conversation_id", "thread_id" })
+        String threadId;
+    }
 }

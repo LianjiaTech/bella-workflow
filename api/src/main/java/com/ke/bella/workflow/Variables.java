@@ -35,6 +35,8 @@ public class Variables {
             for (String key : selector) {
                 if(result instanceof Map) {
                     result = ((Map) result).get(key);
+                } else if(result instanceof List) {
+                    // TODO
                 } else {
                     result = result.getClass().getDeclaredField(key).get(result);
                 }

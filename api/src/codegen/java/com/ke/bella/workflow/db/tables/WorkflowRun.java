@@ -93,7 +93,12 @@ API
     /**
      * The column <code>workflow_run.query</code>.
      */
-    public final TableField<WorkflowRunRecord, String> QUERY = createField(DSL.name("query"), SQLDataType.VARCHAR(4096).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+    public final TableField<WorkflowRunRecord, String> QUERY = createField(DSL.name("query"), SQLDataType.CLOB, this, "");
+
+    /**
+     * The column <code>workflow_run.files</code>.
+     */
+    public final TableField<WorkflowRunRecord, String> FILES = createField(DSL.name("files"), SQLDataType.CLOB, this, "");
 
     /**
      * The column <code>workflow_run.inputs</code>.

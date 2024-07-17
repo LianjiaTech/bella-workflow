@@ -1,6 +1,6 @@
 package com.ke.bella.workflow.node;
 
-import static okhttp3.internal.Util.EMPTY_REQUEST;
+import static okhttp3.internal.Util.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -8,30 +8,37 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.ke.bella.workflow.IWorkflowCallback;
-import com.ke.bella.workflow.Variables;
-import com.ke.bella.workflow.WorkflowContext;
-import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
-import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
-import com.ke.bella.workflow.WorkflowRunState.NodeRunResult.NodeRunResultBuilder;
-import com.ke.bella.workflow.WorkflowSchema.Node;
-import com.ke.bella.workflow.db.BellaContext;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.IWorkflowCallback.File;
+import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
+import com.ke.bella.workflow.Variables;
+import com.ke.bella.workflow.WorkflowContext;
+import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
+import com.ke.bella.workflow.WorkflowRunState.NodeRunResult.NodeRunResultBuilder;
+import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.service.Configs;
+import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.KeIAM;
+import com.theokanning.openai.service.OpenAiService;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -114,7 +121,7 @@ public class HttpNode extends BaseNode {
             String body = extractBody(response);
             outputs.put("status_code", statusCode);
             outputs.put("headers", response.headers().toMultimap());
-            outputs.put("files", extractFiles(response));
+            outputs.put("files", extractFiles(request, response));
             boolean success = statusCode >= 200 && statusCode <= 299;
             if(Objects.nonNull(data.getResponse()) && "json".equals(data.getResponse().getType())) {
                 outputs.put("body", JsonUtils.fromJson(body, Map.class));
@@ -249,8 +256,35 @@ public class HttpNode extends BaseNode {
         return Variables.renderJinjia(template, map);
     }
 
-    private Object extractFiles(Response response) {
-        return null; // TODO
+    private List<File> extractFiles(Request request, Response response) {
+        List<File> files = new ArrayList<>();
+        ResponseBody body = response.body();
+        if(body == null) {
+            return files;
+        }
+        MediaType contentType = body.contentType();
+        if(contentType == null) {
+            return files;
+        }
+
+        String mediaType = contentType.toString();
+        if(!HttpUtils.isMIMEFile(mediaType)) {
+            return files;
+        }
+
+        String ext = HttpUtils.getExtensionFromMimeType(mediaType);
+        String filename = String.format("%s.%s", UUID.randomUUID().toString(), ext);
+        OpenAiService service = new OpenAiService(BellaContext.getApiKey(), Duration.ZERO, Configs.API_BASE);
+        com.theokanning.openai.file.File file = service.uploadFile("assistants", body.byteStream(), filename);
+        files.add(File.builder()
+                .fileId(file.getId())
+                .filename(file.getFilename())
+                .extension(ext)
+                .type(HttpUtils.getFileType(mediaType))
+                .mimeType(mediaType)
+                .type(mediaType)
+                .build());
+        return files;
     }
 
     private static String bodyToString(final Request request) {
@@ -272,7 +306,7 @@ public class HttpNode extends BaseNode {
             MediaType contentType = body.contentType();
             if(contentType != null) {
                 String mediaType = contentType.toString();
-                if(mediaType.contains("text") || mediaType.contains("json") || mediaType.contains("xml")) {
+                if(mediaType.contains("json") || mediaType.contains("xml")) {
                     return body.string();
                 }
             }

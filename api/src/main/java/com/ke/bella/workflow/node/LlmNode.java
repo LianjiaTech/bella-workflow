@@ -25,6 +25,7 @@ import com.theokanning.openai.completion.chat.AssistantMessage;
 import com.theokanning.openai.completion.chat.ChatCompletionChunk;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
+import com.theokanning.openai.completion.chat.StreamOption;
 import com.theokanning.openai.completion.chat.SystemMessage;
 import com.theokanning.openai.completion.chat.UserMessage;
 import com.theokanning.openai.service.OpenAiService;
@@ -114,24 +115,27 @@ public class LlmNode extends BaseNode {
             if(fullText.length() == 0) {
                 this.ttftEnd = System.nanoTime();
             }
-            String content = chunk.getChoices().get(0).getMessage().getContent();
-            fullText.append(content);
+
             if(chunk.getUsage() != null) {
-                tokens += chunk.getUsage().getCompletionTokens();
+                tokens = chunk.getUsage().getCompletionTokens();
             }
 
-            if(data.isGenerateDeltaContent()) {
-                Delta delta = Delta.builder().content(Delta.fromText(content)).build();
-                callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
-                        ProgressData.builder()
-                                .data(delta)
-                                .object(ProgressData.ObjectType.DELTA_CONTENT)
-                                .build());
-            } else {
-                callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
-                        ProgressData.builder()
-                                .data(chunk)
-                                .build());
+            if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()) {
+                String content = chunk.getChoices().get(0).getMessage().getContent();
+                fullText.append(content);
+                if(data.isGenerateDeltaContent()) {
+                    Delta delta = Delta.builder().content(Delta.fromText(content)).build();
+                    callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
+                            ProgressData.builder()
+                                    .data(delta)
+                                    .object(ProgressData.ObjectType.DELTA_CONTENT)
+                                    .build());
+                } else {
+                    callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
+                            ProgressData.builder()
+                                    .data(chunk)
+                                    .build());
+                }
             }
         }, completionFuture::completeExceptionally, () -> completionFuture.complete(fullText.toString()));
         try {
@@ -151,6 +155,7 @@ public class LlmNode extends BaseNode {
                 ChatCompletionRequest.class);
         chatCompletionRequest.setMessages(chatMessages);
         chatCompletionRequest.setModel(data.getModel().getName());
+        chatCompletionRequest.setStreamOptions(StreamOption.INCLUDE);
         this.ttftStart = System.nanoTime();
         return service.streamChatCompletion(chatCompletionRequest);
     }

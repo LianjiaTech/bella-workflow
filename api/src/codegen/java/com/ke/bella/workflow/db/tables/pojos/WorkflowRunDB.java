@@ -26,6 +26,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        workflowRunShardingKey;
     private String        triggerFrom;
     private String        query;
+    private String        files;
     private String        inputs;
     private String        outputs;
     private String        status;
@@ -54,6 +55,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.workflowRunShardingKey = value.workflowRunShardingKey;
         this.triggerFrom = value.triggerFrom;
         this.query = value.query;
+        this.files = value.files;
         this.inputs = value.inputs;
         this.outputs = value.outputs;
         this.status = value.status;
@@ -81,6 +83,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        workflowRunShardingKey,
         String        triggerFrom,
         String        query,
+        String        files,
         String        inputs,
         String        outputs,
         String        status,
@@ -106,6 +109,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.workflowRunShardingKey = workflowRunShardingKey;
         this.triggerFrom = triggerFrom;
         this.query = query;
+        this.files = files;
         this.inputs = inputs;
         this.outputs = outputs;
         this.status = status;
@@ -244,6 +248,20 @@ API
      */
     public void setQuery(String query) {
         this.query = query;
+    }
+
+    /**
+     * Getter for <code>workflow_run.files</code>.
+     */
+    public String getFiles() {
+        return this.files;
+    }
+
+    /**
+     * Setter for <code>workflow_run.files</code>.
+     */
+    public void setFiles(String files) {
+        this.files = files;
     }
 
     /**
@@ -494,6 +512,7 @@ API
         sb.append(", ").append(workflowRunShardingKey);
         sb.append(", ").append(triggerFrom);
         sb.append(", ").append(query);
+        sb.append(", ").append(files);
         sb.append(", ").append(inputs);
         sb.append(", ").append(outputs);
         sb.append(", ").append(status);

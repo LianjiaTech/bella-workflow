@@ -13,5 +13,5 @@ mvn clean package ${ARGS_DEV}
 mkdir -p release/{bin,lib}
 chmod +x setenv.sh && cp setenv.sh release/bin/
 chmod +x run.sh && cp run.sh release/bin/
-cp bella-workflow-start/target/*.jar release/lib/
+cp target/*.jar release/lib/
 tar czvf release.tar.gz release

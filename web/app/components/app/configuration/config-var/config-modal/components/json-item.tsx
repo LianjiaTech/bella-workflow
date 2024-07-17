@@ -157,8 +157,8 @@ const Item: React.FC<Props> = ({
       </div>
       {value.children?.map(
         (child, index) => (
-          // eslint-disable-next-line react/jsx-key
-          <div className='ml-4'>
+
+          <div key={index} className='ml-4'>
             <Item
               index={index}
               value={child}

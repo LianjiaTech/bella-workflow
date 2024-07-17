@@ -2,7 +2,10 @@ package com.ke.bella.workflow.api;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import com.ke.bella.workflow.IWorkflowCallback.File;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -110,11 +113,14 @@ public class WorkflowOps {
         @Builder.Default
         String triggerFrom = TriggerFrom.DEBUG.name();
 
+        String threadId;
         String query;
+        List<File> files;
 
         String traceId;
         int spanLev;
     }
+
 
     @Getter
     @Setter

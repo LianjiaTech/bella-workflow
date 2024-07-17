@@ -126,18 +126,18 @@ public class WorkflowController {
 
         if(mode == ResponseMode.blocking) {
             WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, MAX_TIMEOUT);
-            TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, callback));
+            TaskExecutor.submit(() -> ws.runWorkflow(wr, op, callback));
             return callback.getWorkflowRunResult();
 
         } else if(mode == ResponseMode.streaming) {
             // create SseEmitter with timeout 300s
             SseEmitter emitter = SseHelper.createSse(MAX_TIMEOUT, wr.getWorkflowRunId());
-            TaskExecutor.submit(() -> ws.runWorkflow(wr, op.inputs, new WorkflowRunStreamingCallback(emitter, ws)));
+            TaskExecutor.submit(() -> ws.runWorkflow(wr, op, new WorkflowRunStreamingCallback(emitter, ws)));
             return emitter;
         } else {
             TaskExecutor.submit(() -> {
                 WorkflowRunNotifyCallback callback = new WorkflowRunNotifyCallback(ws, op.callbackUrl);
-                ws.runWorkflow(wr, op.inputs, callback);
+                ws.runWorkflow(wr, op, callback);
             });
             return BellaResponse.builder().code(201).data(wr).build();
         }

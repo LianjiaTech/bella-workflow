@@ -18,6 +18,7 @@ import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.api.DifyController;
+import com.ke.bella.workflow.api.DifyController.DifyWorkflowRun;
 import com.ke.bella.workflow.api.Operator;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
@@ -59,7 +60,7 @@ public class DifyControllerTest extends AbstractTest {
         WorkflowSchema target = dify.getDraftInfo(WORKFLOW_ID);
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
 
-        Object response = dify.workflowRun(WORKFLOW_ID, WorkflowOps.WorkflowRun.builder()
+        Object response = dify.workflowRun(WORKFLOW_ID, DifyWorkflowRun.builder()
                 .responseMode(WorkflowOps.ResponseMode.blocking.name())
                 .inputs(Maps.of("#1715941054541.q#", "我想要烧一个红烧肉", "q", "mock").asMap())
                 .build());
@@ -98,7 +99,7 @@ public class DifyControllerTest extends AbstractTest {
         WorkflowSchema target = dify.getDraftInfo(WORKFLOW_ID);
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
 
-        Object response = dify.workflowRun(WORKFLOW_ID, WorkflowOps.WorkflowRun.builder().responseMode(WorkflowOps.ResponseMode.streaming.name())
+        Object response = dify.workflowRun(WORKFLOW_ID, DifyWorkflowRun.builder().responseMode(WorkflowOps.ResponseMode.streaming.name())
                 .inputs(Maps.of("#1715941054541.q#", "我想要烧一个红烧肉").asMap()).build());
         Assertions.assertNotNull(response);
 

@@ -215,6 +215,7 @@ public class DifyController {
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         return DifyApp.builder()
                 .id(workflowId)
+                .mode(wf.getMode())
                 .name(wf.getTitle())
                 .description(wf.getDesc())
                 .build();

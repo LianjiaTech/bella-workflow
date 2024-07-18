@@ -4,6 +4,7 @@ import produce from 'immer'
 import { useTranslation } from 'react-i18next'
 import Item from './json-item'
 import type { InputVar } from '@/app/components/workflow/types'
+// import s from "../../style.module.css";
 
 // JsonEditor
 /*
@@ -40,15 +41,14 @@ const JsonEditor: FC<Props> = ({
       <div className='mt-2 space-y-2'>
         <div className='space-y-2'>
           <div className='flex items-center space-x-1'>
-            <div
-              className=' w-[246px] leading-8 text-[13px] font-medium text-gray-700'>{t('appDebug.variableConig.varName')}</div>
-            <div className=' w-[74px] leading-8 text-[13px] font-medium text-gray-700'>
+            <div className='w-[298px] leading-8 text-[13px] font-medium text-gray-700'>{t('appDebug.variableConig.varName')}</div>
+            <div className=' w-[76px] leading-8 text-[13px] font-medium text-gray-700'>
               {t('appDebug.variableConig.varType')}
             </div>
-            <div className='leading-8 text-[13px] font-medium text-gray-700'>
+            <div className='w-[173px] leading-8 text-[13px] font-medium text-gray-700'>
               {t('appDebug.variableConig.describe')}
             </div>
-            <div className='leading-8 text-[13px] font-medium text-gray-700'>
+            <div className='w-[60px] leading-8 text-[13px] font-medium text-gray-700'>
               {t('appDebug.variableConig.isNecessary')}
             </div>
             <div className='leading-8 text-[13px] font-medium text-gray-700'>
@@ -56,7 +56,7 @@ const JsonEditor: FC<Props> = ({
             </div>
           </div>
           {payload && payload.map((item, index) => (
-            <div key={index} className='flex items-center space-x-1'>
+            <div key={item.variable} className='flex items-center space-x-1 w-full !mt-0'>
               <Item
                 index={index}
                 value={item}

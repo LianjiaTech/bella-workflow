@@ -8,6 +8,7 @@ import Switch from '@/app/components/base/switch'
 import type { InputVar } from '@/app/components/workflow/types'
 import { VarType } from '@/app/components/workflow/types'
 import { Add, Delete } from '@/app/components/base/icons/src/vender/workflow'
+
 const MethodOptions = [
   { value: 'string', label: 'String' },
   { value: 'number', label: 'Number' },
@@ -79,9 +80,7 @@ const Item: React.FC<Props> = ({
   }, [onChange])
 
   return (
-    <div className={cn('mt-2', s.flex21Auto)
-
-    }>
+    <div className={cn('mt-2', s.flex21Auto)}>
       <div className='flex items-center space-x-1'>
         <input
           type='text'

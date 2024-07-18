@@ -9,6 +9,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { useContext, useContextSelector } from 'use-context-selector'
 import s from './style.module.css'
 import { useStore } from '@/app/components/app/store'
+import AppSideBar from '@/app/components/app-sidebar'
 import type { NavIcon } from '@/app/components/app-sidebar/navLink'
 import { fetchAppDetail, updateAppInfo } from '@/service/apps'
 import AppsContext, { useAppContext } from '@/context/app-context'
@@ -162,9 +163,9 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
 
   return (
     <div className={cn(s.app, 'flex', 'overflow-hidden')}>
-      {/* {appDetail && (
+      {appDetail && (
         <AppSideBar title={appDetail.name} icon={appDetail.icon} icon_background={appDetail.icon_background} desc={appDetail.mode} navigation={navigation} />
-      )} */}
+      )}
       <CreateAppModal
         isEditModal
         appIcon={appDetail.icon}

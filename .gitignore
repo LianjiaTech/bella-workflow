@@ -159,3 +159,6 @@ pyrightconfig.json
 
 **/.next/**
 **/node_modules/**
+
+.project
+.settings/**

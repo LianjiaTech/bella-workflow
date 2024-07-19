@@ -355,9 +355,9 @@ public class HttpNode extends BaseNode {
         String apiKey = null;
         if("api-key".equals(authType)) {
             authType = config.getType();
-            if("bella-key".equals(authType)) {
+            if("bella".equals(authType)) {
                 apiKey = BellaContext.getApiKey();
-            } else if("ke-IAM".equals(authType)) {
+            } else if("ke-IAM".equalsIgnoreCase(authType)) {
                 URL url = buildUrl(context).toURL();
                 apiKey = KeIAM.generateAuthorization(config.getApiKey(), config.getSecret(),
                         RandomStringUtils.randomNumeric(9), data.getMethod().toUpperCase(), url.getPath(), url.getHost(), url.getQuery());
@@ -464,7 +464,7 @@ public class HttpNode extends BaseNode {
             @Getter
             @Setter
             public static class Config {
-                // 'basic', 'bearer', 'custom', 'bella-key', 'ke-IAM'
+                // 'basic', 'bearer', 'custom', 'bella', 'KE-IAM'
                 String type;
                 @JsonAlias({ "api_key" })
                 String apiKey;

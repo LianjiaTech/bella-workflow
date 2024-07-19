@@ -6,9 +6,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.ke.bella.workflow.IWorkflowCallback.File;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
+import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -121,7 +124,6 @@ public class WorkflowOps {
         int spanLev;
     }
 
-
     @Getter
     @Setter
     public static class WorkflowRunInfo extends Operator {
@@ -162,5 +164,47 @@ public class WorkflowOps {
          * quartz标准的cron表达式
          */
         String cronExpression;
+    }
+
+    @Data
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @SuppressWarnings("rawtypes")
+    public static class WorkflowRunResponse {
+        String tenantId;
+        String workflowId;
+        Long workflowVersion;
+        String workflowRunId;
+        String triggerFrom;
+        String query;
+        String files;
+        Map inputs;
+        Map outputs;
+        String status;
+        String error;
+        String responseMode;
+        Long cuid;
+        String cuName;
+        LocalDateTime ctime;
+
+        public static WorkflowRunResponse fromWorkflowRunDB(WorkflowRunDB wf) {
+            return WorkflowRunResponse.builder()
+                    .tenantId(wf.getTenantId())
+                    .workflowId(wf.getWorkflowId())
+                    .workflowVersion(wf.getWorkflowVersion())
+                    .workflowRunId(wf.getWorkflowRunId())
+                    .query(wf.getQuery())
+                    .files(wf.getFiles())
+                    .inputs(JsonUtils.fromJson(wf.getInputs(), Map.class))
+                    .outputs(JsonUtils.fromJson(wf.getOutputs(), Map.class))
+                    .status(wf.getStatus())
+                    .error(wf.getError())
+                    .responseMode(wf.getResponseMode())
+                    .cuid(wf.getCuid())
+                    .cuName(wf.getCuName())
+                    .ctime(wf.getCtime())
+                    .build();
+        }
     }
 }

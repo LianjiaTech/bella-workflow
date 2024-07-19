@@ -147,6 +147,7 @@ public class DifyController {
     @AllArgsConstructor
     @Builder
     public static class DifyApp {
+        String tenantId;
         String id;
         String name;
         String description;
@@ -157,7 +158,8 @@ public class DifyController {
         @Builder.Default
         String icon_background = "#FFEAD5";
         boolean enable_site;
-        boolean enable_api;
+        @Builder.Default
+        boolean enable_api = true;
         Object model_config;
         @Builder.Default
         Site site = new Site();
@@ -194,10 +196,12 @@ public class DifyController {
         initContext();
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         return DifyApp.builder()
+                .tenantId(wf.getTenantId())
                 .id(workflowId)
                 .name(wf.getTitle())
                 .description(wf.getDesc())
                 .mode(wf.getMode())
+                .api_base_url(Configs.API_BASE)
                 .build();
     }
 

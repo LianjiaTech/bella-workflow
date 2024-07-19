@@ -279,6 +279,7 @@ export type SiteConfig = {
  */
 export type App = {
   [x: string]: string
+  tenantId: string
   /** App ID */
   id: string
   /** Name */

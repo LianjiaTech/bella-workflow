@@ -2,6 +2,8 @@ package com.ke.bella.workflow.utils;
 
 import java.util.Map;
 
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -32,6 +34,9 @@ public class JsonUtils {
 
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {
+            if(StringUtils.isEmpty(json)) {
+                return null;
+            }
             return mapper.readValue(json, clazz);
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
@@ -40,6 +45,9 @@ public class JsonUtils {
 
     public static <T> T fromJson(String json, TypeReference<T> clazz) {
         try {
+            if(StringUtils.isEmpty(json)) {
+                return null;
+            }
             return mapper.readValue(json, clazz);
         } catch (Exception e) {
             throw new IllegalArgumentException(e);

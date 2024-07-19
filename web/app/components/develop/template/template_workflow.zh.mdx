@@ -61,95 +61,28 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
 
     ### CompletionResponse
     返回完整的 App 结果，`Content-Type` 为 `application/json` 。
-    - `workflow_run_id` (string) workflow 执行 ID
-    - `task_id` (string) 任务 ID，用于请求跟踪和下方的停止响应接口
+    - `code` (number) workflow状态码
     - `data` (object) 详细内容
-      - `id` (string) workflow 执行 ID
+      - `workflowRunId` (string) workflow 执行 ID
       - `workflow_id` (string) 关联 Workflow ID
       - `status` (string) 执行状态, `running` / `succeeded` / `failed` / `stopped`
       - `outputs` (json) Optional 输出内容
       - `error` (string) Optional 错误原因
-      - `elapsed_time` (float) Optional 耗时(s)
-      - `total_tokens` (int) Optional 总使用 tokens
-      - `total_steps` (int) 总步数（冗余），默认 0
-      - `created_at` (timestamp) 开始时间
-      - `finished_at` (timestamp) 结束时间
 
     ### ChunkCompletionResponse
     返回 App 输出的流式块，`Content-Type` 为 `text/event-stream`。
-    每个流式块均为 data: 开头，块之间以 `\n\n` 即两个换行符分隔，如下所示：
+    每个流式块块之间以 `\n\n` 即两个换行符分隔，如下所示：
     <CodeGroup>
     ```streaming {{ title: 'Response' }}
-    data: {"event": "message", "task_id": "900bbd43-dc0b-4383-a372-aa6e6c414227", "id": "663c5084-a254-4040-8ad3-51f2a3c1a77c", "answer": "Hi", "created_at": 1705398420}\n\n
+    event:onWorkflowRunSucceeded
+    id:onWorkflowRunSucceeded
+    data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"succeeded","outputs":{"text":"Hello! How can I help?"}}\n\n
     ```
     </CodeGroup>
-    流式块中根据 `event` 不同，结构也不同，包含以下类型：
-    - `event: workflow_started` workflow 开始执行
-      - `task_id` (string) 任务 ID，用于请求跟踪和下方的停止响应接口
-      - `workflow_run_id` (string) workflow 执行 ID
-      - `event` (string) 固定为 `workflow_started`
-      - `data` (object) 详细内容
-        - `id` (string) workflow 执行 ID
-        - `workflow_id` (string) 关联 Workflow ID
-        - `sequence_number` (int) 自增序号，App 内自增，从 1 开始
-        - `created_at` (timestamp) 开始时间
-    - `event: node_started` node 开始执行
-      - `task_id` (string) 任务 ID，用于请求跟踪和下方的停止响应接口
-      - `workflow_run_id` (string) workflow 执行 ID
-      - `event` (string) 固定为 `node_started`
-      - `data` (object) 详细内容
-        - `id` (string) workflow 执行 ID
-        - `node_id` (string) 节点 ID
-        - `node_type` (string) 节点类型
-        - `title` (string) 节点名称
-        - `index` (int) 执行序号，用于展示 Tracing Node 顺序
-        - `predecessor_node_id` (string) 前置节点 ID，用于画布展示执行路径
-        - `inputs` (array[object]) 节点中所有使用到的前置节点变量内容
-        - `created_at` (timestamp) 开始时间
-    - `event: node_finished` node 执行结束，成功失败同一事件中不同状态
-      - `task_id` (string) 任务 ID，用于请求跟踪和下方的停止响应接口
-      - `workflow_run_id` (string) workflow 执行 ID
-      - `event` (string) 固定为 `node_finished`
-      - `data` (object) 详细内容
-        - `id` (string) node 执行 ID
-        - `node_id` (string) 节点 ID
-        - `index` (int) 执行序号，用于展示 Tracing Node 顺序
-        - `predecessor_node_id` (string) optional 前置节点 ID，用于画布展示执行路径
-        - `inputs` (array[object]) 节点中所有使用到的前置节点变量内容
-        - `process_data` (json) Optional 节点过程数据
-        - `outputs` (json) Optional 输出内容
-        - `status` (string) 执行状态 `running` / `succeeded` / `failed` / `stopped`
-        - `error` (string) Optional 错误原因
-        - `elapsed_time` (float) Optional 耗时(s)
-        - `execution_metadata` (json) 元数据
-          - `total_tokens` (int) optional 总使用 tokens
-          - `total_price` (decimal) optional 总费用
-          - `currency` (string) optional 货币，如 `USD` / `RMB`
-        - `created_at` (timestamp) 开始时间
-    - `event: workflow_finished` workflow 执行结束，成功失败同一事件中不同状态
-      - `task_id` (string) 任务 ID，用于请求跟踪和下方的停止响应接口
-      - `workflow_run_id` (string) workflow 执行 ID
-      - `event` (string) 固定为 `workflow_finished`
-      - `data` (object) 详细内容
-        - `id` (string) workflow 执行 ID
-        - `workflow_id` (string) 关联 Workflow ID
-        - `status` (string)  执行状态 `running` / `succeeded` / `failed` / `stopped`
-        - `outputs` (json) Optional 输出内容
-        - `error` (string) Optional 错误原因
-        - `elapsed_time` (float) Optional 耗时(s)
-        - `total_tokens` (int) Optional 总使用 tokens
-        - `total_steps` (int) 总步数（冗余），默认 0
-        - `created_at` (timestamp) 开始时间
-        - `finished_at` (timestamp) 结束时间
-    - `event: ping` 每 10s 一次的 ping 事件，保持连接存活。
+    流式块中根据 `event` 不同，结构也不同，具体参考右侧的示例。
 
     ### Errors
-    - 400，`invalid_param`，传入参数异常
-    - 400，`app_unavailable`，App 配置不可用
-    - 400，`provider_not_initialize`，无可用模型凭据配置
-    - 400，`provider_quota_exceeded`，模型调用额度不足
-    - 400，`model_currently_not_support`，当前模型不可用
-    - 400，`workflow_request_error`，workflow 执行失败
+    - 400，请求参数错误
     - 500，服务内部异常
 
   </Col>
@@ -174,170 +107,87 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
     ### Blocking Mode
     <CodeGroup title="Response">
     ```json {{ title: 'Response' }}
-    {
-        "workflow_run_id": "djflajgkldjgd",
-        "task_id": "9da23599-e713-473b-982c-4328d4f5c78a",
-        "data": {
-            "id": "fdlsjfjejkghjda",
-            "workflow_id": "fldjaslkfjlsda",
-            "status": "succeeded",
-            "outputs": {
-              "text": "Nice to meet you."
-            },
-            "error": null,
-            "elapsed_time": 0.875,
-            "total_tokens": 3562,
-            "total_steps": 8,
-            "created_at": 1705407629,
-            "finished_at": 1727807631
-        }
-    }
+{
+	"code": 200,
+	"message": null,
+	"timestamp": 0,
+	"data": {
+		"tenantId": "test",
+		"workflowId": "WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e",
+		"workflowRunId": "RUN-2407191127220101000001",
+		"status": "succeeded",
+		"outputs": {
+			"text": "Hi there! How can I help?"
+		}
+	},
+	"stacktrace": null
+}
     ```
     </CodeGroup>
     ### Streaming Mode
     <CodeGroup title="Response">
     ```streaming {{ title: 'Response' }}
-      data: {"event": "workflow_started", "task_id": "5ad4cb98-f0c7-4085-b384-88c403be6290", "workflow_run_id": "5ad498-f0c7-4085-b384-88cbe6290", "data": {"id": "5ad498-f0c7-4085-b384-88cbe6290", "workflow_id": "dfjasklfjdslag", "sequence_number": 1, "created_at": 1679586595}}
-      data: {"event": "node_started", "task_id": "5ad4cb98-f0c7-4085-b384-88c403be6290", "workflow_run_id": "5ad498-f0c7-4085-b384-88cbe6290", "data": {"id": "5ad498-f0c7-4085-b384-88cbe6290", "node_id": "dfjasklfjdslag", "node_type": "start", "title": "Start", "index": 0, "predecessor_node_id": "fdljewklfklgejlglsd", "inputs": {}, "created_at": 1679586595}}
-      data: {"event": "node_finished", "task_id": "5ad4cb98-f0c7-4085-b384-88c403be6290", "workflow_run_id": "5ad498-f0c7-4085-b384-88cbe6290", "data": {"id": "5ad498-f0c7-4085-b384-88cbe6290", "node_id": "dfjasklfjdslag", "node_type": "start", "title": "Start", "index": 0, "predecessor_node_id": "fdljewklfklgejlglsd", "inputs": {}, "outputs": {}, "status": "succeeded", "elapsed_time": 0.324, "execution_metadata": {"total_tokens": 63127864, "total_price": 2.378, "currency": "USD"},  "created_at": 1679586595}}
-      data: {"event": "workflow_finished", "task_id": "5ad4cb98-f0c7-4085-b384-88c403be6290", "workflow_run_id": "5ad498-f0c7-4085-b384-88cbe6290", "data": {"id": "5ad498-f0c7-4085-b384-88cbe6290", "workflow_id": "dfjasklfjdslag", "outputs": {}, "status": "succeeded", "elapsed_time": 0.324, "total_tokens": 63127864, "total_steps": "1", "created_at": 1679586595, "finished_at": 1679976595}}
+event:onWorkflowRunStarted
+id:onWorkflowRunStarted
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","meta":{"graph":{"edges":[{"data":{"sourceType":"start","targetType":"llm","inIteration":false,"iterationId":null},"id":"1721283608337-1721355322231","source":"1721283608337","sourceHandle":"source","target":"1721355322231","targetHandle":"target","type":"custom","key":"1721283608337/source-1721355322231/target"},{"data":{"sourceType":"llm","targetType":"end","inIteration":false,"iterationId":null},"id":"1721355322231-1721355324799","source":"1721355322231","sourceHandle":"source","target":"1721355324799","targetHandle":"target","type":"custom","key":"1721355322231/source-1721355324799/target"}],"nodes":[{"data":{"variables":[{"variable":"query","label":"query","type":"text-input","max_length":48,"required":true,"isRoot":true,"options":[],"varType":"object","children":[]}],"name":"开始","type":"start","title":"开始节点","selected":false},"dragging":false,"height":90,"id":"1721283608337","position":{"x":99,"y":100},"positionAbsolute":{"x":99,"y":100},"selected":false,"sourcePosition":"right","targetPosition":"left","type":"start","width":244,"inIteration":false,"iterationId":null,"iterationStart":false,"title":"开始节点"},{"data":{"type":"llm","title":"LLM","desc":"","variables":[],"model":{"provider":"openai","name":"c4ai-command-r-plus","mode":"chat","completion_params":{"temperature":0.7}},"prompt_template":[{"role":"system","text":"","id":"fbef3668-c1b5-4f27-aed6-03a27a43616d"},{"role":"user","text":"{{#1721283608337.query#}}"}],"context":{"enabled":false,"variable_selector":[]},"vision":{"enabled":false},"selected":false},"dragging":false,"height":98,"id":"1721355322231","position":{"x":399,"y":100},"positionAbsolute":{"x":399,"y":100},"selected":true,"sourcePosition":"right","targetPosition":"left","type":"llm","width":244,"inIteration":false,"iterationId":null,"iterationStart":false,"title":"LLM"},{"data":{"type":"end","title":"结束","desc":"","outputs":[{"variable":"text","value_selector":["1721355322231","text"]}],"selected":false},"dragging":false,"height":90,"id":"1721355324799","position":{"x":699,"y":100},"positionAbsolute":{"x":699,"y":100},"selected":false,"sourcePosition":"right","targetPosition":"left","type":"end","width":244,"inIteration":false,"iterationId":null,"iterationStart":false,"title":"结束"}],"viewport":{"x":80,"y":126,"zoom":1.0}}}}
+
+event:onWorkflowNodeRunStarted
+id:onWorkflowNodeRunStarted
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721283608337","nodeType":"start"}
+
+event:onWorkflowNodeRunSucceeded
+id:onWorkflowNodeRunSucceeded
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721283608337","nodeType":"start","result":{"inputs":{"query":"hello"},"processData":null,"outputs":null,"error":null,"status":"succeeded","elapsedTime":70,"activatedSourceHandles":["source"]}}
+
+event:onWorkflowNodeRunStarted
+id:onWorkflowNodeRunStarted
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721355322231","nodeType":"llm"}
+
+event:onWorkflowNodeRunProgress
+id:onWorkflowNodeRunProgress
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721355322231","nodeType":"llm","progress":{"progress":0,"object":null,"data":{"id":"cmpl-10e001aa525042bd8c3d7e83d9e5e9ab","object":null,"created":5610340,"model":"c4ai-command-r-plus","choices":[{"index":0,"message":{"role":"assistant","role":"assistant","content":"Hello","name":null,"tool_calls":null,"function_call":null},"logprobs":null,"finish_reason":null}],"usage":{"prompt_tokens":162,"completion_tokens":1,"total_tokens":163},"system_fingerprint":null}}}
+
+event:onWorkflowNodeRunProgress
+id:onWorkflowNodeRunProgress
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721355322231","nodeType":"llm","progress":{"progress":0,"object":null,"data":{"id":"cmpl-10e001aa525042bd8c3d7e83d9e5e9ab","object":null,"created":5610340,"model":"c4ai-command-r-plus","choices":[{"index":0,"message":{"role":"assistant","role":"assistant","content":"!","name":null,"tool_calls":null,"function_call":null},"logprobs":null,"finish_reason":null}],"usage":{"prompt_tokens":162,"completion_tokens":2,"total_tokens":164},"system_fingerprint":null}}}
+
+event:onWorkflowNodeRunProgress
+id:onWorkflowNodeRunProgress
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721355322231","nodeType":"llm","progress":{"progress":0,"object":null,"data":{"id":"cmpl-10e001aa525042bd8c3d7e83d9e5e9ab","object":null,"created":5610340,"model":"c4ai-command-r-plus","choices":[{"index":0,"message":{"role":"assistant","role":"assistant","content":" How","name":null,"tool_calls":null,"function_call":null},"logprobs":null,"finish_reason":null}],"usage":{"prompt_tokens":162,"completion_tokens":3,"total_tokens":165},"system_fingerprint":null}}}
+
+event:onWorkflowNodeRunProgress
+id:onWorkflowNodeRunProgress
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721355322231","nodeType":"llm","progress":{"progress":0,"object":null,"data":{"id":"cmpl-10e001aa525042bd8c3d7e83d9e5e9ab","object":null,"created":5610340,"model":"c4ai-command-r-plus","choices":[{"index":0,"message":{"role":"assistant","role":"assistant","content":" can","name":null,"tool_calls":null,"function_call":null},"logprobs":null,"finish_reason":null}],"usage":{"prompt_tokens":162,"completion_tokens":4,"total_tokens":166},"system_fingerprint":null}}}
+
+event:onWorkflowNodeRunProgress
+id:onWorkflowNodeRunProgress
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721355322231","nodeType":"llm","progress":{"progress":0,"object":null,"data":{"id":"cmpl-10e001aa525042bd8c3d7e83d9e5e9ab","object":null,"created":5610340,"model":"c4ai-command-r-plus","choices":[{"index":0,"message":{"role":"assistant","role":"assistant","content":" I","name":null,"tool_calls":null,"function_call":null},"logprobs":null,"finish_reason":null}],"usage":{"prompt_tokens":162,"completion_tokens":5,"total_tokens":167},"system_fingerprint":null}}}
+
+event:onWorkflowNodeRunProgress
+id:onWorkflowNodeRunProgress
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721355322231","nodeType":"llm","progress":{"progress":0,"object":null,"data":{"id":"cmpl-10e001aa525042bd8c3d7e83d9e5e9ab","object":null,"created":5610340,"model":"c4ai-command-r-plus","choices":[{"index":0,"message":{"role":"assistant","role":"assistant","content":" help","name":null,"tool_calls":null,"function_call":null},"logprobs":null,"finish_reason":null}],"usage":{"prompt_tokens":162,"completion_tokens":6,"total_tokens":168},"system_fingerprint":null}}}
+
+event:onWorkflowNodeRunProgress
+id:onWorkflowNodeRunProgress
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721355322231","nodeType":"llm","progress":{"progress":0,"object":null,"data":{"id":"cmpl-10e001aa525042bd8c3d7e83d9e5e9ab","object":null,"created":5610340,"model":"c4ai-command-r-plus","choices":[{"index":0,"message":{"role":"assistant","role":"assistant","content":"?","name":null,"tool_calls":null,"function_call":null},"logprobs":null,"finish_reason":null}],"usage":{"prompt_tokens":162,"completion_tokens":7,"total_tokens":169},"system_fingerprint":null}}}
+
+event:onWorkflowNodeRunSucceeded
+id:onWorkflowNodeRunSucceeded
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721355322231","nodeType":"llm","result":{"inputs":{},"processData":{"meta_data":{"ttft":346,"ttlt":508,"tokens":7},"model_mode":"chat","prompts":{"prompt_messages":[{"role":"system","content":"","name":null},{"role":"user","content":"hello","name":null}],"model_mode":"chat"}},"outputs":{"text":"Hello! How can I help?"},"error":null,"status":"succeeded","elapsedTime":811,"activatedSourceHandles":["source"]}}
+
+event:onWorkflowNodeRunStarted
+id:onWorkflowNodeRunStarted
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721355324799","nodeType":"end"}
+
+event:onWorkflowNodeRunSucceeded
+id:onWorkflowNodeRunSucceeded
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"running","nodeId":"1721355324799","nodeType":"end","result":{"inputs":null,"processData":null,"outputs":{"text":"Hello! How can I help?"},"error":null,"status":"succeeded","elapsedTime":62,"activatedSourceHandles":[]}}
+
+event:onWorkflowRunSucceeded
+id:onWorkflowRunSucceeded
+data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"succeeded","outputs":{"text":"Hello! How can I help?"}}
     ```
     </CodeGroup>
 
-  </Col>
-</Row>
-
----
-
-<Heading
-  url='/workflows/:task_id/stop'
-  method='POST'
-  title='停止响应'
-  name='#stop-generatebacks'
-/>
-<Row>
-  <Col>
-    仅支持流式模式。
-    ### Path
-    - `task_id` (string) 任务 ID，可在流式返回 Chunk 中获取
-    ### Request Body
-    - `user` (string) Required
-      用户标识，用于定义终端用户的身份，必须和发送消息接口传入 user 保持一致。
-    ### Response
-    - `result` (string) 固定返回 "success"
-  </Col>
-  <Col sticky>
-    ### Request Example
-    <CodeGroup title="Request" tag="POST" label="/workflows/:task_id/stop" targetCode={`curl -X POST '${props.appDetail.api_base_url}/workflows/:task_id/stop' \\\n-H 'Authorization: Bearer {api_key}' \\\n-H 'Content-Type: application/json' \\\n--data-raw '{"user": "abc-123"}'`}>
-      ```bash {{ title: 'cURL' }}
-      curl -X POST '${props.appDetail.api_base_url}/workflows/:task_id/stop' \
-      -H 'Authorization: Bearer {api_key}' \
-      -H 'Content-Type: application/json' \
-      --data-raw '{
-          "user": "abc-123"
-      }'
-      ```
-    </CodeGroup>
-
-    ### Response Example
-    <CodeGroup title="Response">
-    ```json {{ title: 'Response' }}
-    {
-      "result": "success"
-    }
-    ```
-    </CodeGroup>
-  </Col>
-</Row>
-
----
-
-<Heading
-  url='/parameters'
-  method='GET'
-  title='获取应用配置信息'
-  name='#parameters'
-/>
-<Row>
-  <Col>
-    用于进入页面一开始，获取功能开关、输入参数名称、类型及默认值等使用。
-
-    ### Query
-
-    <Properties>
-      <Property name='user' type='string' key='user'>
-        用户标识，由开发者定义规则，需保证用户标识在应用内唯一。
-      </Property>
-    </Properties>
-
-    ### Response
-    - `user_input_form` (array[object]) 用户输入表单配置
-      - `text-input` (object) 文本输入控件
-        - `label` (string) 控件展示标签名
-        - `variable` (string) 控件 ID
-        - `required` (bool) 是否必填
-        - `default` (string) 默认值
-      - `paragraph` (object) 段落文本输入控件
-        - `label` (string) 控件展示标签名
-        - `variable` (string) 控件 ID
-        - `required` (bool) 是否必填
-        - `default` (string) 默认值
-      - `select` (object) 下拉控件
-        - `label` (string) 控件展示标签名
-        - `variable` (string) 控件 ID
-        - `required` (bool) 是否必填
-        - `default` (string) 默认值
-        - `options` (array[string]) 选项值
-    - `file_upload` (object) 文件上传配置
-      - `image` (object) 图片设置
-        当前仅支持图片类型：`png`, `jpg`, `jpeg`, `webp`, `gif`
-        - `enabled` (bool) 是否开启
-        - `number_limits` (int) 图片数量限制，默认 3
-        - `transfer_methods` (array[string]) 传递方式列表，remote_url , local_file，必选一个
-    - `system_parameters` (object) 系统参数
-      - `image_file_size_limit` (string) 图片文件上传大小限制（MB）
-
-  </Col>
-  <Col sticky>
-
-    <CodeGroup title="Request" tag="GET" label="/parameters" targetCode={` curl -X GET '${props.appDetail.api_base_url}/parameters?user=abc-123'`}>
-
-    ```bash {{ title: 'cURL' }}
-    curl -X GET '${props.appDetail.api_base_url}/parameters?user=abc-123' \
-    --header 'Authorization: Bearer {api_key}'
-    ```
-
-    </CodeGroup>
-
-    <CodeGroup title="Response">
-    ```json {{ title: 'Response' }}
-    {
-      "user_input_form": [
-          {
-              "paragraph": {
-                  "label": "Query",
-                  "variable": "query",
-                  "required": true,
-                  "default": ""
-              }
-          }
-      ],
-      "file_upload": {
-          "image": {
-              "enabled": false,
-              "number_limits": 3,
-              "detail": "high",
-              "transfer_methods": [
-                  "remote_url",
-                  "local_file"
-              ]
-          }
-      },
-      "system_parameters": {
-          "image_file_size_limit": "10"
-      }
-    }
-    ```
-    </CodeGroup>
   </Col>
 </Row>

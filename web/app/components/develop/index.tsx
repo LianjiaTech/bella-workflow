@@ -4,7 +4,6 @@ import s from './secret-key/style.module.css'
 import Doc from '@/app/components/develop/doc'
 import Loading from '@/app/components/base/loading'
 import InputCopy from '@/app/components/develop/secret-key/input-copy'
-import SecretKeyButton from '@/app/components/develop/secret-key/secret-key-button'
 import { useStore as useAppStore } from '@/app/components/app/store'
 
 type IDevelopMainProps = {
@@ -38,7 +37,7 @@ const DevelopMain = ({ appId }: IDevelopMainProps) => {
             <div className='mr-1'>{t('appApi.status')}</div>
             <div className='font-semibold'>{appDetail.enable_api ? `${t('appApi.ok')}` : `${t('appApi.disabled')}`}</div>
           </div>
-          <SecretKeyButton className='flex-shrink-0' appId={appId} />
+          {/* <SecretKeyButton className='flex-shrink-0' appId={appId} /> */}
         </div>
       </div>
       <div className='px-4 sm:px-10 py-4 overflow-auto grow'>

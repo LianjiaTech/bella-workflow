@@ -2,7 +2,6 @@ package com.ke.bella.workflow.api;
 
 import java.util.Map;
 
-import com.ke.bella.workflow.service.WorkflowService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -23,6 +22,7 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunInfo;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunResponse;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.callbacks.SingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.SingleNodeRunStreamingCallback;
@@ -33,6 +33,7 @@ import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
+import com.ke.bella.workflow.service.WorkflowService;
 
 @RestController
 @RequestMapping("/v1/workflow")
@@ -127,7 +128,12 @@ public class WorkflowController {
         if(mode == ResponseMode.blocking) {
             WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, MAX_TIMEOUT);
             TaskExecutor.submit(() -> ws.runWorkflow(wr, op, callback));
-            return callback.getWorkflowRunResult();
+            Map<String, Object> result = callback.getWorkflowRunResult();
+
+            return BellaResponse.builder()
+                    .code(200)
+                    .data(result)
+                    .build();
 
         } else if(mode == ResponseMode.streaming) {
             // create SseEmitter with timeout 300s
@@ -194,10 +200,11 @@ public class WorkflowController {
     }
 
     @PostMapping("/run/info")
-    public WorkflowRunDB getWorkflowRun(@RequestBody WorkflowRunInfo op) {
+    public WorkflowRunResponse getWorkflowRun(@RequestBody WorkflowRunInfo op) {
         Assert.hasText(op.workflowRunId, "workflowRunId不能为空");
 
-        return ws.getWorkflowRun(op.getWorkflowRunId());
+        WorkflowRunDB wr = ws.getWorkflowRun(op.getWorkflowRunId());
+        return WorkflowRunResponse.fromWorkflowRunDB(wr);
     }
 
     @SuppressWarnings("rawtypes")

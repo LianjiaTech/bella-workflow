@@ -8,6 +8,7 @@ import org.jooq.DSLContext;
 import org.jooq.Query;
 import org.jooq.SelectLimitStep;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.db.BellaContext;
 
@@ -15,8 +16,13 @@ public interface BaseRepo {
     default void fillCreatorInfo(Operator db) {
         com.ke.bella.workflow.api.Operator oper = BellaContext.getOperator();
         if(oper != null) {
-            db.setCuid(oper.getUserId());
-            db.setCuName(oper.getUserName());
+            if(oper.getUserId() != null) {
+                db.setCuid(oper.getUserId());
+            }
+
+            if(!StringUtils.isEmpty(oper.getUserName())) {
+                db.setCuName(oper.getUserName());
+            }
         }
         db.setCtime(LocalDateTime.now());
         fillUpdatorInfo(db);
@@ -25,8 +31,13 @@ public interface BaseRepo {
     default void fillUpdatorInfo(Operator db) {
         com.ke.bella.workflow.api.Operator oper = BellaContext.getOperator();
         if(oper != null) {
-            db.setMuid(oper.getUserId());
-            db.setMuName(oper.getUserName());
+            if(oper.getUserId() != null) {
+                db.setMuid(oper.getUserId());
+            }
+
+            if(!StringUtils.isEmpty(oper.getUserName())) {
+                db.setMuName(oper.getUserName());
+            }
         }
         db.setMtime(LocalDateTime.now());
     }

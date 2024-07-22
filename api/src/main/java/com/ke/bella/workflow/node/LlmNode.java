@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.ke.bella.workflow.db.BellaContext;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 
@@ -151,11 +153,12 @@ public class LlmNode extends BaseNode {
     private Flowable<ChatCompletionChunk> invokeLlm(List<ChatMessage> chatMessages) {
         OpenAiService service = new OpenAiService(data.getAuthorization().getToken(), Duration.ofSeconds(data.getTimeout().getReadSeconds()),
                 data.getAuthorization().getApiBaseUrl());
-        ChatCompletionRequest chatCompletionRequest = JsonUtils.fromJson(JsonUtils.toJson(data.getModel().getCompletionParams()),
-                ChatCompletionRequest.class);
+        ChatCompletionRequest chatCompletionRequest = Optional.ofNullable(JsonUtils.fromJson(JsonUtils.toJson(data.getModel().getCompletionParams()),
+                ChatCompletionRequest.class)).orElse(new ChatCompletionRequest());
         chatCompletionRequest.setMessages(chatMessages);
         chatCompletionRequest.setModel(data.getModel().getName());
         chatCompletionRequest.setStreamOptions(StreamOption.INCLUDE);
+        chatCompletionRequest.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
         this.ttftStart = System.nanoTime();
         return service.streamChatCompletion(chatCompletionRequest);
     }
@@ -233,17 +236,6 @@ public class LlmNode extends BaseNode {
         @lombok.Setter
         public static class Timeout {
             int readSeconds = 600;
-        }
-
-        @lombok.Data
-        @AllArgsConstructor
-        @NoArgsConstructor
-        public static class Model {
-            private String provider;
-            private String name;
-            private String mode;
-            @JsonAlias("completion_params")
-            private Map<String, Object> completionParams;
         }
 
         @Getter

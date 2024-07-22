@@ -11,6 +11,7 @@ import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatCompletionResult;
@@ -87,7 +88,8 @@ public class QuestionClassifierNode extends BaseNode {
         return service.createChatCompletion(
                 ChatCompletionRequest.builder().model(modelConfig.getName()).frequencyPenalty(modelConfig.getParam().getFrequencyPenalty())
                         .presencePenalty(modelConfig.getParam().getPresencePenalty()).topP(modelConfig.getParam().getTopP())
-                        .maxTokens(modelConfig.getParam().getMaxTokens()).messages(chatMessages).build());
+                        .maxTokens(modelConfig.getParam().getMaxTokens()).messages(chatMessages)
+                        .user(String.valueOf(BellaContext.getOperator().getUserId())).build());
     }
 
     private List<Map<String, String>> chatTemplateToSaving(List<ChatMessage> chatMessages) {

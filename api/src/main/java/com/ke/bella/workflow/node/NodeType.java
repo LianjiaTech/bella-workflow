@@ -10,6 +10,7 @@ public enum NodeType {
     QUESTION_CLASSIFIER("question-classifier"),
     TEMPLATE_TRANSFORM("template-transform"),
     KNOWLEDGE_RETRIEVAL("knowledge-retrieval"),
+    PARAMETER_EXTRACTOR("parameter-extractor"),
     TOOL("tool"),
     ;
 

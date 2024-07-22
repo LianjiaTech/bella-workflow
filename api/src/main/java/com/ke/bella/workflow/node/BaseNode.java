@@ -7,12 +7,15 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import lombok.Data;
@@ -45,6 +48,17 @@ class BaseNodeData {
             return StringUtils.isEmpty(apiBaseUrl) ? Configs.API_BASE : apiBaseUrl;
         }
     }
+
+    @lombok.Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Model {
+        private String provider;
+        private String name;
+        private String mode;
+        @JsonAlias("completion_params")
+        private Map<String, Object> completionParams;
+    }
 }
 
 @Slf4j
@@ -61,6 +75,7 @@ public abstract class BaseNode implements RunnableNode {
         register(NodeType.LLM.name, LlmNode.class);
         register(NodeType.ITERATION.name, Iteration.class);
         register(NodeType.TOOL.name, ToolNode.class);
+        register(NodeType.PARAMETER_EXTRACTOR.name, ParameterExtractorNode.class);
     }
 
     protected WorkflowSchema.Node meta;

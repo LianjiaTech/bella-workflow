@@ -2,14 +2,18 @@ package com.ke.bella.workflow.api;
 
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
@@ -42,7 +46,6 @@ import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.service.Configs;
@@ -335,19 +338,32 @@ public class DifyController {
         return ws.listWorkflowRun(WorkflowRunPage.builder().workflowId(workflowId).build());
     }
 
-    private static WorkflowRunHistory transfer(WorkflowRunDB e) {
-        return WorkflowRunHistory.builder()
-                .id(e.getWorkflowId())
+    private static DifyRunHistory transfer(WorkflowRunDB e) {
+        return DifyRunHistory.builder()
+                .id(e.getWorkflowRunId())
                 .version(String.valueOf(e.getWorkflowVersion()))
                 .status(e.getStatus())
-                .created_by_account(
-                        WorkflowRunHistory.Account.builder().id(String.valueOf(e.getCuid())).name(e.getCuName()).email("").build())
+                .created_by_account(Account.builder().id(String.valueOf(e.getCuid())).name(e.getCuName()).email("").build())
                 .created_at(e.getCtime().toEpochSecond(ZoneOffset.UTC))
                 .finished_at(e.getMtime().toEpochSecond(ZoneOffset.UTC)).build();
     }
 
+    private static DifyRunHistoryDetails transfer(WorkflowRunDB wr, WorkflowDB wf) {
+        WorkflowSchema workflowSchema = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        return DifyRunHistoryDetails.builder()
+                .id(wr.getWorkflowRunId())
+                .version(wr.getWorkflowVersion() == 0 ? "draft" : String.valueOf(wr.getWorkflowVersion()))
+                .status(wr.getStatus())
+                .created_by_account(
+                        Account.builder().id(String.valueOf(wr.getCuid())).name(wr.getCuName()).email("").build())
+                .created_at(wr.getCtime().toEpochSecond(ZoneOffset.UTC))
+                .finished_at(wr.getMtime().toEpochSecond(ZoneOffset.UTC))
+                .graph(workflowSchema.getGraph())
+                .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class)).build();
+    }
+
     @RequestMapping("/{workflowId}/workflow-runs")
-    public Page<WorkflowRunHistory> pageWorkflowRuns(@PathVariable String workflowId,
+    public Page<DifyRunHistory> pageWorkflowRuns(@PathVariable String workflowId,
             @RequestParam(value = "last_id", required = false) String lastId,
             @RequestParam(value = "limit", defaultValue = "20") int limit) {
         initContext();
@@ -358,12 +374,12 @@ public class DifyController {
                 page);
         List<WorkflowRunDB> workflowRunsDb = workflowRunsDbPage.getData();
         AtomicInteger counter = new AtomicInteger(1);
-        List<WorkflowRunHistory> list = workflowRunsDb.stream()
+        List<DifyRunHistory> list = workflowRunsDb.stream()
                 .map(DifyController::transfer)
                 .peek(result -> result.setSequence_number(counter.getAndIncrement()))
-                .sorted(Comparator.comparing(WorkflowRunHistory::getFinished_at).reversed())
+                .sorted(Comparator.comparing(DifyRunHistory::getFinished_at).reversed())
                 .collect(Collectors.toList());
-        Page<WorkflowRunHistory> result = new Page<>();
+        Page<DifyRunHistory> result = new Page<>();
         result.setPage(page.getPage());
         result.pageSize(page.getPageSize());
         result.total(workflowRunsDbPage.getTotal());
@@ -371,11 +387,115 @@ public class DifyController {
         return result;
     }
 
+    @GetMapping("/{workflowId}/workflow-runs/{workflowRunId}")
+    public DifyRunHistoryDetails getWorkflowRun(@PathVariable String workflowId,
+            @PathVariable String workflowRunId) {
+        initContext();
+        WorkflowRunDB wr = ws.getWorkflowRun(workflowRunId);
+        WorkflowDB wf = ws.getWorkflow(workflowId, wr.getWorkflowVersion());
+        return transfer(wr, wf);
+    }
+
+    @RequestMapping("/{workflowId}/workflow-runs/{workflowRunId}/node-executions")
+    public DifyNodeExecution getWorkflowNodeRuns(@PathVariable String workflowId,
+            @PathVariable String workflowRunId) {
+        initContext();
+        List<WorkflowNodeRunDB> nodeRuns = ws.getNodeRuns(workflowRunId);
+        return DifyNodeExecution.builder().data(transfer(nodeRuns)).build();
+    }
+
+    private static List<DifyNodeExecution.DifyNodeRun> transfer(List<WorkflowNodeRunDB> nodeRunDBs) {
+        AtomicInteger index = new AtomicInteger(1);
+        AtomicReference<String> lastNodeId = new AtomicReference<>(null);
+        List<DifyNodeExecution.DifyNodeRun> collect = nodeRunDBs.stream()
+                .sorted(Comparator.comparing(WorkflowNodeRunDB::getCtime))
+                .map(nodeRunDB -> {
+                    DifyNodeExecution.DifyNodeRun nodeRun = createDifyNodeRun(nodeRunDB, index.getAndIncrement(), lastNodeId.get());
+                    lastNodeId.set(nodeRunDB.getNodeId());
+                    return nodeRun;
+                })
+                .collect(Collectors.toList());
+        Collections.reverse(collect);
+        return collect;
+    }
+
+    private static DifyNodeExecution.DifyNodeRun createDifyNodeRun(WorkflowNodeRunDB nodeRunDB, int index, String predecessorNodeId) {
+        return DifyNodeExecution.DifyNodeRun.builder()
+                .id(nodeRunDB.getNodeRunId())
+                .index(index)
+                .predecessor_node_id(predecessorNodeId)
+                .node_id(nodeRunDB.getNodeId())
+                .node_type(nodeRunDB.getNodeType())
+                .title(nodeRunDB.getTitle())
+                .inputs(JsonUtils.fromJson(nodeRunDB.getInputs(), Map.class))
+                .process_data(JsonUtils.fromJson(nodeRunDB.getProcessData(), Map.class))
+                .outputs(JsonUtils.fromJson(nodeRunDB.getOutputs(), Map.class))
+                .status(nodeRunDB.getStatus())
+                .error(nodeRunDB.getError())
+                .elapsed_time(nodeRunDB.getElapsedTime() / 1000d)
+                .created_at(nodeRunDB.getCtime().toEpochSecond(ZoneOffset.UTC))
+                .created_by_role("account")
+                .created_by_account(Account.builder().id(String.valueOf(nodeRunDB.getCuid())).name(nodeRunDB.getCuName()).email("").build())
+                .finished_at(nodeRunDB.getMtime().toEpochSecond(ZoneOffset.UTC))
+                .build();
+    }
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Data
-    @Builder
-    public static class WorkflowRunHistory {
+    @SuperBuilder(toBuilder = true)
+    public static class DifyNodeExecution {
+
+        private List<DifyNodeRun> data;
+
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Data
+        @SuperBuilder(toBuilder = true)
+        public static class DifyNodeRun {
+            private String id;
+            private Integer index;
+            private String predecessor_node_id;
+            private String node_id;
+            private String node_type;
+            private String title;
+            private Map inputs;
+            private Map process_data;
+            private Map outputs;
+            private Object execution_metadata;
+            @Builder.Default
+            private Map extras = new HashMap();
+            private String status;
+            private Object error;
+            private Double elapsed_time;
+            private Long created_at;
+            private String created_by_role;
+            private Account created_by_account;
+            private Long finished_at;
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @SuperBuilder(toBuilder = true)
+    public static class DifyRunHistoryDetails extends DifyRunHistory {
+        private WorkflowSchema.Graph graph;
+        private Map inputs;
+        private Object error;
+        private Double elapsed_time;
+        private Integer total_tokens;
+        private Integer total_steps;
+        @Builder.Default
+        private String created_by_role = "account";
+        private Object created_by_end_user;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @SuperBuilder(toBuilder = true)
+    public static class DifyRunHistory {
 
         private String id;
         private Integer sequence_number;
@@ -384,16 +504,16 @@ public class DifyController {
         private String status;
         private Long created_at;
         private Long finished_at;
+    }
 
-        @AllArgsConstructor
-        @NoArgsConstructor
-        @Data
-        @Builder
-        public static class Account {
-            private String id;
-            private String name;
-            private String email;
-        }
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @Builder
+    public static class Account {
+        private String id;
+        private String name;
+        private String email;
     }
 
     @Data

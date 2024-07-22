@@ -389,4 +389,8 @@ public class WorkflowService {
     public Page<WorkflowAggregateDB> pageWorkflowAggregate(WorkflowPage op) {
         return repo.pageWorkflowAggregate(op);
     }
+
+    public List<WorkflowNodeRunDB> getNodeRuns(String workflowRunId) {
+        return repo.queryWorkflowNodeRuns(workflowRunId);
+    }
 }

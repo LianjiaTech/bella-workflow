@@ -1,9 +1,7 @@
 import { CodeGroup } from '../code.tsx'
 import { Row, Col, Properties, Property, Heading, SubProperty, Paragraph } from '../md.tsx'
 
-# Workflow 应用 API
-
-Workflow 应用无会话支持，适合用于翻译/文章写作/总结 AI 等等。
+# Workflow API
 
 <div>
   ### Base URL
@@ -40,7 +38,13 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
 
     ### Request Body
       - `tenantId` (string) Required
+        租户ID，取值看右边请求示例
       - `workflowId` (string) Required
+        工作流ID，取值看右边请求示例
+      - `query` (string) Optional
+        Chatflow模式必传，用户的输入/提问
+      - `files` (array) Optional
+        用户上传的文件
       - `inputs` (object) Required
         允许传入 workflow start 节点定义的各变量值。
         inputs 参数包含了多组键值对（Key/Value pairs），每组的键对应一个特定变量，每组的值则是该变量的具体值。
@@ -76,7 +80,7 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
     ```streaming {{ title: 'Response' }}
     event:onWorkflowRunSucceeded
     id:onWorkflowRunSucceeded
-    data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e","workflowRunId":"RUN-2407191108200101000002","status":"succeeded","outputs":{"text":"Hello! How can I help?"}}\n\n
+    data:{"tenantId":"${props.appDetail.tenantId}","workflowId":"${props.appDetail.id}","workflowRunId":"RUN-2407191108200101000002","status":"succeeded","outputs":{"text":"Hello! How can I help?"}}\n\n
     ```
     </CodeGroup>
     流式块中根据 `event` 不同，结构也不同，具体参考右侧的示例。
@@ -105,23 +109,23 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
 
     </CodeGroup>
     ### Blocking Mode
-    <CodeGroup title="Response">
+    <CodeGroup title="Response" targetCode={`{\n  "code":200,\n  "message":null,\n  "timestamp":0,\n  "data":{\n    "tenantId":"${props.appDetail.tenantId}",\n    "workflowId":"${props.appDetail.id}",\n    "workflowRunId":"RUN-2407191127220101000001",\n    "status":"succeeded",\n    "outputs":{"text":"Hi there! How can I help?"}\n  },\n  "stacktrace":null\n}`}>
     ```json {{ title: 'Response' }}
-{
-	"code": 200,
-	"message": null,
-	"timestamp": 0,
-	"data": {
-		"tenantId": "test",
-		"workflowId": "WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e",
-		"workflowRunId": "RUN-2407191127220101000001",
-		"status": "succeeded",
-		"outputs": {
-			"text": "Hi there! How can I help?"
-		}
-	},
-	"stacktrace": null
-}
+    {
+      "code": 200,
+      "message": null,
+      "timestamp": 0,
+      "data": {
+        "tenantId": "${props.appDetail.tenantId}",
+        "workflowId": "${props.appDetail.id}",
+        "workflowRunId": "RUN-2407191127220101000001",
+        "status": "succeeded",
+        "outputs": {
+          "text": "Hi there! How can I help?"
+        }
+      },
+      "stacktrace": null
+    }
     ```
     </CodeGroup>
     ### Streaming Mode

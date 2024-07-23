@@ -99,7 +99,7 @@ const Header = () => {
 
     // 构建URL
     let bellaUrl = `${bellaHost}/#/createagent?workflowName=${workflowName}`
-    if (bellaId !== 'undefined')
+    if (bellaId !== 'undefined' && bellaId)
       bellaUrl += `&applicationId=${bellaId}`
 
     // 重定向

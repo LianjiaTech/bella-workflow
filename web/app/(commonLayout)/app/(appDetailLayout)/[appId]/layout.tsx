@@ -53,6 +53,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
   }>>([])
   const mutateApps = useContextSelector(AppsContext, state => state.mutateApps)
   const getNavigations = useCallback((appId: string, isCurrentWorkspaceManager: boolean, mode: string, workflowName: string) => {
+    const urlParams = window.location.search
     const navs = [
       ...(isCurrentWorkspaceManager
         ? [{
@@ -65,7 +66,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
       ),
       {
         name: t('common.appMenus.apiAccess'),
-        href: `/app/${appId}/develop`,
+        href: `/app/${appId}/develop${urlParams}`,
         icon: TerminalSquare,
         selectedIcon: TerminalSquareSolid,
       },

@@ -43,10 +43,16 @@ datasource:
   dynamic-default: master
   pool:
     master:
+      initial-size: 50
+      min-idle: 50
+      max-active: 100
       url: ${DATASOURCE_POOL_MASTER_URL}
       username: ${DATASOURCE_POOL_MASTER_USERNAME}
       password: ${DATASOURCE_POOL_MASTER_PASSWORD}
     slave:
+      initial-size: 100
+      min-idle: 100
+      max-active: 200
       url: ${DATASOURCE_POOL_SLAVE_URL}
       username: ${DATASOURCE_POOL_SLAVE_USERNAME}
       password: ${DATASOURCE_POOL_SLAVE_PASSWORD}

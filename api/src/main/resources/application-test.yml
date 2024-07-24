@@ -54,9 +54,11 @@ ribbon:
 logging:
   level:
     root: INFO
+    druid: INFO
+    executableSql: INFO
     org:
       springframework: INFO
-      jooq: DEBUG
+      jooq: INFO
 
 bella:
   workflow:

@@ -45,10 +45,21 @@ api:
     feign:
       keychains:
         example: { access-key-id: 123, access-key-secret: 456 }
-
 # ----- 日志级别配置 预览环境 -----
 logging:
   level:
-    root: DEBUG
+    root: INFO
+    druid: INFO
+    executableSql: INFO
     org:
-      springframework: DEBUG
+      springframework: INFO
+      jooq: INFO
+bella:
+  workflow:
+    domain: http://example.com
+    trigger:
+      scheduling:
+        callback-path: /v1/workflow/trigger/scheduling
+    run-path: /v1/workflow/run
+  knowledge-file:
+    search: http://example.com/api/v1/knowledge/searchNew/forWorkflow

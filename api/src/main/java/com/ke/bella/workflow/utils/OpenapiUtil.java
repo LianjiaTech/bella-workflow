@@ -90,12 +90,12 @@ public class OpenapiUtil {
                 Object defaultValue = parameter.containsKey("schema") && ((Map<String, Object>) parameter.get("schema")).containsKey("default")
                         ? ((Map<String, Object>) parameter.get("schema")).get("default")
                         : null;
-                ToolParameter toolParameter = new ToolParameter(
-                        (String) parameter.get("name"),
-                        (String) parameter.getOrDefault("description", ""),
-                        parameterType,
-                        (Boolean) parameter.getOrDefault("required", false),
-                        defaultValue);
+                ToolParameter toolParameter = ToolParameter.builder()
+                        .name((String) parameter.get("name"))
+                        .description(parameter.getOrDefault("description", "").toString())
+                        .type(parameterType)
+                        .required((Boolean) parameter.getOrDefault("required", false))
+                        ._default(defaultValue).build();
 
                 parameters.add(toolParameter);
             }
@@ -133,12 +133,12 @@ public class OpenapiUtil {
                             Map<String, Object> property = (Map<String, Object>) propertyEntry.getValue();
                             ToolParameterType parameterType = getToolParameterType(property);
                             Boolean propertyRequired = required.stream().anyMatch(s -> s.equals(name));
-                            ToolParameter tool = new ToolParameter(
-                                    name,
-                                    property.getOrDefault("description", "").toString(),
-                                    parameterType,
-                                    propertyRequired,
-                                    property.getOrDefault("default", null));
+                            ToolParameter tool = ToolParameter.builder()
+                                    .name(name)
+                                    .description(property.getOrDefault("description", "").toString())
+                                    .type(parameterType)
+                                    .required(propertyRequired)
+                                    ._default(property.getOrDefault("default", null)).build();
                             parameters.add(tool);
                         }
                     }

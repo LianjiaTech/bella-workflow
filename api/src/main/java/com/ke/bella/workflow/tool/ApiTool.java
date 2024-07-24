@@ -378,14 +378,6 @@ public class ApiTool implements ITool {
             private Double max;
             private Options options;
 
-            public ToolParameter(String name, String description, ToolParameterType type, Boolean required, Object _default) {
-                this.name = name;
-                this.description = description;
-                this.type = type;
-                this.required = required;
-                this._default = _default;
-            }
-
             @Data
             @AllArgsConstructor
             @NoArgsConstructor

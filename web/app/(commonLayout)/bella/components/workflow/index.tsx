@@ -25,13 +25,12 @@ import type {
   Viewport,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import './style.css'
-import { useSearchParams } from 'next/navigation'
+import '@/app/components/workflow/style.css'
 import type {
   Edge,
   Node,
-} from './types'
-import { WorkflowContextProvider } from './context'
+} from '@/app/components/workflow/types'
+import { WorkflowContextProvider } from '@/app/components/workflow/context'
 import {
   useEdgesInteractions,
   useNodesInteractions,
@@ -44,33 +43,32 @@ import {
   useWorkflowReadOnly,
   useWorkflowStartRun,
   useWorkflowUpdate,
-} from './hooks'
-import Header from './header'
-import CustomNode from './nodes'
-import Operator from './operator'
-import CustomEdge from './custom-edge'
-import CustomConnectionLine from './custom-connection-line'
-import Panel from './panel'
-import Features from './features'
-import HelpLine from './help-line'
-import CandidateNode from './candidate-node'
-import PanelContextmenu from './panel-contextmenu'
-import NodeContextmenu from './node-contextmenu'
+} from '@/app/components/workflow/hooks'
+import Header from '@/app/components/workflow/header'
+import CustomNode from '@/app/components/workflow/nodes'
+import Operator from '@/app/components/workflow/operator'
+import CustomEdge from '@/app/components/workflow/custom-edge'
+import CustomConnectionLine from '@/app/components/workflow/custom-connection-line'
+import Panel from '@/app/components/workflow/panel'
+import Features from '@/app/components/workflow/features'
+import HelpLine from '@/app/components/workflow/help-line'
+import CandidateNode from '@/app/components/workflow/candidate-node'
+import PanelContextmenu from '@/app/components/workflow/panel-contextmenu'
+import NodeContextmenu from '@/app/components/workflow/node-contextmenu'
 import {
   useStore,
   useWorkflowStore,
-} from './store'
+} from '@/app/components/workflow/store'
 import {
   getKeyboardKeyCodeBySystem,
   initialEdges,
   initialNodes,
-} from './utils'
-import { WORKFLOW_DATA_UPDATE } from './constants'
+} from '@/app/components/workflow/utils'
+import { WORKFLOW_DATA_UPDATE } from '@/app/components/workflow/constants'
 import Loading from '@/app/components/base/loading'
 import { FeaturesProvider } from '@/app/components/base/features'
 import type { Features as FeaturesData } from '@/app/components/base/features/types'
 import { useEventEmitterContextContext } from '@/context/event-emitter'
-import { setUserInfo } from '@/utils/getQueryParams'
 
 const nodeTypes = {
   custom: CustomNode,
@@ -89,11 +87,6 @@ const Workflow: FC<WorkflowProps> = memo(({
   edges: originalEdges,
   viewport,
 }) => {
-  const searchParams = useSearchParams()
-  const userName = searchParams.get('userName') || ''
-  const ucid = searchParams.get('ucid') || ''
-  const tenantId = searchParams.get('tenantId') || ''
-  setUserInfo(ucid, userName, tenantId)
   const workflowContainerRef = useRef<HTMLDivElement>(null)
   const workflowStore = useWorkflowStore()
   const [nodes, setNodes] = useNodesState(originalNodes)

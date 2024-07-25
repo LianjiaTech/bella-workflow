@@ -307,7 +307,7 @@ const useConfig = (id: string, payload: ToolNodeType) => {
 
   const handleRun = (submitData: Record<string, any>) => {
     const varTypeInputKeys = Object.keys(inputs.tool_parameters)
-      .filter(key => inputs.tool_parameters[key].type === VarType.constant)
+      .filter(key => inputs.tool_parameters[key].type === VarType.variable)
     const shouldAdd = varTypeInputKeys.length > 0
     if (!shouldAdd) {
       doHandleRun(submitData)
@@ -319,7 +319,7 @@ const useConfig = (id: string, payload: ToolNodeType) => {
       varTypeInputKeys.forEach((inputKey) => {
         const inputValue = inputs.tool_parameters[inputKey].value as ValueSelector
         if (`#${inputValue.join('.')}#` === key)
-          addMissedVarData[inputKey] = value
+          addMissedVarData[key] = value
       })
     })
     doHandleRun(addMissedVarData)

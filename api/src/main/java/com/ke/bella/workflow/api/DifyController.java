@@ -1,6 +1,6 @@
 package com.ke.bella.workflow.api;
 
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -348,8 +348,8 @@ public class DifyController {
                 .version(String.valueOf(e.getWorkflowVersion()))
                 .status(e.getStatus())
                 .created_by_account(Account.builder().id(String.valueOf(e.getCuid())).name(e.getCuName()).email("").build())
-                .created_at(e.getCtime().toEpochSecond(ZoneOffset.UTC))
-                .finished_at(e.getMtime().toEpochSecond(ZoneOffset.UTC)).build();
+                .created_at(e.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                .finished_at(e.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond()).build();
     }
 
     private static DifyRunHistoryDetails transfer(WorkflowRunDB wr, WorkflowDB wf) {
@@ -360,8 +360,8 @@ public class DifyController {
                 .status(wr.getStatus())
                 .created_by_account(
                         Account.builder().id(String.valueOf(wr.getCuid())).name(wr.getCuName()).email("").build())
-                .created_at(wr.getCtime().toEpochSecond(ZoneOffset.UTC))
-                .finished_at(wr.getMtime().toEpochSecond(ZoneOffset.UTC))
+                .created_at(wr.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                .finished_at(wr.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
                 .graph(workflowSchema.getGraph())
                 .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class)).build();
     }
@@ -369,10 +369,10 @@ public class DifyController {
     @RequestMapping("/{workflowId}/workflow-runs")
     public Page<DifyRunHistory> pageWorkflowRuns(@PathVariable String workflowId,
             @RequestParam(value = "last_id", required = false) String lastId,
-            @RequestParam(value = "limit", defaultValue = "20") int limit) {
+            @RequestParam(value = "limit", defaultValue = "100") int limit) {
         initContext();
         Assert.isTrue(limit > 0, "limit必须大于0");
-        Assert.isTrue(limit < 100, "limit必须小于100");
+        Assert.isTrue(limit < 101, "limit必须小于100");
         WorkflowRunPage page = WorkflowRunPage.builder().lastId(lastId).pageSize(limit).workflowId(workflowId).build();
         Page<WorkflowRunDB> workflowRunsDbPage = ws.listWorkflowRun(
                 page);
@@ -437,10 +437,10 @@ public class DifyController {
                 .status(nodeRunDB.getStatus())
                 .error(nodeRunDB.getError())
                 .elapsed_time(nodeRunDB.getElapsedTime() / 1000d)
-                .created_at(nodeRunDB.getCtime().toEpochSecond(ZoneOffset.UTC))
+                .created_at(nodeRunDB.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
                 .created_by_role("account")
                 .created_by_account(Account.builder().id(String.valueOf(nodeRunDB.getCuid())).name(nodeRunDB.getCuName()).email("").build())
-                .finished_at(nodeRunDB.getMtime().toEpochSecond(ZoneOffset.UTC))
+                .finished_at(nodeRunDB.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
                 .build();
     }
 

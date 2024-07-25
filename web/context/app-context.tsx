@@ -79,8 +79,12 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
   const pageContainerRef = useRef<HTMLDivElement>(null)
   const [userName, setUserName] = useState(searchParams.get('userName'))
   const [ucid, setUcid] = useState(searchParams.get('ucid'))
-  localStorage.setItem('userName', userName || '')
-  localStorage.setItem('ucid', ucid || '')
+  if (userName && userName !== '')
+    localStorage.setItem('userName', userName || '')
+
+  if (ucid && ucid !== '')
+    localStorage.setItem('ucid', ucid || '')
+
   const { data: appList, mutate: mutateApps } = useSWR({ url: '/apps', params: { page: 1, limit: 30, name: '' } }, fetchAppList)
   // const { data: userProfileResponse, mutate: mutateUserProfile } = useSWR({ url: '/account/profile', params: {} }, fetchUserProfile)
   // const { data: currentWorkspaceResponse, mutate: mutateCurrentWorkspace } = useSWR({ url: '/workspaces/current', params: {} }, fetchCurrentWorkspace)

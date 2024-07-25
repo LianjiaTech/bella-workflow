@@ -10,6 +10,7 @@ import type {
   WorkflowFinishedResponse,
   WorkflowStartedResponse,
 } from '@/types/workflow'
+import { getUserInfo } from '@/utils/getQueryParams'
 const TIME_OUT = 100000
 
 const ContentType = {
@@ -19,8 +20,6 @@ const ContentType = {
   download: 'application/octet-stream', // for download
   upload: 'multipart/form-data', // for upload
 }
-const userName = globalThis.localStorage?.getItem('userName')
-const ucid = globalThis.localStorage?.getItem('ucid')
 
 const baseOptions = {
   method: 'GET',
@@ -31,11 +30,7 @@ const baseOptions = {
   }),
   redirect: 'follow',
 }
-if (userName && ucid) {
-  baseOptions.headers.set('X-BELLA-OPERATOR-ID', ucid)
-  baseOptions.headers.set('X-BELLA-OPERATOR-NAME', encodeURI(userName))
-  baseOptions.headers.set('X-BELLA-TENANT-ID', '04633c4f-8638-43a3-a02e-af23c29f821f')
-}
+
 export type IOnDataMoreInfo = {
   conversationId?: string
   taskId?: string
@@ -278,7 +273,10 @@ const baseFetch = <T>(
 
   const urlPrefix = isPublicAPI ? PUBLIC_API_PREFIX : API_PREFIX
   let urlWithPrefix = `${urlPrefix}${url.startsWith('/') ? url : `/${url}`}`
-
+  const { userName, ucid, tenantId } = getUserInfo()
+  options.headers.set('X-BELLA-OPERATOR-NAME', encodeURI(userName))
+  options.headers.set('X-BELLA-OPERATOR-ID', ucid)
+  options.headers.set('X-BELLA-TENANT-ID', tenantId)
   const { method, params, body } = options
   // handle query
   if (method === 'GET' && params) {

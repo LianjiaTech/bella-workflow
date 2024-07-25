@@ -3,6 +3,7 @@ import type {
   ReactNode,
 } from 'react'
 import { useMemo, useState } from 'react'
+import useSWR from 'swr'
 import { useTranslation } from 'react-i18next'
 import cn from 'classnames'
 import type {
@@ -25,6 +26,7 @@ import {
   PortalToFollowElemContent,
   PortalToFollowElemTrigger,
 } from '@/app/components/base/portal-to-follow-elem'
+import { fetchModelParameterRules } from '@/service/common'
 import Loading from '@/app/components/base/loading'
 import { useProviderContext } from '@/context/provider-context'
 import { TONE_LIST } from '@/config'
@@ -86,9 +88,7 @@ const ModelParameterModal: FC<ModelParameterModalProps> = ({
   const { t } = useTranslation()
   const { hasSettedApiKey } = useProviderContext()
   const [open, setOpen] = useState(false)
-  const { data: parameterRulesData, isLoading } = {
-    data: null,
-  }
+  const { data: parameterRulesData, isLoading } = useSWR((provider && modelId) ? `/workspaces/current/model-providers/${provider}/models/parameter-rules?model=${modelId}` : null, fetchModelParameterRules)
   // useSWR((provider && modelId) ? `/workspaces/current/model-providers/${provider}/models/parameter-rules?model=${modelId}` : null, fetchModelParameterRules)
   const {
     currentProvider,

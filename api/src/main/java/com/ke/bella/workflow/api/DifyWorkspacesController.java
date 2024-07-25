@@ -12,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -40,11 +41,23 @@ public class DifyWorkspacesController {
     @Value("${bella.llm.models}")
     private String llmModels;
 
+    @Value("${bella.llm.models.params}")
+    private String llmModelParams;
+
     @GetMapping("/current/models/model-types/{model_type}")
     public Object llmModel(@PathVariable("model_type") String modelType) {
         // 默认返回c4ai-command-r-plus
         return ImmutableMap.of("data", JsonUtils.fromJson(
                 llmModels, List.class));
+    }
+
+    @GetMapping("/current/model-providers/{provider}/models/parameter-rules")
+    public Object llmModelParams(@PathVariable("provider") String provider, @RequestParam("model") String model) {
+        Object paramsMap = Optional.ofNullable(JsonUtils.fromJson(llmModelParams, Map.class))
+                .map(jsonMap -> (Map) jsonMap.get(provider))
+                .map(providerMap -> providerMap.get(model))
+                .orElse(Collections.emptyMap());
+        return ImmutableMap.of("data", paramsMap);
     }
 
     @GetMapping("/current/tools/api")

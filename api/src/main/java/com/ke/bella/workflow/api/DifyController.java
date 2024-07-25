@@ -94,6 +94,7 @@ public class DifyController {
 
         List<DifyApp> apps = new ArrayList<>();
         wfs.getData().forEach(wf -> apps.add(DifyApp.builder()
+                .tenantId(wf.getTenantId())
                 .id(wf.getWorkflowId())
                 .name(wf.getTitle())
                 .description(wf.getDesc())
@@ -221,10 +222,13 @@ public class DifyController {
 
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         return DifyApp.builder()
+                .tenantId(wf.getTenantId())
                 .id(workflowId)
                 .mode(wf.getMode())
                 .name(wf.getTitle())
                 .description(wf.getDesc())
+                .mode(wf.getMode())
+                .api_base_url(Configs.API_BASE)
                 .build();
     }
 

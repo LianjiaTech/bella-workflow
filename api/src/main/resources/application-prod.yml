@@ -50,8 +50,11 @@ api:
 logging:
   level:
     root: INFO
+    druid: INFO
+    executableSql: INFO
     org:
       springframework: INFO
+      jooq: INFO
 bella:
   workflow:
     domain: http://example.com

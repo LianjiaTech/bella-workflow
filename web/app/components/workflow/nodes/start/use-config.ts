@@ -70,7 +70,7 @@ const useConfig = (id: string, payload: StartNodeType) => {
     }
 
     if (moreInfo?.payload?.type === ChangeType.remove) {
-      const oldVars = varSelectorConvert([id], inputs.variables)
+      const oldVars = varSelectorConvert([id], [inputs.variables[moreInfo.index]])
       const removeVarSelectorList = []
       oldVars.forEach((v) => {
         if (isVarUsedInNodes(v))

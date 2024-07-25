@@ -49,9 +49,22 @@ public class WorkflowContext {
             Start start = (Start) BaseNode.from(graph.getStartNode());
             List<WorkflowSchema.VariableEntity> variables = start.getData().getVariables();
             for (WorkflowSchema.VariableEntity variable : variables) {
-                if(variable.isRequired() && !userInputs.containsKey(variable.getVariable())) {
-                    throw new IllegalArgumentException(String.format("%s is required", variable.getVariable()));
+                validate(variable, userInputs);
+            }
+        }
+    }
+
+    private void validate(WorkflowSchema.VariableEntity variable, Map inputs) {
+        if(variable.isRequired() && !inputs.containsKey(variable.getVariable())) {
+            throw new IllegalArgumentException(String.format("%s is required", variable.getVariable()));
+        }
+        if(WorkflowSchema.VariableEntity.Type.JSON.getValue().equals(variable.getType())) {
+            for (WorkflowSchema.VariableEntity child : variable.getChildren()) {
+                Object o = inputs.get(variable.getVariable());
+                if(!(o instanceof Map)) {
+                    throw new IllegalArgumentException(String.format("invalid json input %s", variable.getVariable()));
                 }
+                validate(child, (Map) o);
             }
         }
     }

@@ -168,6 +168,7 @@ public class WorkflowSchema {
         public enum Type {
             TEXT_INPUT("text-input"),
             SELECT("select"),
+            JSON("json"),
             PARAGRAPH("paragraph"),
             NUMBER("number");
 
@@ -200,6 +201,7 @@ public class WorkflowSchema {
         private List<String> options;
         private String defaultVal;
         private String hint;
+        private List<VariableEntity> children;
     }
 
 }

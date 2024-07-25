@@ -260,6 +260,7 @@ public class WorkflowRepo implements BaseRepo {
                 query.unionAll(sql);
             }
         }
+		Objects.requireNonNull(query).orderBy(WORKFLOW_RUN.CTIME.desc());
 
         return queryPage(db, query, op.getPage(), op.getPageSize(), WorkflowRunDB.class);
     }

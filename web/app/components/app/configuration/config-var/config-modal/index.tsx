@@ -58,11 +58,13 @@ const ConfigModal: FC<IConfigModalProps> = ({
         }
       }
       setTempPayload((prev) => {
+        if (key === 'type' && value !== 'json')
+          prev.children = []
+
         const newPayload = {
           ...prev,
           [key]: value,
         }
-
         return newPayload
       })
     }

@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ke.bella.workflow.api.Operator;
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.service.Configs;
 import org.assertj.core.util.Lists;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
 import com.google.common.collect.Maps;
@@ -14,9 +16,18 @@ import com.ke.bella.workflow.node.QuestionClassifierNode;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 @Slf4j
 public class QuestionClassifierNodeTest {
+
+    @BeforeAll
+    public static void initBellaContext() {
+        Configs.API_BASE = "https://example.com/v1/";
+        BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
+        BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
+    }
 
     @Test
     @SuppressWarnings({ "rawtypes", "unchecked" })

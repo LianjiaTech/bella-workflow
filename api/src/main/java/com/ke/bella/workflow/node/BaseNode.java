@@ -115,19 +115,21 @@ public abstract class BaseNode implements RunnableNode {
         }
 
         callback.onWorkflowNodeRunStarted(context, meta.getId(), nodeRunId);
-
         NodeRunResult result = execute(context, callback);
-        result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);
-        context.putNodeRunResult(meta.getId(), result);
-        if(result.getStatus() == NodeRunResult.Status.succeeded) {
-            callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
-        } else if(result.getStatus() == NodeRunResult.Status.failed) {
-            callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().getMessage(), result.getError());
-        } else if(result.getStatus() == NodeRunResult.Status.waiting) {
-            callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
+        try {
+            result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);
+            context.putNodeRunResult(meta.getId(), result);
+            if(result.getStatus() == NodeRunResult.Status.succeeded) {
+                callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
+            } else if(result.getStatus() == NodeRunResult.Status.failed) {
+                callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().getMessage(), result.getError());
+                throw new IllegalStateException(result.getError().getMessage());
+            } else if(result.getStatus() == NodeRunResult.Status.waiting) {
+                callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
+            }
+        } finally {
+            LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
         }
-
-        LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
 
         return result;
     }

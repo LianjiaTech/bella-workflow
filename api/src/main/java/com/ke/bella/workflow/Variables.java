@@ -148,7 +148,7 @@ public class Variables {
                 } else {
                     String key = text.substring(start + openToken.length(), end);
                     String value = getValueAsString(map, key);
-                    builder.append(value == null ? "" : value.replaceAll("\\\\", "/"));
+                    builder.append(value == null ? "" : value);
                     offset = end + closeToken.length();
                 }
             }

@@ -48,7 +48,7 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
       - `inputs` (object) Required
         允许传入 workflow start 节点定义的各变量值。
         inputs 参数包含了多组键值对（Key/Value pairs），每组的键对应一个特定变量，每组的值则是该变量的具体值。
-      - `response_mode` (string) Required
+      - `responseMode` (string) Required
         返回响应模式，支持：
         - `streaming` 流式模式（推荐）。基于 SSE（**[Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)**）实现类似打字机输出方式的流式返回。
         - `blocking` 阻塞模式，等待执行完毕后返回结果。（请求若流程较长可能会被中断）。
@@ -59,11 +59,11 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
       - `userName` (string) Required
         用户名，Ke内用户必须使用与userId相匹配的真实姓名。
       - `callbackUrl` (string) Optional
-        回调地址，当 `response_mode` 为 `callback` 时，必填。当workflow执行结束，会以post请求的方式回调callbackUrl。
+        回调地址，当 `responseMode` 为 `callback` 时，必填。当workflow执行结束，会以post请求的方式回调callbackUrl。
 
     ### Response
-    当 `response_mode` 为 `blocking` 时，返回 CompletionResponse object。
-    当 `response_mode` 为 `streaming`时，返回 ChunkCompletionResponse object 流式序列。
+    当 `responseMode` 为 `blocking` 时，返回 CompletionResponse object。
+    当 `responseMode` 为 `streaming`时，返回 ChunkCompletionResponse object 流式序列。
 
     ### CompletionResponse
     返回完整的 App 结果，`Content-Type` 为 `application/json` 。
@@ -93,7 +93,7 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
 
   </Col>
   <Col sticky>
-     <CodeGroup title="Request" tag="POST" label="/workflow/run" targetCode={`curl -X POST '${props.appDetail.api_base_url}/workflow/run' \\\n--header 'Authorization: Bearer {api_key}' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    "tenantId": "${props.appDetail.tenantId}",\n    "workflowId": "${props.appDetail.id}",\n    "inputs": ${JSON.stringify(props.inputs)},\n    "response_mode": "streaming",\n    "userId": "1000123"\n}'\n`}>
+     <CodeGroup title="Request" tag="POST" label="/workflow/run" targetCode={`curl -X POST '${props.appDetail.api_base_url}/workflow/run' \\\n--header 'Authorization: Bearer {api_key}' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    "tenantId": "${props.appDetail.tenantId}",\n    "workflowId": "${props.appDetail.id}",\n    "inputs": ${JSON.stringify(props.inputs)},\n    "responseMode": "streaming",\n    "userId": "1000123"\n}'\n`}>
 
     ```bash {{ title: 'cURL' }}
     curl -X 'POST' \

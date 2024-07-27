@@ -252,7 +252,7 @@ export const getVarType = (value: ValueSelector, availableNodes: any[], isChatMo
   else {
     (value as ValueSelector).slice(1).forEach((key, i) => {
       const isLast = i === value.length - 2
-      curr = curr.find((v: any) => v.variable === key)
+      curr = curr.find ? curr.find((v: any) => v.variable === key) : null
       if (isLast) {
         type = curr?.type
       }

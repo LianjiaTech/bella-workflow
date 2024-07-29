@@ -54,6 +54,7 @@ import Drawer from '@/app/components/base/drawer'
 import ModelParameterModal from '@/app/components/header/account-setting/model-provider-page/model-parameter-modal'
 import type { FormValue } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import { useTextGenerationCurrentProviderAndModelAndModelList } from '@/app/components/header/account-setting/model-provider-page/hooks'
+import { fetchCollectionList } from '@/service/tools'
 import { type Collection } from '@/app/components/tools/types'
 import { useStore as useAppStore } from '@/app/components/app/store'
 
@@ -254,7 +255,7 @@ const Configuration: FC = () => {
     })
   }
 
-  const { hasSettedApiKey } = useProviderContext()
+  const { isAPIKeySet } = useProviderContext()
   const {
     currentModel: currModel,
     textGenerationModelList,
@@ -383,7 +384,7 @@ const Configuration: FC = () => {
 
   useEffect(() => {
     (async () => {
-      const collectionList: any[] = []
+      const collectionList = await fetchCollectionList()
       setCollectionList(collectionList)
       fetchAppDetail({ url: '/apps', id: appId }).then(async (res: any) => {
         setMode(res.mode)
@@ -554,23 +555,23 @@ const Configuration: FC = () => {
     const promptVariables = modelConfig.configs.prompt_variables
 
     if (promptEmpty) {
-      notify({ type: 'error', message: t('appDebug.otherError.promptNoBeEmpty'), duration: 3000 })
+      notify({ type: 'error', message: t('appDebug.otherError.promptNoBeEmpty') })
       return
     }
     if (isAdvancedMode && mode !== AppType.completion) {
       if (modelModeType === ModelModeType.completion) {
         if (!hasSetBlockStatus.history) {
-          notify({ type: 'error', message: t('appDebug.otherError.historyNoBeEmpty'), duration: 3000 })
+          notify({ type: 'error', message: t('appDebug.otherError.historyNoBeEmpty') })
           return
         }
         if (!hasSetBlockStatus.query) {
-          notify({ type: 'error', message: t('appDebug.otherError.queryNoBeEmpty'), duration: 3000 })
+          notify({ type: 'error', message: t('appDebug.otherError.queryNoBeEmpty') })
           return
         }
       }
     }
     if (contextVarEmpty) {
-      notify({ type: 'error', message: t('appDebug.feature.dataSet.queryVariable.contextVarNotEmpty'), duration: 3000 })
+      notify({ type: 'error', message: t('appDebug.feature.dataSet.queryVariable.contextVarNotEmpty') })
       return
     }
     const postDatasets = dataSets.map(({ id }) => ({
@@ -637,7 +638,7 @@ const Configuration: FC = () => {
       modelConfig: newModelConfig,
       completionParams,
     })
-    notify({ type: 'success', message: t('common.api.success'), duration: 3000 })
+    notify({ type: 'success', message: t('common.api.success') })
 
     setCanReturnToSimpleMode(false)
     return true
@@ -677,7 +678,7 @@ const Configuration: FC = () => {
   return (
     <ConfigContext.Provider value={{
       appId,
-      hasSetAPIKEY: hasSettedApiKey,
+      isAPIKeySet,
       isTrailFinished: false,
       mode,
       modelModeType,
@@ -817,7 +818,7 @@ const Configuration: FC = () => {
             {!isMobile && <div className="relative flex flex-col w-1/2 h-full overflow-y-auto grow " style={{ borderColor: 'rgba(0, 0, 0, 0.02)' }}>
               <div className='flex flex-col h-0 border-t border-l grow rounded-tl-2xl bg-gray-50 '>
                 <Debug
-                  hasSetAPIKEY={hasSettedApiKey}
+                  isAPIKeySet={isAPIKeySet}
                   onSetting={() => setShowAccountSettingModal({ payload: 'provider' })}
                   inputs={inputs}
                   modelParameterParams={{
@@ -880,7 +881,7 @@ const Configuration: FC = () => {
         {isMobile && (
           <Drawer showClose isOpen={isShowDebugPanel} onClose={hideDebugPanel} mask footer={null} panelClassname='!bg-gray-50'>
             <Debug
-              hasSetAPIKEY={hasSettedApiKey}
+              isAPIKeySet={isAPIKeySet}
               onSetting={() => setShowAccountSettingModal({ payload: 'provider' })}
               inputs={inputs}
               modelParameterParams={{

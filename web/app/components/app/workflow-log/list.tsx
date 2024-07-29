@@ -2,9 +2,9 @@
 import type { FC } from 'react'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import cn from 'classnames'
 import s from './style.module.css'
 import DetailPanel from './detail'
+import cn from '@/utils/classnames'
 import type { WorkflowAppLogDetail, WorkflowLogsResponse } from '@/models/log'
 import type { App } from '@/types/app'
 import Loading from '@/app/components/base/loading'
@@ -91,23 +91,23 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh }) => {
         </thead>
         <tbody className="text-gray-700 text-[13px]">
           {logs.data.map((log: WorkflowAppLogDetail) => {
-            const endUser = defaultValue
+            const endUser = log.created_by_end_user ? log.created_by_end_user.session_id : defaultValue
             return <tr
-              key={log.workflowRunId}
-              className={`border-b border-gray-200 h-8 hover:bg-gray-50 cursor-pointer ${currentLog?.workflowRunId !== log.workflowRunId ? '' : 'bg-gray-50'}`}
+              key={log.id}
+              className={`border-b border-gray-200 h-8 hover:bg-gray-50 cursor-pointer ${currentLog?.id !== log.id ? '' : 'bg-gray-50'}`}
               onClick={() => {
                 setCurrentLog(log)
                 setShowDrawer(true)
               }}>
-              <td className='text-center align-middle'>{!log.mtime && <span className='inline-block bg-[#3F83F8] h-1.5 w-1.5 rounded'></span>}</td>
-              <td className='w-[160px]'>{log.ctime}</td>
-              <td>{statusTdRender(log.status)}</td>
+              <td className='text-center align-middle'>{!log.read_at && <span className='inline-block bg-[#3F83F8] h-1.5 w-1.5 rounded'></span>}</td>
+              <td className='w-[160px]'>{formatTime(log.created_at, t('appLog.dateTimeFormat') as string)}</td>
+              <td>{statusTdRender(log.workflow_run.status)}</td>
               <td>
-                {/* <div className={cn(
-                  log.elapsed_time === 0 && 'text-gray-400',
-                )}>{`${log.elapsed_time.toFixed(3)}s`}</div> */}
+                <div className={cn(
+                  log.workflow_run.elapsed_time === 0 && 'text-gray-400',
+                )}>{`${log.workflow_run.elapsed_time.toFixed(3)}s`}</div>
               </td>
-              <td></td>
+              <td>{log.workflow_run.total_tokens}</td>
               <td>
                 <div className={cn(endUser === defaultValue ? 'text-gray-400' : 'text-gray-700', 'text-sm overflow-hidden text-ellipsis whitespace-nowrap')}>
                   {endUser}
@@ -125,7 +125,7 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh }) => {
         footer={null}
         panelClassname='mt-16 mx-2 sm:mr-2 mb-3 !p-0 !max-w-[600px] rounded-xl border border-gray-200'
       >
-        <DetailPanel onClose={onCloseDrawer} runID={currentLog?.workflowRunId || ''} />
+        <DetailPanel onClose={onCloseDrawer} runID={currentLog?.workflow_run.id || ''} />
       </Drawer>
     </div>
   )

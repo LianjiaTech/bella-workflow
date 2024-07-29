@@ -1,4 +1,4 @@
-import { BlockEnum, ResponseType, VarType } from '../../types'
+import { BlockEnum } from '../../types'
 import type { NodeDefault } from '../../types'
 import type { ToolNodeType } from './types'
 import { VarType as VarKindType } from '@/app/components/workflow/nodes/tool/types'
@@ -10,14 +10,6 @@ const nodeDefault: NodeDefault<ToolNodeType> = {
   defaultValue: {
     tool_parameters: {},
     tool_configurations: {},
-    output: {
-      variable: 'result',
-      type: VarType.string,
-    },
-    result: {
-      type: ResponseType.string,
-      data: '',
-    },
   },
   getAvailablePrevNodes(isChatMode: boolean) {
     const nodes = isChatMode

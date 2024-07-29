@@ -8,7 +8,6 @@ import type { TemplateTransformNodeType } from './types'
 import useNodeCrud from '@/app/components/workflow/nodes/_base/hooks/use-node-crud'
 import useOneStepRun from '@/app/components/workflow/nodes/_base/hooks/use-one-step-run'
 import {
-  useIsChatMode,
   useNodesReadOnly,
 } from '@/app/components/workflow/hooks'
 import useAvailableVarList from '@/app/components/workflow/nodes/_base/hooks/use-available-var-list'
@@ -17,7 +16,6 @@ const useConfig = (id: string, payload: TemplateTransformNodeType) => {
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
   const defaultConfig = useStore(s => s.nodesDefaultConfigs)[payload.type]
 
-  const isChatMode = useIsChatMode()
   const { inputs, setInputs: doSetInputs } = useNodeCrud<TemplateTransformNodeType>(id, payload)
   const inputsRef = useRef(inputs)
   const setInputs = useCallback((newPayload: TemplateTransformNodeType) => {
@@ -78,13 +76,6 @@ const useConfig = (id: string, payload: TemplateTransformNodeType) => {
     setInputs(newInputs)
   }, [setInputs])
 
-  const handleDeltaChange = useCallback((generateDeltaContent?: boolean) => {
-    const newInputs = produce(inputs, (draft) => {
-      draft.generateDeltaContent = generateDeltaContent
-    })
-    setInputs(newInputs)
-  }, [inputs, setInputs])
-
   // single run
   const {
     isShowSingleRun,
@@ -121,7 +112,6 @@ const useConfig = (id: string, payload: TemplateTransformNodeType) => {
   }, [])
 
   return {
-    isChatMode,
     readOnly,
     inputs,
     availableVars,
@@ -141,7 +131,6 @@ const useConfig = (id: string, payload: TemplateTransformNodeType) => {
     inputVarValues,
     setInputVarValues,
     runResult,
-    handleDeltaChange,
   }
 }
 

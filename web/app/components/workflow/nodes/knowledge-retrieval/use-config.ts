@@ -186,13 +186,8 @@ const useConfig = (id: string, payload: KnowledgeRetrievalNodeType) => {
       const inputs = inputRef.current
       const datasetIds = inputs.dataset_ids
       if (datasetIds?.length > 0) {
-        try {
-          const { data: dataSetsWithDetail } = await fetchDatasets({ url: '/datasets', params: { page: 1, ids: datasetIds } })
-          setSelectedDatasets(dataSetsWithDetail)
-        }
-        catch (e) {
-          console.log('接口报错')
-        }
+        const { data: dataSetsWithDetail } = await fetchDatasets({ url: '/datasets', params: { page: 1, ids: datasetIds } })
+        setSelectedDatasets(dataSetsWithDetail)
       }
       const newInputs = produce(inputs, (draft) => {
         draft.dataset_ids = datasetIds

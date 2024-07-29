@@ -2,9 +2,9 @@
 import type { FC } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import cn from 'classnames'
 import copy from 'copy-to-clipboard'
 import NoData from './no-data'
+import cn from '@/utils/classnames'
 import type { SavedMessage } from '@/models/debug'
 import { Markdown } from '@/app/components/base/markdown'
 import { SimpleBtn, copyIcon } from '@/app/components/app/text-generate/item'
@@ -78,6 +78,7 @@ const SavedItems: FC<ISavedItemsProps> = ({
                       <div className='ml-2 mr-2 h-[14px] w-[1px] bg-gray-200'></div>
                       <AudioBtn
                         value={answer}
+                        noCache={false}
                         className={'mr-1'}
                       />
                     </>

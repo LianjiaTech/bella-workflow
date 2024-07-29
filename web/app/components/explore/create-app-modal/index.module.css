@@ -1,6 +1,0 @@
-.caption::after {
-    content:'*';
-    color: red;
-    margin-left: 2px;
-    vertical-align: middle;
-}

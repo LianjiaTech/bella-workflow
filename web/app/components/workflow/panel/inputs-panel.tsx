@@ -46,7 +46,7 @@ const InputsPanel = ({ onRun }: Props) => {
         {
           type: InputVarType.files,
           variable: '__image',
-          required: true,
+          required: false,
           label: 'files',
         },
       ]
@@ -68,28 +68,8 @@ const InputsPanel = ({ onRun }: Props) => {
       })
     }
   }
-  const convert = inputs
-  const doRun = () => {
-    const inputs: any = {}
-    const error: any = {}
-    Object.keys(convert).forEach((key) => {
-      const value = convert[key]
-      const type = variables.find(item => item.variable === key)?.type
-      if (type === InputVarType.json) {
-        try {
-          inputs[key] = JSON.parse(value)
-        }
-        catch (e) {
-          error[key] = true
-        }
-      }
-      else {
-        inputs[key] = value
-      }
-    })
-    if (Object.keys(error).length > 0)
-      return
 
+  const doRun = () => {
     onRun()
     handleRun({ inputs, files })
   }
@@ -112,7 +92,7 @@ const InputsPanel = ({ onRun }: Props) => {
             >
               <FormItem
                 autoFocus={index === 0}
-                className='!block '
+                className='!block'
                 payload={variable}
                 value={inputs[variable.variable]}
                 onChange={v => handleValueChange(variable.variable, v)}
@@ -123,9 +103,9 @@ const InputsPanel = ({ onRun }: Props) => {
       </div>
       <div className='flex items-center justify-between px-4 py-2'>
         <Button
-          type='primary'
+          variant='primary'
           disabled={!canRun || workflowRunningData?.result?.status === WorkflowRunningStatus.Running}
-          className='py-0 w-full h-8 rounded-lg text-[13px] font-medium'
+          className='w-full'
           onClick={doRun}
         >
           {t('workflow.singleRun.startRun')}

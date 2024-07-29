@@ -3,7 +3,7 @@ import type { ChangeEvent, FC, KeyboardEvent } from 'react'
 import { } from 'use-context-selector'
 import { useTranslation } from 'react-i18next'
 import AutosizeInput from 'react-18-input-autosize'
-import cn from 'classnames'
+import cn from '@/utils/classnames'
 import { X } from '@/app/components/base/icons/src/vender/line/general'
 import { useToastContext } from '@/app/components/base/toast'
 
@@ -70,7 +70,7 @@ const TagInput: FC<TagInputProps> = ({
   return (
     <div className={cn('flex flex-wrap', !isInWorkflow && 'min-w-[200px]', isSpecialMode ? 'bg-gray-100 rounded-lg pb-1 pl-1' : '')}>
       {
-        items.map((item, index) => (
+        (items || []).map((item, index) => (
           <div
             key={item}
             className={cn('flex items-center mr-1 mt-1 px-2 py-1 text-sm text-gray-700 border border-gray-200', isSpecialMode ? 'bg-white rounded-md' : 'rounded-lg')}>

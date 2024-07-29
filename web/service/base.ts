@@ -1,8 +1,11 @@
 import { API_PREFIX, IS_CE_EDITION, PUBLIC_API_PREFIX } from '@/config'
 import Toast from '@/app/components/base/toast'
-import type { AnnotationReply, MessageEnd, MessageReplace, ThoughtItem } from '@/app/components/app/chat/type'
+import type { AnnotationReply, MessageEnd, MessageReplace, ThoughtItem } from '@/app/components/base/chat/chat/type'
 import type { VisionFile } from '@/types/app'
 import type {
+  IterationFinishedResponse,
+  IterationNextedResponse,
+  IterationStartedResponse,
   NodeFinishedResponse,
   NodeStartedResponse,
   TextChunkResponse,
@@ -10,12 +13,13 @@ import type {
   WorkflowFinishedResponse,
   WorkflowStartedResponse,
 } from '@/types/workflow'
-import { getUserInfo } from '@/utils/getQueryParams'
+import { removeAccessToken } from '@/app/components/share/utils'
 const TIME_OUT = 100000
 
 const ContentType = {
   json: 'application/json',
   stream: 'text/event-stream',
+  audio: 'audio/mpeg',
   form: 'application/x-www-form-urlencoded; charset=UTF-8',
   download: 'application/octet-stream', // for download
   upload: 'multipart/form-data', // for upload
@@ -52,7 +56,12 @@ export type IOnWorkflowStarted = (workflowStarted: WorkflowStartedResponse) => v
 export type IOnWorkflowFinished = (workflowFinished: WorkflowFinishedResponse) => void
 export type IOnNodeStarted = (nodeStarted: NodeStartedResponse) => void
 export type IOnNodeFinished = (nodeFinished: NodeFinishedResponse) => void
+export type IOnIterationStarted = (workflowStarted: IterationStartedResponse) => void
+export type IOnIterationNexted = (workflowStarted: IterationNextedResponse) => void
+export type IOnIterationFinished = (workflowFinished: IterationFinishedResponse) => void
 export type IOnTextChunk = (textChunk: TextChunkResponse) => void
+export type IOnTTSChunk = (messageId: string, audioStr: string, audioType?: string) => void
+export type IOnTTSEnd = (messageId: string, audioStr: string, audioType?: string) => void
 export type IOnTextReplace = (textReplace: TextReplaceResponse) => void
 
 export type IOtherOptions = {
@@ -74,7 +83,12 @@ export type IOtherOptions = {
   onWorkflowFinished?: IOnWorkflowFinished
   onNodeStarted?: IOnNodeStarted
   onNodeFinished?: IOnNodeFinished
+  onIterationStart?: IOnIterationStarted
+  onIterationNext?: IOnIterationNexted
+  onIterationFinish?: IOnIterationFinished
   onTextChunk?: IOnTextChunk
+  onTTSChunk?: IOnTTSChunk
+  onTTSEnd?: IOnTTSEnd
   onTextReplace?: IOnTextReplace
 }
 
@@ -98,6 +112,10 @@ function unicodeToChar(text: string) {
   })
 }
 
+function requiredWebSSOLogin() {
+  globalThis.location.href = `/webapp-signin?redirect_url=${globalThis.location.pathname}`
+}
+
 export function format(text: string) {
   let res = text.trim()
   if (res.startsWith('\n'))
@@ -118,7 +136,12 @@ const handleStream = (
   onWorkflowFinished?: IOnWorkflowFinished,
   onNodeStarted?: IOnNodeStarted,
   onNodeFinished?: IOnNodeFinished,
+  onIterationStart?: IOnIterationStarted,
+  onIterationNext?: IOnIterationNexted,
+  onIterationFinish?: IOnIterationFinished,
   onTextChunk?: IOnTextChunk,
+  onTTSChunk?: IOnTTSChunk,
+  onTTSEnd?: IOnTTSEnd,
   onTextReplace?: IOnTextReplace,
 ) => {
   if (!response.ok)
@@ -138,14 +161,11 @@ const handleStream = (
       }
       buffer += decoder.decode(result.value, { stream: true })
       const lines = buffer.split('\n')
-      let processed = false
       try {
         lines.forEach((message) => {
-          processed = false
-          if (message.startsWith('data:')) {
+          if (message.startsWith('data: ')) { // check if it starts with data:
             try {
-              bufferObj = JSON.parse(message.substring(5)) as Record<string, any>// remove data: and parse as json
-              console.log(bufferObj)
+              bufferObj = JSON.parse(message.substring(6)) as Record<string, any>// remove data: and parse as json
             }
             catch (e) {
               // mute handle message cut off
@@ -199,16 +219,30 @@ const handleStream = (
             else if (bufferObj.event === 'node_finished') {
               onNodeFinished?.(bufferObj as NodeFinishedResponse)
             }
+            else if (bufferObj.event === 'iteration_started') {
+              onIterationStart?.(bufferObj as IterationStartedResponse)
+            }
+            else if (bufferObj.event === 'iteration_next') {
+              onIterationNext?.(bufferObj as IterationNextedResponse)
+            }
+            else if (bufferObj.event === 'iteration_completed') {
+              onIterationFinish?.(bufferObj as IterationFinishedResponse)
+            }
             else if (bufferObj.event === 'text_chunk') {
               onTextChunk?.(bufferObj as TextChunkResponse)
             }
             else if (bufferObj.event === 'text_replace') {
               onTextReplace?.(bufferObj as TextReplaceResponse)
             }
-            processed = true
+            else if (bufferObj.event === 'tts_message') {
+              onTTSChunk?.(bufferObj.message_id, bufferObj.audio, bufferObj.audio_type)
+            }
+            else if (bufferObj.event === 'tts_message_end') {
+              onTTSEnd?.(bufferObj.message_id, bufferObj.audio)
+            }
           }
         })
-        buffer = processed ? '' : lines[lines.length - 1]
+        buffer = lines[lines.length - 1]
       }
       catch (e) {
         onData('', false, {
@@ -273,10 +307,7 @@ const baseFetch = <T>(
 
   const urlPrefix = isPublicAPI ? PUBLIC_API_PREFIX : API_PREFIX
   let urlWithPrefix = `${urlPrefix}${url.startsWith('/') ? url : `/${url}`}`
-  const { userName, ucid, tenantId } = getUserInfo()
-  options.headers.set('X-BELLA-OPERATOR-NAME', encodeURI(userName))
-  options.headers.set('X-BELLA-OPERATOR-ID', ucid)
-  options.headers.set('X-BELLA-TENANT-ID', tenantId)
+
   const { method, params, body } = options
   // handle query
   if (method === 'GET' && params) {
@@ -316,6 +347,15 @@ const baseFetch = <T>(
                   return bodyJson.then((data: ResponseError) => {
                     if (!silent)
                       Toast.notify({ type: 'error', message: data.message })
+
+                    if (data.code === 'web_sso_auth_required')
+                      requiredWebSSOLogin()
+
+                    if (data.code === 'unauthorized') {
+                      removeAccessToken()
+                      globalThis.location.reload()
+                    }
+
                     return Promise.reject(data)
                   })
                 }
@@ -327,13 +367,13 @@ const baseFetch = <T>(
                     globalThis.location.href = `${globalThis.location.origin}/init`
                   else if (data.code === 'not_setup' && IS_CE_EDITION)
                     globalThis.location.href = `${globalThis.location.origin}/install`
-                  // else if (location.pathname !== '/signin' || !IS_CE_EDITION)
-                  //   globalThis.location.href = loginUrl
+                  else if (location.pathname !== '/signin' || !IS_CE_EDITION)
+                    globalThis.location.href = loginUrl
                   else if (!silent)
                     Toast.notify({ type: 'error', message: data.message })
                 }).catch(() => {
                   // Handle any other errors
-                  // globalThis.location.href = loginUrl
+                  globalThis.location.href = loginUrl
                 })
 
                 break
@@ -342,8 +382,8 @@ const baseFetch = <T>(
                 bodyJson.then((data: ResponseError) => {
                   if (!silent)
                     Toast.notify({ type: 'error', message: data.message })
-                  // if (data.code === 'already_setup')
-                  //   globalThis.location.href = `${globalThis.location.origin}/signin`
+                  if (data.code === 'already_setup')
+                    globalThis.location.href = `${globalThis.location.origin}/signin`
                 })
                 break
               // fall through
@@ -363,9 +403,10 @@ const baseFetch = <T>(
           }
 
           // return data
-          const data: Promise<T> = options.headers.get('Content-type') === ContentType.download ? res.blob() : res.json()
+          if (options.headers.get('Content-type') === ContentType.download || options.headers.get('Content-type') === ContentType.audio)
+            resolve(needAllResponseContent ? resClone : res.blob())
 
-          resolve(needAllResponseContent ? resClone : data)
+          else resolve(needAllResponseContent ? resClone : res.json())
         })
         .catch((err) => {
           if (!silent)
@@ -444,7 +485,12 @@ export const ssePost = (
     onWorkflowFinished,
     onNodeStarted,
     onNodeFinished,
+    onIterationStart,
+    onIterationNext,
+    onIterationFinish,
     onTextChunk,
+    onTTSChunk,
+    onTTSEnd,
     onTextReplace,
     onError,
     getAbortController,
@@ -475,6 +521,16 @@ export const ssePost = (
       if (!/^(2|3)\d{2}$/.test(String(res.status))) {
         res.json().then((data: any) => {
           Toast.notify({ type: 'error', message: data.message || 'Server Error' })
+
+          if (isPublicAPI) {
+            if (data.code === 'web_sso_auth_required')
+              requiredWebSSOLogin()
+
+            if (data.code === 'unauthorized') {
+              removeAccessToken()
+              globalThis.location.reload()
+            }
+          }
         })
         onError?.('Server Error')
         return
@@ -487,7 +543,7 @@ export const ssePost = (
           return
         }
         onData?.(str, isFirstMessage, moreInfo)
-      }, onCompleted, onThought, onMessageEnd, onMessageReplace, onFile, onWorkflowStarted, onWorkflowFinished, onNodeStarted, onNodeFinished, onTextChunk, onTextReplace)
+      }, onCompleted, onThought, onMessageEnd, onMessageReplace, onFile, onWorkflowStarted, onWorkflowFinished, onNodeStarted, onNodeFinished, onIterationStart, onIterationNext, onIterationFinish, onTextChunk, onTTSChunk, onTTSEnd, onTextReplace)
     }).catch((e) => {
       if (e.toString() !== 'AbortError: The user aborted a request.')
         Toast.notify({ type: 'error', message: e })

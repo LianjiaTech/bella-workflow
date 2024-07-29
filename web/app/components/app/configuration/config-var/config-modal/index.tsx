@@ -3,15 +3,13 @@ import type { FC } from 'react'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
-import produce from 'immer'
 import ModalFoot from '../modal-foot'
 import ConfigSelect from '../config-select'
 import ConfigString from '../config-string'
 import SelectTypeItem from '../select-type-item'
 import Field from './field'
-import JsonEditor from './components/json-editor'
 import Toast from '@/app/components/base/toast'
-import { checkKey, checkKeys, getNewVarInWorkflow } from '@/utils/var'
+import { checkKeys, getNewVarInWorkflow } from '@/utils/var'
 import ConfigContext from '@/context/debug-configuration'
 import type { InputVar, MoreInfo } from '@/app/components/workflow/types'
 import Modal from '@/app/components/base/modal'
@@ -19,7 +17,6 @@ import Switch from '@/app/components/base/switch'
 import { ChangeType, InputVarType } from '@/app/components/workflow/types'
 
 const TEXT_MAX_LENGTH = 256
-const PARAGRAPH_MAX_LENGTH = 1032 * 32
 
 export type IConfigModalProps = {
   isCreate?: boolean
@@ -58,60 +55,15 @@ const ConfigModal: FC<IConfigModalProps> = ({
         }
       }
       setTempPayload((prev) => {
-        if (key === 'type' && value !== 'json') {
-          const newPayload = {
-            ...prev,
-            [key]: value,
-            varType: isStringInput ? 'string' : 'number',
-            children: [],
-          }
-          return newPayload
+        const newPayload = {
+          ...prev,
+          [key]: value,
         }
-        else {
-          const newPayload = {
-            ...prev,
-            [key]: value,
-            varType: 'object',
-          }
-          return newPayload
-        }
+
+        return newPayload
       })
     }
   }, [t])
-
-  const handleCheckError = function (payload: InputVar[]): boolean {
-    let isError = false
-    payload.forEach((v) => {
-      const isValid = checkKey(v.variable, false)
-      if (isValid !== true) {
-        Toast.notify({
-          type: 'error',
-          message: t(`appDebug.varKeyError.${isValid}`, { key: v.variable }),
-        })
-        isError = true
-        return
-      }
-      if (v.children)
-        isError = isError || handleCheckError(v.children)
-    })
-    return isError
-  }
-
-  // 处理段落的数据
-  const handleJsonChange = useCallback(
-    (value: InputVar[]) => {
-      if (value) {
-        const newPayLoad = produce(payload, (draft: InputVar) => {
-          return {
-            ...draft,
-            ...value[0],
-          }
-        }) as InputVar
-        setTempPayload(newPayLoad)
-      }
-    },
-    [tempPayload, setTempPayload],
-  )
 
   const handleVarKeyBlur = useCallback((e: any) => {
     if (tempPayload.label)
@@ -136,19 +88,20 @@ const ConfigModal: FC<IConfigModalProps> = ({
       Toast.notify({ type: 'error', message: t('appDebug.variableConig.errorMsg.varNameRequired') })
       return
     }
-
-    if (tempPayload.type === 'json')
-      tempPayload.label = tempPayload.variable
-
-    const isError = handleCheckError([tempPayload])
-    if (isError)
-      return
+    // TODO: check if key already exists. should the consider the edit case
+    // if (varKeys.map(key => key?.trim()).includes(tempPayload.variable.trim())) {
+    //   Toast.notify({
+    //     type: 'error',
+    //     message: t('appDebug.varKeyError.keyAlreadyExists', { key: tempPayload.variable }),
+    //   })
+    //   return
+    // }
 
     if (!tempPayload.label) {
       Toast.notify({ type: 'error', message: t('appDebug.variableConig.errorMsg.labelNameRequired') })
       return
     }
-    if (isStringInput || type === InputVarType.number || type === InputVarType.json) {
+    if (isStringInput || type === InputVarType.number) {
       onConfirm(tempPayload, moreInfo)
     }
     else {
@@ -178,8 +131,6 @@ const ConfigModal: FC<IConfigModalProps> = ({
       title={t(`appDebug.variableConig.${isCreate ? 'addModalTitle' : 'editModalTitle'}`)}
       isShow={isShow}
       onClose={onClose}
-      wrapperClassName='!z-[100]'
-      className='!max-w-[700px] !overflow-visible'
     >
       <div className='mb-8'>
         <div className='space-y-2'>
@@ -187,57 +138,48 @@ const ConfigModal: FC<IConfigModalProps> = ({
           <Field title={t('appDebug.variableConig.fieldType')}>
             <div className='flex space-x-2'>
               <SelectTypeItem type={InputVarType.textInput} selected={type === InputVarType.textInput} onClick={() => handlePayloadChange('type')(InputVarType.textInput)} />
-              <SelectTypeItem type={InputVarType.json} selected={type === InputVarType.json} onClick={() => handlePayloadChange('type')(InputVarType.json)} />
+              <SelectTypeItem type={InputVarType.paragraph} selected={type === InputVarType.paragraph} onClick={() => handlePayloadChange('type')(InputVarType.paragraph)} />
               <SelectTypeItem type={InputVarType.select} selected={type === InputVarType.select} onClick={() => handlePayloadChange('type')(InputVarType.select)} />
               <SelectTypeItem type={InputVarType.number} selected={type === InputVarType.number} onClick={() => handlePayloadChange('type')(InputVarType.number)} />
             </div>
           </Field>
-          {type === InputVarType.json
-            ? (
-              <JsonEditor
-                value={[tempPayload]}
-                onChange={handleJsonChange}
-              />
-            )
-            : (
-              <>
-                <Field title={t('appDebug.variableConig.varName')}>
-                  <input
-                    type='text'
-                    className={inputClassName}
-                    value={variable}
-                    onChange={e => handlePayloadChange('variable')(e.target.value)}
-                    onBlur={handleVarKeyBlur}
-                    placeholder={t('appDebug.variableConig.inputPlaceholder')!}
-                  />
-                </Field>
-                <Field title={t('appDebug.variableConig.labelName')}>
-                  <input
-                    type='text'
-                    className={inputClassName}
-                    value={label as string}
-                    onChange={e => handlePayloadChange('label')(e.target.value)}
-                    placeholder={t('appDebug.variableConig.inputPlaceholder')!}
-                  />
-                </Field>
 
-                {isStringInput && (
-                  <Field title={t('appDebug.variableConig.maxLength')}>
-                    <ConfigString maxLength={type === InputVarType.textInput ? TEXT_MAX_LENGTH : PARAGRAPH_MAX_LENGTH} modelId={modelConfig.model_id} value={max_length} onChange={handlePayloadChange('max_length')} />
-                  </Field>
+          <Field title={t('appDebug.variableConig.varName')}>
+            <input
+              type='text'
+              className={inputClassName}
+              value={variable}
+              onChange={e => handlePayloadChange('variable')(e.target.value)}
+              onBlur={handleVarKeyBlur}
+              placeholder={t('appDebug.variableConig.inputPlaceholder')!}
+            />
+          </Field>
+          <Field title={t('appDebug.variableConig.labelName')}>
+            <input
+              type='text'
+              className={inputClassName}
+              value={label as string}
+              onChange={e => handlePayloadChange('label')(e.target.value)}
+              placeholder={t('appDebug.variableConig.inputPlaceholder')!}
+            />
+          </Field>
 
-                )}
-                {type === InputVarType.select && (
-                  <Field title={t('appDebug.variableConig.options')}>
-                    <ConfigSelect options={options || []} onChange={handlePayloadChange('options')} />
-                  </Field>
-                )}
+          {isStringInput && (
+            <Field title={t('appDebug.variableConig.maxLength')}>
+              <ConfigString maxLength={type === InputVarType.textInput ? TEXT_MAX_LENGTH : Infinity} modelId={modelConfig.model_id} value={max_length} onChange={handlePayloadChange('max_length')} />
+            </Field>
 
-                <Field title={t('appDebug.variableConig.required')}>
-                  <Switch defaultValue={tempPayload.required} onChange={handlePayloadChange('required')} />
-                </Field>
-              </>
-            )}</div>
+          )}
+          {type === InputVarType.select && (
+            <Field title={t('appDebug.variableConig.options')}>
+              <ConfigSelect options={options || []} onChange={handlePayloadChange('options')} />
+            </Field>
+          )}
+
+          <Field title={t('appDebug.variableConig.required')}>
+            <Switch defaultValue={tempPayload.required} onChange={handlePayloadChange('required')} />
+          </Field>
+        </div>
       </div>
       <ModalFoot
         onConfirm={handleConfirm}

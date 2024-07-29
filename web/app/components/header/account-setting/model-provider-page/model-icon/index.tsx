@@ -19,18 +19,18 @@ const ModelIcon: FC<ModelIconProps> = ({
 }) => {
   const language = useLanguage()
 
-  // if (provider?.provider === 'openai' && modelName?.startsWith('gpt-4'))
-  return <OpenaiViolet className={`w-4 h-4 ${className}`}/>
+  if (provider?.provider === 'openai' && modelName?.startsWith('gpt-4'))
+    return <OpenaiViolet className={`w-4 h-4 ${className}`}/>
 
-  // if (provider?.icon_small) {
-  //   return (
-  //     <img
-  //       alt='model-icon'
-  //       src={`${provider?.icon_small[language] || provider?.icon_small.en_US}?_token=${localStorage.getItem('console_token')}`}
-  //       className={`w-4 h-4 ${className}`}
-  //     />
-  //   )
-  // }
+  if (provider?.icon_small) {
+    return (
+      <img
+        alt='model-icon'
+        src={`${provider.icon_small[language] || provider.icon_small.en_US}?_token=${localStorage.getItem('console_token')}`}
+        className={`w-4 h-4 ${className}`}
+      />
+    )
+  }
 
   return (
     <div className={`

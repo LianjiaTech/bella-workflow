@@ -2,8 +2,8 @@
 import type { FC } from 'react'
 import Editor, { loader } from '@monaco-editor/react'
 import React, { useEffect, useRef, useState } from 'react'
-import cn from 'classnames'
 import Base from '../base'
+import cn from '@/utils/classnames'
 import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
 
 import './style.css'
@@ -160,8 +160,11 @@ const CodeEditor: FC<Props> = ({
           // lineNumbers: (num) => {
           //   return <div>{num}</div>
           // }
+          // hide ambiguousCharacters warning
+          unicodeHighlight: {
+            ambiguousCharacters: false,
+          },
         }}
-        isShowVariable
         onMount={handleEditorDidMount}
       />
       {!outPutValue && <div className='pointer-events-none absolute left-[36px] top-0 leading-[18px] text-[13px] font-normal text-gray-300'>{placeholder}</div>}

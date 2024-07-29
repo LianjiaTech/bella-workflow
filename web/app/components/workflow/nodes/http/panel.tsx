@@ -1,7 +1,6 @@
 import type { FC } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import cn from 'classnames'
 import useConfig from './use-config'
 import ApiInput from './components/api-input'
 import KeyValue from './components/key-value'
@@ -9,6 +8,7 @@ import EditBody from './components/edit-body'
 import AuthorizationModal from './components/authorization'
 import type { HttpNodeType } from './types'
 import Timeout from './components/timeout'
+import cn from '@/utils/classnames'
 import Field from '@/app/components/workflow/nodes/_base/components/field'
 import Split from '@/app/components/workflow/nodes/_base/components/split'
 import OutputVars, { VarItem } from '@/app/components/workflow/nodes/_base/components/output-vars'
@@ -16,8 +16,6 @@ import { Settings01 } from '@/app/components/base/icons/src/vender/line/general'
 import type { NodePanelProps } from '@/app/components/workflow/types'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
-import ResponseBody from '@/app/components/workflow/nodes/_base/components/output-response-body'
-import RemoveEffectVarConfirm from '@/app/components/workflow/nodes/_base/components/remove-effect-var-confirm'
 
 const i18nPrefix = 'workflow.nodes.http'
 
@@ -54,12 +52,6 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
     inputVarValues,
     setInputVarValues,
     runResult,
-    outputVar,
-    handleResponseBody,
-    isShowRemoveVarConfirm,
-    handleRemoveVarConfirm,
-    removeVarInNode,
-    key,
   } = useConfig(id, data)
 
   return (
@@ -133,6 +125,7 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
       </div>
       {(isShowAuthorization && !readOnly) && (
         <AuthorizationModal
+          nodeId={id}
           isShow
           onHide={hideAuthorization}
           payload={inputs.authorization}
@@ -143,25 +136,16 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
       <div className='px-4 pt-4 pb-2'>
         <OutputVars>
           <>
-            <Field
-              title="Response"
-            >
-              <ResponseBody
-                key={key}
-                nodeId={id}
-                readonly={readOnly}
-                payload={inputs.response}
-                onChange={handleResponseBody}
-                placeholder={t(`${i18nPrefix}.response.placeholder`)}
-              />
-            </Field>
-            {outputVar
-              && <VarItem
-                name={outputVar.name}
-                type={outputVar.type}
-                description={t(`${i18nPrefix}.outputVars.body`)}
-                subItems= {outputVar.subItems}
-              />}
+            <VarItem
+              name='body'
+              type='string'
+              description={t(`${i18nPrefix}.outputVars.body`)}
+            />
+            <VarItem
+              name='status_code'
+              type='number'
+              description={t(`${i18nPrefix}.outputVars.statusCode`)}
+            />
             <VarItem
               name='headers'
               type='object'
@@ -192,11 +176,6 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
           result={<ResultPanel {...runResult} showSteps={false} />}
         />
       )}
-      <RemoveEffectVarConfirm
-        isShow={isShowRemoveVarConfirm}
-        onCancel={handleRemoveVarConfirm}
-        onConfirm={removeVarInNode}
-      />
     </div >
   )
 }

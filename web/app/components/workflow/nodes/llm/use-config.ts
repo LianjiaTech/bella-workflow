@@ -275,13 +275,6 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     setInputs(newInputs)
   }, [inputs, setInputs])
 
-  const handleDeltaChange = useCallback((generateDeltaContent?: boolean) => {
-    const newInputs = produce(inputs, (draft) => {
-      draft.generateDeltaContent = generateDeltaContent
-    })
-    setInputs(newInputs)
-  }, [inputs, setInputs])
-
   const handleSyeQueryChange = useCallback((newQuery: string) => {
     const newInputs = produce(inputs, (draft) => {
       if (!draft.memory) {
@@ -335,16 +328,16 @@ const useConfig = (id: string, payload: LLMNodeType) => {
   }, [inputs, setInputs])
 
   const filterInputVar = useCallback((varPayload: Var) => {
-    return [VarType.number, VarType.string].includes(varPayload.type)
+    return [VarType.number, VarType.string, VarType.secret].includes(varPayload.type)
   }, [])
 
   const filterVar = useCallback((varPayload: Var) => {
-    return [VarType.arrayObject, VarType.array, VarType.string].includes(varPayload.type)
+    return [VarType.arrayObject, VarType.array, VarType.number, VarType.string, VarType.secret].includes(varPayload.type)
   }, [])
 
   const {
     availableVars,
-    availableNodes,
+    availableNodesWithParent,
   } = useAvailableVarList(id, {
     onlyLeafNodeVar: false,
     filterVar,
@@ -444,7 +437,7 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     filterInputVar,
     filterVar,
     availableVars,
-    availableNodes,
+    availableNodesWithParent,
     handlePromptChange,
     handleMemoryChange,
     handleSyeQueryChange,
@@ -463,7 +456,6 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     handleRun,
     handleStop,
     runResult,
-    handleDeltaChange,
   }
 }
 

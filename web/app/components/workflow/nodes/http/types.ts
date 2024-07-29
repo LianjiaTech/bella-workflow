@@ -1,4 +1,4 @@
-import type { CommonNodeType, ResponseType, Var, Variable } from '@/app/components/workflow/types'
+import type { CommonNodeType, Variable } from '@/app/components/workflow/types'
 
 export enum Method {
   get = 'get',
@@ -28,11 +28,6 @@ export type Body = {
   data: string
 }
 
-export type ResponseBody = {
-  type: ResponseType
-  data: string
-}
-
 export enum AuthorizationType {
   none = 'no-auth',
   apiKey = 'api-key',
@@ -41,8 +36,6 @@ export enum AuthorizationType {
 export enum APIType {
   basic = 'basic',
   bearer = 'bearer',
-  bella = 'bella',
-  ke_iam = 'ke-IAM',
   custom = 'custom',
 }
 
@@ -51,7 +44,6 @@ export type Authorization = {
   config?: {
     type: APIType
     api_key: string
-    secret?: string
     header?: string
   } | null
 }
@@ -74,6 +66,4 @@ export type HttpNodeType = CommonNodeType & {
   body: Body
   authorization: Authorization
   timeout: Timeout
-  output: Var
-  response: ResponseBody
 }

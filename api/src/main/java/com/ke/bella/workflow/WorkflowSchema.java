@@ -196,6 +196,7 @@ public class WorkflowSchema {
         private String label;
         private String description;
         private String type;
+        private String varType;
         private boolean required;
         private Integer maxLength;
         private List<String> options;

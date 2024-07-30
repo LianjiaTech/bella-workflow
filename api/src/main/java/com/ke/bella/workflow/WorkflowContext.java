@@ -58,7 +58,7 @@ public class WorkflowContext {
         if(variable.isRequired() && !inputs.containsKey(variable.getVariable())) {
             throw new IllegalArgumentException(String.format("%s is required", variable.getVariable()));
         }
-        if(WorkflowSchema.VariableEntity.Type.JSON.getValue().equals(variable.getType())) {
+        if("object".equals(variable.getVarType())) {
             for (WorkflowSchema.VariableEntity child : variable.getChildren()) {
                 Object o = inputs.get(variable.getVariable());
                 if(!(o instanceof Map)) {

@@ -116,7 +116,7 @@ const useOneStepRun = <T>({
 
     valueSelector.slice(1).forEach((key, i) => {
       const isLast = i === valueSelector.length - 2
-      curr = curr?.find((v: any) => v.variable === key)
+      curr = curr?.find ? curr?.find((v: any) => v.variable === key) : null
       if (isLast) {
         res = curr
       }
@@ -334,6 +334,7 @@ const useOneStepRun = <T>({
       if (!originalVar) {
         return {
           label: item.label || item.variable,
+          alias: Array.isArray(item.value_selector) ? `#${item.value_selector.join('.')}#` : '',
           variable: item.variable,
           type: InputVarType.textInput,
           required: true,
@@ -342,6 +343,7 @@ const useOneStepRun = <T>({
       }
       return {
         label: item.label || item.variable,
+        alias: Array.isArray(item.value_selector) ? `#${item.value_selector.join('.')}#` : '',
         variable: item.variable,
         type: varTypeToInputVarType(originalVar.type, {
           isSelect: !!originalVar.isSelect,

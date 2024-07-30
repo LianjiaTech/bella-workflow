@@ -31,7 +31,6 @@ import EditingTitle from './editing-title'
 import RunningTitle from './running-title'
 import RestoringTitle from './restoring-title'
 import ViewHistory from './view-history'
-import EnvButton from './env-button'
 import Button from '@/app/components/base/button'
 import { useStore as useAppStore } from '@/app/components/app/store'
 import { publishWorkflow } from '@/service/workflow'
@@ -108,10 +107,12 @@ const Header: FC = () => {
   const onPublish = useCallback(async () => {
     if (handleCheckBeforePublish()) {
       const res = await publishWorkflow(`/apps/${appID}/workflows/publish`)
-
-      if (res) {
+      if (res.code === 200) {
         notify({ type: 'success', message: t('common.api.actionSuccess') })
         workflowStore.getState().setPublishedAt(res.created_at)
+      }
+      else {
+        notify({ type: 'error', message: t(res.message) })
       }
     }
     else {
@@ -165,13 +166,13 @@ const Header: FC = () => {
       {
         normal && (
           <div className='flex items-center gap-2'>
-            <EnvButton />
+            {/* <EnvButton /> */}
             <div className='w-[1px] h-3.5 bg-gray-200'></div>
             <RunAndHistory />
-            <Button className='text-components-button-secondary-text' onClick={handleShowFeatures}>
+            {/* <Button className='text-components-button-secondary-text' onClick={handleShowFeatures}>
               <RiApps2AddLine className='w-4 h-4 mr-1 text-components-button-secondary-text' />
               {t('workflow.common.features')}
-            </Button>
+            </Button> */}
             <AppPublisher
               {...{
                 publishedAt,

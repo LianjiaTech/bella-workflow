@@ -68,8 +68,27 @@ const InputsPanel = ({ onRun }: Props) => {
       })
     }
   }
-
+  const convert = inputs
   const doRun = () => {
+    const inputs: any = {}
+    const error: any = {}
+    Object.keys(convert).forEach((key) => {
+      const value = convert[key]
+      const type = variables.find(item => item.variable === key)?.type
+      if (type === InputVarType.json) {
+        try {
+          inputs[key] = JSON.parse(value)
+        }
+        catch (e) {
+          error[key] = true
+        }
+      }
+      else {
+        inputs[key] = value
+      }
+    })
+    if (Object.keys(error).length > 0)
+      return
     onRun()
     handleRun({ inputs, files })
   }

@@ -43,11 +43,7 @@ type VarItemProps = {
   name: string
   type: string
   description: string
-  subItems?: {
-    name: string
-    type: string
-    description: string
-  }[]
+  subItems?: VarItemProps[]
 }
 
 export const VarItem: FC<VarItemProps> = ({

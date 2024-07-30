@@ -80,7 +80,7 @@ const Authorization: FC<Props> = ({
     setTempPayload(newPayload)
   }, [tempPayload, setTempPayload])
 
-  const handleAPIKeyOrHeaderChange = useCallback((type: 'api_key' | 'header') => {
+  const handleAPIKeyOrHeaderChange = useCallback((type: 'api_key' | 'header' | 'secret') => {
     return (e: React.ChangeEvent<HTMLInputElement>) => {
       const newPayload = produce(tempPayload, (draft: AuthorizationPayloadType) => {
         if (!draft.config) {
@@ -138,6 +138,8 @@ const Authorization: FC<Props> = ({
                   options={[
                     { value: APIType.basic, label: t(`${i18nPrefix}.basic`) },
                     { value: APIType.bearer, label: t(`${i18nPrefix}.bearer`) },
+                    { value: APIType.bella, label: 'Bella' },
+                    { value: APIType.ke_iam, label: 'KE-IAM' },
                     { value: APIType.custom, label: t(`${i18nPrefix}.custom`) },
                   ]}
                   value={tempPayload.config?.type || APIType.basic}
@@ -151,6 +153,27 @@ const Authorization: FC<Props> = ({
                     className='w-full h-8 leading-8 px-2.5  rounded-lg border-0 bg-gray-100  text-gray-900 text-[13px]  placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
                     value={tempPayload.config?.header || ''}
                     onChange={handleAPIKeyOrHeaderChange('header')}
+                  />
+                </Field>
+              )}
+              {tempPayload.config?.type !== APIType.bella && (
+                <Field title={t(`${i18nPrefix}.api-key-title`)} isRequired>
+                  <input
+                    type='text'
+                    className='w-full h-8 leading-8 px-2.5  rounded-lg border-0 bg-gray-100  text-gray-900 text-[13px]  placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
+                    value={tempPayload.config?.api_key || ''}
+                    onChange={handleAPIKeyOrHeaderChange('api_key')}
+                  />
+                </Field>
+              )}
+
+              {tempPayload.config?.type === APIType.ke_iam && (
+                <Field title={'API Key Secret'} isRequired>
+                  <input
+                    type='text'
+                    className='w-full h-8 leading-8 px-2.5  rounded-lg border-0 bg-gray-100  text-gray-900 text-[13px]  placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
+                    value={tempPayload.config?.secret || ''}
+                    onChange={handleAPIKeyOrHeaderChange('secret')}
                   />
                 </Field>
               )}

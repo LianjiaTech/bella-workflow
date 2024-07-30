@@ -6,7 +6,6 @@ import { createContext, useContext, useContextSelector } from 'use-context-selec
 import type { FC, ReactNode } from 'react'
 import { fetchAppList } from '@/service/apps'
 import Loading from '@/app/components/base/loading'
-import { fetchCurrentWorkspace, fetchLanggeniusVersion, fetchUserProfile } from '@/service/common'
 import type { App } from '@/types/app'
 import { Theme } from '@/types/app'
 import type { ICurrentWorkspace, LangGeniusVersionResponse, UserProfileResponse } from '@/models/common'
@@ -87,17 +86,31 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
   const pageContainerRef = useRef<HTMLDivElement>(null)
 
   const { data: appList, mutate: mutateApps } = useSWR({ url: '/apps', params: { page: 1, limit: 30, name: '' } }, fetchAppList)
+  /*
   const { data: userProfileResponse, mutate: mutateUserProfile } = useSWR({ url: '/account/profile', params: {} }, fetchUserProfile)
   const { data: currentWorkspaceResponse, mutate: mutateCurrentWorkspace } = useSWR({ url: '/workspaces/current', params: {} }, fetchCurrentWorkspace)
+  */
 
-  const [userProfile, setUserProfile] = useState<UserProfileResponse>()
+  const [userProfile, setUserProfile] = useState<UserProfileResponse>({
+    id: '1',
+    name: 'zhufengyi',
+    avatar: '',
+    email: '391611664@qq.com',
+    is_password_set: true,
+    interface_language: 'en-US',
+    interface_theme: 'light',
+    timezone: 'America/New_York',
+    last_login_at: '1721898072',
+    last_login_ip: '0.0.0.0',
+    created_at: '1721898071',
+  })
   const [langeniusVersionInfo, setLangeniusVersionInfo] = useState<LangGeniusVersionResponse>(initialLangeniusVersionInfo)
   const [currentWorkspace, setCurrentWorkspace] = useState<ICurrentWorkspace>(initialWorkspaceInfo)
   const isCurrentWorkspaceManager = useMemo(() => ['owner', 'admin'].includes(currentWorkspace.role), [currentWorkspace.role])
   const isCurrentWorkspaceOwner = useMemo(() => currentWorkspace.role === 'owner', [currentWorkspace.role])
   const isCurrentWorkspaceEditor = useMemo(() => ['owner', 'admin', 'editor'].includes(currentWorkspace.role), [currentWorkspace.role])
   const isCurrentWorkspaceDatasetOperator = useMemo(() => currentWorkspace.role === 'dataset_operator', [currentWorkspace.role])
-  const updateUserProfileAndVersion = useCallback(async () => {
+  /*  const updateUserProfileAndVersion = useCallback(async () => {
     if (userProfileResponse && !userProfileResponse.bodyUsed) {
       const result = await userProfileResponse.json()
       setUserProfile(result)
@@ -115,8 +128,7 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
   useEffect(() => {
     if (currentWorkspaceResponse)
       setCurrentWorkspace(currentWorkspaceResponse)
-  }, [currentWorkspaceResponse])
-
+  }, [currentWorkspaceResponse]) */
   const [theme, setTheme] = useState<Theme>(Theme.light)
   const handleSetTheme = useCallback((theme: Theme) => {
     setTheme(theme)
@@ -138,16 +150,16 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
       apps: appList.data,
       mutateApps,
       userProfile,
-      mutateUserProfile,
+      // mutateUserProfile,
       pageContainerRef,
       langeniusVersionInfo,
       useSelector,
       currentWorkspace,
-      isCurrentWorkspaceManager,
-      isCurrentWorkspaceOwner,
-      isCurrentWorkspaceEditor,
+      isCurrentWorkspaceManager: true,
+      isCurrentWorkspaceOwner: true,
+      isCurrentWorkspaceEditor: true,
       isCurrentWorkspaceDatasetOperator,
-      mutateCurrentWorkspace,
+      // mutateCurrentWorkspace,
     }}>
       <div className='flex flex-col h-full overflow-y-auto'>
         {globalThis.document?.body?.getAttribute('data-public-maintenance-notice') && <MaintenanceNotice />}

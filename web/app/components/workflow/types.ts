@@ -54,6 +54,7 @@ export type CommonNodeType<T = {}> = {
   title: string
   desc: string
   type: BlockEnum
+  generateDeltaContent?: boolean
   width?: number
   height?: number
 } & T & Partial<Pick<ToolDefaultValue, 'provider_id' | 'provider_type' | 'provider_name' | 'tool_name'>>
@@ -134,11 +135,16 @@ export type InputVar = {
     variable: string
   }
   variable: string
+  varType?: string
   max_length?: number
   default?: string
+  isRoot?: boolean
   required: boolean
   hint?: string
   options?: string[]
+  alias?: string
+  error?: string
+  children?: InputVar[]
   value_selector?: ValueSelector
 }
 
@@ -199,6 +205,10 @@ export enum VarType {
   arrayObject = 'array[object]',
   arrayFile = 'array[file]',
   any = 'any',
+}
+export type MethodOption = {
+  label: string
+  value: string
 }
 
 export type Var = {
@@ -323,4 +333,9 @@ export type MoreInfo = {
 
 export type ToolWithProvider = Collection & {
   tools: Tool[]
+}
+
+export enum ResponseType {
+  string = 'string',
+  json = 'json',
 }

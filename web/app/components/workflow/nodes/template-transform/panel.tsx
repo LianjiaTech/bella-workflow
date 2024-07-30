@@ -5,6 +5,7 @@ import {
   RiQuestionLine,
 } from '@remixicon/react'
 import { CodeLanguage } from '../code/types'
+import DirectlyAnswerConfig from '../_base/components/directly-answer-config'
 import useConfig from './use-config'
 import type { TemplateTransformNodeType } from './types'
 import VarList from '@/app/components/workflow/nodes/_base/components/variable/var-list'
@@ -26,6 +27,8 @@ const Panel: FC<NodePanelProps<TemplateTransformNodeType>> = ({
   const { t } = useTranslation()
 
   const {
+    isChatMode,
+    handleDeltaChange,
     readOnly,
     inputs,
     availableVars,
@@ -93,6 +96,17 @@ const Panel: FC<NodePanelProps<TemplateTransformNodeType>> = ({
           onChange={handleCodeChange}
         />
       </div>
+      {isChatMode && (
+        <div>
+          <Split />
+          <DirectlyAnswerConfig
+            readonly={readOnly}
+            generateDeltaContent={inputs.generateDeltaContent }
+            onChange={handleDeltaChange}
+            className='px-4 pt-4 pb-2'
+          />
+        </div>
+      )}
       <Split />
       <div className='px-4 pt-4 pb-2'>
         <OutputVars>

@@ -126,7 +126,7 @@ export const updateCurrentWorkspace: Fetcher<ICurrentWorkspace, { url: string; b
 }
 
 export const fetchWorkspaces: Fetcher<{ workspaces: IWorkspace[] }, { url: string; params: Record<string, any> }> = ({ url, params }) => {
-  return get<{ workspaces: IWorkspace[] }>(url, { params })
+  return { data: null } as any // get<{ workspaces: IWorkspace[] }>(url, { params })
 }
 
 export const switchWorkspace: Fetcher<CommonResponse & { new_tenant: IWorkspace }, { url: string; body: Record<string, any> }> = ({ url, body }) => {
@@ -165,7 +165,11 @@ export const activateMember: Fetcher<CommonResponse, { url: string; body: any }>
 }
 
 export const fetchModelProviders: Fetcher<{ data: ModelProvider[] }, string> = (url) => {
-  return get<{ data: ModelProvider[] }>(url)
+  return {
+    data: [],
+    isLoading: false,
+    mutate: () => {},
+  } // get<{ data: ModelProvider[] }>(url)
 }
 
 export type ModelProviderCredentials = {
@@ -191,7 +195,11 @@ export const fetchModelProviderModelList: Fetcher<{ data: ModelItem[] }, string>
 }
 
 export const fetchModelList: Fetcher<{ data: Model[] }, string> = (url) => {
-  return get<{ data: Model[] }>(url)
+  return {
+    data: [],
+    mutate: () => {},
+    isLoading: false,
+  } // get<{ data: Model[] }>(url)
 }
 
 export const validateModelProvider: Fetcher<ValidateOpenAIKeyResponse, { url: string; body: any }> = ({ url, body }) => {

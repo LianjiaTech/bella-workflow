@@ -1,5 +1,6 @@
 import type { CollectionType } from '@/app/components/tools/types'
-import type { CommonNodeType, ValueSelector } from '@/app/components/workflow/types'
+import type { CommonNodeType, ValueSelector, Var } from '@/app/components/workflow/types'
+import type { ResponseBody } from '@/app/components/workflow/nodes/http/types'
 
 export enum VarType {
   variable = 'variable',
@@ -20,4 +21,6 @@ export type ToolNodeType = CommonNodeType & {
   tool_label: string
   tool_parameters: ToolVarInputs
   tool_configurations: Record<string, any>
+  result: ResponseBody
+  output: Var
 }

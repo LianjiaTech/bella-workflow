@@ -105,7 +105,7 @@ export const testAPIAvailable = (payload: any) => {
 }
 
 export const fetchAllBuiltInTools = () => {
-  return get<ToolWithProvider[]>('/workspaces/current/tools/builtin')
+  return [] // get<ToolWithProvider[]>('/workspaces/current/tools/builtin')
 }
 
 export const fetchAllCustomTools = () => {
@@ -113,7 +113,7 @@ export const fetchAllCustomTools = () => {
 }
 
 export const fetchAllWorkflowTools = () => {
-  return get<ToolWithProvider[]>('/workspaces/current/tools/workflow')
+  return [] // get<ToolWithProvider[]>('/workspaces/current/tools/workflow')
 }
 
 export const fetchLabelList = () => {

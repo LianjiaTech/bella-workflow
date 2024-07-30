@@ -232,6 +232,7 @@ const ConfigPrompt: FC<Props> = ({
               availableNodes={availableNodesWithParent}
               isSupportPromptGenerator
               isSupportJinja
+              isShowVariable
               editionType={(payload as PromptItem).edition_type}
               varList={varList}
               onEditionTypeChange={handleCompletionEditionTypeChange}

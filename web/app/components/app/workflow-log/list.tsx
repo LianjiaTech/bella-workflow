@@ -91,23 +91,23 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh }) => {
         </thead>
         <tbody className="text-gray-700 text-[13px]">
           {logs.data.map((log: WorkflowAppLogDetail) => {
-            const endUser = log.created_by_end_user ? log.created_by_end_user.session_id : defaultValue
+            const endUser = defaultValue
             return <tr
-              key={log.id}
+              key={log.workflowRunId}
               className={`border-b border-gray-200 h-8 hover:bg-gray-50 cursor-pointer ${currentLog?.id !== log.id ? '' : 'bg-gray-50'}`}
               onClick={() => {
                 setCurrentLog(log)
                 setShowDrawer(true)
               }}>
-              <td className='text-center align-middle'>{!log.read_at && <span className='inline-block bg-[#3F83F8] h-1.5 w-1.5 rounded'></span>}</td>
-              <td className='w-[160px]'>{formatTime(log.created_at, t('appLog.dateTimeFormat') as string)}</td>
-              <td>{statusTdRender(log.workflow_run.status)}</td>
+              <td className='text-center align-middle'>{!log.mtime && <span className='inline-block bg-[#3F83F8] h-1.5 w-1.5 rounded'></span>}</td>
+              <td className='w-[160px]'>{log.ctime}</td>
+              <td>{statusTdRender(log.status)}</td>
               <td>
                 <div className={cn(
                   log.workflow_run.elapsed_time === 0 && 'text-gray-400',
                 )}>{`${log.workflow_run.elapsed_time.toFixed(3)}s`}</div>
               </td>
-              <td>{log.workflow_run.total_tokens}</td>
+              <td></td>
               <td>
                 <div className={cn(endUser === defaultValue ? 'text-gray-400' : 'text-gray-700', 'text-sm overflow-hidden text-ellipsis whitespace-nowrap')}>
                   {endUser}
@@ -125,7 +125,7 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh }) => {
         footer={null}
         panelClassname='mt-16 mx-2 sm:mr-2 mb-3 !p-0 !max-w-[600px] rounded-xl border border-gray-200'
       >
-        <DetailPanel onClose={onCloseDrawer} runID={currentLog?.workflow_run.id || ''} />
+        <DetailPanel onClose={onCloseDrawer} runID={currentLog?.workflowRunId || ''} />
       </Drawer>
     </div>
   )

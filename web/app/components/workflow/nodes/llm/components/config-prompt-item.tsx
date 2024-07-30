@@ -142,6 +142,7 @@ const ConfigPromptItem: FC<Props> = ({
       onGenerated={handleGenerated}
       modelConfig={modelConfig}
       isSupportJinja
+      isShowVariable
       editionType={payload.edition_type}
       onEditionTypeChange={onEditionTypeChange}
       varList={varList}

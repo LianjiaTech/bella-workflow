@@ -165,6 +165,7 @@ const CodeEditor: FC<Props> = ({
             ambiguousCharacters: false,
           },
         }}
+        isShowVariable
         onMount={handleEditorDidMount}
       />
       {!outPutValue && <div className='pointer-events-none absolute left-[36px] top-0 leading-[18px] text-[13px] font-normal text-gray-300'>{placeholder}</div>}

@@ -129,11 +129,17 @@ const InputVarList: FC<Props> = ({
           const isSelect = type === FormTypeEnum.select
           const isFile = type === FormTypeEnum.files
           const isString = type !== FormTypeEnum.textNumber && type !== FormTypeEnum.files && type !== FormTypeEnum.select
+          const typeMapping = {
+            [FormTypeEnum.textNumber]: 'Number',
+            [FormTypeEnum.array]: 'Array',
+            [FormTypeEnum.json]: 'Object',
+          }
+          const variableType = typeMapping[type] || 'String'
           return (
             <div key={variable} className='space-y-1'>
               <div className='flex items-center h-[18px] space-x-2'>
                 <span className='text-[13px] font-medium text-gray-900'>{label[language] || label.en_US}</span>
-                <span className='text-xs font-normal text-gray-500'>{paramType(type)}</span>
+                <span className='text-xs font-normal text-gray-500'>{variableType}</span>
                 {required && <span className='leading-[18px] text-xs font-normal text-[#EC4A0A]'>Required</span>}
               </div>
               {isString && (

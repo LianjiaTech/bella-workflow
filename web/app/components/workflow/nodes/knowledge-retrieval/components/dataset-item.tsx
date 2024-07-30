@@ -7,7 +7,6 @@ import {
 } from '@remixicon/react'
 import type { DataSet } from '@/models/datasets'
 import { DataSourceType } from '@/models/datasets'
-import { Settings01 } from '@/app/components/base/icons/src/vender/line/general'
 import FileIcon from '@/app/components/base/file-icon'
 import { Folder } from '@/app/components/base/icons/src/vender/solid/files'
 import SettingsModal from '@/app/components/app/configuration/dataset-config/settings-modal'
@@ -58,12 +57,12 @@ const DatasetItem: FC<Props> = ({
       </div>
       {!readonly && (
         <div className='hidden group-hover/dataset-item:flex shrink-0 ml-2  items-center space-x-1'>
-          <div
+          {/* <div
             className='flex items-center justify-center w-6 h-6 hover:bg-black/5 rounded-md cursor-pointer'
             onClick={showSettingsModal}
           >
             <Settings01 className='w-4 h-4 text-gray-500' />
-          </div>
+          </div> */}
           <div
             className='flex items-center justify-center w-6 h-6 hover:bg-black/5 rounded-md cursor-pointer'
             onClick={onRemove}

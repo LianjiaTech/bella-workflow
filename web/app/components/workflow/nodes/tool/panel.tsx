@@ -14,6 +14,8 @@ import Loading from '@/app/components/base/loading'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import OutputVars, { VarItem } from '@/app/components/workflow/nodes/_base/components/output-vars'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
+import ResponseBody from '@/app/components/workflow/nodes/_base/components/output-response-body'
+import RemoveEffectVarConfirm from '@/app/components/workflow/nodes/_base/components/remove-effect-var-confirm'
 
 const i18nPrefix = 'workflow.nodes.tool'
 
@@ -47,6 +49,12 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
     handleRun,
     handleStop,
     runResult,
+    outputVar,
+    handleResponseBody,
+    isShowRemoveVarConfirm,
+    handleRemoveVarConfirm,
+    removeVarInNode,
+    key,
   } = useConfig(id, data)
 
   if (isLoading) {
@@ -121,16 +129,25 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
       <div className='px-4 pt-4 pb-2'>
         <OutputVars>
           <>
-            <VarItem
-              name='text'
-              type='String'
-              description={t(`${i18nPrefix}.outputVars.text`)}
-            />
-            <VarItem
-              name='files'
-              type='Array[File]'
-              description={t(`${i18nPrefix}.outputVars.files.title`)}
-            />
+            <Field
+              title="Response"
+            >
+              <ResponseBody
+                key={key}
+                nodeId={id}
+                readonly={readOnly}
+                payload={inputs.result}
+                onChange={handleResponseBody}
+                placeholder={t(`${i18nPrefix}.result.placeholder`)}
+              />
+            </Field>
+            {outputVar
+              && <VarItem
+                name={outputVar.name}
+                type={outputVar.type}
+                description={t(`${i18nPrefix}.outputVars.result`)}
+                subItems= {outputVar.subItems}
+              />}
             <VarItem
               name='json'
               type='Array[Object]'
@@ -151,6 +168,11 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
           result={<ResultPanel {...runResult} showSteps={false} />}
         />
       )}
+      <RemoveEffectVarConfirm
+        isShow={isShowRemoveVarConfirm}
+        onCancel={handleRemoveVarConfirm}
+        onConfirm={removeVarInNode}
+      />
     </div>
   )
 }

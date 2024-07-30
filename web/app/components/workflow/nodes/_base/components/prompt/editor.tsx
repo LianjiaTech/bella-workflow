@@ -50,6 +50,8 @@ type Props = {
   isChatModel?: boolean
   isChatApp?: boolean
   isShowContext?: boolean
+  isShowVariable?: boolean
+  placeholder?: string
   hasSetBlockStatus?: {
     context: boolean
     history: boolean
@@ -82,6 +84,8 @@ const Editor: FC<Props> = ({
   isChatModel,
   isChatApp,
   isShowContext,
+  isShowVariable,
+  placeholder,
   hasSetBlockStatus,
   nodesOutputVars,
   availableNodes = [],
@@ -162,7 +166,7 @@ const Editor: FC<Props> = ({
                   </TooltipPlus>
 
                 )}
-                {!readOnly && (
+                {!readOnly && isShowVariable && (
                   <TooltipPlus
                     popupContent={`${t('workflow.common.insertVarTip')}`}
                   >
@@ -198,6 +202,7 @@ const Editor: FC<Props> = ({
                     className='min-h-[56px]'
                     style={isExpand ? { height: editorExpandHeight - 5 } : {}}
                     value={value}
+                    placeholder={placeholder}
                     contextBlock={{
                       show: justVar ? false : isShowContext,
                       selectable: !hasSetBlockStatus?.context,
@@ -216,7 +221,7 @@ const Editor: FC<Props> = ({
                       selectable: false,
                     }}
                     workflowVariableBlock={{
-                      show: true,
+                      show: isShowVariable,
                       variables: nodesOutputVars || [],
                       workflowNodesMap: availableNodes.reduce((acc, node) => {
                         acc[node.id] = {

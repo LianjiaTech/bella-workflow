@@ -29,6 +29,7 @@ import type {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import './style.css'
+import { useSearchParams } from 'next/navigation'
 import type {
   Edge,
   EnvironmentVariable,
@@ -88,6 +89,7 @@ import type { Features as FeaturesData } from '@/app/components/base/features/ty
 import { useFeaturesStore } from '@/app/components/base/features/hooks'
 import { useEventEmitterContextContext } from '@/context/event-emitter'
 import Confirm from '@/app/components/base/confirm/common'
+import { setUserInfo } from '@/utils/getQueryParams'
 
 const nodeTypes = {
   [CUSTOM_NODE]: CustomNode,
@@ -107,6 +109,11 @@ const Workflow: FC<WorkflowProps> = memo(({
   edges: originalEdges,
   viewport,
 }) => {
+  const searchParams = useSearchParams()
+  const userName = searchParams.get('userName') || ''
+  const ucid = searchParams.get('ucid') || ''
+  const tenantId = searchParams.get('tenantId') || ''
+  setUserInfo(ucid, userName, tenantId)
   const workflowContainerRef = useRef<HTMLDivElement>(null)
   const workflowStore = useWorkflowStore()
   const reactflow = useReactFlow()

@@ -90,7 +90,7 @@ const BeforeRunForm: FC<BeforeRunFormProps> = ({
       form.inputs.forEach((input) => {
         try {
           const value = formatValue(form.values[input.variable], input.type)
-          submitData[input.variable] = value
+          submitData[input.alias || input.variable] = value
         }
         catch (e) {
           parseErrorJsonField = input.variable

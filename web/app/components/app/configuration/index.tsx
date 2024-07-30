@@ -54,7 +54,6 @@ import Drawer from '@/app/components/base/drawer'
 import ModelParameterModal from '@/app/components/header/account-setting/model-provider-page/model-parameter-modal'
 import type { FormValue } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import { useTextGenerationCurrentProviderAndModelAndModelList } from '@/app/components/header/account-setting/model-provider-page/hooks'
-import { fetchCollectionList } from '@/service/tools'
 import { type Collection } from '@/app/components/tools/types'
 import { useStore as useAppStore } from '@/app/components/app/store'
 
@@ -384,7 +383,7 @@ const Configuration: FC = () => {
 
   useEffect(() => {
     (async () => {
-      const collectionList = await fetchCollectionList()
+      const collectionList: any[] = [] // await fetchCollectionList()
       setCollectionList(collectionList)
       fetchAppDetail({ url: '/apps', id: appId }).then(async (res: any) => {
         setMode(res.mode)

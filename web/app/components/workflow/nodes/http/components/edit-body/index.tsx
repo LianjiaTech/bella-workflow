@@ -138,6 +138,7 @@ const EditBody: FC<Props> = ({
             nodesOutputVars={availableVars}
             availableNodes={availableNodes}
             readOnly={readonly}
+            isShowVariable
           />
         )}
 
@@ -151,6 +152,7 @@ const EditBody: FC<Props> = ({
             nodesOutputVars={availableVars}
             availableNodes={availableNodes}
             readOnly={readonly}
+            isShowVariable
           />
         )}
       </div>

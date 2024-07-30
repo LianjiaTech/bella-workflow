@@ -135,6 +135,7 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
                 variable: 'query',
                 type: InputVarType.paragraph,
                 required: true,
+                alias: Array.isArray(inputs.query_variable_selector) ? `#${inputs.query_variable_selector.join('.')}#` : '',
               }, ...varInputs],
               values: inputVarValues,
               onChange: setInputVarValues,

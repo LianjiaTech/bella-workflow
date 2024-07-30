@@ -14,6 +14,7 @@ import type {
   WorkflowStartedResponse,
 } from '@/types/workflow'
 import { removeAccessToken } from '@/app/components/share/utils'
+import { getUserInfo } from '@/utils/getQueryParams'
 const TIME_OUT = 100000
 
 const ContentType = {
@@ -161,11 +162,14 @@ const handleStream = (
       }
       buffer += decoder.decode(result.value, { stream: true })
       const lines = buffer.split('\n')
+      let processed = false
       try {
         lines.forEach((message) => {
-          if (message.startsWith('data: ')) { // check if it starts with data:
+          processed = false
+          if (message.startsWith('data:')) {
             try {
-              bufferObj = JSON.parse(message.substring(6)) as Record<string, any>// remove data: and parse as json
+              bufferObj = JSON.parse(message.substring(5)) as Record<string, any>// remove data: and parse as json
+              console.log(bufferObj)
             }
             catch (e) {
               // mute handle message cut off
@@ -240,9 +244,10 @@ const handleStream = (
             else if (bufferObj.event === 'tts_message_end') {
               onTTSEnd?.(bufferObj.message_id, bufferObj.audio)
             }
+            processed = true
           }
         })
-        buffer = lines[lines.length - 1]
+        buffer = processed ? '' : lines[lines.length - 1]
       }
       catch (e) {
         onData('', false, {
@@ -307,7 +312,10 @@ const baseFetch = <T>(
 
   const urlPrefix = isPublicAPI ? PUBLIC_API_PREFIX : API_PREFIX
   let urlWithPrefix = `${urlPrefix}${url.startsWith('/') ? url : `/${url}`}`
-
+  const { userName, ucid, tenantId } = getUserInfo()
+  options.headers.set('X-BELLA-OPERATOR-NAME', encodeURI(userName))
+  options.headers.set('X-BELLA-OPERATOR-ID', ucid)
+  options.headers.set('X-BELLA-TENANT-ID', tenantId)
   const { method, params, body } = options
   // handle query
   if (method === 'GET' && params) {
@@ -367,13 +375,13 @@ const baseFetch = <T>(
                     globalThis.location.href = `${globalThis.location.origin}/init`
                   else if (data.code === 'not_setup' && IS_CE_EDITION)
                     globalThis.location.href = `${globalThis.location.origin}/install`
-                  else if (location.pathname !== '/signin' || !IS_CE_EDITION)
-                    globalThis.location.href = loginUrl
+                  // else if (location.pathname !== '/signin' || !IS_CE_EDITION)
+                  //   globalThis.location.href = loginUrl
                   else if (!silent)
                     Toast.notify({ type: 'error', message: data.message })
                 }).catch(() => {
                   // Handle any other errors
-                  globalThis.location.href = loginUrl
+                  // globalThis.location.href = loginUrl
                 })
 
                 break
@@ -382,8 +390,8 @@ const baseFetch = <T>(
                 bodyJson.then((data: ResponseError) => {
                   if (!silent)
                     Toast.notify({ type: 'error', message: data.message })
-                  if (data.code === 'already_setup')
-                    globalThis.location.href = `${globalThis.location.origin}/signin`
+                  // if (data.code === 'already_setup')
+                  //   globalThis.location.href = `${globalThis.location.origin}/signin`
                 })
                 break
               // fall through

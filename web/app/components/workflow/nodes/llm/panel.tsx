@@ -2,12 +2,11 @@ import type { FC } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { RiQuestionLine } from '@remixicon/react'
-import MemoryConfig from '../_base/components/memory-config'
-import VarReferencePicker from '../_base/components/variable/var-reference-picker'
 import useConfig from './use-config'
 import ResolutionPicker from './components/resolution-picker'
 import type { LLMNodeType } from './types'
 import ConfigPrompt from './components/config-prompt'
+import DirectlyAnswerConfig from '@/app/components/workflow/nodes/_base/components/directly-answer-config'
 import VarList from '@/app/components/workflow/nodes/_base/components/variable/var-list'
 import AddButton2 from '@/app/components/base/button/add-button'
 import Field from '@/app/components/workflow/nodes/_base/components/field'
@@ -69,6 +68,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
     handleStop,
     varInputs,
     runResult,
+    handleDeltaChange,
   } = useConfig(id, data)
 
   const model = inputs.model
@@ -145,7 +145,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
         </Field>
 
         {/* knowledge */}
-        <Field
+        {/* <Field
           title={t(`${i18nPrefix}.context`)}
           tooltip={t(`${i18nPrefix}.contextTooltip`)!}
         >
@@ -162,7 +162,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
               <div className='leading-[18px] text-xs font-normal text-[#DC6803]'>{t(`${i18nPrefix}.notSetContextInPromptTip`)}</div>
             )}
           </>
-        </Field>
+        </Field> */}
 
         {/* Prompt */}
         {model.name && (
@@ -233,6 +233,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
                 isShowContext={false}
                 isChatApp
                 isChatModel
+                isShowVariable
                 hasSetBlockStatus={hasSetBlockStatus}
                 nodesOutputVars={availableVars}
                 availableNodes={availableNodesWithParent}
@@ -249,11 +250,16 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
         {isChatMode && (
           <>
             <Split />
-            <MemoryConfig
+            {/* <MemoryConfig
               readonly={readOnly}
               config={{ data: inputs.memory }}
               onChange={handleMemoryChange}
               canSetRoleName={isCompletionModel}
+            /> */}
+            <DirectlyAnswerConfig
+              readonly={readOnly}
+              generateDeltaContent={inputs.generateDeltaContent }
+              onChange={handleDeltaChange}
             />
           </>
         )}

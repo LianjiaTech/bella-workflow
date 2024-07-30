@@ -38,10 +38,29 @@ export const isENV = (valueSelector: ValueSelector) => {
   return valueSelector[0] === 'env'
 }
 
-const inputVarTypeToVarType = (type: InputVarType): VarType => {
+const inputVarTypeToVarType = (type: InputVarType, varType: string): VarType => {
+  if (!type && varType) {
+    switch (varType) {
+      case 'string':
+        return VarType.string
+      case 'number':
+        return VarType.number
+      case 'boolean':
+        return VarType.boolean
+      case 'object':
+        return VarType.object
+      case 'array[string]':
+        return VarType.arrayString
+      case 'array[number]':
+        return VarType.arrayNumber
+      case 'array[object]':
+        return VarType.arrayObject
+    }
+  }
   if (type === InputVarType.number)
     return VarType.number
-
+  if (type === InputVarType.json)
+    return VarType.object
   return VarType.string
 }
 
@@ -80,23 +99,25 @@ const formatItem = (
       const {
         variables,
       } = data as StartNodeType
-      res.vars = variables.map((v) => {
+      const handler = (v: any) => {
         return {
           variable: v.variable,
-          type: inputVarTypeToVarType(v.type),
+          type: inputVarTypeToVarType(v.type, v.varType),
           isParagraph: v.type === InputVarType.paragraph,
           isSelect: v.type === InputVarType.select,
           options: v.options,
           required: v.required,
+          children: (v.children && v.children.length > 0) ? v.children.map(handler) : undefined,
         }
-      })
+      }
+      res.vars = variables.map(handler)
       if (isChatMode) {
         res.vars.push({
           variable: 'sys.query',
           type: VarType.string,
         })
         res.vars.push({
-          variable: 'sys.conversation_id',
+          variable: 'sys.thread_id',
           type: VarType.string,
         })
       }
@@ -107,6 +128,10 @@ const formatItem = (
       res.vars.push({
         variable: 'sys.files',
         type: VarType.arrayFile,
+      })
+      res.vars.push({
+        variable: 'sys.date',
+        type: VarType.string,
       })
       break
     }
@@ -145,7 +170,14 @@ const formatItem = (
     }
 
     case BlockEnum.HttpRequest: {
-      res.vars = HTTP_REQUEST_OUTPUT_STRUCT
+      const {
+        output,
+      } = data as HttpNodeType
+      if (output)
+        res.vars = [output, ...HTTP_REQUEST_OUTPUT_STRUCT]
+      else
+        res.vars = [...HTTP_REQUEST_OUTPUT_STRUCT]
+
       break
     }
 
@@ -208,7 +240,14 @@ const formatItem = (
     }
 
     case BlockEnum.Tool: {
-      res.vars = TOOL_OUTPUT_STRUCT
+      const {
+        output,
+      } = data as ToolNodeType
+      if (output)
+        res.vars = [output]
+      else
+        res.vars = []
+
       break
     }
 
@@ -309,7 +348,7 @@ const getIterationItemType = ({
   let curr: any = targetVar.vars
 
   if (isSystem)
-    return curr.find((v: any) => v.variable === (valueSelector).join('.'))?.type;
+    return curr.find ? curr.find((v: any) => v.variable === (valueSelector).join('.'))?.type : null;
 
   (valueSelector).slice(1).forEach((key, i) => {
     const isLast = i === valueSelector.length - 2
@@ -399,12 +438,12 @@ export const getVarType = ({
   let type: VarType = VarType.string
   let curr: any = targetVar.vars
   if (isSystem || isEnv) {
-    return curr.find((v: any) => v.variable === (valueSelector as ValueSelector).join('.'))?.type
+    return curr.find ? curr?.find((v: any) => v.variable === (valueSelector as ValueSelector).join('.'))?.type : null
   }
   else {
     (valueSelector as ValueSelector).slice(1).forEach((key, i) => {
       const isLast = i === valueSelector.length - 2
-      curr = curr.find((v: any) => v.variable === key)
+      curr = curr.find ? curr.find((v: any) => v.variable === key) : null
       if (isLast) {
         type = curr?.type
       }
@@ -675,7 +714,7 @@ export const findUsedVarNodes = (varSelector: ValueSelector, availableNodes: Nod
   const res: Node[] = []
   availableNodes.forEach((node) => {
     const vars = getNodeUsedVars(node)
-    if (vars.find(v => v.join('.') === varSelector.join('.')))
+    if (vars.find(v => v.length > 1 && v.join('.') === varSelector.join('.')))
       res.push(node)
   })
   return res

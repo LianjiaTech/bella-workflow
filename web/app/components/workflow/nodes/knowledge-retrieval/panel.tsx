@@ -3,7 +3,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import VarReferencePicker from '../_base/components/variable/var-reference-picker'
 import useConfig from './use-config'
-import RetrievalConfig from './components/retrieval-config'
 import AddKnowledge from './components/add-dataset'
 import DatasetList from './components/dataset-list'
 import type { KnowledgeRetrievalNodeType } from './types'
@@ -64,7 +63,7 @@ const Panel: FC<NodePanelProps<KnowledgeRetrievalNodeType>> = ({
           title={t(`${i18nPrefix}.knowledge`)}
           operations={
             <div className='flex items-center space-x-1'>
-              <RetrievalConfig
+              {/* <RetrievalConfig
                 payload={{
                   retrieval_mode: inputs.retrieval_mode,
                   multiple_retrieval_config: inputs.multiple_retrieval_config,
@@ -77,7 +76,7 @@ const Panel: FC<NodePanelProps<KnowledgeRetrievalNodeType>> = ({
                 onSingleRetrievalModelParamsChange={handleCompletionParamsChange}
                 readonly={readOnly}
               />
-              {!readOnly && (<div className='w-px h-3 bg-gray-200'></div>)}
+              {!readOnly && (<div className='w-px h-3 bg-gray-200'></div>)} */}
               {!readOnly && (
                 <AddKnowledge
                   selectedIds={inputs.dataset_ids}
@@ -146,6 +145,7 @@ const Panel: FC<NodePanelProps<KnowledgeRetrievalNodeType>> = ({
                   variable: 'query',
                   type: InputVarType.paragraph,
                   required: true,
+                  alias: Array.isArray(inputs.query_variable_selector) ? `#${inputs.query_variable_selector?.join('.')}#` : '',
                 }],
                 values: { query },
                 onChange: keyValue => setQuery((keyValue as any).query),

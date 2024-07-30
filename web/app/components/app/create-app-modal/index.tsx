@@ -20,7 +20,7 @@ import Button from '@/app/components/base/button'
 import AppIcon from '@/app/components/base/app-icon'
 import EmojiPicker from '@/app/components/base/emoji-picker'
 import AppsFull from '@/app/components/billing/apps-full-in-dialog'
-import { AiText, ChatBot, CuteRobote } from '@/app/components/base/icons/src/vender/solid/communication'
+import { ChatBot, CuteRobote } from '@/app/components/base/icons/src/vender/solid/communication'
 import { Route } from '@/app/components/base/icons/src/vender/solid/mapsAndTravel'
 import TooltipPlus from '@/app/components/base/tooltip-plus'
 import { NEED_REFRESH_APP_LIST_KEY } from '@/config'
@@ -38,8 +38,8 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
   const { notify } = useContext(ToastContext)
   const mutateApps = useContextSelector(AppsContext, state => state.mutateApps)
 
-  const [appMode, setAppMode] = useState<AppMode>('chat')
-  const [showChatBotType, setShowChatBotType] = useState<boolean>(true)
+  const [appMode, setAppMode] = useState<AppMode>('workflow')
+  const [showChatBotType, setShowChatBotType] = useState<boolean>(false)
   const [emoji, setEmoji] = useState({ icon: '🤖', icon_background: '#FFEAD5' })
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [name, setName] = useState('')
@@ -111,7 +111,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
                 s['grid-bg-chat'],
               )}
               onClick={() => {
-                setAppMode('chat')
+                setAppMode('advanced-chat')
                 setShowChatBotType(true)
               }}
             >
@@ -119,7 +119,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
               <div className='h-5 text-[13px] font-medium leading-[18px]'>{t('app.types.chatbot')}</div>
             </div>
           </TooltipPlus>
-          <TooltipPlus
+          {/*  <TooltipPlus
             hideArrow
             popupContent={
               <div className='flex flex-col max-w-[320px] leading-[18px] text-xs'>
@@ -141,7 +141,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
               <AiText className='w-6 h-6 text-[#0E9384]' />
               <div className='h-5 text-[13px] font-medium leading-[18px]'>{t('app.newApp.completeApp')}</div>
             </div>
-          </TooltipPlus>
+          </TooltipPlus> */}
           <TooltipPlus
             hideArrow
             popupContent={
@@ -193,7 +193,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
         <div className='py-2 px-8'>
           <div className='py-2 text-sm leading-[20px] font-medium text-gray-900'>{t('app.newApp.chatbotType')}</div>
           <div className='flex gap-2'>
-            <div
+            {/* <div
               className={cn(
                 'relative grow flex-[50%] pl-4 py-[10px] pr-[10px] rounded-lg border border-gray-100 bg-gray-25 text-gray-700 cursor-pointer hover:bg-white hover:shadow-xs hover:border-gray-300',
                 appMode === 'chat' && 'bg-white shadow-xs border-[1.5px] border-primary-400 hover:border-[1.5px] hover:border-primary-400',
@@ -223,7 +223,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
                 </div>
               </div>
               <div className='mt-[2px] text-gray-500 text-xs leading-[18px]'>{t('app.newApp.basicTip')}</div>
-            </div>
+            </div> */}
             <div
               className={cn(
                 'relative grow flex-[50%] pl-3 py-2 pr-2 rounded-lg border border-gray-100 bg-gray-25 text-gray-700 cursor-pointer hover:bg-white hover:shadow-xs hover:border-gray-300',

@@ -1,16 +1,17 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import produce from 'immer'
 import { useBoolean } from 'ahooks'
 import useVarList from '../_base/hooks/use-var-list'
-import { VarType } from '../../types'
-import type { Var } from '../../types'
+import type { ValueSelector, Var } from '../../types'
+import { ResponseType, VarType } from '../../types'
 import { useStore } from '../../store'
-import type { Authorization, Body, HttpNodeType, Method, Timeout } from './types'
+import type { Authorization, Body, HttpNodeType, Method, ResponseBody, Timeout } from './types'
 import useKeyValueList from './hooks/use-key-value-list'
+import nodeDefault from '@/app/components/workflow/nodes/http/default'
 import useNodeCrud from '@/app/components/workflow/nodes/_base/hooks/use-node-crud'
 import useOneStepRun from '@/app/components/workflow/nodes/_base/hooks/use-one-step-run'
 import {
-  useNodesReadOnly,
+  useNodesReadOnly, useWorkflow,
 } from '@/app/components/workflow/hooks'
 
 const useConfig = (id: string, payload: HttpNodeType) => {
@@ -19,7 +20,12 @@ const useConfig = (id: string, payload: HttpNodeType) => {
   const defaultConfig = useStore(s => s.nodesDefaultConfigs)[payload.type]
 
   const { inputs, setInputs } = useNodeCrud<HttpNodeType>(id, payload)
-
+  const [isShowRemoveVarConfirm, { setTrue: showRemoveVarConfirm, setFalse: hideRemoveVarConfirm }] = useBoolean(false)
+  const { handleOutVarRenameChange, isVarUsedInNodes, removeUsedVarInNodes } = useWorkflow()
+  const [removedVar, setRemovedVar] = useState<ValueSelector[]>([])
+  const [key, setKey] = useState<number>(1)
+  const [newResponse, setNewResponse] = useState<ResponseBody>()
+  const defaultConfigDefault = nodeDefault.defaultValue
   const { handleVarListChange, handleAddVariable } = useVarList<HttpNodeType>({
     inputs,
     setInputs,
@@ -30,11 +36,18 @@ const useConfig = (id: string, payload: HttpNodeType) => {
     if (isReady) {
       setInputs({
         ...defaultConfig,
+        ...defaultConfigDefault,
+        ...inputs,
+      })
+    }
+    else {
+      setInputs({
+        ...defaultConfigDefault,
         ...inputs,
       })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultConfig])
+  }, [defaultConfig, defaultConfigDefault])
 
   const handleMethodChange = useCallback((method: Method) => {
     const newInputs = produce(inputs, (draft: HttpNodeType) => {
@@ -142,6 +155,84 @@ const useConfig = (id: string, payload: HttpNodeType) => {
   const setInputVarValues = useCallback((newPayload: Record<string, any>) => {
     setRunInputData(newPayload)
   }, [setRunInputData])
+  const convert = function (body: ResponseBody) {
+    return {
+      type: body.type === ResponseType.json ? VarType.object : VarType.string,
+      variable: 'body',
+      ...(body.type === ResponseType.json && { children: convertJsonToVariables(body.data) }),
+    }
+  }
+  const varSelectorConvert = function (path: string[], vars: Var[]): string[[]] {
+    const varResult: string[][] = []
+    vars.forEach((v) => {
+      const paths = [...path, v.variable]
+      varResult.push(paths)
+      if (v.children && v.children.length > 0)
+        varResult.push(...varSelectorConvert(paths, v.children))
+    })
+    return varResult
+  }
+
+  const handleResponseBody = useCallback((body: ResponseBody) => {
+    if (body.type === inputs.response.type && body.type === ResponseType.json && !convertJsonToVariables(body.data))
+      return
+
+    setNewResponse(body)
+    const newOutput = convert(body)
+    const newVars = varSelectorConvert([id], [newOutput])
+    const oldVars = varSelectorConvert([id], [inputs.output])
+    const newVarSelectors = newVars.map((v: any[]) => v.join('.'))
+    const deleteVarSelectorList: any[] = []
+    oldVars.forEach((v: any[]) => {
+      if (!newVarSelectors.includes(v.join('.')))
+        deleteVarSelectorList.push(v)
+    })
+
+    const removeVarSelectorList: any[] | ((prevState: ValueSelector[]) => ValueSelector[]) = []
+    deleteVarSelectorList.forEach((v) => {
+      if (isVarUsedInNodes(v))
+        removeVarSelectorList.push(v)
+    })
+    if (removeVarSelectorList.length > 0) {
+      setRemovedVar(removeVarSelectorList)
+      showRemoveVarConfirm()
+      return
+    }
+
+    const newInputs = produce(inputs, (draft: HttpNodeType) => {
+      draft.response = body
+      draft.output = convert(body)
+    })
+    setInputs(newInputs)
+  }, [inputs, setInputs])
+
+  const removeVarInNode = useCallback(() => {
+    removedVar.map(removeUsedVarInNodes)
+    hideRemoveVarConfirm()
+    const newInputs = produce(inputs, (draft: HttpNodeType) => {
+      draft.response = newResponse
+      draft.output = convert(newResponse)
+    })
+    setInputs(newInputs)
+  }, [hideRemoveVarConfirm, removeUsedVarInNodes, removedVar])
+
+  const handleRemoveVarConfirm = useCallback(() => {
+    hideRemoveVarConfirm()
+    setKey(key + 1)
+  }, [hideRemoveVarConfirm, inputs, setInputs, key, setKey])
+
+  const convertVarToVarItemProps = (item: Var): any => {
+    if (!item)
+      return undefined
+    const { variable, type, children } = item
+    return {
+      name: variable,
+      type,
+      description: '',
+      subItems: children ? children.map(convertVarToVarItemProps) : undefined,
+    }
+  }
+  const outputVar = convertVarToVarItemProps(inputs.output)
 
   return {
     readOnly,
@@ -181,6 +272,12 @@ const useConfig = (id: string, payload: HttpNodeType) => {
     inputVarValues,
     setInputVarValues,
     runResult,
+    outputVar,
+    handleResponseBody,
+    isShowRemoveVarConfirm,
+    handleRemoveVarConfirm,
+    removeVarInNode,
+    key,
   }
 }
 

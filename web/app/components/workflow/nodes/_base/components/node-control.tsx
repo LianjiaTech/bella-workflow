@@ -42,6 +42,7 @@ const NodeControl: FC<NodeControlProps> = ({
       hidden group-hover:flex pb-1 absolute right-0 -top-7 h-7
       ${data.selected && '!flex'}
       ${open && '!flex'}
+      ${data.type === 'start' && '!hidden'}
       `}
     >
       <div

@@ -19,8 +19,6 @@ import {
 } from './declarations'
 import I18n from '@/context/i18n'
 import {
-  fetchDefaultModal,
-  fetchModelList,
   fetchModelProviderCredentials,
   fetchModelProviders,
   getPayUrl,
@@ -113,20 +111,95 @@ export const useProviderCredentialsAndLoadBalancing = (
 }
 
 export const useModelList = (type: ModelTypeEnum) => {
-  const { data, mutate, isLoading } = useSWR(`/workspaces/current/models/model-types/${type}`, fetchModelList)
+  const { data, mutate, isLoading } = {
+    data: [],
+    mutate: () => {},
+    isLoading: false,
+  }// useSWR(`/workspaces/current/models/model-types/${type}`, fetchModelList)
 
   return {
-    data: data?.data || [],
+    data: [
+      {
+        provider: 'openai',
+        label: {
+          zh_Hans: 'OpenAI',
+          en_US: 'OpenAI',
+        },
+        icon_small: {
+          zh_Hans: 'https://cloud.dify.ai/console/api/workspaces/current/model-providers/openai/icon_small/zh_Hans',
+          en_US: 'https://cloud.dify.ai/console/api/workspaces/current/model-providers/openai/icon_small/en_US',
+        },
+        icon_large: {
+          zh_Hans: 'https://cloud.dify.ai/console/api/workspaces/current/model-providers/openai/icon_large/zh_Hans',
+          en_US: 'https://cloud.dify.ai/console/api/workspaces/current/model-providers/openai/icon_large/en_US',
+        },
+        status: 'active',
+        models: [
+          {
+            model: 'c4ai-command-r-plus',
+            label: {
+              zh_Hans: 'c4ai-command-r-plus',
+              en_US: 'c4ai-command-r-plus',
+            },
+            model_type: 'llm',
+            features: [
+              'multi-tool-call',
+              'agent-thought',
+              'stream-tool-call',
+            ],
+            fetch_from: 'predefined-model',
+            model_properties: {
+              mode: 'chat',
+              context_size: 16385,
+            },
+            deprecated: false,
+            status: 'active',
+            load_balancing_enabled: false,
+          },
+        ],
+      },
+
+    ],
     mutate,
     isLoading,
   }
 }
 
 export const useDefaultModel = (type: ModelTypeEnum) => {
-  const { data, mutate, isLoading } = useSWR(`/workspaces/current/default-model?model_type=${type}`, fetchDefaultModal)
+  const { data, mutate, isLoading } = {} // useSWR(`/workspaces/current/default-model?model_type=${type}`, fetchDefaultModal)
 
   return {
-    data: data?.data,
+    data: {
+      model: 'c4ai-command-r-plus',
+      model_type: 'llm',
+      provider: {
+        provider: 'openai',
+        label: {
+          zh_Hans: 'OpenAI',
+          en_US: 'OpenAI',
+        },
+        icon_small: {
+          zh_Hans:
+            'https://cloud.dify.ai/console/api/workspaces/current/model-providers/openai/icon_small/zh_Hans',
+          en_US:
+            'https://cloud.dify.ai/console/api/workspaces/current/model-providers/openai/icon_small/en_US',
+        },
+        icon_large: {
+          zh_Hans:
+            'https://cloud.dify.ai/console/api/workspaces/current/model-providers/openai/icon_large/zh_Hans',
+          en_US:
+            'https://cloud.dify.ai/console/api/workspaces/current/model-providers/openai/icon_large/en_US',
+        },
+        supported_model_types: [
+          'llm',
+          'text-embedding',
+          'speech2text',
+          'moderation',
+          'tts',
+        ],
+        models: [],
+      },
+    },
     mutate,
     isLoading,
   }

@@ -19,10 +19,10 @@ const ModelIcon: FC<ModelIconProps> = ({
 }) => {
   const language = useLanguage()
 
-  if (provider?.provider === 'openai' && modelName?.startsWith('gpt-4'))
-    return <OpenaiViolet className={`w-4 h-4 ${className}`}/>
+  /* if (provider?.provider === 'openai' && modelName?.startsWith('gpt-4')) */
+  return <OpenaiViolet className={`w-4 h-4 ${className}`}/>
 
-  if (provider?.icon_small) {
+  /* if (provider?.icon_small) {
     return (
       <img
         alt='model-icon'
@@ -30,7 +30,7 @@ const ModelIcon: FC<ModelIconProps> = ({
         className={`w-4 h-4 ${className}`}
       />
     )
-  }
+  } */
 
   return (
     <div className={`

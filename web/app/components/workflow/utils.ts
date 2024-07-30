@@ -14,9 +14,12 @@ import type {
   InputVar,
   Node,
   ToolWithProvider,
-  ValueSelector,
+  ValueSelector, Var,
 } from './types'
-import { BlockEnum } from './types'
+import {
+  BlockEnum,
+  VarType,
+} from './types'
 import {
   CUSTOM_NODE,
   ITERATION_NODE_Z_INDEX,
@@ -478,4 +481,49 @@ export const variableTransformer = (v: ValueSelector | string) => {
     return v.replace(/^{{#|#}}$/g, '').split('.')
 
   return `{{#${v.join('.')}#}}`
+}
+
+export const convertJsonValueToVarType = (obj: any): VarType => {
+  if (typeof obj === 'string')
+    return VarType.string
+  if (typeof obj === 'number')
+    return VarType.number
+  if (typeof obj === 'boolean')
+    return VarType.boolean
+  if (Array.isArray(obj)) {
+    if (obj.length === 0)
+      return VarType.array
+    if (typeof obj[0] === 'object')
+      return VarType.arrayObject
+    if (typeof obj[0] === 'string')
+      return VarType.arrayString
+    if (typeof obj[0] === 'number')
+      return VarType.arrayNumber
+  }
+  if (typeof obj === 'object')
+    return VarType.object
+  throw new Error('不支持的类型')
+}
+
+export const convertObjToJsonValue = (obj: any): any => {
+  return Object.keys(obj).map((key): Var => {
+    const type: VarType = convertJsonValueToVarType(obj[key])
+    return {
+      variable: key,
+      type,
+      children: (type === VarType.object || type === VarType.array) ? convertObjToJsonValue(obj[key]) : undefined,
+    }
+  })
+}
+
+export const convertJsonToVariables = (json: string): Var[] | undefined => {
+  if (!json)
+    return undefined
+  // 快速判断是否为json格式
+  try {
+    return convertObjToJsonValue(JSON.parse(json))
+  }
+  catch (e) {
+    return undefined
+  }
 }

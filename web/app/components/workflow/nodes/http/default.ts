@@ -1,4 +1,4 @@
-import { BlockEnum } from '../../types'
+import { BlockEnum, ResponseType, VarType } from '../../types'
 import type { NodeDefault } from '../../types'
 import { AuthorizationType, BodyType, type HttpNodeType, Method } from './types'
 import { ALL_CHAT_AVAILABLE_BLOCKS, ALL_COMPLETION_AVAILABLE_BLOCKS } from '@/app/components/workflow/constants'
@@ -22,6 +22,14 @@ const nodeDefault: NodeDefault<HttpNodeType> = {
       max_connect_timeout: 0,
       max_read_timeout: 0,
       max_write_timeout: 0,
+    },
+    output: {
+      variable: 'body',
+      type: VarType.string,
+    },
+    response: {
+      type: ResponseType.string,
+      data: '',
     },
   },
   getAvailablePrevNodes(isChatMode: boolean) {

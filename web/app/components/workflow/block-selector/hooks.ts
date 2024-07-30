@@ -39,10 +39,10 @@ export const useToolTabs = () => {
       key: ToolTypeEnum.All,
       name: t('workflow.tabs.allTool'),
     },
-    {
+    /* {
       key: ToolTypeEnum.BuiltIn,
       name: t('workflow.tabs.builtInTool'),
-    },
+    }, */
     {
       key: ToolTypeEnum.Custom,
       name: t('workflow.tabs.customTool'),

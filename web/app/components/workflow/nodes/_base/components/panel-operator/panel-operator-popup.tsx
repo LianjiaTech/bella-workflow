@@ -162,7 +162,7 @@ const PanelOperatorPopup = ({
           </>
         )
       }
-      {
+      {/* {
         showHelpLink && (
           <>
             <div className='p-1'>
@@ -188,7 +188,7 @@ const PanelOperatorPopup = ({
             {t('workflow.panel.createdBy')} {author}
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }

@@ -3,7 +3,6 @@ import type { FC } from 'react'
 import React, { useRef, useState } from 'react'
 import { useGetState, useInfiniteScroll } from 'ahooks'
 import { useTranslation } from 'react-i18next'
-import Link from 'next/link'
 import produce from 'immer'
 import TypeIcon from '../type-icon'
 import s from './style.module.css'
@@ -13,7 +12,6 @@ import type { DataSet } from '@/models/datasets'
 import Button from '@/app/components/base/button'
 import { fetchDatasets } from '@/service/datasets'
 import Loading from '@/app/components/base/loading'
-import { formatNumber } from '@/utils/format'
 
 export type ISelectDataSetProps = {
   isShow: boolean
@@ -110,7 +108,7 @@ const SelectDataSet: FC<ISelectDataSetProps> = ({
           }}
         >
           <span className='text-gray-500'>{t('appDebug.feature.dataSet.noDataSet')}</span>
-          <Link href="/datasets/create" className='font-normal text-[#155EEF]'>{t('appDebug.feature.dataSet.toCreate')}</Link>
+          {/* <Link href="/datasets/create" className='font-normal text-[#155EEF]'>{t('appDebug.feature.dataSet.toCreate')}</Link>  */}
         </div>
       )}
 
@@ -137,13 +135,13 @@ const SelectDataSet: FC<ISelectDataSetProps> = ({
                   )}
                 </div>
 
-                <div className={cn('shrink-0 flex text-xs text-gray-500 overflow-hidden whitespace-nowrap', !item.embedding_available && 'opacity-50')}>
+                {/* <div className={cn('shrink-0 flex text-xs text-gray-500 overflow-hidden whitespace-nowrap', !item.embedding_available && 'opacity-50')}>
                   <span className='max-w-[100px] overflow-hidden text-ellipsis whitespace-nowrap'>{formatNumber(item.word_count)}</span>
                   {t('appDebug.feature.dataSet.words')}
                   <span className='px-0.5'>·</span>
                   <span className='max-w-[100px] min-w-[8px] overflow-hidden text-ellipsis whitespace-nowrap'>{formatNumber(item.document_count)} </span>
                   {t('appDebug.feature.dataSet.textBlocks')}
-                </div>
+                </div> */}
               </div>
             ))}
           </div>

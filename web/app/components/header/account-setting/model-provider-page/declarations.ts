@@ -13,6 +13,8 @@ export enum FormTypeEnum {
   select = 'select',
   radio = 'radio',
   files = 'files',
+  array = 'array',
+  json = 'object',
 }
 
 export type FormOption = {

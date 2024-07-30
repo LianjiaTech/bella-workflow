@@ -146,9 +146,11 @@ const ObjectChildren: FC<ObjectChildrenProps> = ({
   const currObjPath = objPath
   const itemRef = useRef(null)
   const [isItemHovering, setIsItemHovering] = useState(false)
+  const [isChildrenHovering, setIsChildrenHovering] = useState(false)
+  const isHovering = isItemHovering || isChildrenHovering
   const _ = useHover(itemRef, {
     onChange: (hovering) => {
-      if (hovering) {
+      if (hovering || isHovering) {
         setIsItemHovering(true)
       }
       else {
@@ -158,8 +160,6 @@ const ObjectChildren: FC<ObjectChildrenProps> = ({
       }
     },
   })
-  const [isChildrenHovering, setIsChildrenHovering] = useState(false)
-  const isHovering = isItemHovering || isChildrenHovering
   useEffect(() => {
     onHovering && onHovering(isHovering)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -170,7 +170,7 @@ const ObjectChildren: FC<ObjectChildrenProps> = ({
   }, [isItemHovering])
   // absolute top-[-2px]
   return (
-    <div ref={itemRef} className=' bg-white rounded-lg border border-gray-200 shadow-lg space-y-1' style={{
+    <div ref={itemRef} className='p-1 bg-white rounded-lg border border-gray-200 shadow-lg space-y-1' style={{
       right: itemWidth ? itemWidth - 10 : 215,
       minWidth: 252,
     }}>

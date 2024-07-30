@@ -24,11 +24,11 @@ export const BLOCKS: Block[] = [
     type: BlockEnum.End,
     title: 'End',
   },
-  {
+  /* {
     classification: BlockClassificationEnum.Default,
     type: BlockEnum.Answer,
     title: 'Direct Answer',
-  },
+  }, */
   {
     classification: BlockClassificationEnum.QuestionUnderstand,
     type: BlockEnum.QuestionClassifier,
@@ -44,21 +44,21 @@ export const BLOCKS: Block[] = [
     type: BlockEnum.Iteration,
     title: 'Iteration',
   },
-  {
+  /* {
     classification: BlockClassificationEnum.Transform,
     type: BlockEnum.Code,
     title: 'Code',
-  },
+  }, */
   {
     classification: BlockClassificationEnum.Transform,
     type: BlockEnum.TemplateTransform,
     title: 'Templating Transform',
   },
-  {
+  /* {
     classification: BlockClassificationEnum.Transform,
     type: BlockEnum.VariableAggregator,
     title: 'Variable Aggregator',
-  },
+  }, */
   {
     classification: BlockClassificationEnum.Transform,
     type: BlockEnum.ParameterExtractor,

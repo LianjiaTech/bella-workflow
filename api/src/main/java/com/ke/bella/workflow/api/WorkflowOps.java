@@ -86,6 +86,8 @@ public class WorkflowOps {
     public static class WorkflowRunPage extends Operator {
         String workflowId;
 
+        String workflowSchedulingId;
+
         @Builder.Default
         LocalDateTime startTime = LocalDateTime.now().minusDays(7);
 
@@ -115,6 +117,8 @@ public class WorkflowOps {
 
         @Builder.Default
         String triggerFrom = TriggerFrom.DEBUG.name();
+
+        String workflowSchedulingId;
 
         String threadId;
         String query;
@@ -164,6 +168,44 @@ public class WorkflowOps {
          * quartz标准的cron表达式
          */
         String cronExpression;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WorkflowSchedulingOp extends Operator {
+        String workflowSchedulingId;
+
+        Map inputs;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WorkflowSchedulingPage extends Operator {
+        String workflowSchedulingId;
+
+        @Builder.Default
+        LocalDateTime startTime = LocalDateTime.now().minusDays(7);
+
+        @Builder.Default
+        int page = 1;
+
+        @Builder.Default
+        int pageSize = 30;
+
+        String lastId;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    public static class WorkflowSchedulingRunPage extends WorkflowSchedulingPage {
     }
 
     @Data

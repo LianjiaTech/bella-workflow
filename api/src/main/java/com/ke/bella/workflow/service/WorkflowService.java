@@ -14,16 +14,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowGraph;
 import com.ke.bella.workflow.WorkflowRunState;
-import com.ke.bella.workflow.WorkflowRunner;
-import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
+import com.ke.bella.workflow.WorkflowRunner;
+import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
@@ -36,6 +35,7 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
+import com.ke.bella.workflow.utils.JsonUtils;
 
 @Component
 public class WorkflowService {
@@ -113,6 +113,10 @@ public class WorkflowService {
     @Transactional(rollbackFor = Exception.class)
     public TenantDB createTenant(String tenantName, String parentTenantId) {
         return repo.addTenant(tenantName, parentTenantId);
+    }
+
+    public List<TenantDB> listTenants(List<String> tenantIds) {
+        return repo.listTenants(tenantIds);
     }
 
     public void runWorkflow(WorkflowRunDB wr, WorkflowRun op, IWorkflowCallback callback) {

@@ -253,6 +253,8 @@ public class WorkflowRepo implements BaseRepo {
             SelectConditionStep<WorkflowRunRecord> sql = db(sharding.getKey()).selectFrom(WORKFLOW_RUN)
                     .where(WORKFLOW_RUN.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                     .and(WORKFLOW_RUN.WORKFLOW_ID.eq(op.getWorkflowId()))
+                    .and(StringUtils.isEmpty(op.getWorkflowSchedulingId()) ? DSL.noCondition()
+                            : WORKFLOW_RUN.WORKFLOW_SCHEDULING_ID.eq(op.getWorkflowSchedulingId()))
                     .and(StringUtils.isEmpty(op.getLastId()) ? DSL.noCondition() : WORKFLOW_RUN.WORKFLOW_RUN_ID.ge(op.getLastId()));
             if(i == 0) {
                 query = sql;
@@ -277,6 +279,9 @@ public class WorkflowRepo implements BaseRepo {
         rec.setWorkflowVersion(wf.getVersion());
         rec.setWorkflowRunId(runId);
         rec.setWorkflowRunShardingKey(shardKey);
+        if(op.getWorkflowSchedulingId() != null) {
+            rec.setWorkflowSchedulingId(op.getWorkflowSchedulingId());
+        }
         if(op.getQuery() != null) {
             rec.setQuery(op.getQuery());
         }

@@ -4,12 +4,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.ke.bella.workflow.api.WorkflowOps;
+import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowSchedulingRepo;
+import com.ke.bella.workflow.db.tables.pojos.TenantDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
 import com.ke.bella.workflow.trigger.WorkflowSchedulingStatus;
 import com.ke.bella.workflow.utils.CronUtils;
@@ -20,6 +27,12 @@ public class WorkflowSchedulingService {
 
     @Autowired
     WorkflowSchedulingRepo repo;
+
+    @Autowired
+    WorkflowService ws;
+
+    @Autowired
+    WorkflowClient wfc;
 
     @SuppressWarnings("rawtypes")
     public WorkflowSchedulingDB createSchedulingTrigger(String workflowId, String cronExpression, Map inputs,
@@ -50,10 +63,51 @@ public class WorkflowSchedulingService {
         repo.updateWorkflowScheduling(scheduling);
     }
 
+    public Page<WorkflowSchedulingDB> pageWorkflowScheduling(WorkflowOps.WorkflowSchedulingPage op) {
+        return repo.pageWorkflowScheduling(op);
+    }
+
+    @Transactional
+    public WorkflowSchedulingDB stopWorkflowScheduling(WorkflowOps.WorkflowSchedulingOp op) {
+        updateWorkflowSchedulingStatus(op.getTenantId(), op.getWorkflowSchedulingId(), WorkflowSchedulingStatus.stopped);
+        return repo.selectWorkflowScheduling(op.getTenantId(), op.getWorkflowSchedulingId());
+    }
+
+    @Transactional
+    public WorkflowSchedulingDB startWorkflowScheduling(WorkflowOps.WorkflowSchedulingOp op) {
+        updateWorkflowSchedulingStatus(op.getTenantId(), op.getWorkflowSchedulingId(), WorkflowSchedulingStatus.running);
+        return repo.selectWorkflowScheduling(op.getTenantId(), op.getWorkflowSchedulingId());
+    }
+
+    public void updateWorkflowSchedulingStatus(String tenantId, String workflowSchedulingId, WorkflowSchedulingStatus status) {
+        WorkflowSchedulingDB scheduling = new WorkflowSchedulingDB();
+        scheduling.setWorkflowSchedulingId(workflowSchedulingId);
+        scheduling.setTenantId(tenantId);
+        scheduling.setStatus(status.name());
+        repo.updateWorkflowScheduling(scheduling);
+    }
+
     public List<WorkflowSchedulingDB> listPendingTask(LocalDateTime endTime, Integer batch) {
         return repo.listWorkflowScheduling(endTime,
                 Sets.newHashSet(WorkflowSchedulingStatus.init.name(),
                         WorkflowSchedulingStatus.running.name()),
                 batch);
+    }
+
+    public Page<WorkflowRunDB> pageWorkflowRuns(WorkflowOps.WorkflowSchedulingPage op) {
+        WorkflowSchedulingDB wfs = Optional.ofNullable(repo.selectWorkflowScheduling(op.getTenantId(), op.getWorkflowSchedulingId()))
+                .orElseThrow(() -> new IllegalArgumentException("workflowScheduling not found"));
+        WorkflowOps.WorkflowRunPage runOp = WorkflowOps.WorkflowRunPage.builder().workflowSchedulingId(wfs.getWorkflowSchedulingId())
+                .workflowId(wfs.getWorkflowId())
+                .lastId(op.getLastId()).pageSize(op.getPageSize()).build();
+        return ws.listWorkflowRun(runOp);
+    }
+
+    public WorkflowRunDB runWorkflowScheduling(WorkflowOps.WorkflowSchedulingOp op) {
+        WorkflowSchedulingDB wfsDb = Optional.ofNullable(repo.selectWorkflowScheduling(op.getTenantId(), op.getWorkflowSchedulingId()))
+                .orElseThrow(() -> new IllegalArgumentException("workflowScheduling not found"));
+        TenantDB tenant = ws.listTenants(Lists.newArrayList(wfsDb.getTenantId())).stream().findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("tenant not found"));
+        return wfc.workflowRun(tenant, wfsDb);
     }
 }

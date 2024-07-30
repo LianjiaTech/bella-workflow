@@ -2,14 +2,16 @@ package com.ke.bella.workflow.trigger;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import com.ke.bella.workflow.service.WorkflowClient;
-import com.ke.bella.workflow.service.WorkflowSchedulingService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +20,11 @@ import org.springframework.util.CollectionUtils;
 import com.google.common.base.Throwables;
 import com.ke.bella.workflow.TaskExecutor.NamedThreadFactory;
 import com.ke.bella.workflow.db.repo.InstanceRepo;
+import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
+import com.ke.bella.workflow.service.WorkflowClient;
+import com.ke.bella.workflow.service.WorkflowSchedulingService;
+import com.ke.bella.workflow.service.WorkflowService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,13 +35,16 @@ public class WorkflowSchedulingTriggerHelper {
     private static final Integer BATCH_SIZE = 100;
 
     @Autowired
-	WorkflowSchedulingService ws;
+    WorkflowSchedulingService ws;
 
     @Autowired
     InstanceRepo instanceRepo;
 
     @Autowired
-	WorkflowClient workflowClient;
+    WorkflowClient workflowClient;
+
+    @Autowired
+    WorkflowService wfs;
 
     private ThreadPoolExecutor triggerPool = null;
 
@@ -55,12 +64,14 @@ public class WorkflowSchedulingTriggerHelper {
         instanceRepo.forUpdateInstance1();
         // list all pending task which trigger time is before current
         List<WorkflowSchedulingDB> pendingScheduling = ws.listPendingTask(LocalDateTime.now(), BATCH_SIZE);
+        Map<String, TenantDB> tenantsMap = getTenantsMap(pendingScheduling);
         if(!CollectionUtils.isEmpty(pendingScheduling)) {
             for (WorkflowSchedulingDB workflowScheduling : pendingScheduling) {
+                TenantDB tenantDB = tenantsMap.get(workflowScheduling.getTenantId());
                 // "helper" thread to refresh trigger next time
                 ws.refreshTriggerNextTime(workflowScheduling);
                 CompletableFuture.runAsync(() -> {
-                    workflowClient.workflowRun(workflowScheduling);
+                    workflowClient.workflowRun(tenantDB, workflowScheduling);
                 }, triggerPool).exceptionally(e -> {
                     LOGGER.error("workflow scheduling error, e: {}", Throwables.getStackTraceAsString(e));
                     return null;
@@ -68,5 +79,12 @@ public class WorkflowSchedulingTriggerHelper {
             }
         }
         return pendingScheduling.size();
+    }
+
+    @NotNull
+    private Map<String, TenantDB> getTenantsMap(List<WorkflowSchedulingDB> pendingScheduling) {
+        List<String> tenantIds = pendingScheduling.stream().map(WorkflowSchedulingDB::getTenantId).collect(Collectors.toList());
+        List<TenantDB> tenantDbs = wfs.listTenants(tenantIds);
+        return tenantDbs.stream().collect(Collectors.toMap(TenantDB::getTenantId, Function.identity(), (k1, k2) -> k1));
     }
 }

@@ -45,7 +45,7 @@ public class WorkflowContext {
     }
 
     private void validateInputs() {
-        if(NodeType.START.name.equals(graph.getStartNode().getType())) {
+        if(NodeType.START.name.equals(graph.getStartNode().getNodeType())) {
             Start start = (Start) BaseNode.from(graph.getStartNode());
             List<WorkflowSchema.VariableEntity> variables = start.getData().getVariables();
             for (WorkflowSchema.VariableEntity variable : variables) {

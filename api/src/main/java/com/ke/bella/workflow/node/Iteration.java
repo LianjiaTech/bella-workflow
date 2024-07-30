@@ -52,7 +52,7 @@ public class Iteration extends BaseNode {
         nodeInputs.put("iterator_selector", items);
 
         WorkflowSchema meta = context.getGraph().getMeta().iterationSchema(getNodeId());
-        WorkflowGraph graph = new WorkflowGraph(meta);
+        WorkflowGraph graph = new WorkflowGraph(meta, getNodeId());
         for (int i = 0; i < items.size(); i++) {
             IterationResult ir = iteration(graph, i, items.get(i), context, callback);
             output.add(ir.output);

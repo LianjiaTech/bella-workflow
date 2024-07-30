@@ -3,9 +3,6 @@ package com.ke.bella.workflow.api;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.utils.JsonUtils;
-
 import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -19,6 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.utils.JsonUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
 @RestControllerAdvice
@@ -28,7 +28,8 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         Class<?> clazz = returnType.getContainingClass();
-        return clazz.getName().startsWith("com.ke.bella.workflow.api.WorkflowController");
+        return clazz.getName().startsWith("com.ke.bella.workflow.api.WorkflowController")
+                || clazz.getName().startsWith("com.ke.bella.workflow.api.TriggerController");
     }
 
     @SuppressWarnings("rawtypes")

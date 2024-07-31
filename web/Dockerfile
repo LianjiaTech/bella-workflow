@@ -1,15 +1,15 @@
 # base image
-FROM docker.linkos.org/library/node:20.11-alpine3.19 AS base
+FROM node:20.11-alpine3.19 AS base
 LABEL maintainer="takatost@gmail.com"
 
 # if you located in China, you can use aliyun mirror to speed up
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+# RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 RUN apk add --no-cache tzdata
 
 
 # install packages
-FROM base as packages
+FROM base AS packages
 
 WORKDIR /app/web
 
@@ -19,10 +19,10 @@ COPY yarn.lock .
 # if you located in China, you can use taobao registry to speed up
 # RUN yarn install --frozen-lockfile --registry https://registry.npmmirror.com/
 
-RUN yarn install --frozen-lockfile --registry https://registry.npmmirror.com/
-#RUN yarn install --immutable
+RUN yarn install --frozen-lockfile
+
 # build resources
-FROM base as builder
+FROM base AS builder
 WORKDIR /app/web
 COPY --from=packages /app/web/ .
 COPY . .
@@ -31,17 +31,17 @@ RUN yarn build
 
 
 # production stage
-FROM base as production
+FROM base AS production
 
-ENV NODE_ENV production
-ENV EDITION SELF_HOSTED
-ENV DEPLOY_ENV PRODUCTION
-ENV CONSOLE_API_URL http://0.0.0.0:5001
-ENV APP_API_URL http://0.0.0.0:5001
-ENV PORT 3000
+ENV NODE_ENV=production
+ENV EDITION=SELF_HOSTED
+ENV DEPLOY_ENV=PRODUCTION
+ENV CONSOLE_API_URL=http://0.0.0.0:5001
+ENV APP_API_URL=http://0.0.0.0:5001
+ENV PORT=3000
 
 # set timezone
-ENV TZ UTC
+ENV TZ=UTC
 RUN ln -s /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone
 
@@ -59,7 +59,7 @@ COPY docker/pm2.json ./pm2.json
 COPY docker/entrypoint.sh ./entrypoint.sh
 
 ARG COMMIT_SHA
-ENV COMMIT_SHA ${COMMIT_SHA}
+ENV COMMIT_SHA=${COMMIT_SHA}
 
 EXPOSE 3000
 ENTRYPOINT ["/bin/sh", "./entrypoint.sh"]

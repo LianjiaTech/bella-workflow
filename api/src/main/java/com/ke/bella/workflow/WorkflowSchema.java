@@ -118,7 +118,11 @@ public class WorkflowSchema {
         @EqualsAndHashCode.Exclude
         private int width;
 
-        public String getType() {
+        private String parentId;
+
+        private String extent;
+
+        public String getNodeType() {
             if(data != null && data.containsKey(FIELD_TYPE)) {
                 return (String) data.get(FIELD_TYPE);
             }

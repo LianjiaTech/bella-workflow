@@ -18,13 +18,13 @@ const SwrInitor = ({
   const [init, setInit] = useState(false)
 
   useEffect(() => {
-    // if (!(consoleToken || consoleTokenFromLocalStorage))
-    //   router.replace('/signin')
+    /* if (!(consoleToken || consoleTokenFromLocalStorage))
+      router.replace('/signin')
 
-    // if (consoleToken) {
-    //   localStorage?.setItem('console_token', consoleToken!)
-    //   router.replace('/apps', { forceOptimisticNavigation: false } as any)
-    // }
+    if (consoleToken) {
+      localStorage?.setItem('console_token', consoleToken!)
+      router.replace('/apps', { forceOptimisticNavigation: false } as any)
+    } */
     setInit(true)
   }, [])
 

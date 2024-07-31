@@ -28,11 +28,6 @@ export type Body = {
   data: string
 }
 
-export type ResponseBody = {
-  type: ResponseType
-  data: string
-}
-
 export enum AuthorizationType {
   none = 'no-auth',
   apiKey = 'api-key',
@@ -76,4 +71,9 @@ export type HttpNodeType = CommonNodeType & {
   timeout: Timeout
   output: Var
   response: ResponseBody
+}
+
+export type ResponseBody = {
+  type: ResponseType
+  data: string
 }

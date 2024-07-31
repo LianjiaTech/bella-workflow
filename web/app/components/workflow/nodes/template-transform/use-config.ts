@@ -122,6 +122,7 @@ const useConfig = (id: string, payload: TemplateTransformNodeType) => {
 
   return {
     isChatMode,
+    handleDeltaChange,
     readOnly,
     inputs,
     availableVars,
@@ -141,7 +142,6 @@ const useConfig = (id: string, payload: TemplateTransformNodeType) => {
     inputVarValues,
     setInputVarValues,
     runResult,
-    handleDeltaChange,
   }
 }
 

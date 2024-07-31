@@ -27,18 +27,23 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
     inputs,
     handleModelChanged,
     isChatMode,
+    isChatModel,
     handleCompletionParamsChange,
     handleQueryVarChange,
     handleTopicsChange,
+    hasSetBlockStatus,
+    availableVars,
+    availableNodesWithParent,
     handleInstructionChange,
+    inputVarValues,
+    varInputs,
+    setInputVarValues,
     handleMemoryChange,
     isShowSingleRun,
     hideSingleRun,
     runningStatus,
     handleRun,
     handleStop,
-    query,
-    setQuery,
     runResult,
     filterVar,
   } = useConfig(id, data)
@@ -99,6 +104,11 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
             memory={inputs.memory}
             onMemoryChange={handleMemoryChange}
             readonly={readOnly}
+            isChatApp={isChatMode}
+            isChatModel={isChatModel}
+            hasSetBlockStatus={hasSetBlockStatus}
+            nodesOutputVars={availableVars}
+            availableNodes={availableNodesWithParent}
           />
         </Field>
       </div>
@@ -126,9 +136,9 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
                 type: InputVarType.paragraph,
                 required: true,
                 alias: Array.isArray(inputs.query_variable_selector) ? `#${inputs.query_variable_selector.join('.')}#` : '',
-              }],
-              values: { query },
-              onChange: (keyValue) => { setQuery((keyValue as any).query) },
+              }, ...varInputs],
+              values: inputVarValues,
+              onChange: setInputVarValues,
             },
           ]}
           runningStatus={runningStatus}

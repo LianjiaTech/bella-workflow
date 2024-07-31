@@ -249,10 +249,14 @@ export type EndUserInfo = {
   session_id: string
 }
 export type WorkflowAppLogDetail = {
-  workflowRunId: string
-  status: string
-  ctime: number
-  mtime: number
+  id: string
+  workflow_run: WorkflowRunDetail
+  created_from: 'service-api' | 'web-app' | 'explore'
+  created_by_role: 'account' | 'end_user'
+  created_by_account?: AccountInfo
+  created_by_end_user?: EndUserInfo
+  created_at: number
+  read_at?: number
 }
 export type WorkflowLogsResponse = {
   data: Array<WorkflowAppLogDetail>

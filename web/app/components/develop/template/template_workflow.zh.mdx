@@ -52,7 +52,7 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
         返回响应模式，支持：
         - `streaming` 流式模式（推荐）。基于 SSE（**[Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)**）实现类似打字机输出方式的流式返回。
         - `blocking` 阻塞模式，等待执行完毕后返回结果。（请求若流程较长可能会被中断）。
-        - `callback` 回调模式，执行任务提交后立即返回，工作流运行完成时回调到指定的`callbackUrl`  
+        - `callback` 回调模式，执行任务提交后立即返回，工作流运行完成时回调到指定的`callbackUrl`
         <i>长时间运行的任务请优先考虑callback模式</i>
       - `userId` (Long) Required
         用户标识，Ke内必须使用ucid。

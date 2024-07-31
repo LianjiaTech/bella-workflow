@@ -231,7 +231,7 @@ public class WorkflowService {
         wnr.setNodeRunId(nodeRunId);
 
         Node meta = context.getGraph().node(nodeId);
-        wnr.setNodeType(meta.getType());
+        wnr.setNodeType(meta.getNodeType());
         wnr.setTitle(meta.getTitle());
 
         repo.addWorkflowRunNode(wnr);

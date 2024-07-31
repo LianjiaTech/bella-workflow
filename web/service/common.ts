@@ -30,10 +30,13 @@ import type {
   DefaultModelResponse,
   Model,
   ModelItem,
+  ModelLoadBalancingConfig,
   ModelParameterRule,
   ModelProvider,
+  ModelTypeEnum,
 } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import type { RETRIEVE_METHOD } from '@/types/app'
+import type { SystemFeatures } from '@/types/feature'
 
 export const login: Fetcher<CommonResponse & { data: string }, { url: string; body: Record<string, any> }> = ({ url, body }) => {
   return post(url, { body }) as Promise<CommonResponse & { data: string }>
@@ -123,16 +126,7 @@ export const updateCurrentWorkspace: Fetcher<ICurrentWorkspace, { url: string; b
 }
 
 export const fetchWorkspaces: Fetcher<{ workspaces: IWorkspace[] }, { url: string; params: Record<string, any> }> = ({ url, params }) => {
-  return {
-    workspaces: [{
-      id: 0,
-      name: '默认空间',
-      plan: '',
-      status: 'string',
-      created_at: 0,
-      current: true,
-    }],
-  }
+  return { data: null } as any // get<{ workspaces: IWorkspace[] }>(url, { params })
 }
 
 export const switchWorkspace: Fetcher<CommonResponse & { new_tenant: IWorkspace }, { url: string; body: Record<string, any> }> = ({ url, body }) => {
@@ -171,11 +165,29 @@ export const activateMember: Fetcher<CommonResponse, { url: string; body: any }>
 }
 
 export const fetchModelProviders: Fetcher<{ data: ModelProvider[] }, string> = (url) => {
-  return get<{ data: ModelProvider[] }>(url)
+  return {
+    data: [],
+    isLoading: false,
+    mutate: () => {},
+  } // get<{ data: ModelProvider[] }>(url)
 }
 
-export const fetchModelProviderCredentials: Fetcher<{ credentials?: Record<string, string | undefined | boolean> }, string> = (url) => {
-  return get<{ credentials?: Record<string, string | undefined | boolean> }>(url)
+export type ModelProviderCredentials = {
+  credentials?: Record<string, string | undefined | boolean>
+  load_balancing: ModelLoadBalancingConfig
+}
+export const fetchModelProviderCredentials: Fetcher<ModelProviderCredentials, string> = (url) => {
+  return get<ModelProviderCredentials>(url)
+}
+
+export const fetchModelLoadBalancingConfig: Fetcher<{
+  credentials?: Record<string, string | undefined | boolean>
+  load_balancing: ModelLoadBalancingConfig
+}, string> = (url) => {
+  return get<{
+    credentials?: Record<string, string | undefined | boolean>
+    load_balancing: ModelLoadBalancingConfig
+  }>(url)
 }
 
 export const fetchModelProviderModelList: Fetcher<{ data: ModelItem[] }, string> = (url) => {
@@ -183,10 +195,18 @@ export const fetchModelProviderModelList: Fetcher<{ data: ModelItem[] }, string>
 }
 
 export const fetchModelList: Fetcher<{ data: Model[] }, string> = (url) => {
-  return get<{ data: Model[] }>(url)
+  return {
+    data: [],
+    mutate: () => {},
+    isLoading: false,
+  } // get<{ data: Model[] }>(url)
 }
 
 export const validateModelProvider: Fetcher<ValidateOpenAIKeyResponse, { url: string; body: any }> = ({ url, body }) => {
+  return post<ValidateOpenAIKeyResponse>(url, { body })
+}
+
+export const validateModelLoadBalancingCredentials: Fetcher<ValidateOpenAIKeyResponse, { url: string; body: any }> = ({ url, body }) => {
   return post<ValidateOpenAIKeyResponse>(url, { body })
 }
 
@@ -224,10 +244,6 @@ export const updateDefaultModel: Fetcher<CommonResponse, { url: string; body: an
 
 export const fetchModelParameterRules: Fetcher<{ data: ModelParameterRule[] }, string> = (url) => {
   return get<{ data: ModelParameterRule[] }>(url)
-}
-
-export const submitFreeQuota: Fetcher<{ type: string; redirect_url?: string; result?: string }, string> = (url) => {
-  return post<{ type: string; redirect_url?: string; result?: string }>(url)
 }
 
 export const fetchFileUploadConfig: Fetcher<FileUploadConfigResponse, { url: string }> = ({ url }) => {
@@ -280,3 +296,23 @@ type RetrievalMethodsRes = {
 export const fetchSupportRetrievalMethods: Fetcher<RetrievalMethodsRes, string> = (url) => {
   return get<RetrievalMethodsRes>(url)
 }
+
+export const getSystemFeatures = () => {
+  return get<SystemFeatures>('/system-features')
+}
+
+export const enableModel = (url: string, body: { model: string; model_type: ModelTypeEnum }) =>
+  patch<CommonResponse>(url, { body })
+
+export const disableModel = (url: string, body: { model: string; model_type: ModelTypeEnum }) =>
+  patch<CommonResponse>(url, { body })
+
+export const sendForgotPasswordEmail: Fetcher<CommonResponse, { url: string; body: { email: string } }> = ({ url, body }) =>
+  post<CommonResponse>(url, { body })
+
+export const verifyForgotPasswordToken: Fetcher<CommonResponse & { is_valid: boolean; email: string }, { url: string; body: { token: string } }> = ({ url, body }) => {
+  return post(url, { body }) as Promise<CommonResponse & { is_valid: boolean; email: string }>
+}
+
+export const changePasswordWithToken: Fetcher<CommonResponse, { url: string; body: { token: string; new_password: string; password_confirm: string } }> = ({ url, body }) =>
+  post<CommonResponse>(url, { body })

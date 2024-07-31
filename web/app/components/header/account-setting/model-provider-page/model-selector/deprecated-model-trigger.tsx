@@ -32,7 +32,6 @@ const ModelTrigger: FC<ModelTriggerProps> = ({
       <div className='mr-1 text-[13px] font-medium text-gray-800 truncate'>
         {modelName}
       </div>
-      {/* 已废弃 */}
       {/* <div className='shrink-0 flex items-center justify-center w-4 h-4'>
         <TooltipPlus popupContent={t('common.modelProvider.deprecated')}>
           <AlertTriangle className='w-4 h-4 text-[#F79009]' />

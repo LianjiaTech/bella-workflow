@@ -1,16 +1,17 @@
 'use client'
 import React, { useEffect, useState } from 'react'
-import classNames from 'classnames'
 import { Switch as OriginalSwitch } from '@headlessui/react'
+import classNames from '@/utils/classnames'
 
 type SwitchProps = {
-  onChange: (value: boolean) => void
+  onChange?: (value: boolean) => void
   size?: 'sm' | 'md' | 'lg' | 'l'
   defaultValue?: boolean
   disabled?: boolean
+  className?: string
 }
 
-const Switch = ({ onChange, size = 'lg', defaultValue = false, disabled = false }: SwitchProps) => {
+const Switch = ({ onChange, size = 'lg', defaultValue = false, disabled = false, className }: SwitchProps) => {
   const [enabled, setEnabled] = useState(defaultValue)
   useEffect(() => {
     setEnabled(defaultValue)
@@ -42,13 +43,14 @@ const Switch = ({ onChange, size = 'lg', defaultValue = false, disabled = false 
         if (disabled)
           return
         setEnabled(checked)
-        onChange(checked)
+        onChange?.(checked)
       }}
       className={classNames(
         wrapStyle[size],
-        enabled ? 'bg-blue-600' : 'bg-gray-200',
-        'relative inline-flex  flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out',
+        enabled ? 'bg-components-toggle-bg' : 'bg-components-toggle-bg-unchecked',
+        'relative inline-flex  flex-shrink-0 cursor-pointer rounded-[5px] border-2 border-transparent transition-colors duration-200 ease-in-out',
         disabled ? '!opacity-50 !cursor-not-allowed' : '',
+        className,
       )}
     >
       <span
@@ -56,7 +58,7 @@ const Switch = ({ onChange, size = 'lg', defaultValue = false, disabled = false 
         className={classNames(
           circleStyle[size],
           enabled ? translateLeft[size] : 'translate-x-0',
-          'pointer-events-none inline-block transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out',
+          'pointer-events-none inline-block transform rounded-[3px] bg-components-toggle-knob shadow ring-0 transition duration-200 ease-in-out',
         )}
       />
     </OriginalSwitch>

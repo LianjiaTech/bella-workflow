@@ -7,11 +7,12 @@ import { ResponseType, VarType } from '../../types'
 import { useStore } from '../../store'
 import type { Authorization, Body, HttpNodeType, Method, ResponseBody, Timeout } from './types'
 import useKeyValueList from './hooks/use-key-value-list'
-import nodeDefault from './default'
+import nodeDefault from '@/app/components/workflow/nodes/http/default'
 import useNodeCrud from '@/app/components/workflow/nodes/_base/hooks/use-node-crud'
 import useOneStepRun from '@/app/components/workflow/nodes/_base/hooks/use-one-step-run'
-import { useNodesReadOnly, useWorkflow } from '@/app/components/workflow/hooks'
-import { convertJsonToVariables } from '@/app/components/workflow/utils'
+import {
+  useNodesReadOnly, useWorkflow,
+} from '@/app/components/workflow/hooks'
 
 const useConfig = (id: string, payload: HttpNodeType) => {
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
@@ -19,20 +20,17 @@ const useConfig = (id: string, payload: HttpNodeType) => {
   const defaultConfig = useStore(s => s.nodesDefaultConfigs)[payload.type]
 
   const { inputs, setInputs } = useNodeCrud<HttpNodeType>(id, payload)
-  const [isShowRemoveVarConfirm, {
-    setTrue: showRemoveVarConfirm,
-    setFalse: hideRemoveVarConfirm,
-  }] = useBoolean(false)
+  const [isShowRemoveVarConfirm, { setTrue: showRemoveVarConfirm, setFalse: hideRemoveVarConfirm }] = useBoolean(false)
   const { handleOutVarRenameChange, isVarUsedInNodes, removeUsedVarInNodes } = useWorkflow()
   const [removedVar, setRemovedVar] = useState<ValueSelector[]>([])
   const [key, setKey] = useState<number>(1)
   const [newResponse, setNewResponse] = useState<ResponseBody>()
-
+  const defaultConfigDefault = nodeDefault.defaultValue
   const { handleVarListChange, handleAddVariable } = useVarList<HttpNodeType>({
     inputs,
     setInputs,
   })
-  const defaultConfigDefault = nodeDefault.defaultValue
+
   useEffect(() => {
     const isReady = defaultConfig && Object.keys(defaultConfig).length > 0
     if (isReady) {
@@ -118,7 +116,7 @@ const useConfig = (id: string, payload: HttpNodeType) => {
   }, [inputs, setInputs])
 
   const filterVar = useCallback((varPayload: Var) => {
-    return [VarType.string, VarType.number].includes(varPayload.type)
+    return [VarType.string, VarType.number, VarType.secret].includes(varPayload.type)
   }, [])
 
   // single run
@@ -157,7 +155,6 @@ const useConfig = (id: string, payload: HttpNodeType) => {
   const setInputVarValues = useCallback((newPayload: Record<string, any>) => {
     setRunInputData(newPayload)
   }, [setRunInputData])
-
   const convert = function (body: ResponseBody) {
     return {
       type: body.type === ResponseType.json ? VarType.object : VarType.string,
@@ -166,7 +163,7 @@ const useConfig = (id: string, payload: HttpNodeType) => {
     }
   }
   const varSelectorConvert = function (path: string[], vars: Var[]): string[[]] {
-    const varResult = []
+    const varResult: string[][] = []
     vars.forEach((v) => {
       const paths = [...path, v.variable]
       varResult.push(paths)
@@ -184,14 +181,14 @@ const useConfig = (id: string, payload: HttpNodeType) => {
     const newOutput = convert(body)
     const newVars = varSelectorConvert([id], [newOutput])
     const oldVars = varSelectorConvert([id], [inputs.output])
-    const newVarSelectors = newVars.map(v => v.join('.'))
-    const deleteVarSelectorList = []
-    oldVars.forEach((v) => {
+    const newVarSelectors = newVars.map((v: any[]) => v.join('.'))
+    const deleteVarSelectorList: any[] = []
+    oldVars.forEach((v: any[]) => {
       if (!newVarSelectors.includes(v.join('.')))
         deleteVarSelectorList.push(v)
     })
 
-    const removeVarSelectorList = []
+    const removeVarSelectorList: any[] | ((prevState: ValueSelector[]) => ValueSelector[]) = []
     deleteVarSelectorList.forEach((v) => {
       if (isVarUsedInNodes(v))
         removeVarSelectorList.push(v)

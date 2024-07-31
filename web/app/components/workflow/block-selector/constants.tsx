@@ -44,11 +44,11 @@ export const BLOCKS: Block[] = [
     type: BlockEnum.Iteration,
     title: 'Iteration',
   },
-  /* {
+  {
     classification: BlockClassificationEnum.Transform,
     type: BlockEnum.Code,
     title: 'Code',
-  }, */
+  },
   {
     classification: BlockClassificationEnum.Transform,
     type: BlockEnum.TemplateTransform,

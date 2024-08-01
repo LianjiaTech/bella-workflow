@@ -7,18 +7,19 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowContext;
-import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
+import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.springframework.util.StringUtils;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
@@ -76,6 +77,7 @@ public abstract class BaseNode implements RunnableNode {
         register(NodeType.ITERATION.name, Iteration.class);
         register(NodeType.TOOL.name, ToolNode.class);
         register(NodeType.PARAMETER_EXTRACTOR.name, ParameterExtractorNode.class);
+        register(NodeType.CODE.name, CodeNode.class);
     }
 
     protected WorkflowSchema.Node meta;

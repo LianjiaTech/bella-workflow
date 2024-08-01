@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.ke.bella.workflow.db.BellaContext;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -44,6 +45,12 @@ public class WorkflowRunState {
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         putVariable("sys", "date", date);
     }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public WorkflowRunState(Map variablePoolMap) {
+        this.variablePoolMap.putAll(variablePoolMap);
+    }
+
 
     synchronized boolean isEmpty() {
         return nodeCompletedStates.isEmpty();

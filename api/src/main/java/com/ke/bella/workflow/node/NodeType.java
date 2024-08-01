@@ -11,6 +11,7 @@ public enum NodeType {
     TEMPLATE_TRANSFORM("template-transform"),
     KNOWLEDGE_RETRIEVAL("knowledge-retrieval"),
     PARAMETER_EXTRACTOR("parameter-extractor"),
+    CODE("code"),
     TOOL("tool"),
     ;
 

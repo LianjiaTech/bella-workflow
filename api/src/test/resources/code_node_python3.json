@@ -1,0 +1,163 @@
+{
+  "graph": {
+    "nodes": [
+      {
+        "id": "1722407048955",
+        "type": "custom",
+        "data": {
+          "type": "start",
+          "title": "\u5f00\u59cb",
+          "desc": "",
+          "variables": [
+            {
+              "variable": "input1",
+              "label": "input1",
+              "type": "text-input",
+              "max_length": 48,
+              "required": true,
+              "options": []
+            },
+            {
+              "variable": "input2",
+              "label": "input2",
+              "type": "text-input",
+              "max_length": 48,
+              "required": true,
+              "options": []
+            }
+          ],
+          "selected": false
+        },
+        "position": {
+          "x": 80,
+          "y": 282
+        },
+        "targetPosition": "left",
+        "sourcePosition": "right",
+        "positionAbsolute": {
+          "x": 80,
+          "y": 282
+        },
+        "width": 244,
+        "height": 116,
+        "selected": false
+      },
+      {
+        "id": "1722407054667",
+        "type": "custom",
+        "data": {
+          "type": "code",
+          "title": "\u4ee3\u7801\u6267\u884c",
+          "desc": "",
+          "variables": [
+            {
+              "variable": "arg1",
+              "value_selector": [
+                "1722407048955",
+                "input1"
+              ]
+            },
+            {
+              "variable": "arg2",
+              "value_selector": [
+                "1722407048955",
+                "input2"
+              ]
+            }
+          ],
+          "code_language": "python3",
+          "code": "\ndef main(arg1: int, arg2: int) -> dict:\n    return {\n        \"result\": arg1 + arg2,\n    }\n",
+          "outputs": {
+            "result": {
+              "type": "string",
+              "children": null
+            }
+          },
+          "selected": true,
+          "dependencies": [
+          ]
+        },
+        "position": {
+          "x": 429,
+          "y": 282
+        },
+        "targetPosition": "left",
+        "sourcePosition": "right",
+        "positionAbsolute": {
+          "x": 429,
+          "y": 282
+        },
+        "width": 244,
+        "height": 54,
+        "selected": true
+      },
+      {
+        "id": "1722407056247",
+        "type": "custom",
+        "data": {
+          "type": "end",
+          "title": "\u7ed3\u675f",
+          "desc": "",
+          "outputs": [
+            {
+              "variable": "result",
+              "value_selector": [
+                "1722407054667",
+                "result"
+              ]
+            }
+          ],
+          "selected": false
+        },
+        "position": {
+          "x": 757,
+          "y": 282
+        },
+        "targetPosition": "left",
+        "sourcePosition": "right",
+        "positionAbsolute": {
+          "x": 757,
+          "y": 282
+        },
+        "width": 244,
+        "height": 90,
+        "selected": false
+      }
+    ],
+    "edges": [
+      {
+        "id": "1722407054667-source-1722407056247-target",
+        "type": "custom",
+        "source": "1722407054667",
+        "sourceHandle": "source",
+        "target": "1722407056247",
+        "targetHandle": "target",
+        "data": {
+          "sourceType": "code",
+          "targetType": "end",
+          "isInIteration": false
+        },
+        "zIndex": 0
+      },
+      {
+        "id": "1722407048955-source-1722407054667-target",
+        "type": "custom",
+        "source": "1722407048955",
+        "target": "1722407054667",
+        "sourceHandle": "source",
+        "targetHandle": "target",
+        "data": {
+          "sourceType": "start",
+          "targetType": "code",
+          "isInIteration": false
+        },
+        "zIndex": 0
+      }
+    ],
+    "viewport": {
+      "x": 50,
+      "y": -33,
+      "zoom": 1
+    }
+  }
+}

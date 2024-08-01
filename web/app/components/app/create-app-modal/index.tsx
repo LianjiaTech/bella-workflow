@@ -20,7 +20,7 @@ import Button from '@/app/components/base/button'
 import AppIcon from '@/app/components/base/app-icon'
 import EmojiPicker from '@/app/components/base/emoji-picker'
 import AppsFull from '@/app/components/billing/apps-full-in-dialog'
-import { ChatBot, CuteRobote } from '@/app/components/base/icons/src/vender/solid/communication'
+import { ChatBot } from '@/app/components/base/icons/src/vender/solid/communication'
 import { Route } from '@/app/components/base/icons/src/vender/solid/mapsAndTravel'
 import TooltipPlus from '@/app/components/base/tooltip-plus'
 import { NEED_REFRESH_APP_LIST_KEY } from '@/config'
@@ -142,7 +142,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
               <div className='h-5 text-[13px] font-medium leading-[18px]'>{t('app.newApp.completeApp')}</div>
             </div>
           </TooltipPlus> */}
-          <TooltipPlus
+          {/* <TooltipPlus
             hideArrow
             popupContent={
               <div className='max-w-[280px] leading-[18px] text-xs text-gray-700'>{t('app.newApp.agentDescription')}</div>
@@ -162,7 +162,7 @@ const CreateAppModal = ({ show, onSuccess, onClose }: CreateAppDialogProps) => {
               <CuteRobote className='w-6 h-6 text-indigo-600' />
               <div className='h-5 text-[13px] font-medium leading-[18px]'>{t('app.types.agent')}</div>
             </div>
-          </TooltipPlus>
+          </TooltipPlus> */}
           <TooltipPlus
             hideArrow
             popupContent={

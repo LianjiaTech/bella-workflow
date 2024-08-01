@@ -195,11 +195,7 @@ export const fetchModelProviderModelList: Fetcher<{ data: ModelItem[] }, string>
 }
 
 export const fetchModelList: Fetcher<{ data: Model[] }, string> = (url) => {
-  return {
-    data: [],
-    mutate: () => {},
-    isLoading: false,
-  } // get<{ data: Model[] }>(url)
+  return get<{ data: Model[] }>(url)
 }
 
 export const validateModelProvider: Fetcher<ValidateOpenAIKeyResponse, { url: string; body: any }> = ({ url, body }) => {

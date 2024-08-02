@@ -69,7 +69,8 @@ public class Iteration extends BaseNode {
     }
 
     private IterationResult iteration(WorkflowGraph graph, int index, Object item, WorkflowContext context, IWorkflowCallback callback) {
-        WorkflowRunState state = context.getState();
+        WorkflowRunState state = new WorkflowRunState(context.getState().getVariablePool());
+
         state.putVariable(getNodeId(), "item", item);
         state.putVariable(getNodeId(), "index", index);
 
@@ -87,7 +88,7 @@ public class Iteration extends BaseNode {
 
         return IterationResult.builder()
                 .index(index)
-                .output(subContext.getState().getVariableValue(data.getOutputSelector()))
+                .output(state.getVariableValue(data.getOutputSelector()))
                 .nodeRunIds(cb.nodeRunIds)
                 .build();
     }

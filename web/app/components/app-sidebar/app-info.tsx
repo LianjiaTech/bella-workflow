@@ -5,6 +5,7 @@ import { RiArrowDownSLine } from '@remixicon/react'
 import React, { useCallback, useState } from 'react'
 import AppIcon from '../base/app-icon'
 import s from './style.module.css'
+import SwitchAppModal from '@/app/components/app/switch-app-modal'
 import cn from '@/utils/classnames'
 import {
   PortalToFollowElem,
@@ -23,6 +24,7 @@ import type { DuplicateAppModalProps } from '@/app/components/app/duplicate-moda
 import { AiText, ChatBot, CuteRobote } from '@/app/components/base/icons/src/vender/solid/communication'
 import { Route } from '@/app/components/base/icons/src/vender/solid/mapsAndTravel'
 import type { CreateAppModalProps } from '@/app/components/explore/create-app-modal'
+import CreateAppModal from '@/app/components/explore/create-app-modal'
 import { NEED_REFRESH_APP_LIST_KEY } from '@/config'
 import { getRedirection } from '@/utils/app-redirection'
 import UpdateDSLModal from '@/app/components/workflow/update-dsl-modal'
@@ -355,7 +357,7 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
                   </div>
                 )
               }
-              <Divider className="!my-1" />
+              {/* <Divider className="!my-1" />
               <div className='group h-9 py-2 px-3 mx-1 flex items-center hover:bg-red-50 rounded-lg cursor-pointer' onClick={() => {
                 setOpen(false)
                 setShowConfirmDelete(true)
@@ -363,7 +365,7 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
                 <span className='text-gray-700 text-sm leading-5 group-hover:text-red-500'>
                   {t('common.operation.delete')}
                 </span>
-              </div>
+              </div> */}
             </div>
             {/* switch tip */}
             <div
@@ -388,7 +390,7 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
             </div>
           </div>
         </PortalToFollowElemContent>
-        {/* {showSwitchModal && (
+        {showSwitchModal && (
           <SwitchAppModal
             inAppDetail
             show={showSwitchModal}
@@ -408,7 +410,7 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
             onConfirm={onEdit}
             onHide={() => setShowEditModal(false)}
           />
-        )} */}
+        )}
         {showDuplicateModal && (
           <DuplicateAppModal
             appName={appDetail.name}

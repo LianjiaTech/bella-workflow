@@ -93,13 +93,13 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
 
   const [userProfile, setUserProfile] = useState<UserProfileResponse>({
     id: '1',
-    name: 'zhufengyi',
+    name: 'ai-arch',
     avatar: '',
-    email: '391611664@qq.com',
+    email: 'ai-arch@example.com',
     is_password_set: true,
-    interface_language: 'en-US',
+    interface_language: 'zh-Hans',
     interface_theme: 'light',
-    timezone: 'America/New_York',
+    timezone: 'Asia/Shanghai',
     last_login_at: '1721898072',
     last_login_ip: '0.0.0.0',
     created_at: '1721898071',

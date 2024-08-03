@@ -92,7 +92,15 @@ public abstract class BaseNode implements RunnableNode {
         this.nodeRunId = nodeRunId;
     }
 
+    protected void beforeExecute(WorkflowContext context) {
+        // no-op
+    }
+
     protected abstract NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback);
+
+    protected void afterExecute(WorkflowContext context) {
+        // no-op
+    }
 
     public String getNodeId() {
         return this.meta.getId();
@@ -116,6 +124,7 @@ public abstract class BaseNode implements RunnableNode {
             appendUserInputsAsVariables(context);
         }
 
+        beforeExecute(context);
         callback.onWorkflowNodeRunStarted(context, meta.getId(), nodeRunId);
         NodeRunResult result = execute(context, callback);
         try {
@@ -130,6 +139,7 @@ public abstract class BaseNode implements RunnableNode {
                 callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
             }
         } finally {
+            afterExecute(context);
             LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
         }
 

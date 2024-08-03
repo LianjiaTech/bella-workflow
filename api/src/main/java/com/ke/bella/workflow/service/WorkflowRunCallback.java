@@ -107,4 +107,16 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
         delegate.onWorkflowNodeRunFailed(context, nodeId, nodeRunId, error, t);
     }
+
+    @Override
+    public void onWorkflowIterationStarted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
+        LOGGER.info("{} onWorkflowIterationStarted, index: {}", context.getRunId(), index);
+        delegate.onWorkflowIterationStarted(context, nodeId, nodeRunId, index);
+    }
+
+    @Override
+    public void onWorkflowIterationCompleted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
+        LOGGER.info("{} onWorkflowIterationCompleted, index: {}", context.getRunId(), index);
+        delegate.onWorkflowIterationCompleted(context, nodeId, nodeRunId, index);
+    }
 }

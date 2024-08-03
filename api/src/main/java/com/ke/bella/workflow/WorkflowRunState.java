@@ -80,6 +80,15 @@ public class WorkflowRunState {
         variablePoolMap.put(nodeId, variables);
     }
 
+    @SuppressWarnings({ "rawtypes" })
+    public synchronized Object getVariable(String nodeId, String key) {
+        Map variables = this.variablePoolMap.get(nodeId);
+        if(variables == null) {
+            variables = new HashMap();
+        }
+        return variables.get(key);
+    }
+
     synchronized boolean isActivated(String sourceNodeId, String sourceHandle) {
         return activatedSourceHandles.contains(String.format("%s/%s", sourceNodeId, sourceHandle));
     }
@@ -121,7 +130,10 @@ public class WorkflowRunState {
         } else {
             nodeWaitingStates.remove(nodeId);
             if(s == NodeRunResult.Status.succeeded) {
-                Map variables = new HashMap();
+                Map variables = variablePoolMap.get(nodeId);
+                if(variables == null) {
+                    variables = new HashMap();
+                }
                 if(state.inputs != null) {
                     variables.putAll(state.inputs);
                 }

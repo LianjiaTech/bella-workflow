@@ -35,37 +35,56 @@ public class Iteration extends BaseNode {
         this.data = JsonUtils.convertValue(meta.getData(), Data.class);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    protected NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
-
-        Map<String, Object> nodeInputs = new HashMap<>();
-        Map<String, Object> processData = new HashMap<>();
-        Map<String, Object> nodeOutputs = new HashMap<>();
-
+    protected void beforeExecute(WorkflowContext context) {
         Object iter = context.getState().getVariableValue(data.getIteratorSelector());
         Assert.isTrue(iter instanceof List, "迭代节点的输入必须是List");
 
         List items = (List) iter;
-        List output = new ArrayList();
-        List steps = new ArrayList();
-        nodeInputs.put("iterator_selector", items);
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("iterator_length", items.size());
+        context.getState().putVariable(getNodeId(), "metadata", metadata);
+    }
 
-        WorkflowSchema meta = context.getGraph().getMeta().iterationSchema(getNodeId());
-        WorkflowGraph graph = new WorkflowGraph(meta, getNodeId());
-        for (int i = 0; i < items.size(); i++) {
-            IterationResult ir = iteration(graph, i, items.get(i), context, callback);
-            output.add(ir.output);
-            steps.add(ir.nodeRunIds);
+    @Override
+    protected NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
+        Map<String, Object> nodeInputs = new HashMap<>();
+        Map<String, Object> processData = new HashMap<>();
+        Map<String, Object> nodeOutputs = new HashMap<>();
+
+        try {
+            Object iter = context.getState().getVariableValue(data.getIteratorSelector());
+            Assert.isTrue(iter instanceof List, "迭代节点的输入必须是List");
+
+            List items = (List) iter;
+            List<Object> output = new ArrayList<>();
+            List<List> steps = new ArrayList<>();
+            nodeInputs.put("iterator_selector", items);
+
+            WorkflowSchema meta = context.getGraph().getMeta().iterationSchema(getNodeId());
+            WorkflowGraph graph = new WorkflowGraph(meta, getNodeId());
+            for (int i = 0; i < items.size(); i++) {
+                IterationResult ir = iteration(graph, i, items.get(i), context, callback);
+                output.add(ir.output);
+                steps.add(ir.nodeRunIds);
+            }
+            nodeOutputs.put("output", output);
+            processData.put("iterations", steps);
+            return NodeRunResult.builder()
+                    .inputs(nodeInputs)
+                    .processData(processData)
+                    .outputs(nodeOutputs)
+                    .status(NodeRunResult.Status.succeeded)
+                    .build();
+        } catch (Exception e) {
+            return NodeRunResult.builder()
+                    .inputs(nodeInputs)
+                    .processData(processData)
+                    .outputs(nodeOutputs)
+                    .status(NodeRunResult.Status.failed)
+                    .error(e)
+                    .build();
         }
-        nodeOutputs.put("output", output);
-        processData.put("iterations", steps);
-        return NodeRunResult.builder()
-                .inputs(nodeInputs)
-                .processData(processData)
-                .outputs(nodeOutputs)
-                .status(NodeRunResult.Status.succeeded)
-                .build();
     }
 
     private IterationResult iteration(WorkflowGraph graph, int index, Object item, WorkflowContext context, IWorkflowCallback callback) {
@@ -74,7 +93,7 @@ public class Iteration extends BaseNode {
         state.putVariable(getNodeId(), "item", item);
         state.putVariable(getNodeId(), "index", index);
 
-        IterationCallback cb = new IterationCallback(index, callback);
+        IterationCallback cb = new IterationCallback(index, context, callback);
         WorkflowContext subContext = WorkflowContext.builder()
                 .tenantId(context.getTenantId())
                 .workflowId(context.getWorkflowId())
@@ -105,28 +124,30 @@ public class Iteration extends BaseNode {
 
     class IterationCallback extends WorkflowCallbackAdaptor {
         final IWorkflowCallback parent;
+        final WorkflowContext parentContext;
         final int index;
         List<String> nodeRunIds;
 
-        public IterationCallback(int idx, IWorkflowCallback callback) {
+        public IterationCallback(int idx, WorkflowContext context, IWorkflowCallback callback) {
             this.index = idx;
             this.parent = callback;
             this.nodeRunIds = new ArrayList<>();
+            this.parentContext = context;
         }
 
         @Override
         public void onWorkflowRunStarted(WorkflowContext context) {
-            parent.onWorkflowIterationStarted(context, getNodeId(), nodeRunId);
+            parent.onWorkflowIterationStarted(context, getNodeId(), nodeRunId, this.index);
         }
 
         @Override
         public void onWorkflowRunSucceeded(WorkflowContext context) {
-            parent.onWorkflowIterationCompleted(context, getNodeId(), nodeRunId);
+            parent.onWorkflowIterationCompleted(parentContext, getNodeId(), nodeRunId, this.index);
         }
 
         @Override
         public void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t) {
-            parent.onWorkflowIterationCompleted(context, getNodeId(), nodeRunId);
+            throw new IllegalStateException(error, t);
         }
 
         @Override

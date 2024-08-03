@@ -71,6 +71,7 @@ const NodePanel: FC<Props> = ({
     e.nativeEvent.stopImmediatePropagation()
     onShowIterationDetail?.(nodeInfo.details || [])
   }
+
   return (
     <div className={cn('px-4 py-1', className, hideInfo && '!p-0')}>
       <div className={cn('group transition-all bg-white border border-gray-100 rounded-2xl shadow-xs hover:shadow-md', hideInfo && '!rounded-lg')}>

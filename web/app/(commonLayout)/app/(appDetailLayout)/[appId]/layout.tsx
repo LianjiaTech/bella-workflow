@@ -4,10 +4,6 @@ import { useUnmount } from 'ahooks'
 import React, { useCallback, useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  RiDashboard2Fill,
-  RiDashboard2Line,
-  RiFileList3Fill,
-  RiFileList3Line,
   RiTerminalBoxFill,
   RiTerminalBoxLine,
   RiTerminalWindowFill,
@@ -70,7 +66,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         icon: RiTerminalBoxLine,
         selectedIcon: RiTerminalBoxFill,
       },
-      ...(isCurrentWorkspaceEditor
+      /* ...(isCurrentWorkspaceEditor
         ? [{
           name: mode !== 'workflow'
             ? t('common.appMenus.logAndAnn')
@@ -86,7 +82,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         href: `/app/${appId}/overview`,
         icon: RiDashboard2Line,
         selectedIcon: RiDashboard2Fill,
-      },
+      }, */
     ]
     return navs
   }, [t])

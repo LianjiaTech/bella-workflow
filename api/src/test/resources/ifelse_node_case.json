@@ -1,0 +1,294 @@
+{
+  "graph": {
+    "edges": [
+      {
+        "data": {
+          "sourceType": "start",
+          "targetType": "if-else",
+          "inIteration": false,
+          "iterationId": null
+        },
+        "id": "1722503360189-source-1722503373023-target",
+        "source": "1722503360189",
+        "sourceHandle": "source",
+        "target": "1722503373023",
+        "targetHandle": "target",
+        "type": "custom",
+        "key": "1722503360189/source-1722503373023/target"
+      },
+      {
+        "data": {
+          "sourceType": "if-else",
+          "targetType": "end",
+          "inIteration": false,
+          "iterationId": null
+        },
+        "id": "1722503373023-true-1722503404638-target",
+        "source": "1722503373023",
+        "sourceHandle": "true",
+        "target": "1722503404638",
+        "targetHandle": "target",
+        "type": "custom",
+        "key": "1722503373023/true-1722503404638/target"
+      },
+      {
+        "data": {
+          "sourceType": "if-else",
+          "targetType": "end",
+          "inIteration": false,
+          "iterationId": null
+        },
+        "id": "1722503373023-5daafa4d-c839-417d-814c-7dec3d93141d-1722503406168-target",
+        "source": "1722503373023",
+        "sourceHandle": "5daafa4d-c839-417d-814c-7dec3d93141d",
+        "target": "1722503406168",
+        "targetHandle": "target",
+        "type": "custom",
+        "key": "1722503373023/5daafa4d-c839-417d-814c-7dec3d93141d-1722503406168/target"
+      },
+      {
+        "data": {
+          "sourceType": "if-else",
+          "targetType": "end",
+          "inIteration": false,
+          "iterationId": null
+        },
+        "id": "1722503373023-false-1722503408289-target",
+        "source": "1722503373023",
+        "sourceHandle": "false",
+        "target": "1722503408289",
+        "targetHandle": "target",
+        "type": "custom",
+        "key": "1722503373023/false-1722503408289/target"
+      }
+    ],
+    "nodes": [
+      {
+        "data": {
+          "variables": [
+            {
+              "variable": "input",
+              "label": "input",
+              "type": "text-input",
+              "max_length": 48,
+              "required": true,
+              "options": []
+            }
+          ],
+          "type": "start",
+          "title": "开始节点",
+          "selected": false
+        },
+        "dragging": false,
+        "height": 90,
+        "id": "1722503360189",
+        "position": {
+          "x": 100,
+          "y": 100
+        },
+        "positionAbsolute": {
+          "x": 100,
+          "y": 100
+        },
+        "selected": false,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244,
+        "parentId": null,
+        "extent": null,
+        "title": "开始节点",
+        "nodeType": "start",
+        "iterationStart": false,
+        "inIteration": false,
+        "iterationId": null
+      },
+      {
+        "data": {
+          "type": "if-else",
+          "title": "条件分支",
+          "desc": "",
+          "cases": [
+            {
+              "id": "true",
+              "case_id": "true",
+              "logical_operator": "or",
+              "conditions": [
+                {
+                  "id": "9a58d6f4-ebbe-48ab-bfe7-53fef0255962",
+                  "varType": "string",
+                  "variable_selector": [
+                    "1722503360189",
+                    "input"
+                  ],
+                  "comparison_operator": "is",
+                  "value": "1"
+                },
+                {
+                  "id": "9bc8f4d7-a0d0-486f-bf86-55a0a73fc294",
+                  "varType": "string",
+                  "variable_selector": [
+                    "1722503360189",
+                    "input"
+                  ],
+                  "comparison_operator": "is",
+                  "value": "2"
+                }
+              ]
+            },
+            {
+              "id": "5daafa4d-c839-417d-814c-7dec3d93141d",
+              "case_id": "5daafa4d-c839-417d-814c-7dec3d93141d",
+              "logical_operator": "and",
+              "conditions": [
+                {
+                  "id": "0941183c-39bf-414c-bd94-3cc3dcf4c78d",
+                  "varType": "string",
+                  "variable_selector": [
+                    "1722503360189",
+                    "input"
+                  ],
+                  "comparison_operator": "contains",
+                  "value": "3"
+                }
+              ]
+            }
+          ],
+          "selected": false
+        },
+        "dragging": false,
+        "height": 200,
+        "id": "1722503373023",
+        "position": {
+          "x": 404,
+          "y": 100
+        },
+        "positionAbsolute": {
+          "x": 404,
+          "y": 100
+        },
+        "selected": false,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244,
+        "parentId": null,
+        "extent": null,
+        "title": "条件分支",
+        "nodeType": "if-else",
+        "iterationStart": false,
+        "inIteration": false,
+        "iterationId": null
+      },
+      {
+        "data": {
+          "type": "end",
+          "title": "结束",
+          "desc": "",
+          "outputs": [
+            {
+              "variable": "input",
+              "value_selector": [
+                "1722503360189",
+                "input"
+              ]
+            }
+          ],
+          "selected": true
+        },
+        "dragging": false,
+        "height": 90,
+        "id": "1722503404638",
+        "position": {
+          "x": 708,
+          "y": 100
+        },
+        "positionAbsolute": {
+          "x": 708,
+          "y": 100
+        },
+        "selected": true,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244,
+        "parentId": null,
+        "extent": null,
+        "title": "结束",
+        "nodeType": "end",
+        "iterationStart": false,
+        "inIteration": false,
+        "iterationId": null
+      },
+      {
+        "data": {
+          "type": "end",
+          "title": "结束 2",
+          "desc": "",
+          "outputs": [],
+          "selected": false
+        },
+        "dragging": false,
+        "height": 54,
+        "id": "1722503406168",
+        "position": {
+          "x": 708,
+          "y": 193
+        },
+        "positionAbsolute": {
+          "x": 708,
+          "y": 193
+        },
+        "selected": false,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244,
+        "parentId": null,
+        "extent": null,
+        "title": "结束 2",
+        "nodeType": "end",
+        "iterationStart": false,
+        "inIteration": false,
+        "iterationId": null
+      },
+      {
+        "data": {
+          "type": "end",
+          "title": "结束 3",
+          "desc": "",
+          "outputs": [],
+          "selected": false
+        },
+        "dragging": false,
+        "height": 54,
+        "id": "1722503408289",
+        "position": {
+          "x": 708,
+          "y": 286
+        },
+        "positionAbsolute": {
+          "x": 708,
+          "y": 286
+        },
+        "selected": false,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244,
+        "parentId": null,
+        "extent": null,
+        "title": "结束 3",
+        "nodeType": "end",
+        "iterationStart": false,
+        "inIteration": false,
+        "iterationId": null
+      }
+    ],
+    "viewport": {
+      "x": 40,
+      "y": 42,
+      "zoom": 1.0
+    }
+  }
+}

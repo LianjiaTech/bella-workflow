@@ -2,18 +2,23 @@ package com.ke.bella.workflow.node;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.utils.JsonUtils;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,16 +32,58 @@ public class IfElseNode extends BaseNode {
     public IfElseNode(Node meta) {
         super(meta);
         this.data = JsonUtils.convertValue(meta.getData(), Data.class);
-        meta.getData().put("source_handles_size", 2);
+        meta.getData().put("source_handles_size", this.data.cases.size() + 1);
     }
-
 
     @SuppressWarnings("unchecked")
     @Override
     protected NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
+        Map inputs = new HashMap();
         Map processData = new LinkedHashMap();
+        List<Map> conditionResults = new ArrayList<>();
+        String selectedCaseId = null;
+        boolean finalResult = false;
+        List<Map<String, Object>> inputConditions = null;
+
+        for (Data.Case _case : data.getCases()) {
+            CompareResult compareResult = compareCondition(_case.getLogicalOperator(), _case.getConditions(), context);
+
+            finalResult = _case.getLogicalOperator().equals("and") ? compareResult.getGroupResult().stream().allMatch(Boolean::booleanValue)
+                    : compareResult.getGroupResult().stream().anyMatch(Boolean::booleanValue);
+
+            inputConditions = compareResult.getInputConditions();
+
+            Map<String, Object> conditionResult = new HashMap<>();
+            conditionResult.put("group", _case);
+            conditionResult.put("results", compareResult.getGroupResult());
+            conditionResult.put("final_result", finalResult);
+
+            conditionResults.add(conditionResult);
+
+            if(finalResult) {
+                selectedCaseId = _case.getCaseId();
+                break;
+            }
+        }
+        inputs.put("conditions", inputConditions);
+        processData.put("condition_results", conditionResults);
+        Map outputs = new LinkedHashMap();
+        outputs.put("result", finalResult);
+        outputs.put("selected_case_id", selectedCaseId);
+
+        return NodeRunResult.builder()
+                .processData(processData)
+                .inputs(inputs)
+                .outputs(outputs)
+                .activatedSourceHandles(Collections.singletonList(Objects.nonNull(selectedCaseId) ? selectedCaseId : "false"))
+                .status(NodeRunResult.Status.succeeded)
+                .build();
+    }
+
+    private CompareResult compareCondition(String logicalOperator, List<Data.Condition> conditions, WorkflowContext context) {
         List<Map<String, Object>> inputConditions = new ArrayList<>();
-        for (Data.Condition condition : data.getConditions()) {
+
+        for (Data.Condition condition : conditions) {
             Object actualValue = context.getState().getVariableValue(condition.getVariableSelector());
             Object expectedValue = condition.getValue();
 
@@ -47,29 +94,29 @@ public class IfElseNode extends BaseNode {
 
             inputConditions.add(inputCondition);
         }
-        processData.put("conditions", inputConditions);
-
-        String logicalOperator = data.getLogicalOperator();
+        List<Boolean> groupResult = new ArrayList<>(Collections.nCopies(inputConditions.size(), false));
         boolean compareResult = logicalOperator.equals("and");
-        for (Map<String, Object> inputCondition : inputConditions) {
+        for (int i = 0; i < inputConditions.size(); i++) {
+            Map<String, Object> inputCondition = inputConditions.get(i);
             Object actualValue = inputCondition.get("actual_value");
             Object expectedValue = inputCondition.get("expected_value");
             String comparisonOperator = (String) inputCondition.get("comparison_operator");
             boolean result = calc(actualValue, expectedValue, comparisonOperator);
             if(compareResult != result) {
-                compareResult = result;
+                groupResult.set(i, result);
                 break;
             }
         }
+        return CompareResult.builder().inputConditions(inputConditions).groupResult(groupResult).build();
+    }
 
-        Map outputs = new LinkedHashMap();
-        outputs.put("result", compareResult);
-        return NodeRunResult.builder()
-                .processData(processData)
-                .outputs(outputs)
-                .activatedSourceHandles(Arrays.asList(compareResult ? "true" : "false"))
-                .status(NodeRunResult.Status.succeeded)
-                .build();
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @lombok.Data
+    @Builder
+    private static class CompareResult {
+        private List<Map<String, Object>> inputConditions;
+        private List<Boolean> groupResult;
     }
 
     private boolean calc(Object actualValue, Object expectedValue, String op) {
@@ -257,9 +304,21 @@ public class IfElseNode extends BaseNode {
             String value;
         }
 
+        @lombok.Data
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class Case {
+            @JsonProperty("case_id")
+            String caseId;
+            @JsonProperty("logical_operator")
+            String logicalOperator;
+            List<Condition> conditions;
+        }
+
         List<Condition> conditions;
 
         @JsonAlias("logical_operator")
         String logicalOperator = "and";
+        List<Case> cases;
     }
 }

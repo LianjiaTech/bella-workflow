@@ -1,5 +1,19 @@
 package com.ke.bella.workflow.node;
 
+import java.time.Duration;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -26,24 +40,12 @@ import com.theokanning.openai.completion.chat.ToolMessage;
 import com.theokanning.openai.completion.chat.UserMessage;
 import com.theokanning.openai.function.FunctionDefinition;
 import com.theokanning.openai.service.OpenAiService;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.util.StringUtils;
-
-import java.time.Duration;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
 
 public class ParameterExtractorNode extends BaseNode {
 
@@ -165,6 +167,7 @@ public class ParameterExtractorNode extends BaseNode {
                     .status(WorkflowRunState.NodeRunResult.Status.failed)
                     .inputs(inputs)
                     .outputs(outputs)
+                    .error(e)
                     .processData(processData).build();
         }
     }
@@ -172,7 +175,7 @@ public class ParameterExtractorNode extends BaseNode {
     private Map<String, Object> handleInvokeResult(AssistantMessage chatResult, String reasoningMode) {
         Map<String, Object> result = null;
         if(Data.ReasoningMode.functionCall.getValue().equals(reasoningMode)) {
-            result = JsonUtils.fromJson(chatResult.getToolCalls().get(0).getFunction().getArguments().asText(),
+            result = JsonUtils.fromJson(chatResult.getToolCalls().get(0).getFunction().getArguments().toString(),
                     new TypeReference<Map<String, Object>>() {
                     });
         } else {
@@ -305,10 +308,10 @@ public class ParameterExtractorNode extends BaseNode {
         }
         chatCompletionRequest.setStreamOptions(StreamOption.INCLUDE);
         chatCompletionRequest.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
-        // fixme: 流式会丢失usage，此处先忽略usage
-        return service.mapStreamToAccumulator(service.streamChatCompletion(chatCompletionRequest))
-                .blockingLast()
-                .getAccumulatedMessage();
+        // fixme:
+        // 1. 三方包流式请求，严格校验协议；
+        // 2. 自研模型响应体"stop"不是"tool_call"导致解析失败，此处先采用非流式请求，由于是tool_call不影响速度
+        return service.createChatCompletion(chatCompletionRequest).getChoices().get(0).getMessage();
     }
 
     private List<ChatMessage> generatePromptEngineeringPrompt(String query, String systemPrompt) {

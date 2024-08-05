@@ -74,7 +74,7 @@
               "temperature": 0.7
             },
             "mode": "chat",
-            "name": "gpt-4",
+            "name": "c4ai-command-r-plus",
             "provider": "openai"
           },
           "parameters": [

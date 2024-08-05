@@ -102,8 +102,8 @@ public class IfElseNode extends BaseNode {
             Object expectedValue = inputCondition.get("expected_value");
             String comparisonOperator = (String) inputCondition.get("comparison_operator");
             boolean result = calc(actualValue, expectedValue, comparisonOperator);
+            groupResult.set(i, result);
             if(compareResult != result) {
-                groupResult.set(i, result);
                 break;
             }
         }

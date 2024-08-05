@@ -11,8 +11,6 @@ import { VarType } from '@/app/components/workflow/types'
 import type { Var } from '@/app/components/workflow/types'
 import Modal from '@/app/components/base/modal'
 import Button from '@/app/components/base/button'
-import Input from '@/app/components/workflow/nodes/_base/components/input-support-select-var'
-import cn from '@/utils/classnames'
 
 const i18nPrefix = 'workflow.nodes.http.authorization'
 
@@ -177,22 +175,6 @@ const Authorization: FC<Props> = ({
                   />
                 </Field>
               )}
-
-              <Field title={t(`${i18nPrefix}.api-key-title`)} isRequired>
-                <div className='flex'>
-                  <Input
-                    instanceId='http-api-key'
-                    className={cn(isFocus ? 'shadow-xs bg-gray-50 border-gray-300' : 'bg-gray-100 border-gray-100', 'w-0 grow rounded-lg px-3 py-[6px] border')}
-                    value={tempPayload.config?.api_key || ''}
-                    onChange={handleAPIKeyChange}
-                    nodesOutputVars={availableVars}
-                    availableNodes={availableNodesWithParent}
-                    onFocusChange={setIsFocus}
-                    placeholder={' '}
-                    placeholderClassName='!leading-[21px]'
-                  />
-                </div>
-              </Field>
             </>
           )}
         </div>

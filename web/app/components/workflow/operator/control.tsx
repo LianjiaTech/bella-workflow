@@ -8,7 +8,6 @@ import {
   RiCursorLine,
   RiFunctionAddLine,
   RiHand,
-  RiStickyNoteAddLine,
 } from '@remixicon/react'
 import { useKeyPress } from 'ahooks'
 import {
@@ -89,6 +88,7 @@ const Control = () => {
   return (
     <div className='flex items-center p-0.5 rounded-lg border-[0.5px] border-gray-100 bg-white shadow-lg text-gray-500'>
       <AddBlock />
+      {/*
       <TipPopup title={t('workflow.nodes.note.addNote')}>
         <div
           className={cn(
@@ -100,6 +100,7 @@ const Control = () => {
           <RiStickyNoteAddLine className='w-4 h-4' />
         </div>
       </TipPopup>
+      */}
       <div className='mx-[3px] w-[1px] h-3.5 bg-gray-200'></div>
       <TipPopup title={t('workflow.common.pointerMode')}>
         <div

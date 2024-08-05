@@ -2,10 +2,14 @@ package com.ke.bella.workflow;
 
 import java.util.List;
 
+import com.google.common.base.Throwables;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.node.BaseNode;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class WorkflowRunner {
 
     public void run(WorkflowContext context, IWorkflowCallback callback) {
@@ -16,13 +20,17 @@ public class WorkflowRunner {
 
     public void runNode(WorkflowContext context, IWorkflowCallback callback, String nodeId) {
         BaseNode node = context.getNode(nodeId);
-        node.run(context, callback);
+        try {
+            node.run(context, callback);
+        } catch (Exception e) {
+            LOGGER.info("node run failed, e: {}", Throwables.getStackTraceAsString(e));
+            // single node does not require processing, swallow the exception
+        }
     }
 
     public void resume(WorkflowContext context, IWorkflowCallback callback, List<String> nodeIds) {
         context.getState().setStatus(WorkflowRunStatus.running);
         callback.onWorkflowRunResumed(context);
-
 
         List<BaseNode> nodes = context.getNodes(nodeIds);
         run0(context, callback, nodes);

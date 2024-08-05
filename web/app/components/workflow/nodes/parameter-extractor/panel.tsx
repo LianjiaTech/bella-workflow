@@ -211,6 +211,7 @@ const Panel: FC<NodePanelProps<ParameterExtractorNodeType>> = ({
                 variable: 'query',
                 type: InputVarType.paragraph,
                 required: true,
+                alias: Array.isArray(inputs.query) ? `#${inputs.query?.join('.')}#` : '',
               }, ...varInputs],
               values: inputVarValues,
               onChange: setInputVarValues,

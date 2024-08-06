@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,8 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.ke.bella.workflow.AbstractTest;
 import com.ke.bella.workflow.api.BellaResponse;
+import com.ke.bella.workflow.api.Operator;
 import com.ke.bella.workflow.api.WorkflowController;
 import com.ke.bella.workflow.api.WorkflowOps;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -46,6 +49,13 @@ public class WorkflowControllerTest extends AbstractTest {
     WorkflowService workflowService;
     @Autowired
     private MockMvc mockMvc;
+
+    @BeforeEach
+    public void initBellaContext() {
+        BellaContext.setOperator(
+                Operator.builder().userId(userIdL).tenantId("04633c4f-8638-43a3-a02e-af23c29f821f").userName("mock").build());
+        BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
+    }
 
     @Test
     public void testCopyWorkflow() throws Exception {

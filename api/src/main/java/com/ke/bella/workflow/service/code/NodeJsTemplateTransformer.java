@@ -17,4 +17,18 @@ public class NodeJsTemplateTransformer implements TemplateTransformer {
                 "\n";
         return String.format(scriptTemplate, CODE_PLACEHOLDER, INPUTS_PLACEHOLDER);
     }
+
+    @Override
+    public CodeExecutor.CodeLanguage getLanguage() {
+        return CodeExecutor.CodeLanguage.javascript;
+    }
+
+    @Override
+    public String getDefaultCode() {
+        return "\nfunction main({arg1, arg2}) {\n" +
+                "    return {\n" +
+                "        result: arg1 + arg2\n" +
+                "    }\n" +
+                "}\n";
+    }
 }

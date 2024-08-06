@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.Delta;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
@@ -69,6 +70,13 @@ public class TemplateTransformNode extends BaseNode {
                     .error(e)
                     .build();
         }
+    }
+
+    public static Map<String, Object> defaultConfig(Map<String, Object> filters) {
+        return JsonUtils.fromJson(
+                "{\"type\":\"template-transform\",\"config\":{\"variables\":[{\"variable\":\"arg1\",\"value_selector\":[]}],\"template\":\"{{ arg1 }}\"}}",
+                new TypeReference<Map<String, Object>>() {
+                });
     }
 
     @Getter

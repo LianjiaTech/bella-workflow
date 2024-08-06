@@ -9,19 +9,20 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import com.ke.bella.workflow.db.BellaContext;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.IWorkflowCallback.Delta;
+import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
-import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.IWorkflowCallback.Delta;
-import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
+import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.completion.chat.AssistantMessage;
 import com.theokanning.openai.completion.chat.ChatCompletionChunk;
@@ -197,6 +198,13 @@ public class LlmNode extends BaseNode {
             }
         }
         return result;
+    }
+
+    public static Map<String, Object> defaultConfig(Map<String, Object> filters) {
+        return JsonUtils.fromJson(
+                "{\"type\":\"llm\",\"config\":{\"prompt_templates\":{\"chat_model\":{\"prompts\":[{\"role\":\"system\",\"text\":\"You are a helpful AI assistant.\",\"edition_type\":\"basic\"}]},\"completion_model\":{\"conversation_histories_role\":{\"user_prefix\":\"Human\",\"assistant_prefix\":\"Assistant\"},\"prompt\":{\"text\":\"Here is the chat histories between human and assistant, inside <histories></histories> XML tags.\\n\\n<histories>\\n{{#histories#}}\\n</histories>\\n\\n\\nHuman: {{#sys.query#}}\\n\\nAssistant:\",\"edition_type\":\"basic\"},\"stop\":[\"Human:\"]}}}}",
+                new TypeReference<Map<String, Object>>() {
+                });
     }
 
     @Getter

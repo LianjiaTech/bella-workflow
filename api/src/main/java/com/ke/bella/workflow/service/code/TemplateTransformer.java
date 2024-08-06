@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.workflow.service.code.CodeExecutor.CodeDependency;
+import com.ke.bella.workflow.service.code.CodeExecutor.CodeLanguage;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
@@ -90,4 +91,21 @@ public interface TemplateTransformer {
         private String preloadScript;
         private List<CodeDependency> packages;
     }
+
+    @SuppressWarnings("all")
+    default Map<String, Object> defaultConfig() {
+        return JsonUtils.fromJson(String.format(
+                "{\"type\":\"code\",\"config\":{\"variables\":[{\"variable\":\"arg1\",\"value_selector\":[]},{\"variable\":\"arg2\",\"value_selector\":[]}],\"code_language\":\"%s\",\"code\":%s,\"outputs\":{\"result\":{\"type\":\"string\",\"children\":null}}},\"available_dependencies\":%s}",
+                getLanguage().name(), JsonUtils.toJson(getDefaultCode()), JsonUtils.toJson(getDefaultAvailablePackages())),
+                new TypeReference<Map<String, Object>>() {
+                });
+    }
+
+    default List<CodeDependency> getDefaultAvailablePackages() {
+        return Collections.emptyList();
+    }
+
+    CodeLanguage getLanguage();
+
+    String getDefaultCode();
 }

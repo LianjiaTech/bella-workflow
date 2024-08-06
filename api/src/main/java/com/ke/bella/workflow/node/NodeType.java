@@ -1,5 +1,7 @@
 package com.ke.bella.workflow.node;
 
+import java.util.stream.Stream;
+
 public enum NodeType {
     START("start"),
     END("end"),
@@ -19,5 +21,10 @@ public enum NodeType {
 
     private NodeType(String name) {
         this.name = name;
+    }
+
+    public static NodeType of(String name) {
+        return Stream.of(NodeType.values()).filter(nodeType -> nodeType.name.equals(name)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unknown node type: " + name));
     }
 }

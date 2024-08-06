@@ -68,6 +68,7 @@ export const VarItem: FC<VarItemProps> = ({
                 name={item.name}
                 type={item.type}
                 description={item.description}
+                subItems={item.subItems}
               />
             ))}
           </div>

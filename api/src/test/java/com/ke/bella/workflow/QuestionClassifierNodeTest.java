@@ -16,14 +16,14 @@ import com.ke.bella.workflow.node.QuestionClassifierNode;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @Slf4j
 public class QuestionClassifierNodeTest {
 
-    @BeforeAll
-    public static void initBellaContext() {
+    @BeforeEach
+    public void initBellaContext() {
         Configs.API_BASE = "https://example.com/v1/";
         BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
         BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");

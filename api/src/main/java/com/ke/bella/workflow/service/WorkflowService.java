@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import com.ke.bella.workflow.node.BaseNode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -149,7 +150,12 @@ public class WorkflowService {
 
         // 构建执行上下文
         WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
-        WorkflowGraph graph = new WorkflowGraph(meta);
+
+        // 判断节点是否存在及构造上下文
+        Node node = meta.getGraph().getNodes().stream().filter(n -> StringUtils.equals(n.getId(), nodeId)).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("节点不存在: " + nodeId));
+        WorkflowGraph graph = new WorkflowGraph(meta, node.getParentId());
+
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())
                 .workflowId(wr.getWorkflowId())

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import org.springframework.util.CollectionUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.Variables;
@@ -216,6 +218,14 @@ public class CodeNode extends BaseNode {
             throw new IllegalArgumentException("Variable " + variable + " is not a string.");
         }
         return value;
+    }
+
+    public static Map<String, Object> defaultConfig(Map<String, Object> filters) {
+        CodeLanguage codeLanguage = CodeLanguage.python3;
+        if(!CollectionUtils.isEmpty(filters) && filters.containsKey("code_language")) {
+            codeLanguage = CodeLanguage.of((String) filters.get("code_language"));
+        }
+        return CodeExecutor.getDefaultConfig(codeLanguage);
     }
 
     @Getter

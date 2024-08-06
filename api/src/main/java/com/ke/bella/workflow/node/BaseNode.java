@@ -2,11 +2,13 @@ package com.ke.bella.workflow.node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -208,5 +210,35 @@ public abstract class BaseNode implements RunnableNode {
 
     public static List<BaseNode> from(WorkflowSchema.Node... metas) {
         return from(Arrays.asList(metas));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Map<String, Object>> defaultConfigs() {
+        try {
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (Class<? extends BaseNode> nodeClass : NODE_RUNNER_CLASSES.values()) {
+                Map<String, Object> defaultConfig = (Map<String, Object>) nodeClass.getMethod("defaultConfig", Map.class).invoke(null,
+                        Collections.emptyMap());
+                if(!CollectionUtils.isEmpty(defaultConfig)) {
+                    result.add(defaultConfig);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> defaultConfigs(NodeType type, Map<String, Object> filters) {
+        try {
+            return (Map<String, Object>) NODE_RUNNER_CLASSES.get(type.name).getMethod("defaultConfig", Map.class).invoke(null, filters);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Map<String, Object> defaultConfig(Map<String, Object> filters) {
+        return Collections.emptyMap();
     }
 }

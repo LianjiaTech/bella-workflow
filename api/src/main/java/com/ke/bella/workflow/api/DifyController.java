@@ -12,9 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
@@ -30,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.ke.bella.workflow.IWorkflowCallback.File;
@@ -47,7 +45,10 @@ import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
+import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.WorkflowService;
@@ -407,6 +408,20 @@ public class DifyController {
         initContext();
         List<WorkflowNodeRunDB> nodeRuns = ws.getNodeRuns(workflowRunId);
         return DifyNodeExecution.builder().data(transfer(nodeRuns)).build();
+    }
+
+    @GetMapping("/{workflowId}/workflows/default-workflow-block-configs/{blockType}")
+    public Object defaultBlockConfigs(@PathVariable(value = "workflowId") String workflowId,
+            @PathVariable(value = "blockType", required = false) String blockType,
+            @RequestParam(value = "q", required = false) String query) {
+        initContext();
+        return BaseNode.defaultConfigs(NodeType.of(blockType), JsonUtils.fromJson(query, Map.class));
+    }
+
+    @GetMapping("/{workflowId}/workflows/default-workflow-block-configs")
+    public Object defaultBlockConfigs(@PathVariable(value = "workflowId") String workflowId) {
+        initContext();
+        return BaseNode.defaultConfigs();
     }
 
     private static List<DifyNodeExecution.DifyNodeRun> transfer(List<WorkflowNodeRunDB> nodeRunDBs) {

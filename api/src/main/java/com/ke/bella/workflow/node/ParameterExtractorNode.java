@@ -474,6 +474,13 @@ public class ParameterExtractorNode extends BaseNode {
         return new ArrayList<>();
     }
 
+    public static Map<String, Object> defaultConfig(Map<String, Object> filters) {
+        return JsonUtils.fromJson(
+                "{\"model\":{\"prompt_templates\":{\"completion_model\":{\"conversation_histories_role\":{\"user_prefix\":\"Human\",\"assistant_prefix\":\"Assistant\"},\"stop\":[\"Human:\"]}}}}",
+                new TypeReference<Map<String, Object>>() {
+                });
+    }
+
     @Getter
     @Setter
     @NoArgsConstructor

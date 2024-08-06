@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.service.code;
 
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
@@ -51,5 +52,23 @@ public class Python3TemplateTransformer implements TemplateTransformer {
                 "\nprint(result)" +
                 "\n";
         return String.format(scriptTemplate, CODE_PLACEHOLDER, INPUTS_PLACEHOLDER);
+    }
+
+    @Override
+    public List<CodeExecutor.CodeDependency> getDefaultAvailablePackages() {
+        return CodeExecutor.getDependencies(getLanguage());
+    }
+
+    @Override
+    public CodeExecutor.CodeLanguage getLanguage() {
+        return CodeExecutor.CodeLanguage.python3;
+    }
+
+    @Override
+    public String getDefaultCode() {
+        return "\ndef main(arg1: int, arg2: int) -> dict:\n" +
+                "    return {\n" +
+                "        \"result\": arg1 + arg2,\n" +
+                "    }\n";
     }
 }

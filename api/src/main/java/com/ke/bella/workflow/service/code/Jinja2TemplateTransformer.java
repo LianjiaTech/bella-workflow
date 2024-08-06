@@ -34,6 +34,16 @@ public class Jinja2TemplateTransformer implements TemplateTransformer {
         return String.format(scriptTemplate, CODE_PLACEHOLDER, INPUTS_PLACEHOLDER);
     }
 
+    @Override
+    public CodeExecutor.CodeLanguage getLanguage() {
+        return CodeExecutor.CodeLanguage.jinja2;
+    }
+
+    @Override
+    public String getDefaultCode() {
+        return "";
+    }
+
     public String getPreloadScript() {
         return "\nimport jinja2" +
                 "\nfrom base64 import b64decode" +

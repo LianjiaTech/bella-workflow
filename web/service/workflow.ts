@@ -18,7 +18,7 @@ export const syncWorkflowDraft = ({ url, params }: { url: string; params: Pick<F
 }
 
 export const fetchNodesDefaultConfigs: Fetcher<NodesDefaultConfigsResponse, string> = (url) => {
-  return { data: [] } // get<NodesDefaultConfigsResponse>(url)
+  return get<NodesDefaultConfigsResponse>(url)
 }
 
 export const fetchWorkflowRunHistory: Fetcher<WorkflowRunHistoryResponse, string> = (url) => {

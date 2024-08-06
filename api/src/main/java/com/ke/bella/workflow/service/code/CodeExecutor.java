@@ -1,8 +1,13 @@
 package com.ke.bella.workflow.service.code;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.util.CollectionUtils;
@@ -28,6 +33,8 @@ public class CodeExecutor {
 
     private static final String CODE_SANDBOX_URL = Configs.API_BASE + "sandbox/run";
 
+    private static final String DEPENDENCIES_SANDBOX_URL = Configs.API_BASE + "sandbox/dependencies";
+
     private static final Map<String, String> CODE_LANGUAGE_TO_RUNNING_LANGUAGE = ImmutableMap.of(
             CodeLanguage.javascript.name(), "nodejs",
             CodeLanguage.jinja2.name(), CodeLanguage.python3.name(),
@@ -50,6 +57,11 @@ public class CodeExecutor {
         return transformer.transformResponse(resp);
     }
 
+    public static Map<String, Object> getDefaultConfig(CodeLanguage language) {
+        return Optional.ofNullable(transformers.get(language.name())).orElseThrow(() -> new IllegalArgumentException("unsupported code language"))
+                .defaultConfig();
+    }
+
     private static String executeCode(CodeLanguage language, String code, String preload, List<CodeDependency> dependencies) {
         CodeRunOp op = CodeRunOp.builder()
                 .language(CODE_LANGUAGE_TO_RUNNING_LANGUAGE.get(language.name()))
@@ -57,17 +69,38 @@ public class CodeExecutor {
                 .preload(preload)
                 .dependencies(dependencies).build();
 
-        CodeRunResp codeRunResp = HttpUtils.postJson(ImmutableMap.of("X-Api-Key", X_API_KEY), CODE_SANDBOX_URL, JsonUtils.toJson(op),
-                new TypeReference<CodeRunResp>() {
+        SandBoxResp<SandBoxResp.CodeRunResult> sandBoxResp = HttpUtils.postJson(ImmutableMap.of("X-Api-Key", X_API_KEY), CODE_SANDBOX_URL,
+                JsonUtils.toJson(op),
+                new TypeReference<SandBoxResp<SandBoxResp.CodeRunResult>>() {
                 });
 
-        if(codeRunResp.getCode() != 0) {
-            throw new IllegalStateException(String.format("Code Node run failed: %s", codeRunResp.getMessage()));
-        } else if(!StringUtils.isEmpty(codeRunResp.getData().getError())) {
-            throw new IllegalStateException(String.format("Code Node run failed: %s", codeRunResp.getData().getError()));
+        if(sandBoxResp.getCode() != 0) {
+            throw new IllegalStateException(String.format("Code Node run failed: %s", sandBoxResp.getMessage()));
+        } else if(!StringUtils.isEmpty(sandBoxResp.getData().getError())) {
+            throw new IllegalStateException(String.format("Code Node run failed: %s", sandBoxResp.getData().getError()));
         }
 
-        return codeRunResp.getData().getStdout();
+        return sandBoxResp.getData().getStdout();
+    }
+
+    public static List<CodeDependency> getDependencies(CodeLanguage language) {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("language", CODE_LANGUAGE_TO_RUNNING_LANGUAGE.get(language.name()));
+
+        SandBoxResp<SandBoxResp.DependenciesResult> sandBoxResp = HttpUtils.get(ImmutableMap.of("X-Api-Key", X_API_KEY),
+                DEPENDENCIES_SANDBOX_URL,
+                params,
+                new TypeReference<SandBoxResp<SandBoxResp.DependenciesResult>>() {
+                });
+
+        if(sandBoxResp.getCode() != 0) {
+            throw new IllegalStateException(String.format("Code Node run failed: %s", sandBoxResp.getMessage()));
+        } else if(Objects.isNull(sandBoxResp.getData()) || CollectionUtils.isEmpty(sandBoxResp.getData().getDependencies())) {
+            return Collections.emptyList();
+        }
+        return sandBoxResp.getData().getDependencies()
+                .stream().filter(dep -> !transformers.get(language.name()).getStandardPackages().contains(dep.getName()))
+                .collect(Collectors.toList());
     }
 
     @AllArgsConstructor
@@ -88,19 +121,27 @@ public class CodeExecutor {
     @NoArgsConstructor
     @Builder
     @Data
-    public static class CodeRunResp {
+    public static class SandBoxResp<T> {
         @AllArgsConstructor
         @NoArgsConstructor
         @Builder
         @lombok.Data
-        public static class Data {
+        public static class CodeRunResult {
             private String stdout;
             private String error;
         }
 
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Builder
+        @lombok.Data
+        public static class DependenciesResult {
+            private List<CodeDependency> dependencies = new ArrayList<>();
+        }
+
         private int code;
         private String message;
-        private Data data;
+        private T data;
     }
 
     @Getter

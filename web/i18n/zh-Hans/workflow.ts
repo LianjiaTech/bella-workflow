@@ -346,6 +346,9 @@ const translation = {
         writeLabel: '写入超时',
         writePlaceholder: '输入写入超时（以秒为单位）',
       },
+      response: {
+        placeholder: '请输入完整的JSON内容',
+      },
     },
     code: {
       inputVars: '输入变量',

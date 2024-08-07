@@ -94,10 +94,9 @@ export const useNodesSyncDraft = () => {
     const postParams = getPostParams()
 
     if (postParams) {
-      navigator.sendBeacon(
-        `${API_PREFIX}/apps/${params.appId}/workflows/draft?_token=${localStorage.getItem('console_token')}`,
-        JSON.stringify(postParams.params),
-      )
+      const data = JSON.stringify(postParams.params)
+      const blob = new Blob([data], { type: 'application/json' })
+      navigator.sendBeacon(`${API_PREFIX}/apps/${params.appId}/workflows/draft?_token=${localStorage.getItem('console_token')}`, blob)
     }
   }, [getPostParams, params.appId, getNodesReadOnly])
 

@@ -135,7 +135,7 @@ public abstract class BaseNode implements RunnableNode {
             if(result.getStatus() == NodeRunResult.Status.succeeded) {
                 callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
             } else if(result.getStatus() == NodeRunResult.Status.failed) {
-                callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().getMessage(), result.getError());
+                callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
                 throw new IllegalStateException(result.getError().getMessage());
             } else if(result.getStatus() == NodeRunResult.Status.waiting) {
                 callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);

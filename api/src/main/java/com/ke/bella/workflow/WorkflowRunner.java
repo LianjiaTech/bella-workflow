@@ -61,7 +61,7 @@ public class WorkflowRunner {
             }
         } catch (Exception e) {
             context.getState().setStatus(WorkflowRunStatus.failed);
-            callback.onWorkflowRunFailed(context, e.getMessage(), e);
+            callback.onWorkflowRunFailed(context, e.toString(), e);
         }
     }
 }

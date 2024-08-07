@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next'
 import dayjs from 'dayjs'
 import { RiArrowDownSLine } from '@remixicon/react'
 import type { ModelAndParameter } from '../configuration/debug/types'
-import SuggestedAction from './suggested-action'
 import PublishWithMultipleModel from './publish-with-multiple-model'
 import Button from '@/app/components/base/button'
 import {
@@ -18,7 +17,6 @@ import {
 import EmbeddedModal from '@/app/components/app/overview/embedded'
 import { useStore as useAppStore } from '@/app/components/app/store'
 import { useGetLanguage } from '@/context/i18n'
-import { FileText } from '@/app/components/base/icons/src/vender/line/files'
 import type { InputVar } from '@/app/components/workflow/types'
 
 export type AppPublisherProps = {
@@ -134,7 +132,7 @@ const AppPublisher = ({
                   <div className='flex items-center mt-[3px] mb-[3px] leading-[18px] text-[13px] font-medium text-gray-700'>
                     {t('workflow.common.publishedAt')} {formatTimeFromNow(publishedAt)}
                   </div>
-                  <Button
+                  {/* <Button
                     className={`
                       ml-2 px-2 text-primary-600
                       ${published && 'text-primary-300 border-gray-100'}
@@ -144,7 +142,7 @@ const AppPublisher = ({
                     disabled={published}
                   >
                     {t('workflow.common.restore')}
-                  </Button>
+                  </Button> */}
                 </div>
               )
               : (
@@ -176,8 +174,8 @@ const AppPublisher = ({
               )
             }
           </div>
-          <div className='p-4 pt-3 border-t-[0.5px] border-t-black/5'>
-            {/* <SuggestedAction disabled={!publishedAt} link={appURL} icon={<PlayCircle />}>{t('workflow.common.runApp')}</SuggestedAction>
+          {/* <div className='p-4 pt-3 border-t-[0.5px] border-t-black/5'>
+            <SuggestedAction disabled={!publishedAt} link={appURL} icon={<PlayCircle />}>{t('workflow.common.runApp')}</SuggestedAction>
             {appDetail?.mode === 'workflow'
               ? (
                 <SuggestedAction
@@ -199,9 +197,9 @@ const AppPublisher = ({
                 >
                   {t('workflow.common.embedIntoSite')}
                 </SuggestedAction>
-              )} */}
+              )}
             <SuggestedAction disabled={!publishedAt} link='./develop' icon={<FileText className='w-4 h-4' />}>{t('workflow.common.accessAPIReference')}</SuggestedAction>
-            {/* {appDetail?.mode === 'workflow' && (
+            {appDetail?.mode === 'workflow' && (
               <WorkflowToolConfigureButton
                 disabled={!publishedAt}
                 published={!!toolPublished}
@@ -217,8 +215,8 @@ const AppPublisher = ({
                 handlePublish={handlePublish}
                 onRefreshData={onRefreshData}
               />
-            )} */}
-          </div>
+            )}
+          </div> */}
         </div>
       </PortalToFollowElemContent>
       <EmbeddedModal

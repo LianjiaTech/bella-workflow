@@ -423,6 +423,9 @@ const translation = {
         },
         json: '工具生成的json',
       },
+      response: {
+        placeholder: '请输入完整的JSON内容',
+      },
     },
     questionClassifiers: {
       model: '模型',

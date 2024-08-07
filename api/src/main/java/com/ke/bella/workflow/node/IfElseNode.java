@@ -44,40 +44,49 @@ public class IfElseNode extends BaseNode {
         String selectedCaseId = null;
         boolean finalResult = false;
         List<Map<String, Object>> inputConditions = null;
+        try {
+            for (Data.Case _case : data.getCases()) {
+                CompareResult compareResult = compareCondition(_case.getLogicalOperator(), _case.getConditions(), context);
 
-        for (Data.Case _case : data.getCases()) {
-            CompareResult compareResult = compareCondition(_case.getLogicalOperator(), _case.getConditions(), context);
+                finalResult = _case.getLogicalOperator().equals("and") ? compareResult.getGroupResult().stream().allMatch(Boolean::booleanValue)
+                        : compareResult.getGroupResult().stream().anyMatch(Boolean::booleanValue);
 
-            finalResult = _case.getLogicalOperator().equals("and") ? compareResult.getGroupResult().stream().allMatch(Boolean::booleanValue)
-                    : compareResult.getGroupResult().stream().anyMatch(Boolean::booleanValue);
+                inputConditions = compareResult.getInputConditions();
 
-            inputConditions = compareResult.getInputConditions();
+                Map<String, Object> conditionResult = new HashMap<>();
+                conditionResult.put("group", _case);
+                conditionResult.put("results", compareResult.getGroupResult());
+                conditionResult.put("final_result", finalResult);
 
-            Map<String, Object> conditionResult = new HashMap<>();
-            conditionResult.put("group", _case);
-            conditionResult.put("results", compareResult.getGroupResult());
-            conditionResult.put("final_result", finalResult);
+                conditionResults.add(conditionResult);
 
-            conditionResults.add(conditionResult);
-
-            if(finalResult) {
-                selectedCaseId = _case.getCaseId();
-                break;
+                if(finalResult) {
+                    selectedCaseId = _case.getCaseId();
+                    break;
+                }
             }
-        }
-        inputs.put("conditions", inputConditions);
-        processData.put("condition_results", conditionResults);
-        Map outputs = new LinkedHashMap();
-        outputs.put("result", finalResult);
-        outputs.put("selected_case_id", selectedCaseId);
+            inputs.put("conditions", inputConditions);
+            processData.put("condition_results", conditionResults);
+            Map outputs = new LinkedHashMap();
+            outputs.put("result", finalResult);
+            outputs.put("selected_case_id", selectedCaseId);
 
-        return NodeRunResult.builder()
-                .processData(processData)
-                .inputs(inputs)
-                .outputs(outputs)
-                .activatedSourceHandles(Collections.singletonList(Objects.nonNull(selectedCaseId) ? selectedCaseId : "false"))
-                .status(NodeRunResult.Status.succeeded)
-                .build();
+            return NodeRunResult.builder()
+                    .processData(processData)
+                    .inputs(inputs)
+                    .outputs(outputs)
+                    .activatedSourceHandles(Collections.singletonList(Objects.nonNull(selectedCaseId) ? selectedCaseId : "false"))
+                    .status(NodeRunResult.Status.succeeded)
+                    .build();
+        } catch (Exception e) {
+            return NodeRunResult.builder()
+                    .processData(processData)
+                    .inputs(inputs)
+                    .error(e)
+                    .status(NodeRunResult.Status.failed)
+                    .build();
+        }
+
     }
 
     private CompareResult compareCondition(String logicalOperator, List<Data.Condition> conditions, WorkflowContext context) {

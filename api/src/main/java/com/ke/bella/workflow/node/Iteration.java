@@ -147,7 +147,11 @@ public class Iteration extends BaseNode {
 
         @Override
         public void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t) {
-            throw new IllegalStateException(error, t);
+            if(t instanceof RuntimeException) {
+                throw (RuntimeException) t;
+            } else {
+                throw new IllegalStateException(error, t);
+            }
         }
 
         @Override
@@ -169,7 +173,11 @@ public class Iteration extends BaseNode {
         @Override
         public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
             parent.onWorkflowNodeRunFailed(context, nodeId, nodeRunId, error, t);
-            nodeRunIds.add(nodeRunId);
+            if(t instanceof RuntimeException) {
+                throw (RuntimeException) t;
+            } else {
+                throw new IllegalStateException(error, t);
+            }
         }
 
         @Override

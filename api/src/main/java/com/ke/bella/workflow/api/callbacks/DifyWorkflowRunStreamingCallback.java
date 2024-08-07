@@ -214,30 +214,58 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
-        Object metadata = null;
+        DifyEvent event = null;
+        Object exeMetadata = null;
         if(context.getState().getNodeState(nodeId).getProcessData() != null) {
-            metadata = context.getState().getNodeState(nodeId).getProcessData().get("meta_data");
+            exeMetadata = context.getState().getNodeState(nodeId).getProcessData().get("meta_data");
         }
-        DifyEvent event = DifyEvent.builder()
-                .workflowRunId(context.getRunId())
-                .workflowId(context.getWorkflowId())
-                .taskId(context.getRunId())
-                .event("node_finished")
-                .data(DifyData.builder()
-                        .id(context.getRunId() + nodeId)
-                        .nodeId(nodeId)
-                        .type(context.getNode(nodeId).getMeta().getNodeType())
-                        .title(context.getNode(nodeId).getMeta().getTitle())
-                        .inputs(context.getState().getNodeState(nodeId).getInputs())
-                        .outputs(context.getState().getNodeState(nodeId).getOutputs())
-                        .processData(context.getState().getNodeState(nodeId).getProcessData())
-                        .error(error)
-                        .status(context.getState().getNodeState(nodeId).getStatus().name())
-                        .executionMetadata(metadata)
-                        .createdAt(System.currentTimeMillis())
-                        .elapsedTime(context.getState().getNodeState(nodeId).getElapsedTime() / 1000d)
-                        .build())
-                .build();
+        Node meta = context.getGraph().node(nodeId);
+        if(meta.getNodeType().equals(NodeType.ITERATION.name)) {
+            Object metadata = context.getState().getVariable(nodeId, "metadata");
+            event = DifyEvent.builder()
+                    .workflowRunId(context.getRunId())
+                    .workflowId(context.getWorkflowId())
+                    .taskId(context.getRunId())
+                    .event("iteration_completed")
+                    .data(DifyData.builder()
+                            .id(context.getRunId() + nodeId)
+                            .nodeId(nodeId)
+                            .type(meta.getNodeType())
+                            .title(context.getNode(nodeId).getMeta().getTitle())
+                            .inputs(context.getState().getNodeState(nodeId).getInputs())
+                            .outputs(context.getState().getNodeState(nodeId).getOutputs())
+                            .processData(context.getState().getNodeState(nodeId).getProcessData())
+                            .status(context.getState().getNodeState(nodeId).getStatus().name())
+                            .executionMetadata(metadata)
+                            .error(error)
+                            .metadata(metadata)
+                            .createdAt(System.currentTimeMillis())
+                            .finishedAt(System.currentTimeMillis())
+                            .elapsedTime(context.getState().getNodeState(nodeId).getElapsedTime() / 1000d)
+                            .build())
+                    .build();
+        } else {
+            event = DifyEvent.builder()
+                    .workflowRunId(context.getRunId())
+                    .workflowId(context.getWorkflowId())
+                    .taskId(context.getRunId())
+                    .event("node_finished")
+                    .data(DifyData.builder()
+                            .id(context.getRunId() + nodeId)
+                            .nodeId(nodeId)
+                            .type(context.getNode(nodeId).getMeta().getNodeType())
+                            .title(context.getNode(nodeId).getMeta().getTitle())
+                            .inputs(context.getState().getNodeState(nodeId).getInputs())
+                            .outputs(context.getState().getNodeState(nodeId).getOutputs())
+                            .processData(context.getState().getNodeState(nodeId).getProcessData())
+                            .error(error)
+                            .status(context.getState().getNodeState(nodeId).getStatus().name())
+                            .executionMetadata(exeMetadata)
+                            .createdAt(System.currentTimeMillis())
+                            .elapsedTime(context.getState().getNodeState(nodeId).getElapsedTime() / 1000d)
+                            .build())
+                    .build();
+        }
         SseHelper.sendEvent(emitter, event);
     }
 

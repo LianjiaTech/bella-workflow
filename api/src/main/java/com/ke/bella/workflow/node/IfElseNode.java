@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.util.CollectionUtils;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ke.bella.workflow.IWorkflowCallback;
@@ -32,7 +34,7 @@ public class IfElseNode extends BaseNode {
     public IfElseNode(Node meta) {
         super(meta);
         this.data = JsonUtils.convertValue(meta.getData(), Data.class);
-        meta.getData().put("source_handles_size", this.data.cases.size() + 1);
+        meta.getData().put("source_handles_size", this.data.getCases().size() + 1);
     }
 
     @SuppressWarnings("unchecked")
@@ -317,6 +319,7 @@ public class IfElseNode extends BaseNode {
         @AllArgsConstructor
         @NoArgsConstructor
         public static class Case {
+            String id;
             @JsonProperty("case_id")
             String caseId;
             @JsonProperty("logical_operator")
@@ -329,5 +332,19 @@ public class IfElseNode extends BaseNode {
         @JsonAlias("logical_operator")
         String logicalOperator = "and";
         List<Case> cases;
+
+        // fixme: 中间逻辑：if-else 老协议转新协议
+        public List<Case> getCases() {
+            if(CollectionUtils.isEmpty(cases)) {
+                Case aCase = new Case();
+                aCase.setLogicalOperator(logicalOperator);
+                aCase.setConditions(conditions);
+                aCase.setId("true");
+                aCase.setCaseId("true");
+                return Collections.singletonList(aCase);
+            } else {
+                return cases;
+            }
+        }
     }
 }

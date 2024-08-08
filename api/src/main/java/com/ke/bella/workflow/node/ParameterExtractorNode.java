@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -175,9 +176,14 @@ public class ParameterExtractorNode extends BaseNode {
     private Map<String, Object> handleInvokeResult(AssistantMessage chatResult, String reasoningMode) {
         Map<String, Object> result = null;
         if(Data.ReasoningMode.functionCall.getValue().equals(reasoningMode)) {
-            result = JsonUtils.fromJson(chatResult.getToolCalls().get(0).getFunction().getArguments().toString(),
-                    new TypeReference<Map<String, Object>>() {
-                    });
+            // tool call failed
+            if(CollectionUtils.isEmpty(chatResult.getToolCalls()) || Objects.isNull(chatResult.getToolCalls().get(0).getFunction())) {
+                throw new IllegalArgumentException("tool call failed, model return invalid tool call result");
+            }
+            result = Optional.ofNullable(chatResult.getToolCalls().get(0).getFunction().getArguments())
+                    .map(args -> JsonUtils.fromJson(args.toString(), new TypeReference<Map<String, Object>>() {
+                    }))
+                    .orElse(Collections.emptyMap());
         } else {
             result = extractParamsFromText(chatResult.getContent());
         }
@@ -300,10 +306,7 @@ public class ParameterExtractorNode extends BaseNode {
             chatCompletionRequest.setTools(Collections.singletonList(tool));
 
             FunctionDefinition function = (FunctionDefinition) tool.getFunction();
-            // fixme: 微软不支持required,但openai是支持的...
-            // ToolChoice toolChoice = ToolChoice.REQUIRED;
-            ToolChoice toolChoice = ToolChoice.AUTO;
-            toolChoice.setFunction(new Function(function.getName()));
+            ToolChoice toolChoice = new ToolChoice(new Function(function.getName()));
             chatCompletionRequest.setToolChoice(toolChoice);
         }
         chatCompletionRequest.setStreamOptions(StreamOption.INCLUDE);

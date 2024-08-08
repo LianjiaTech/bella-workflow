@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import produce from 'immer'
 import { useBoolean } from 'ahooks'
 import type { StartNodeType } from './types'
-import { ChangeType, InputVarType } from '@/app/components/workflow/types'
+import { ChangeType } from '@/app/components/workflow/types'
 import type { InputVar, MoreInfo, ValueSelector } from '@/app/components/workflow/types'
 import useNodeCrud from '@/app/components/workflow/nodes/_base/hooks/use-node-crud'
 import {
@@ -40,35 +40,35 @@ const useConfig = (id: string, payload: StartNodeType) => {
     })
     return varResult
   }
+
   const handleVarListChange = useCallback((newList: InputVar[], moreInfo?: { index: number; payload: MoreInfo }) => {
-    if (newList[0]?.type === InputVarType.json) {
-      setNewVarList(newList)
-      const newVars = varSelectorConvert([id], newList)
-      const oldVars = varSelectorConvert([id], inputs.variables)
-      const newVarSelectors = newVars.map((v: any[]) => v.join('.'))
-      const deleteVarSelectorList: any[] = []
-      oldVars.forEach((v: any[]) => {
-        if (!newVarSelectors.includes(v.join('.')))
-          deleteVarSelectorList.push(v)
-      })
-      const removeVarSelectorList: any[] | ((prevState: ValueSelector[]) => ValueSelector[]) = []
-      deleteVarSelectorList.forEach((v) => {
-        if (isVarUsedInNodes(v))
-          removeVarSelectorList.push(v)
-      })
-      if (removeVarSelectorList.length > 0) {
-        setRemovedVar(removeVarSelectorList)
-        showRemoveVarConfirm()
-        if (moreInfo?.payload?.type === ChangeType.remove) {
-          setRemoveIndex(moreInfo?.index as number)
-          return
-        }
+    setNewVarList(newList)
+    const newVars = varSelectorConvert([id], newList)
+    const oldVars = varSelectorConvert([id], inputs.variables)
+    const newVarSelectors = newVars.map(v => v.join('.'))
+    const deleteVarSelectorList = []
+    oldVars.forEach((v) => {
+      if (!newVarSelectors.includes(v.join('.')))
+        deleteVarSelectorList.push(v)
+    })
+    const removeVarSelectorList = []
+    deleteVarSelectorList.forEach((v) => {
+      if (isVarUsedInNodes(v))
+        removeVarSelectorList.push(v)
+    })
+    if (removeVarSelectorList.length > 0) {
+      setRemovedVar(removeVarSelectorList)
+      showRemoveVarConfirm()
+      if (moreInfo?.payload?.type === ChangeType.remove) {
+        setRemoveIndex(moreInfo?.index as number)
         return
       }
-      else {
-        setRemovedVar([])
-      }
+      return
     }
+    else {
+      setRemovedVar([])
+    }
+
     if (moreInfo?.payload?.type === ChangeType.remove) {
       const oldVars = varSelectorConvert([id], [inputs.variables[moreInfo.index]])
       const removeVarSelectorList: any[] | ((prevState: ValueSelector[]) => ValueSelector[]) = []

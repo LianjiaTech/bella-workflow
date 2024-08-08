@@ -438,12 +438,12 @@ export const getVarType = ({
   let type: VarType = VarType.string
   let curr: any = targetVar.vars
   if (isSystem || isEnv) {
-    return curr.find ? curr?.find((v: any) => v.variable === (valueSelector as ValueSelector).join('.'))?.type : null
+    return (curr !== undefined && curr.find) ? curr?.find((v: any) => v.variable === (valueSelector as ValueSelector).join('.'))?.type : null
   }
   else {
     (valueSelector as ValueSelector).slice(1).forEach((key, i) => {
       const isLast = i === valueSelector.length - 2
-      curr = curr.find ? curr.find((v: any) => v.variable === key) : null
+      curr = (curr !== undefined && curr.find) ? curr.find((v: any) => v.variable === key) : null
       if (isLast) {
         type = curr?.type
       }

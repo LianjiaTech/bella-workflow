@@ -63,7 +63,7 @@ const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getRe
   const formatNodeList = useCallback((list: NodeTracing[]) => {
     const allItems = list.reverse()
     const result: NodeTracing[] = []
-    let iterationIndexInfos: {
+    const iterationIndexInfos: {
       start: number
       end: number
     }[] = []
@@ -96,7 +96,7 @@ const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getRe
         return
       }
 
-      const { steps_boundary } = execution_metadata
+      /* const { steps_boundary } = execution_metadata
       iterationIndexInfos = []
       steps_boundary.forEach((boundary, index) => {
         if (index === 0) {
@@ -115,7 +115,7 @@ const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getRe
             end: 0,
           })
         }
-      })
+      }) */
       result.push({
         ...item,
         details: [],

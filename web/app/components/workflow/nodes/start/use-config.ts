@@ -31,7 +31,7 @@ const useConfig = (id: string, payload: StartNodeType) => {
   const [removedIndex, setRemoveIndex] = useState(-1)
   const [newVarList, setNewVarList] = useState<InputVar[]>()
   const varSelectorConvert = function (path: string[], vars: InputVar[]): string[[]] {
-    const varResult = []
+    const varResult: string[][] = []
     vars.forEach((v) => {
       const paths = [...path, v.variable]
       varResult.push(paths)
@@ -45,13 +45,13 @@ const useConfig = (id: string, payload: StartNodeType) => {
       setNewVarList(newList)
       const newVars = varSelectorConvert([id], newList)
       const oldVars = varSelectorConvert([id], inputs.variables)
-      const newVarSelectors = newVars.map(v => v.join('.'))
-      const deleteVarSelectorList = []
-      oldVars.forEach((v) => {
+      const newVarSelectors = newVars.map((v: any[]) => v.join('.'))
+      const deleteVarSelectorList: any[] = []
+      oldVars.forEach((v: any[]) => {
         if (!newVarSelectors.includes(v.join('.')))
           deleteVarSelectorList.push(v)
       })
-      const removeVarSelectorList = []
+      const removeVarSelectorList: any[] | ((prevState: ValueSelector[]) => ValueSelector[]) = []
       deleteVarSelectorList.forEach((v) => {
         if (isVarUsedInNodes(v))
           removeVarSelectorList.push(v)
@@ -70,9 +70,9 @@ const useConfig = (id: string, payload: StartNodeType) => {
       }
     }
     if (moreInfo?.payload?.type === ChangeType.remove) {
-      const oldVars = varSelectorConvert([id], inputs.variables)
-      const removeVarSelectorList = []
-      oldVars.forEach((v) => {
+      const oldVars = varSelectorConvert([id], [inputs.variables[moreInfo.index]])
+      const removeVarSelectorList: any[] | ((prevState: ValueSelector[]) => ValueSelector[]) = []
+      oldVars.forEach((v: ValueSelector) => {
         if (isVarUsedInNodes(v))
           removeVarSelectorList.push(v)
       })
@@ -101,6 +101,14 @@ const useConfig = (id: string, payload: StartNodeType) => {
         draft.variables.splice(removedIndex, 1)
       })
       setInputs(newInputs)
+    }
+    else {
+      if (removedVar.length >= 0) {
+        const newInputs = produce(inputs, (draft) => {
+          draft.variables = newVarList
+        })
+        setInputs(newInputs)
+      }
     }
     removedVar.forEach((v) => {
       removeUsedVarInNodes(v)

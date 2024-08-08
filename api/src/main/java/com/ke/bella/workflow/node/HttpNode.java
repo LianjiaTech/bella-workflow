@@ -418,8 +418,8 @@ public class HttpNode extends BaseNode {
                 sb.append("&");
             }
             sb.append(String.format("%s=%s",
-                    urlEncodeUTF8(entry.getKey().toString()),
-                    urlEncodeUTF8(entry.getValue().toString())));
+                    entry.getKey().toString(),
+                    entry.getValue().toString()));
         }
         return sb.toString();
     }

@@ -119,7 +119,7 @@ const NodePanel: FC<Props> = ({
         {!collapseState && !hideProcessDetail && (
           <div className='pb-2'>
             {/* The nav to the iteration detail */}
-            {isIterationNode && !notShowIterationNav && (
+            {isIterationNode && false && (
               <div className='mt-2 mb-1 !px-2'>
                 <div
                   className='flex items-center h-[34px] justify-between px-3 bg-gray-100 border-[0.5px] border-gray-200 rounded-lg cursor-pointer'

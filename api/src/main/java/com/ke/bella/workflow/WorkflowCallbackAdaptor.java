@@ -25,7 +25,7 @@ public class WorkflowCallbackAdaptor implements IWorkflowCallback {
 
     protected void responseWorkflowNodeInfo(WorkflowContext context, Map<String, Object> data, String nodeId) {
         data.put("nodeId", nodeId);
-        data.put("nodeType", context.getGraph().node(nodeId).getType());
+        data.put("nodeType", context.getGraph().node(nodeId).getNodeType());
     }
 
     protected void responseWorkflowNodeProgress(WorkflowContext context, Map<String, Object> data, ProgressData pd) {
@@ -77,15 +77,11 @@ public class WorkflowCallbackAdaptor implements IWorkflowCallback {
     }
 
     @Override
-    public void onWorkflowIterationStarted(WorkflowContext context, String nodeId, String nodeRunId) {
+    public void onWorkflowIterationStarted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
     }
 
     @Override
-    public void onWorkflowIterationNext(WorkflowContext context, String nodeId, String nodeRunId, int index) {
-    }
-
-    @Override
-    public void onWorkflowIterationCompleted(WorkflowContext context, String nodeId, String nodeRunId) {
+    public void onWorkflowIterationCompleted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
     }
 
 }

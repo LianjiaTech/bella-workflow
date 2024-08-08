@@ -1,17 +1,21 @@
 'use client'
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import produce from 'immer'
 import type { Authorization as AuthorizationPayloadType } from '../../types'
 import { APIType, AuthorizationType } from '../../types'
 import RadioGroup from './radio-group'
+import useAvailableVarList from '@/app/components/workflow/nodes/_base/hooks/use-available-var-list'
+import { VarType } from '@/app/components/workflow/types'
+import type { Var } from '@/app/components/workflow/types'
 import Modal from '@/app/components/base/modal'
 import Button from '@/app/components/base/button'
 
 const i18nPrefix = 'workflow.nodes.http.authorization'
 
 type Props = {
+  nodeId: string
   payload: AuthorizationPayloadType
   onChange: (payload: AuthorizationPayloadType) => void
   isShow: boolean
@@ -31,12 +35,21 @@ const Field = ({ title, isRequired, children }: { title: string; isRequired?: bo
 }
 
 const Authorization: FC<Props> = ({
+  nodeId,
   payload,
   onChange,
   isShow,
   onHide,
 }) => {
   const { t } = useTranslation()
+
+  const [isFocus, setIsFocus] = useState(false)
+  const { availableVars, availableNodesWithParent } = useAvailableVarList(nodeId, {
+    onlyLeafNodeVar: false,
+    filterVar: (varPayload: Var) => {
+      return [VarType.string, VarType.number, VarType.secret].includes(varPayload.type)
+    },
+  })
 
   const [tempPayload, setTempPayload] = React.useState<AuthorizationPayloadType>(payload)
   const handleAuthTypeChange = useCallback((type: string) => {
@@ -80,6 +93,19 @@ const Authorization: FC<Props> = ({
     }
   }, [tempPayload, setTempPayload])
 
+  const handleAPIKeyChange = useCallback((str: string) => {
+    const newPayload = produce(tempPayload, (draft: AuthorizationPayloadType) => {
+      if (!draft.config) {
+        draft.config = {
+          type: APIType.basic,
+          api_key: '',
+        }
+      }
+      draft.config.api_key = str
+    })
+    setTempPayload(newPayload)
+  }, [tempPayload, setTempPayload])
+
   const handleConfirm = useCallback(() => {
     onChange(tempPayload)
     onHide()
@@ -87,7 +113,6 @@ const Authorization: FC<Props> = ({
   return (
     <Modal
       title={t(`${i18nPrefix}.authorization`)}
-      wrapperClassName='z-50 w-400'
       isShow={isShow}
       onClose={onHide}
     >
@@ -129,7 +154,6 @@ const Authorization: FC<Props> = ({
                   />
                 </Field>
               )}
-
               {tempPayload.config?.type !== APIType.bella && (
                 <Field title={t(`${i18nPrefix}.api-key-title`)} isRequired>
                   <input
@@ -155,8 +179,8 @@ const Authorization: FC<Props> = ({
           )}
         </div>
         <div className='mt-6 flex justify-end space-x-2'>
-          <Button onClick={onHide} className='flex items-center !h-8 leading-[18px] !text-[13px] !font-medium'>{t('common.operation.cancel')}</Button>
-          <Button type='primary' onClick={handleConfirm} className='flex items-center !h-8 leading-[18px] !text-[13px] !font-medium'>{t('common.operation.save')}</Button>
+          <Button onClick={onHide}>{t('common.operation.cancel')}</Button>
+          <Button variant='primary' onClick={handleConfirm}>{t('common.operation.save')}</Button>
         </div>
       </div>
     </Modal>

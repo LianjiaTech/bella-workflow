@@ -12,8 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
@@ -29,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.ke.bella.workflow.IWorkflowCallback.File;
@@ -46,7 +45,10 @@ import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
+import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.WorkflowService;
@@ -233,7 +235,7 @@ public class DifyController {
     }
 
     @PostMapping("/{workflowId}/workflows/draft")
-    public WorkflowSchema saveDraftInfo(@PathVariable String workflowId, @RequestBody WorkflowSchema schema) {
+    public DifyResponse saveDraftInfo(@PathVariable String workflowId, @RequestBody WorkflowSchema schema) {
         initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
@@ -247,7 +249,7 @@ public class DifyController {
             ws.syncWorkflow(sync);
         }
         wf = ws.getDraftWorkflow(workflowId);
-        return JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        return DifyResponse.builder().code(200).message("保存成功").status("success").updatedAt(System.currentTimeMillis() / 1000).build();
     }
 
     @PostMapping("/{workflowId}/workflows/draft/nodes/{nodeId}/run")
@@ -297,7 +299,7 @@ public class DifyController {
         } catch (Exception e) {
             return DifyResponse.builder().code(400).message(e.getMessage()).status("invalid_param").build();
         }
-        return DifyResponse.builder().code(200).message("发布成功").status("success").build();
+        return DifyResponse.builder().code(200).message("发布成功").status("success").createdAt(System.currentTimeMillis() / 1000).build();
     }
 
     @PostMapping({ "/{workflowId}/workflows/draft/run", "/{workflowId}/advanced-chat/workflows/draft/run" })
@@ -406,6 +408,20 @@ public class DifyController {
         initContext();
         List<WorkflowNodeRunDB> nodeRuns = ws.getNodeRuns(workflowRunId);
         return DifyNodeExecution.builder().data(transfer(nodeRuns)).build();
+    }
+
+    @GetMapping("/{workflowId}/workflows/default-workflow-block-configs/{blockType}")
+    public Object defaultBlockConfigs(@PathVariable(value = "workflowId") String workflowId,
+            @PathVariable(value = "blockType", required = false) String blockType,
+            @RequestParam(value = "q", required = false) String query) {
+        initContext();
+        return BaseNode.defaultConfigs(NodeType.of(blockType), JsonUtils.fromJson(query, Map.class));
+    }
+
+    @GetMapping("/{workflowId}/workflows/default-workflow-block-configs")
+    public Object defaultBlockConfigs(@PathVariable(value = "workflowId") String workflowId) {
+        initContext();
+        return BaseNode.defaultConfigs();
     }
 
     private static List<DifyNodeExecution.DifyNodeRun> transfer(List<WorkflowNodeRunDB> nodeRunDBs) {
@@ -528,20 +544,22 @@ public class DifyController {
         private Integer code;
         private String status;
         private String message;
+        @JsonProperty("created_at")
+        private Long createdAt;
+        @JsonProperty("updated_at")
+        private Long updatedAt;
     }
 
     private WorkflowSchema getDefaultWorkflowSchema() {
         WorkflowSchema.Graph graph = new WorkflowSchema.Graph();
         Map<String, Object> maps = Maps.newHashMap();
         maps.put("type", NodeType.START.name);
-        maps.put("name", "开始");
         maps.put("title", "开始节点");
         maps.put("variables", Lists.newArrayList());
         maps.put("selected", true);
 
         graph.setNodes(Lists.newArrayList(WorkflowSchema.Node.builder()
                 .id(System.currentTimeMillis() + "")
-                .type(NodeType.START.name)
                 .data(maps)
                 .width(244)
                 .height(54)

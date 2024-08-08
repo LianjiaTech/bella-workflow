@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.ke.bella.workflow.db.BellaContext;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -37,13 +38,19 @@ public class WorkflowRunState {
 
     public WorkflowRunState() {
         if(BellaContext.getOperator() != null) {
-            putVariable("sys", "user_id", BellaContext.getOperator().getUserId());
+            putVariable("sys", "user_id", String.valueOf(BellaContext.getOperator().getUserId()));
             putVariable("sys", "user_name", BellaContext.getOperator().getUserName());
         }
 
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         putVariable("sys", "date", date);
     }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public WorkflowRunState(Map variablePoolMap) {
+        this.variablePoolMap.putAll(variablePoolMap);
+    }
+
 
     synchronized boolean isEmpty() {
         return nodeCompletedStates.isEmpty();
@@ -71,6 +78,15 @@ public class WorkflowRunState {
         }
         variables.put(key, value);
         variablePoolMap.put(nodeId, variables);
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    public synchronized Object getVariable(String nodeId, String key) {
+        Map variables = this.variablePoolMap.get(nodeId);
+        if(variables == null) {
+            variables = new HashMap();
+        }
+        return variables.get(key);
     }
 
     synchronized boolean isActivated(String sourceNodeId, String sourceHandle) {
@@ -114,7 +130,10 @@ public class WorkflowRunState {
         } else {
             nodeWaitingStates.remove(nodeId);
             if(s == NodeRunResult.Status.succeeded) {
-                Map variables = new HashMap();
+                Map variables = variablePoolMap.get(nodeId);
+                if(variables == null) {
+                    variables = new HashMap();
+                }
                 if(state.inputs != null) {
                     variables.putAll(state.inputs);
                 }

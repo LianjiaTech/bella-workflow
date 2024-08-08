@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.ke.bella.workflow.IWorkflowCallback;
@@ -143,6 +144,11 @@ public class QuestionClassifierNode extends BaseNode {
         LOGGER.trace("Question Classifier Chat Messages: {} {} {} {} {} {}", systemMessage, userMessage, assistantMessage, userMessage2,
                 assistantMessage2, userMessage3);
         return Lists.newArrayList(systemMessage, userMessage, assistantMessage, userMessage2, assistantMessage2, userMessage3);
+    }
+
+    public static Map<String, Object> defaultConfig(Map<String, Object> filters) {
+        return JsonUtils.fromJson("{\"type\":\"question-classifier\",\"config\":{\"instructions\":\"\"}}", new TypeReference<Map<String, Object>>() {
+        });
     }
 
     @lombok.Getter

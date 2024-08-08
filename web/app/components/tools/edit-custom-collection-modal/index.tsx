@@ -3,7 +3,6 @@ import type { FC } from 'react'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDebounce, useGetState } from 'ahooks'
-import cn from 'classnames'
 import produce from 'immer'
 import { LinkExternal02, Settings01 } from '../../base/icons/src/vender/line/general'
 import type { Credential, CustomCollectionBackend, CustomParamSchema, Emoji } from '../types'
@@ -11,14 +10,18 @@ import { AuthHeaderPrefix, AuthType } from '../types'
 import GetSchema from './get-schema'
 import ConfigCredentials from './config-credentials'
 import TestApi from './test-api'
+import cn from '@/utils/classnames'
 import Drawer from '@/app/components/base/drawer-plus'
 import Button from '@/app/components/base/button'
 import EmojiPicker from '@/app/components/base/emoji-picker'
 import AppIcon from '@/app/components/base/app-icon'
 import { parseParamsSchema } from '@/service/tools'
+import LabelSelector from '@/app/components/tools/labels/selector'
+import Toast from '@/app/components/base/toast'
 
 const fieldNameClassNames = 'py-2 leading-5 text-sm font-medium text-gray-900'
 type Props = {
+  positionLeft?: boolean
   payload: any
   onHide: () => void
   onAdd?: (payload: CustomCollectionBackend) => void
@@ -27,6 +30,7 @@ type Props = {
 }
 // Add and Edit
 const EditCustomCollectionModal: FC<Props> = ({
+  positionLeft,
   payload,
   onHide,
   onAdd,
@@ -83,9 +87,9 @@ const EditCustomCollectionModal: FC<Props> = ({
       return
     }
     (async () => {
-      const customCollection = getCustomCollection()
       try {
         const { parameters_schema, schema_type } = await parseParamsSchema(debouncedSchema)
+        const customCollection = getCustomCollection()
         const newCollection = produce(customCollection, (draft) => {
           draft.schema_type = schema_type
         })
@@ -93,6 +97,7 @@ const EditCustomCollectionModal: FC<Props> = ({
         setParamsSchemas(parameters_schema)
       }
       catch (e) {
+        const customCollection = getCustomCollection()
         const newCollection = produce(customCollection, (draft) => {
           draft.schema_type = ''
         })
@@ -114,6 +119,11 @@ const EditCustomCollectionModal: FC<Props> = ({
   const [currTool, setCurrTool] = useState<CustomParamSchema | null>(null)
   const [isShowTestApi, setIsShowTestApi] = useState(false)
 
+  const [labels, setLabels] = useState<string[]>(payload?.labels || [])
+  const handleLabelSelect = (value: string[]) => {
+    setLabels(value)
+  }
+
   const handleSave = () => {
     // const postData = clone(customCollection)
     const postData = produce(customCollection, (draft) => {
@@ -124,7 +134,24 @@ const EditCustomCollectionModal: FC<Props> = ({
         delete draft.credentials.api_key_header_prefix
         delete draft.credentials.api_key_value
       }
+
+      draft.labels = labels
     })
+
+    let errorMessage = ''
+    if (!postData.provider)
+      errorMessage = t('common.errorMsg.fieldRequired', { field: t('tools.createTool.name') })
+
+    if (!postData.schema)
+      errorMessage = t('common.errorMsg.fieldRequired', { field: t('tools.createTool.schema') })
+
+    if (errorMessage) {
+      Toast.notify({
+        type: 'error',
+        message: errorMessage,
+      })
+      return
+    }
 
     if (isAdd) {
       onAdd?.(postData)
@@ -154,17 +181,18 @@ const EditCustomCollectionModal: FC<Props> = ({
     <>
       <Drawer
         isShow
+        positionCenter={isAdd && !positionLeft}
         onHide={onHide}
         title={t(`tools.createTool.${isAdd ? 'title' : 'editTitle'}`)!}
-        panelClassName='mt-2 !w-[640px]'
-        maxWidthClassName='!max-w-[640px]'
+        panelClassName='mt-2 !w-[630px]'
+        maxWidthClassName='!max-w-[630px]'
         height='calc(100vh - 16px)'
         headerClassName='!border-b-black/5'
         body={
           <div className='flex flex-col h-full'>
             <div className='grow h-0 overflow-y-auto px-6 py-3 space-y-4'>
               <div>
-                <div className={fieldNameClassNames}>{t('tools.createTool.name')}</div>
+                <div className={fieldNameClassNames}>{t('tools.createTool.name')} <span className='ml-1 text-red-500'>*</span></div>
                 <div className='flex items-center justify-between gap-3'>
                   <AppIcon size='large' onClick={() => { setShowEmojiPicker(true) }} className='cursor-pointer' icon={emoji.content} background={emoji.background} />
                   <input
@@ -184,7 +212,7 @@ const EditCustomCollectionModal: FC<Props> = ({
               <div className='select-none'>
                 <div className='flex justify-between items-center'>
                   <div className='flex items-center'>
-                    <div className={fieldNameClassNames}>{t('tools.createTool.schema')}</div>
+                    <div className={fieldNameClassNames}>{t('tools.createTool.schema')}<span className='ml-1 text-red-500'>*</span></div>
                     <div className='mx-2 w-px h-3 bg-black/5'></div>
                     <a
                       href="https://swagger.io/specification/"
@@ -229,7 +257,7 @@ const EditCustomCollectionModal: FC<Props> = ({
                           <td className="p-2 pl-3">{getPath(item.server_url)}</td>
                           <td className="p-2 pl-3 w-[62px]">
                             <Button
-                              className='!h-6 !px-2 text-xs font-medium text-gray-700 whitespace-nowrap'
+                              size='small'
                               onClick={() => {
                                 setCurrTool(item)
                                 setIsShowTestApi(true)
@@ -254,6 +282,13 @@ const EditCustomCollectionModal: FC<Props> = ({
                 </div>
               </div>
 
+              {/* Labels */}
+              <div>
+                <div className='py-2 leading-5 text-sm font-medium text-gray-900'>{t('tools.createTool.toolInput.label')}</div>
+                <LabelSelector value={labels} onChange={handleLabelSelect} />
+              </div>
+
+              {/* Privacy Policy */}
               <div>
                 <div className={fieldNameClassNames}>{t('tools.createTool.privacyPolicy')}</div>
                 <input
@@ -267,16 +302,29 @@ const EditCustomCollectionModal: FC<Props> = ({
                   className='w-full h-10 px-3 text-sm font-normal bg-gray-100 rounded-lg grow' placeholder={t('tools.createTool.privacyPolicyPlaceholder') || ''} />
               </div>
 
+              <div>
+                <div className={fieldNameClassNames}>{t('tools.createTool.customDisclaimer')}</div>
+                <input
+                  value={customCollection.custom_disclaimer}
+                  onChange={(e) => {
+                    const newCollection = produce(customCollection, (draft) => {
+                      draft.custom_disclaimer = e.target.value
+                    })
+                    setCustomCollection(newCollection)
+                  }}
+                  className='w-full h-10 px-3 text-sm font-normal bg-gray-100 rounded-lg grow' placeholder={t('tools.createTool.customDisclaimerPlaceholder') || ''} />
+              </div>
+
             </div>
             <div className={cn(isEdit ? 'justify-between' : 'justify-end', 'mt-2 shrink-0 flex py-4 px-6 rounded-b-[10px] bg-gray-50 border-t border-black/5')} >
               {
                 isEdit && (
-                  <Button className='flex items-center h-8 !px-3 !text-[13px] font-medium !text-gray-700' onClick={onRemove}>{t('common.operation.remove')}</Button>
+                  <Button onClick={onRemove} className='text-red-500 border-red-50 hover:border-red-500'>{t('common.operation.delete')}</Button>
                 )
               }
               <div className='flex space-x-2 '>
-                <Button className='flex items-center h-8 !px-3 !text-[13px] font-medium !text-gray-700' onClick={onHide}>{t('common.operation.cancel')}</Button>
-                <Button className='flex items-center h-8 !px-3 !text-[13px] font-medium' type='primary' onClick={handleSave}>{t('common.operation.save')}</Button>
+                <Button onClick={onHide}>{t('common.operation.cancel')}</Button>
+                <Button variant='primary' onClick={handleSave}>{t('common.operation.save')}</Button>
               </div>
             </div>
           </div>
@@ -295,6 +343,7 @@ const EditCustomCollectionModal: FC<Props> = ({
       />}
       {credentialsModalShow && (
         <ConfigCredentials
+          positionCenter={isAdd}
           credential={credential}
           onChange={setCredential}
           onHide={() => setCredentialsModalShow(false)}
@@ -302,6 +351,7 @@ const EditCustomCollectionModal: FC<Props> = ({
       }
       {isShowTestApi && (
         <TestApi
+          positionCenter={isAdd}
           tool={currTool as CustomParamSchema}
           customCollection={customCollection}
           onHide={() => setIsShowTestApi(false)}

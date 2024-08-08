@@ -26,7 +26,5 @@ public class SingleNodeRunBlockingCallback extends WorkflowCallbackAdaptor {
         responseWorkflowInfo(context, data);
         responseWorkflowNodeInfo(context, data, nodeId);
         responseWorkflowNodeResult(context, data, nodeId);
-
     }
-
 }

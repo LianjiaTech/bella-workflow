@@ -71,7 +71,8 @@
       {
         "data": {
           "authorization": {
-            "apiKey": "QFxGZFXoMoyWEC0iL7JhBGsoljtskZ9u"
+            "apiKey": "QFxGZFXoMoyWEC0iL7JhBGsoljtskZ9u",
+            "apiBaseUrl": "https://example.com/v1/"
           },
           "desc": "",
           "model": {

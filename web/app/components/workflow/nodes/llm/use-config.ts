@@ -335,16 +335,16 @@ const useConfig = (id: string, payload: LLMNodeType) => {
   }, [inputs, setInputs])
 
   const filterInputVar = useCallback((varPayload: Var) => {
-    return [VarType.number, VarType.string].includes(varPayload.type)
+    return [VarType.number, VarType.string, VarType.secret].includes(varPayload.type)
   }, [])
 
   const filterVar = useCallback((varPayload: Var) => {
-    return [VarType.arrayObject, VarType.array, VarType.string].includes(varPayload.type)
+    return [VarType.arrayObject, VarType.array, VarType.number, VarType.string, VarType.secret].includes(varPayload.type)
   }, [])
 
   const {
     availableVars,
-    availableNodes,
+    availableNodesWithParent,
   } = useAvailableVarList(id, {
     onlyLeafNodeVar: false,
     filterVar,
@@ -444,7 +444,7 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     filterInputVar,
     filterVar,
     availableVars,
-    availableNodes,
+    availableNodesWithParent,
     handlePromptChange,
     handleMemoryChange,
     handleSyeQueryChange,

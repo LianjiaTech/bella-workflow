@@ -2,16 +2,16 @@
 import type { FC } from 'react'
 import React, { useRef, useState } from 'react'
 import { useGetState, useInfiniteScroll } from 'ahooks'
-import cn from 'classnames'
 import { useTranslation } from 'react-i18next'
 import produce from 'immer'
 import TypeIcon from '../type-icon'
 import s from './style.module.css'
+import cn from '@/utils/classnames'
 import Modal from '@/app/components/base/modal'
 import type { DataSet } from '@/models/datasets'
 import Button from '@/app/components/base/button'
-import Loading from '@/app/components/base/loading'
 import { fetchDatasets } from '@/service/datasets'
+import Loading from '@/app/components/base/loading'
 
 export type ISelectDataSetProps = {
   isShow: boolean
@@ -40,82 +40,6 @@ const SelectDataSet: FC<ISelectDataSetProps> = ({
   useInfiniteScroll(
     async () => {
       if (!isNoMore) {
-        /**
-         * {
-          data: [
-            {
-              id: 'f11d58cc-3d61-4208-aecf-08a7a8be3145',
-              name: '\u65ED\u65E5\u795E\u5DDE-\u5317\u4EAC-\u9AD8\u7EA7\u524D\u7AEF-\u5F20\u9E4F\u65FA(2...',
-              description: 'useful for when you want to answer queries about the \u65ED\u65E5\u795E\u5DDE-\u5317\u4EAC-\u9AD8\u7EA7\u524D\u7AEF-\u5F20\u9E4F\u65FA(2).pdf',
-              provider: 'vendor',
-              permission: 'only_me',
-              data_source_type: 'upload_file',
-              indexing_technique: 'high_quality',
-              app_count: 0,
-              document_count: 1,
-              word_count: 3151,
-              created_by: '3d350d98-f3f8-4e9d-b4e5-64d960510352',
-              created_at: 1718784384,
-              updated_by: null,
-              updated_at: 1718784384,
-              embedding_model: 'text-embedding-3-large',
-              embedding_model_provider: 'openai',
-              embedding_available: true,
-              retrieval_model_dict: {
-                search_method: 'semantic_search',
-                reranking_enable: false,
-                reranking_model: {
-                  reranking_provider_name: null,
-                  reranking_model_name: null,
-                },
-                top_k: 3,
-                score_threshold_enabled: false,
-                score_threshold: 0.5,
-              },
-              tags: [
-
-              ],
-            },
-            {
-              id: 'ebc3d2da-4db5-4899-9d68-6eb3148879bc',
-              name: '\u65ED\u65E5\u795E\u5DDE-\u5317\u4EAC-\u524D\u7AEF-\u8D75\u96F7\u6D9B.pdf...',
-              description: 'useful for when you want to answer queries about the \u65ED\u65E5\u795E\u5DDE-\u5317\u4EAC-\u524D\u7AEF-\u8D75\u96F7\u6D9B.pdf',
-              provider: 'vendor',
-              permission: 'only_me',
-              data_source_type: 'upload_file',
-              indexing_technique: 'high_quality',
-              app_count: 0,
-              document_count: 1,
-              word_count: 3264,
-              created_by: '3d350d98-f3f8-4e9d-b4e5-64d960510352',
-              created_at: 1718781498,
-              updated_by: null,
-              updated_at: 1718781498,
-              embedding_model: 'text-embedding-3-large',
-              embedding_model_provider: 'openai',
-              embedding_available: true,
-              retrieval_model_dict: {
-                search_method: 'semantic_search',
-                reranking_enable: false,
-                reranking_model: {
-                  reranking_provider_name: null,
-                  reranking_model_name: null,
-                },
-                top_k: 3,
-                score_threshold_enabled: false,
-                score_threshold: 0.5,
-              },
-              tags: [
-
-              ],
-            },
-          ],
-          has_more: false,
-          limit: 20,
-          total: 2,
-          page: 1,
-        }
-         */
         const { data, has_more } = await fetchDatasets({ url: '/datasets', params: { page } })
         setPage(getPage() + 1)
         setIsNoMore(!has_more)
@@ -168,7 +92,6 @@ const SelectDataSet: FC<ISelectDataSetProps> = ({
       isShow={isShow}
       onClose={onClose}
       className='w-[400px]'
-      wrapperClassName='!z-[101]'
       title={t('appDebug.feature.dataSet.selectTitle')}
     >
       {!loaded && (
@@ -185,7 +108,7 @@ const SelectDataSet: FC<ISelectDataSetProps> = ({
           }}
         >
           <span className='text-gray-500'>{t('appDebug.feature.dataSet.noDataSet')}</span>
-          {/* <Link href="/datasets/create" className='font-normal text-[#155EEF]'>{t('appDebug.feature.dataSet.toCreate')}</Link> */}
+          {/* <Link href="/datasets/create" className='font-normal text-[#155EEF]'>{t('appDebug.feature.dataSet.toCreate')}</Link>  */}
         </div>
       )}
 
@@ -230,8 +153,8 @@ const SelectDataSet: FC<ISelectDataSetProps> = ({
             {selected.length > 0 && `${selected.length} ${t('appDebug.feature.dataSet.selected')}`}
           </div>
           <div className='flex space-x-2'>
-            <Button className='!w-24 !h-9' onClick={onClose}>{t('common.operation.cancel')}</Button>
-            <Button className='!w-24 !h-9' type='primary' onClick={handleSelect} disabled={hasNoData}>{t('common.operation.add')}</Button>
+            <Button onClick={onClose}>{t('common.operation.cancel')}</Button>
+            <Button variant='primary' onClick={handleSelect} disabled={hasNoData}>{t('common.operation.add')}</Button>
           </div>
         </div>
       )}

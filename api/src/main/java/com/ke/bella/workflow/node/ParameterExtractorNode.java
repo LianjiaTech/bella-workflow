@@ -1,5 +1,20 @@
 package com.ke.bella.workflow.node;
 
+import java.time.Duration;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -26,24 +41,12 @@ import com.theokanning.openai.completion.chat.ToolMessage;
 import com.theokanning.openai.completion.chat.UserMessage;
 import com.theokanning.openai.function.FunctionDefinition;
 import com.theokanning.openai.service.OpenAiService;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.util.StringUtils;
-
-import java.time.Duration;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
 
 public class ParameterExtractorNode extends BaseNode {
 
@@ -165,6 +168,7 @@ public class ParameterExtractorNode extends BaseNode {
                     .status(WorkflowRunState.NodeRunResult.Status.failed)
                     .inputs(inputs)
                     .outputs(outputs)
+                    .error(e)
                     .processData(processData).build();
         }
     }
@@ -172,9 +176,14 @@ public class ParameterExtractorNode extends BaseNode {
     private Map<String, Object> handleInvokeResult(AssistantMessage chatResult, String reasoningMode) {
         Map<String, Object> result = null;
         if(Data.ReasoningMode.functionCall.getValue().equals(reasoningMode)) {
-            result = JsonUtils.fromJson(chatResult.getToolCalls().get(0).getFunction().getArguments().asText(),
-                    new TypeReference<Map<String, Object>>() {
-                    });
+            // tool call failed
+            if(CollectionUtils.isEmpty(chatResult.getToolCalls()) || Objects.isNull(chatResult.getToolCalls().get(0).getFunction())) {
+                throw new IllegalArgumentException("tool call failed, model return invalid tool call result");
+            }
+            result = Optional.ofNullable(chatResult.getToolCalls().get(0).getFunction().getArguments())
+                    .map(args -> JsonUtils.fromJson(args.toString(), new TypeReference<Map<String, Object>>() {
+                    }))
+                    .orElse(Collections.emptyMap());
         } else {
             result = extractParamsFromText(chatResult.getContent());
         }
@@ -297,18 +306,15 @@ public class ParameterExtractorNode extends BaseNode {
             chatCompletionRequest.setTools(Collections.singletonList(tool));
 
             FunctionDefinition function = (FunctionDefinition) tool.getFunction();
-            // fixme: 微软不支持required,但openai是支持的...
-            // ToolChoice toolChoice = ToolChoice.REQUIRED;
-            ToolChoice toolChoice = ToolChoice.AUTO;
-            toolChoice.setFunction(new Function(function.getName()));
+            ToolChoice toolChoice = new ToolChoice(new Function(function.getName()));
             chatCompletionRequest.setToolChoice(toolChoice);
         }
         chatCompletionRequest.setStreamOptions(StreamOption.INCLUDE);
         chatCompletionRequest.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
-        // fixme: 流式会丢失usage，此处先忽略usage
-        return service.mapStreamToAccumulator(service.streamChatCompletion(chatCompletionRequest))
-                .blockingLast()
-                .getAccumulatedMessage();
+        // fixme:
+        // 1. 三方包流式请求，严格校验协议；
+        // 2. 自研模型响应体"stop"不是"tool_call"导致解析失败，此处先采用非流式请求，由于是tool_call不影响速度
+        return service.createChatCompletion(chatCompletionRequest).getChoices().get(0).getMessage();
     }
 
     private List<ChatMessage> generatePromptEngineeringPrompt(String query, String systemPrompt) {
@@ -469,6 +475,13 @@ public class ParameterExtractorNode extends BaseNode {
             return transformedList;
         }
         return new ArrayList<>();
+    }
+
+    public static Map<String, Object> defaultConfig(Map<String, Object> filters) {
+        return JsonUtils.fromJson(
+                "{\"model\":{\"prompt_templates\":{\"completion_model\":{\"conversation_histories_role\":{\"user_prefix\":\"Human\",\"assistant_prefix\":\"Assistant\"},\"stop\":[\"Human:\"]}}}}",
+                new TypeReference<Map<String, Object>>() {
+                });
     }
 
     @Getter

@@ -1,17 +1,19 @@
 'use client'
 
-import { createRef, useMemo, useRef, useState } from 'react'
+import { createRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useSWR from 'swr'
 import { createContext, useContext, useContextSelector } from 'use-context-selector'
 import type { FC, ReactNode } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { fetchAppList } from '@/service/apps'
 import Loading from '@/app/components/base/loading'
 import type { App } from '@/types/app'
+import { Theme } from '@/types/app'
 import type { ICurrentWorkspace, LangGeniusVersionResponse, UserProfileResponse } from '@/models/common'
 import MaintenanceNotice from '@/app/components/header/maintenance-notice'
 
 export type AppContextValue = {
+  theme: Theme
+  setTheme: (theme: Theme) => void
   apps: App[]
   mutateApps: VoidFunction
   userProfile: UserProfileResponse
@@ -19,6 +21,8 @@ export type AppContextValue = {
   currentWorkspace: ICurrentWorkspace
   isCurrentWorkspaceManager: boolean
   isCurrentWorkspaceOwner: boolean
+  isCurrentWorkspaceEditor: boolean
+  isCurrentWorkspaceDatasetOperator: boolean
   mutateCurrentWorkspace: VoidFunction
   pageContainerRef: React.RefObject<HTMLDivElement>
   langeniusVersionInfo: LangGeniusVersionResponse
@@ -47,6 +51,8 @@ const initialWorkspaceInfo: ICurrentWorkspace = {
 }
 
 const AppContext = createContext<AppContextValue>({
+  theme: Theme.light,
+  setTheme: () => { },
   apps: [],
   mutateApps: () => { },
   userProfile: {
@@ -57,8 +63,10 @@ const AppContext = createContext<AppContextValue>({
     is_password_set: false,
   },
   currentWorkspace: initialWorkspaceInfo,
-  isCurrentWorkspaceManager: true,
-  isCurrentWorkspaceOwner: true,
+  isCurrentWorkspaceManager: false,
+  isCurrentWorkspaceOwner: false,
+  isCurrentWorkspaceEditor: false,
+  isCurrentWorkspaceDatasetOperator: false,
   mutateUserProfile: () => { },
   mutateCurrentWorkspace: () => { },
   pageContainerRef: createRef(),
@@ -75,56 +83,70 @@ export type AppContextProviderProps = {
 }
 
 export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) => {
-  const searchParams = useSearchParams()
   const pageContainerRef = useRef<HTMLDivElement>(null)
-  const [userName, setUserName] = useState(searchParams.get('userName'))
-  const [ucid, setUcid] = useState(searchParams.get('ucid'))
-  if (userName && userName !== '')
-    localStorage.setItem('userName', userName || '')
-
-  if (ucid && ucid !== '')
-    localStorage.setItem('ucid', ucid || '')
 
   const { data: appList, mutate: mutateApps } = useSWR({ url: '/apps', params: { page: 1, limit: 30, name: '' } }, fetchAppList)
-  // const { data: userProfileResponse, mutate: mutateUserProfile } = useSWR({ url: '/account/profile', params: {} }, fetchUserProfile)
-  // const { data: currentWorkspaceResponse, mutate: mutateCurrentWorkspace } = useSWR({ url: '/workspaces/current', params: {} }, fetchCurrentWorkspace)
+  /*
+  const { data: userProfileResponse, mutate: mutateUserProfile } = useSWR({ url: '/account/profile', params: {} }, fetchUserProfile)
+  const { data: currentWorkspaceResponse, mutate: mutateCurrentWorkspace } = useSWR({ url: '/workspaces/current', params: {} }, fetchCurrentWorkspace)
+  */
 
   const [userProfile, setUserProfile] = useState<UserProfileResponse>({
     id: '1',
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-    avatar: 'https://randomuser.me/api',
-
+    name: 'ai-arch',
+    avatar: '',
+    email: 'ai-arch@example.com',
+    is_password_set: true,
+    interface_language: 'zh-Hans',
+    interface_theme: 'light',
+    timezone: 'Asia/Shanghai',
+    last_login_at: '1721898072',
+    last_login_ip: '0.0.0.0',
+    created_at: '1721898071',
   })
   const [langeniusVersionInfo, setLangeniusVersionInfo] = useState<LangGeniusVersionResponse>(initialLangeniusVersionInfo)
   const [currentWorkspace, setCurrentWorkspace] = useState<ICurrentWorkspace>(initialWorkspaceInfo)
   const isCurrentWorkspaceManager = useMemo(() => ['owner', 'admin'].includes(currentWorkspace.role), [currentWorkspace.role])
   const isCurrentWorkspaceOwner = useMemo(() => currentWorkspace.role === 'owner', [currentWorkspace.role])
-  // const updateUserProfileAndVersion = useCallback(async () => {
-  //   if (userProfileResponse && !userProfileResponse.bodyUsed) {
-  //     const result = await userProfileResponse.json()
-  //     setUserProfile(result)
-  //     const current_version = userProfileResponse.headers.get('x-version')
-  //     const current_env = process.env.NODE_ENV === 'development' ? 'DEVELOPMENT' : userProfileResponse.headers.get('x-env')
-  //     const versionData = await fetchLanggeniusVersion({ url: '/version', params: { current_version } })
-  //     setLangeniusVersionInfo({ ...versionData, current_version, latest_version: versionData.version, current_env })
-  //   }
-  // }, [userProfileResponse])
+  const isCurrentWorkspaceEditor = useMemo(() => ['owner', 'admin', 'editor'].includes(currentWorkspace.role), [currentWorkspace.role])
+  const isCurrentWorkspaceDatasetOperator = useMemo(() => currentWorkspace.role === 'dataset_operator', [currentWorkspace.role])
+  /*  const updateUserProfileAndVersion = useCallback(async () => {
+    if (userProfileResponse && !userProfileResponse.bodyUsed) {
+      const result = await userProfileResponse.json()
+      setUserProfile(result)
+      const current_version = userProfileResponse.headers.get('x-version')
+      const current_env = process.env.NODE_ENV === 'development' ? 'DEVELOPMENT' : userProfileResponse.headers.get('x-env')
+      const versionData = await fetchLanggeniusVersion({ url: '/version', params: { current_version } })
+      setLangeniusVersionInfo({ ...versionData, current_version, latest_version: versionData.version, current_env })
+    }
+  }, [userProfileResponse])
 
-  // useEffect(() => {
-  //   updateUserProfileAndVersion()
-  // }, [updateUserProfileAndVersion, userProfileResponse])
+  useEffect(() => {
+    updateUserProfileAndVersion()
+  }, [updateUserProfileAndVersion, userProfileResponse])
 
-  // useEffect(() => {
-  //   if (currentWorkspaceResponse)
-  //     setCurrentWorkspace(currentWorkspaceResponse)
-  // }, [currentWorkspaceResponse])
+  useEffect(() => {
+    if (currentWorkspaceResponse)
+      setCurrentWorkspace(currentWorkspaceResponse)
+  }, [currentWorkspaceResponse]) */
+  const [theme, setTheme] = useState<Theme>(Theme.light)
+  const handleSetTheme = useCallback((theme: Theme) => {
+    setTheme(theme)
+    globalThis.document.documentElement.setAttribute('data-theme', theme)
+  }, [])
+
+  useEffect(() => {
+    globalThis.document.documentElement.setAttribute('data-theme', theme)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   if (!appList || !userProfile)
     return <Loading type='app' />
 
   return (
     <AppContext.Provider value={{
+      theme,
+      setTheme: handleSetTheme,
       apps: appList.data,
       mutateApps,
       userProfile,
@@ -135,11 +157,13 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
       currentWorkspace,
       isCurrentWorkspaceManager: true,
       isCurrentWorkspaceOwner: true,
+      isCurrentWorkspaceEditor: true,
+      isCurrentWorkspaceDatasetOperator,
       // mutateCurrentWorkspace,
     }}>
       <div className='flex flex-col h-full overflow-y-auto'>
         {globalThis.document?.body?.getAttribute('data-public-maintenance-notice') && <MaintenanceNotice />}
-        <div ref={pageContainerRef} className='grow relative flex flex-col overflow-y-auto overflow-x-hidden bg-gray-100'>
+        <div ref={pageContainerRef} className='grow relative flex flex-col overflow-y-auto overflow-x-hidden bg-background-body'>
           {children}
         </div>
       </div>

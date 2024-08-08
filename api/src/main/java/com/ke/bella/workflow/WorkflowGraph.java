@@ -51,7 +51,7 @@ public class WorkflowGraph {
 
     private Predicate<Node> startNodePredicate() {
         if(iterationId == null) {
-            return n -> NodeType.START.name.equals(n.getType());
+            return n -> NodeType.START.name.equals(n.getNodeType());
         } else {
             return n -> n.isIterationStart() && n.getIterationId().equals(iterationId);
         }
@@ -144,7 +144,7 @@ public class WorkflowGraph {
         // 所有终止节点都必须是END
         if(iterationId == null) {
             for (String nodeId : this.graph.nodes()) {
-                if(this.graph.outDegree(nodeId) == 0 && !NodeType.END.name.equals(node(nodeId).getType())) {
+                if(this.graph.outDegree(nodeId) == 0 && !NodeType.END.name.equals(node(nodeId).getNodeType())) {
                     throw new IllegalArgumentException("所有终止节点都必须是END，存在非END节点： " + nodeId);
                 }
             }

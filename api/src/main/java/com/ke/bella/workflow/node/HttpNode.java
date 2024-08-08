@@ -1,6 +1,6 @@
 package com.ke.bella.workflow.node;
 
-import static okhttp3.internal.Util.*;
+import static okhttp3.internal.Util.EMPTY_REQUEST;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -24,6 +24,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
@@ -417,8 +418,8 @@ public class HttpNode extends BaseNode {
                 sb.append("&");
             }
             sb.append(String.format("%s=%s",
-                    urlEncodeUTF8(entry.getKey().toString()),
-                    urlEncodeUTF8(entry.getValue().toString())));
+                    entry.getKey().toString(),
+                    entry.getValue().toString()));
         }
         return sb.toString();
     }
@@ -429,6 +430,13 @@ public class HttpNode extends BaseNode {
         } catch (UnsupportedEncodingException e) {
             throw new UnsupportedOperationException(e);
         }
+    }
+
+    public static Map<String, Object> defaultConfig(Map<String, Object> filters) {
+        return JsonUtils.fromJson(
+                "{\"method\":\"get\",\"authorization\":{\"type\":\"no-auth\"},\"body\":{\"type\":\"none\"},\"timeout\":{\"connect\":10,\"read\":60,\"write\":20,\"max_connect_timeout\":300,\"max_read_timeout\":600,\"max_write_timeout\":600}}",
+                new TypeReference<Map<String, Object>>() {
+                });
     }
 
     @Getter

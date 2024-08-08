@@ -1,10 +1,10 @@
 'use client'
 import type { FC } from 'react'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import produce from 'immer'
-import cn from 'classnames'
 import type { InputVar } from '../../../../types'
 import FormItem from './form-item'
+import cn from '@/utils/classnames'
 import { InputVarType } from '@/app/components/workflow/types'
 import AddButton from '@/app/components/base/button/add-button'
 import { RETRIEVAL_OUTPUT_STRUCT } from '@/app/components/workflow/constants'
@@ -24,28 +24,55 @@ const Form: FC<Props> = ({
   values,
   onChange,
 }) => {
+  const mapKeysWithSameValueSelector = useMemo(() => {
+    const keysWithSameValueSelector = (key: string) => {
+      const targetValueSelector = inputs.find(
+        item => item.variable === key,
+      )?.value_selector
+      if (!targetValueSelector)
+        return [key]
+
+      const result: string[] = []
+      inputs.forEach((item) => {
+        if (item.value_selector?.join('.') === targetValueSelector.join('.'))
+          result.push(item.variable)
+      })
+      return result
+    }
+
+    const m = new Map()
+    for (const input of inputs)
+      m.set(input.variable, keysWithSameValueSelector(input.variable))
+
+    return m
+  }, [inputs])
+
   const handleChange = useCallback((key: string) => {
+    const mKeys = mapKeysWithSameValueSelector.get(key) ?? [key]
     return (value: any) => {
       const newValues = produce(values, (draft) => {
-        draft[key] = value
+        for (const k of mKeys)
+          draft[k] = value
       })
       onChange(newValues)
     }
-  }, [values, onChange])
-
+  }, [values, onChange, mapKeysWithSameValueSelector])
+  const isArrayLikeType = [InputVarType.contexts, InputVarType.iterator].includes(inputs[0]?.type)
+  const isContext = inputs[0]?.type === InputVarType.contexts
   const handleAddContext = useCallback(() => {
     const newValues = produce(values, (draft: any) => {
       const key = inputs[0].variable
-      draft[key].push(RETRIEVAL_OUTPUT_STRUCT)
+      draft[key].push(isContext ? RETRIEVAL_OUTPUT_STRUCT : '')
     })
     onChange(newValues)
-  }, [values, onChange, inputs])
+  }, [values, onChange, inputs, isContext])
+
   return (
     <div className={cn(className, 'space-y-2')}>
       {label && (
         <div className='mb-1 flex items-center justify-between'>
           <div className='flex items-center h-6 text-xs font-medium text-gray-500 uppercase'>{label}</div>
-          {inputs[0]?.type === InputVarType.contexts && (
+          {isArrayLikeType && (
             <AddButton onClick={handleAddContext} />
           )}
         </div>

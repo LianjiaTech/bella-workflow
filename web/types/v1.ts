@@ -1,6 +1,6 @@
 export type DraftInfo = {
-  workflowId: string
   page: number
   limit: number
-//   version: string
+  data: { version: number }[]
+  total: number
 }

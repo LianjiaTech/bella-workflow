@@ -1,9 +1,13 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import useSWRInfinite from 'swr/infinite'
 import { useTranslation } from 'react-i18next'
 import { useDebounceFn } from 'ahooks'
+import {
+  RiApps2Line,
+} from '@remixicon/react'
 import AppCard from './AppCard'
 import NewAppCard from './NewAppCard'
 import useAppsQueryState from './hooks/useAppsQueryState'
@@ -14,11 +18,10 @@ import { NEED_REFRESH_APP_LIST_KEY } from '@/config'
 import { CheckModal } from '@/hooks/use-pay'
 import TabSliderNew from '@/app/components/base/tab-slider-new'
 import { useTabSearchParams } from '@/hooks/use-tab-searchparams'
-import { DotsGrid } from '@/app/components/base/icons/src/vender/line/general'
-
 import SearchInput from '@/app/components/base/search-input'
 import { useStore as useTagStore } from '@/app/components/base/tag-management/store'
 import TagManagementModal from '@/app/components/base/tag-management'
+import TagFilter from '@/app/components/base/tag-management/filter'
 
 const getKey = (
   pageIndex: number,
@@ -45,7 +48,8 @@ const getKey = (
 
 const Apps = () => {
   const { t } = useTranslation()
-  const { isCurrentWorkspaceManager } = useAppContext()
+  const router = useRouter()
+  const { isCurrentWorkspaceEditor, isCurrentWorkspaceDatasetOperator } = useAppContext()
   const showTagManagementModal = useTagStore(s => s.showTagManagementModal)
   const [activeTab, setActiveTab] = useTabSearchParams({
     defaultTab: 'all',
@@ -68,10 +72,10 @@ const Apps = () => {
 
   const anchorRef = useRef<HTMLDivElement>(null)
   const options = [
-    { value: 'all', text: t('app.types.all'), icon: <DotsGrid className='w-[14px] h-[14px] mr-1'/> },
-    // { value: 'chat', text: t('app.types.chatbot'), icon: <ChatBot className='w-[14px] h-[14px] mr-1'/> },
-    // { value: 'agent-chat', text: t('app.types.agent'), icon: <CuteRobot className='w-[14px] h-[14px] mr-1'/> },
-    // { value: 'workflow', text: t('app.types.workflow'), icon: <Route className='w-[14px] h-[14px] mr-1'/> },
+    { value: 'all', text: t('app.types.all'), icon: <RiApps2Line className='w-[14px] h-[14px] mr-1' /> },
+    // { value: 'chat', text: t('app.types.chatbot'), icon: <RiMessage3Line className='w-[14px] h-[14px] mr-1' /> },
+    // { value: 'agent-chat', text: t('app.types.agent'), icon: <RiRobot3Line className='w-[14px] h-[14px] mr-1' /> },
+    // { value: 'workflow', text: t('app.types.workflow'), icon: <RiExchange2Line className='w-[14px] h-[14px] mr-1' /> },
   ]
 
   useEffect(() => {
@@ -81,6 +85,11 @@ const Apps = () => {
       mutate()
     }
   }, [])
+
+  useEffect(() => {
+    if (isCurrentWorkspaceDatasetOperator)
+      return router.replace('/datasets')
+  }, [isCurrentWorkspaceDatasetOperator])
 
   const hasMore = data?.at(-1)?.has_more ?? true
   useEffect(() => {
@@ -120,12 +129,12 @@ const Apps = () => {
           options={options}
         />
         <div className='flex items-center gap-2'>
-          {/* <TagFilter type='app' value={tagFilterValue} onChange={handleTagsChange} /> */}
+          <TagFilter type='app' value={tagFilterValue} onChange={handleTagsChange} />
           <SearchInput className='w-[200px]' value={keywords} onChange={handleKeywordsChange} />
         </div>
       </div>
       <nav className='grid content-start grid-cols-1 gap-4 px-12 pt-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 grow shrink-0'>
-        {isCurrentWorkspaceManager
+        {isCurrentWorkspaceEditor
           && <NewAppCard onSuccess={mutate} />}
         {data?.map(({ data: apps }: any) => apps.map((app: any) => (
           <AppCard key={app.id} app={app} onRefresh={mutate} />

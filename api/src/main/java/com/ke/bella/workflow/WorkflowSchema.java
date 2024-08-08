@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -53,6 +54,9 @@ public class WorkflowSchema {
         private String target;
         private String targetHandle;
         private String type;
+        @JsonAlias("zIndex")
+        @JsonProperty("zIndex")
+        private Integer zIndex;
 
         public String getKey() {
             return String.format("%s/%s-%s/%s", source, sourceHandle, target, targetHandle);
@@ -118,7 +122,11 @@ public class WorkflowSchema {
         @EqualsAndHashCode.Exclude
         private int width;
 
-        public String getType() {
+        private String parentId;
+
+        private String extent;
+
+        public String getNodeType() {
             if(data != null && data.containsKey(FIELD_TYPE)) {
                 return (String) data.get(FIELD_TYPE);
             }

@@ -7,14 +7,15 @@ import java.util.Map;
 
 import org.springframework.util.Assert;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.workflow.IWorkflowCallback;
-import com.ke.bella.workflow.Variables;
-import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.IWorkflowCallback.Delta;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
+import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.WorkflowSchema.Variable;
+import com.ke.bella.workflow.service.code.CodeExecutor;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.Getter;
@@ -41,8 +42,9 @@ public class TemplateTransformNode extends BaseNode {
             data.getVariables()
                     .forEach(v -> inputs.put(v.getVariable(),
                             context.getState().getVariableValue(v.getValueSelector())));
+            Map codeResult = CodeExecutor.execute(CodeExecutor.CodeLanguage.jinja2, data.getTemplate(), inputs, null);
 
-            String text = Variables.renderJinjia(data.getTemplate(), inputs);
+            String text = codeResult.get("result").toString();
             Assert.isTrue(text.length() <= MAX_TEMPLATE_TRANSFORM_OUTPUT_LENGTH, "Output length exceeds");
 
             if(data.isGenerateDeltaContent()) {
@@ -68,6 +70,13 @@ public class TemplateTransformNode extends BaseNode {
                     .error(e)
                     .build();
         }
+    }
+
+    public static Map<String, Object> defaultConfig(Map<String, Object> filters) {
+        return JsonUtils.fromJson(
+                "{\"type\":\"template-transform\",\"config\":{\"variables\":[{\"variable\":\"arg1\",\"value_selector\":[]}],\"template\":\"{{ arg1 }}\"}}",
+                new TypeReference<Map<String, Object>>() {
+                });
     }
 
     @Getter

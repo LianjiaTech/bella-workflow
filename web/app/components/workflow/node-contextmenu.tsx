@@ -15,6 +15,7 @@ const PanelContextmenu = () => {
   const { handleNodeContextmenuCancel } = usePanelInteractions()
   const nodeMenu = useStore(s => s.nodeMenu)
   const currentNode = nodes.find(node => node.id === nodeMenu?.nodeId) as Node
+
   useClickAway(() => {
     handleNodeContextmenuCancel()
   }, ref)
@@ -35,6 +36,7 @@ const PanelContextmenu = () => {
         id={currentNode.id}
         data={currentNode.data}
         onClosePopup={() => handleNodeContextmenuCancel()}
+        showHelpLink
       />
     </div>
   )

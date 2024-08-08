@@ -69,8 +69,8 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
         <>
           <div className='px-4 pb-3'>
             <Button
-              type='primary'
-              className='w-full !h-8'
+              variant='primary'
+              className='w-full'
               onClick={showSetAuthModal}
             >
               {t(`${i18nPrefix}.toAuthorize`)}
@@ -125,7 +125,6 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
           isHideRemoveBtn
         />
       )}
-
       <div className='px-4 pt-4 pb-2'>
         <OutputVars>
           <>
@@ -138,14 +137,14 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
                 readonly={readOnly}
                 payload={inputs.result}
                 onChange={handleResponseBody}
-                placeholder={t(`${i18nPrefix}.result.placeholder`)}
+                placeholder={t(`${i18nPrefix}.response.placeholder`)}
               />
             </Field>
             {outputVar
               && <VarItem
                 name={outputVar.name}
                 type={outputVar.type}
-                description={t(`${i18nPrefix}.outputVars.result`)}
+                description={t(`${i18nPrefix}.outputVars.text`)}
                 subItems= {outputVar.subItems}
               />}
           </>
@@ -169,7 +168,6 @@ const Panel: FC<NodePanelProps<ToolNodeType>> = ({
         onConfirm={removeVarInNode}
       />
     </div>
-
   )
 }
 

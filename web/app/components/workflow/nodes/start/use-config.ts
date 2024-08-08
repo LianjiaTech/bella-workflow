@@ -31,7 +31,7 @@ const useConfig = (id: string, payload: StartNodeType) => {
   const [removedIndex, setRemoveIndex] = useState(-1)
   const [newVarList, setNewVarList] = useState<InputVar[]>()
   const varSelectorConvert = function (path: string[], vars: InputVar[]): string[[]] {
-    const varResult = []
+    const varResult: string[][] = []
     vars.forEach((v) => {
       const paths = [...path, v.variable]
       varResult.push(paths)
@@ -71,8 +71,8 @@ const useConfig = (id: string, payload: StartNodeType) => {
 
     if (moreInfo?.payload?.type === ChangeType.remove) {
       const oldVars = varSelectorConvert([id], [inputs.variables[moreInfo.index]])
-      const removeVarSelectorList = []
-      oldVars.forEach((v) => {
+      const removeVarSelectorList: any[] | ((prevState: ValueSelector[]) => ValueSelector[]) = []
+      oldVars.forEach((v: ValueSelector) => {
         if (isVarUsedInNodes(v))
           removeVarSelectorList.push(v)
       })
@@ -115,7 +115,7 @@ const useConfig = (id: string, payload: StartNodeType) => {
     })
     setRemoveIndex(-1)
     hideRemoveVarConfirm()
-  }, [hideRemoveVarConfirm, inputs, newVarList, removeUsedVarInNodes, removedIndex, removedVar, setInputs])
+  }, [hideRemoveVarConfirm, inputs, removeUsedVarInNodes, removedIndex, removedVar, setInputs])
 
   const handleAddVariable = useCallback((payload: InputVar) => {
     const newInputs = produce(inputs, (draft: StartNodeType) => {

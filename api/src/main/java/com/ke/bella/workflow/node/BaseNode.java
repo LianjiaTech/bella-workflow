@@ -2,23 +2,26 @@ package com.ke.bella.workflow.node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowContext;
-import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
+import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.springframework.util.StringUtils;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
@@ -76,6 +79,7 @@ public abstract class BaseNode implements RunnableNode {
         register(NodeType.ITERATION.name, Iteration.class);
         register(NodeType.TOOL.name, ToolNode.class);
         register(NodeType.PARAMETER_EXTRACTOR.name, ParameterExtractorNode.class);
+        register(NodeType.CODE.name, CodeNode.class);
     }
 
     protected WorkflowSchema.Node meta;
@@ -90,7 +94,15 @@ public abstract class BaseNode implements RunnableNode {
         this.nodeRunId = nodeRunId;
     }
 
+    protected void beforeExecute(WorkflowContext context) {
+        // no-op
+    }
+
     protected abstract NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback);
+
+    protected void afterExecute(WorkflowContext context) {
+        // no-op
+    }
 
     public String getNodeId() {
         return this.meta.getId();
@@ -114,6 +126,7 @@ public abstract class BaseNode implements RunnableNode {
             appendUserInputsAsVariables(context);
         }
 
+        beforeExecute(context);
         callback.onWorkflowNodeRunStarted(context, meta.getId(), nodeRunId);
         NodeRunResult result = execute(context, callback);
         try {
@@ -122,12 +135,13 @@ public abstract class BaseNode implements RunnableNode {
             if(result.getStatus() == NodeRunResult.Status.succeeded) {
                 callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
             } else if(result.getStatus() == NodeRunResult.Status.failed) {
-                callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().getMessage(), result.getError());
+                callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
                 throw new IllegalStateException(result.getError().getMessage());
             } else if(result.getStatus() == NodeRunResult.Status.waiting) {
                 callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
             }
         } finally {
+            afterExecute(context);
             LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
         }
 
@@ -174,7 +188,7 @@ public abstract class BaseNode implements RunnableNode {
     }
 
     public static BaseNode from(WorkflowSchema.Node meta) {
-        String type = meta.getType();
+        String type = meta.getNodeType();
         Class<? extends BaseNode> clazz = NODE_RUNNER_CLASSES.get(type);
         if(clazz == null) {
             throw new IllegalArgumentException(String.format("不支持的节点类型: %s", type));
@@ -196,5 +210,35 @@ public abstract class BaseNode implements RunnableNode {
 
     public static List<BaseNode> from(WorkflowSchema.Node... metas) {
         return from(Arrays.asList(metas));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<Map<String, Object>> defaultConfigs() {
+        try {
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (Class<? extends BaseNode> nodeClass : NODE_RUNNER_CLASSES.values()) {
+                Map<String, Object> defaultConfig = (Map<String, Object>) nodeClass.getMethod("defaultConfig", Map.class).invoke(null,
+                        Collections.emptyMap());
+                if(!CollectionUtils.isEmpty(defaultConfig)) {
+                    result.add(defaultConfig);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> defaultConfigs(NodeType type, Map<String, Object> filters) {
+        try {
+            return (Map<String, Object>) NODE_RUNNER_CLASSES.get(type.name).getMethod("defaultConfig", Map.class).invoke(null, filters);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Map<String, Object> defaultConfig(Map<String, Object> filters) {
+        return Collections.emptyMap();
     }
 }

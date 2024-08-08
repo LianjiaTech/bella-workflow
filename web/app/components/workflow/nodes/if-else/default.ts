@@ -9,15 +9,20 @@ const nodeDefault: NodeDefault<IfElseNodeType> = {
     _targetBranches: [
       {
         id: 'true',
-        name: 'IS TRUE',
+        name: 'IF',
       },
       {
         id: 'false',
-        name: 'IS FALSE',
+        name: 'ELSE',
       },
     ],
-    logical_operator: LogicalOperator.and,
-    conditions: [],
+    cases: [
+      {
+        case_id: 'true',
+        logical_operator: LogicalOperator.and,
+        conditions: [],
+      },
+    ],
   },
   getAvailablePrevNodes(isChatMode: boolean) {
     const nodes = isChatMode
@@ -27,21 +32,26 @@ const nodeDefault: NodeDefault<IfElseNodeType> = {
   },
   getAvailableNextNodes(isChatMode: boolean) {
     const nodes = isChatMode ? ALL_CHAT_AVAILABLE_BLOCKS : ALL_COMPLETION_AVAILABLE_BLOCKS
-    return nodes.filter(type => type !== BlockEnum.VariableAssigner)
+    return nodes
   },
   checkValid(payload: IfElseNodeType, t: any) {
     let errorMessages = ''
-    const { conditions } = payload
-    if (!conditions || conditions.length === 0)
+    const { cases } = payload
+    if (!cases || cases.length === 0)
       errorMessages = t(`${i18nPrefix}.fieldRequired`, { field: 'IF' })
 
-    conditions.forEach((condition) => {
-      if (!errorMessages && (!condition.variable_selector || condition.variable_selector.length === 0))
-        errorMessages = t(`${i18nPrefix}.fieldRequired`, { field: t(`${i18nPrefix}.fields.variable`) })
-      if (!errorMessages && !condition.comparison_operator)
-        errorMessages = t(`${i18nPrefix}.fieldRequired`, { field: t('workflow.nodes.ifElse.operator') })
-      if (!errorMessages && !isEmptyRelatedOperator(condition.comparison_operator!) && !condition.value)
-        errorMessages = t(`${i18nPrefix}.fieldRequired`, { field: t(`${i18nPrefix}.fields.variableValue`) })
+    cases.forEach((caseItem, index) => {
+      if (!caseItem.conditions.length)
+        errorMessages = t(`${i18nPrefix}.fieldRequired`, { field: index === 0 ? 'IF' : 'ELIF' })
+
+      caseItem.conditions.forEach((condition) => {
+        if (!errorMessages && (!condition.variable_selector || condition.variable_selector.length === 0))
+          errorMessages = t(`${i18nPrefix}.fieldRequired`, { field: t(`${i18nPrefix}.fields.variable`) })
+        if (!errorMessages && !condition.comparison_operator)
+          errorMessages = t(`${i18nPrefix}.fieldRequired`, { field: t('workflow.nodes.ifElse.operator') })
+        if (!errorMessages && !isEmptyRelatedOperator(condition.comparison_operator!) && !condition.value)
+          errorMessages = t(`${i18nPrefix}.fieldRequired`, { field: t(`${i18nPrefix}.fields.variableValue`) })
+      })
     })
     return {
       isValid: !errorMessages,

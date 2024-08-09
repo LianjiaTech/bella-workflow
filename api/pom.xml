@@ -183,6 +183,12 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-annotations</artifactId>
+      <version>1.5.24</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>
@@ -361,6 +367,32 @@
                                   <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
                                   <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
                               </table>
+                              <table>
+                                  <expression>wecom_group_member</expression>
+                                  <daoClass>
+                                      <transform>PASCAL</transform>
+                                      <expression>$0_D_B_Dao</expression>
+                                  </daoClass>
+                                  <pojoClass>
+                                      <transform>PASCAL</transform>
+                                      <expression>$0_D_B</expression>
+                                  </pojoClass>
+                                  <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
+                                  <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
+                              </table>
+                              <table>
+                                  <expression>wecom_group_info</expression>
+                                  <daoClass>
+                                      <transform>PASCAL</transform>
+                                      <expression>$0_D_B_Dao</expression>
+                                  </daoClass>
+                                  <pojoClass>
+                                      <transform>PASCAL</transform>
+                                      <expression>$0_D_B</expression>
+                                  </pojoClass>
+                                  <pojoImplements>com.ke.bella.workflow.db.repo.Operator</pojoImplements>
+                                  <recordImplements>com.ke.bella.workflow.db.repo.Operator</recordImplements>
+                              </table>
                           </tables>
                       </matchers>
                   </strategy>
@@ -377,7 +409,7 @@
                           </forcedType>
                       </forcedTypes>
                       <includes>
-                          tenant|workflow_node_run|workflow_run|workflow|instance|workflow_run_sharding|workflow_scheduling|workflow_aggregate
+                          tenant|workflow_node_run|workflow_run|workflow|instance|workflow_run_sharding|workflow_scheduling|workflow_aggregate|wecom_group_member|wecom_group_info
                       </includes>
                       <unsignedTypes>false</unsignedTypes>
                   </database>

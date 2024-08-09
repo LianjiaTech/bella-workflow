@@ -6,6 +6,8 @@ package com.ke.bella.workflow.db;
 
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.Tenant;
+import com.ke.bella.workflow.db.tables.WecomGroupInfo;
+import com.ke.bella.workflow.db.tables.WecomGroupMember;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowAggregate;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
@@ -14,6 +16,8 @@ import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.WorkflowScheduling;
 import com.ke.bella.workflow.db.tables.records.InstanceRecord;
 import com.ke.bella.workflow.db.tables.records.TenantRecord;
+import com.ke.bella.workflow.db.tables.records.WecomGroupInfoRecord;
+import com.ke.bella.workflow.db.tables.records.WecomGroupMemberRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowAggregateRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
@@ -41,6 +45,9 @@ public class Keys {
     public static final UniqueKey<InstanceRecord> KEY_INSTANCE_PRIMARY = Internal.createUniqueKey(Instance.INSTANCE, DSL.name("KEY_instance_PRIMARY"), new TableField[] { Instance.INSTANCE.ID }, true);
     public static final UniqueKey<TenantRecord> KEY_TENANT_IDX_TENANT_ID = Internal.createUniqueKey(Tenant.TENANT, DSL.name("KEY_tenant_idx_tenant_id"), new TableField[] { Tenant.TENANT.TENANT_ID }, true);
     public static final UniqueKey<TenantRecord> KEY_TENANT_PRIMARY = Internal.createUniqueKey(Tenant.TENANT, DSL.name("KEY_tenant_PRIMARY"), new TableField[] { Tenant.TENANT.ID }, true);
+    public static final UniqueKey<WecomGroupInfoRecord> KEY_WECOM_GROUP_INFO_PRIMARY = Internal.createUniqueKey(WecomGroupInfo.WECOM_GROUP_INFO, DSL.name("KEY_wecom_group_info_PRIMARY"), new TableField[] { WecomGroupInfo.WECOM_GROUP_INFO.ID }, true);
+    public static final UniqueKey<WecomGroupInfoRecord> KEY_WECOM_GROUP_INFO_UK_GROUP_CODE = Internal.createUniqueKey(WecomGroupInfo.WECOM_GROUP_INFO, DSL.name("KEY_wecom_group_info_uk_group_code"), new TableField[] { WecomGroupInfo.WECOM_GROUP_INFO.GROUP_CODE }, true);
+    public static final UniqueKey<WecomGroupMemberRecord> KEY_WECOM_GROUP_MEMBER_PRIMARY = Internal.createUniqueKey(WecomGroupMember.WECOM_GROUP_MEMBER, DSL.name("KEY_wecom_group_member_PRIMARY"), new TableField[] { WecomGroupMember.WECOM_GROUP_MEMBER.ID }, true);
     public static final UniqueKey<WorkflowRecord> KEY_WORKFLOW_IDX_TENANT_ID = Internal.createUniqueKey(Workflow.WORKFLOW, DSL.name("KEY_workflow_idx_tenant_id"), new TableField[] { Workflow.WORKFLOW.TENANT_ID, Workflow.WORKFLOW.WORKFLOW_ID, Workflow.WORKFLOW.VERSION }, true);
     public static final UniqueKey<WorkflowRecord> KEY_WORKFLOW_PRIMARY = Internal.createUniqueKey(Workflow.WORKFLOW, DSL.name("KEY_workflow_PRIMARY"), new TableField[] { Workflow.WORKFLOW.ID }, true);
     public static final UniqueKey<WorkflowAggregateRecord> KEY_WORKFLOW_AGGREGATE_IDX_TENANT_ID = Internal.createUniqueKey(WorkflowAggregate.WORKFLOW_AGGREGATE, DSL.name("KEY_workflow_aggregate_idx_tenant_id"), new TableField[] { WorkflowAggregate.WORKFLOW_AGGREGATE.TENANT_ID, WorkflowAggregate.WORKFLOW_AGGREGATE.WORKFLOW_ID }, true);

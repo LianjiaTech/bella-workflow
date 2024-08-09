@@ -1,0 +1,43 @@
+CREATE TABLE `wecom_group_info`
+(
+    `id`          BIGINT ( 20 ) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `tenant_id`   VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '租户ID',
+    `space_code`  VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '空间编码，默认：personal，.......',
+    `group_code`  VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '群编码-暗号',
+    `group_name`  VARCHAR(128) NOT NULL DEFAULT '' COMMENT '群名字',
+    `group_alias` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '群备注',
+    `group_id`    VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '企微中台ID-虚拟号指定群发消息',
+    `chat_id`     VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '会话Id-群Id-机器人指定群发消息',
+    `cuid`        BIGINT ( 20 ) NOT NULL DEFAULT '0' COMMENT '创建人ucid',
+    `cu_name`     VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '创建人名字',
+    `muid`        BIGINT ( 20 ) NOT NULL DEFAULT '0' COMMENT '修改人ucid',
+    `mu_name`     VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '修改人名字',
+    `status`      TINYINT ( 4 ) NOT NULL DEFAULT '0' COMMENT '记录状态（0:正常, -1:已删除）',
+    `ctime`       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `mtime`       DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_group_code` ( `group_code` ),
+    KEY           `idx_tenant_id_space_code_cuid` ( `tenant_id`, `space_code`, `cuid` )
+) ENGINE = INNODB AUTO_INCREMENT = 0 DEFAULT CHARSET = utf8mb4 COMMENT = '企业微信群信息管理';
+
+CREATE TABLE `wecom_group_member`
+(
+    `id`            BIGINT ( 20 ) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `tenant_id`     VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '租户ID',
+    `space_code`    VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '空间编码，默认：personal，.......',
+    `group_code`    VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '群编码-暗号',
+    `user_code`     VARCHAR(32)  NOT NULL DEFAULT '' COMMENT '群成员系统号',
+    `robot_id`      VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '机器人ID',
+    `name`          VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '名称',
+    `robot_webhook` VARCHAR(128) NOT NULL DEFAULT '' COMMENT '机器人钩子地址',
+    `type`          TINYINT ( 4 ) NOT NULL DEFAULT '0' COMMENT '成员类型（0:未知,1:虚拟账号,2:机器人,3:真实用户）',
+    `cuid`          BIGINT ( 20 ) NOT NULL DEFAULT '0' COMMENT '创建人ucid',
+    `cu_name`       VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '创建人名字',
+    `muid`          BIGINT ( 20 ) NOT NULL DEFAULT '0' COMMENT '修改人ucid',
+    `mu_name`       VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '修改人名字',
+    `status`        TINYINT ( 4 ) NOT NULL DEFAULT '0' COMMENT '记录状态（0:正常, -1:已删除）',
+    `ctime`         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `mtime`         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY             `idx_tenant_id_space_code_cuid_group_code` ( `tenant_id`, `space_code`, `group_code` )
+) ENGINE = INNODB AUTO_INCREMENT = 0 DEFAULT CHARSET = utf8mb4 COMMENT = '企业微信群成员信息';

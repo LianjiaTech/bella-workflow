@@ -6,6 +6,8 @@ package com.ke.bella.workflow.db;
 
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.Tenant;
+import com.ke.bella.workflow.db.tables.WecomGroupInfo;
+import com.ke.bella.workflow.db.tables.WecomGroupMember;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowAggregate;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
@@ -36,6 +38,8 @@ public class Indexes {
     public static final Index TENANT_IDX_PARENT_ID = Internal.createIndex(DSL.name("idx_parent_id"), Tenant.TENANT, new OrderField[] { Tenant.TENANT.PARENT_ID }, false);
     public static final Index WORKFLOW_SCHEDULING_IDX_STATUS_TRIGGER_NEXT_TIME = Internal.createIndex(DSL.name("idx_status_trigger_next_time"), WorkflowScheduling.WORKFLOW_SCHEDULING, new OrderField[] { WorkflowScheduling.WORKFLOW_SCHEDULING.TRIGGER_NEXT_TIME, WorkflowScheduling.WORKFLOW_SCHEDULING.STATUS }, false);
     public static final Index WORKFLOW_RUN_IDX_TENANT_ID = Internal.createIndex(DSL.name("idx_tenant_id"), WorkflowRun.WORKFLOW_RUN, new OrderField[] { WorkflowRun.WORKFLOW_RUN.TENANT_ID, WorkflowRun.WORKFLOW_RUN.CTIME }, false);
+    public static final Index WECOM_GROUP_INFO_IDX_TENANT_ID_SPACE_CODE_CUID = Internal.createIndex(DSL.name("idx_tenant_id_space_code_cuid"), WecomGroupInfo.WECOM_GROUP_INFO, new OrderField[] { WecomGroupInfo.WECOM_GROUP_INFO.TENANT_ID, WecomGroupInfo.WECOM_GROUP_INFO.SPACE_CODE, WecomGroupInfo.WECOM_GROUP_INFO.CUID }, false);
+    public static final Index WECOM_GROUP_MEMBER_IDX_TENANT_ID_SPACE_CODE_CUID_GROUP_CODE = Internal.createIndex(DSL.name("idx_tenant_id_space_code_cuid_group_code"), WecomGroupMember.WECOM_GROUP_MEMBER, new OrderField[] { WecomGroupMember.WECOM_GROUP_MEMBER.TENANT_ID, WecomGroupMember.WECOM_GROUP_MEMBER.SPACE_CODE, WecomGroupMember.WECOM_GROUP_MEMBER.GROUP_CODE }, false);
     public static final Index WORKFLOW_NODE_RUN_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowNodeRun.WORKFLOW_NODE_RUN, new OrderField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.WORKFLOW_ID, WorkflowNodeRun.WORKFLOW_NODE_RUN.CTIME, WorkflowNodeRun.WORKFLOW_NODE_RUN.STATUS }, false);
     public static final Index WORKFLOW_RUN_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowRun.WORKFLOW_RUN, new OrderField[] { WorkflowRun.WORKFLOW_RUN.WORKFLOW_ID, WorkflowRun.WORKFLOW_RUN.CTIME, WorkflowRun.WORKFLOW_RUN.STATUS }, false);
     public static final Index WORKFLOW_NODE_RUN_IDX_WORKFLOW_RUNID = Internal.createIndex(DSL.name("idx_workflow_runid"), WorkflowNodeRun.WORKFLOW_NODE_RUN, new OrderField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID, WorkflowNodeRun.WORKFLOW_NODE_RUN.NODE_ID }, false);

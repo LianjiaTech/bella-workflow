@@ -6,6 +6,8 @@ package com.ke.bella.workflow.db;
 
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.Tenant;
+import com.ke.bella.workflow.db.tables.WecomGroupInfo;
+import com.ke.bella.workflow.db.tables.WecomGroupMember;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowAggregate;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
@@ -29,6 +31,16 @@ public class Tables {
      * The table <code>tenant</code>.
      */
     public static final Tenant TENANT = Tenant.TENANT;
+
+    /**
+     * 企业微信群信息管理
+     */
+    public static final WecomGroupInfo WECOM_GROUP_INFO = WecomGroupInfo.WECOM_GROUP_INFO;
+
+    /**
+     * 企业微信群成员信息
+     */
+    public static final WecomGroupMember WECOM_GROUP_MEMBER = WecomGroupMember.WECOM_GROUP_MEMBER;
 
     /**
      * The table <code>workflow</code>.

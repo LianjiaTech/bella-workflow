@@ -43,7 +43,6 @@ public class WorkflowController {
 
     @Autowired
     WorkflowService ws;
-
     @PostMapping("/draft/info")
     public WorkflowDB draftInfo(@RequestBody WorkflowOp op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");

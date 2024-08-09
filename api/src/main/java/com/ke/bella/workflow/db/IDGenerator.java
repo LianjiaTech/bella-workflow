@@ -76,6 +76,9 @@ public class IDGenerator {
         return "SCHD-" + UUID.randomUUID().toString();
     }
 
+	public static String newWecomGroupCode() {
+		return "WCGP-" + UUID.randomUUID().toString();
+	}
     public static String timeStrFromCode(String code) {
         int index = code.indexOf('-') + 1;
         String str = code.substring(index, index + 12);

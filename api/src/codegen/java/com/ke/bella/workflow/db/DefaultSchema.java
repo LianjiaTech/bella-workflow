@@ -6,6 +6,8 @@ package com.ke.bella.workflow.db;
 
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.Tenant;
+import com.ke.bella.workflow.db.tables.WecomGroupInfo;
+import com.ke.bella.workflow.db.tables.WecomGroupMember;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowAggregate;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
@@ -43,6 +45,16 @@ public class DefaultSchema extends SchemaImpl {
      * The table <code>tenant</code>.
      */
     public final Tenant TENANT = Tenant.TENANT;
+
+    /**
+     * 企业微信群信息管理
+     */
+    public final WecomGroupInfo WECOM_GROUP_INFO = WecomGroupInfo.WECOM_GROUP_INFO;
+
+    /**
+     * 企业微信群成员信息
+     */
+    public final WecomGroupMember WECOM_GROUP_MEMBER = WecomGroupMember.WECOM_GROUP_MEMBER;
 
     /**
      * The table <code>workflow</code>.
@@ -92,6 +104,8 @@ public class DefaultSchema extends SchemaImpl {
         return Arrays.<Table<?>>asList(
             Instance.INSTANCE,
             Tenant.TENANT,
+            WecomGroupInfo.WECOM_GROUP_INFO,
+            WecomGroupMember.WECOM_GROUP_MEMBER,
             Workflow.WORKFLOW,
             WorkflowAggregate.WORKFLOW_AGGREGATE,
             WorkflowNodeRun.WORKFLOW_NODE_RUN,

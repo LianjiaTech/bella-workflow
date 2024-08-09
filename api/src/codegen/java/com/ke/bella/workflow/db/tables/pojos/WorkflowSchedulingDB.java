@@ -20,6 +20,8 @@ public class WorkflowSchedulingDB implements Operator, Serializable {
 
     private Long          id;
     private String        tenantId;
+    private String        triggerId;
+    private String        triggerType;
     private String        workflowId;
     private String        workflowSchedulingId;
     private String        cronExpression;
@@ -38,6 +40,8 @@ public class WorkflowSchedulingDB implements Operator, Serializable {
     public WorkflowSchedulingDB(WorkflowSchedulingDB value) {
         this.id = value.id;
         this.tenantId = value.tenantId;
+        this.triggerId = value.triggerId;
+        this.triggerType = value.triggerType;
         this.workflowId = value.workflowId;
         this.workflowSchedulingId = value.workflowSchedulingId;
         this.cronExpression = value.cronExpression;
@@ -55,6 +59,8 @@ public class WorkflowSchedulingDB implements Operator, Serializable {
     public WorkflowSchedulingDB(
         Long          id,
         String        tenantId,
+        String        triggerId,
+        String        triggerType,
         String        workflowId,
         String        workflowSchedulingId,
         String        cronExpression,
@@ -70,6 +76,8 @@ public class WorkflowSchedulingDB implements Operator, Serializable {
     ) {
         this.id = id;
         this.tenantId = tenantId;
+        this.triggerId = triggerId;
+        this.triggerType = triggerType;
         this.workflowId = workflowId;
         this.workflowSchedulingId = workflowSchedulingId;
         this.cronExpression = cronExpression;
@@ -110,6 +118,34 @@ public class WorkflowSchedulingDB implements Operator, Serializable {
      */
     public void setTenantId(String tenantId) {
         this.tenantId = tenantId;
+    }
+
+    /**
+     * Getter for <code>workflow_scheduling.trigger_id</code>.
+     */
+    public String getTriggerId() {
+        return this.triggerId;
+    }
+
+    /**
+     * Setter for <code>workflow_scheduling.trigger_id</code>.
+     */
+    public void setTriggerId(String triggerId) {
+        this.triggerId = triggerId;
+    }
+
+    /**
+     * Getter for <code>workflow_scheduling.trigger_type</code>.
+     */
+    public String getTriggerType() {
+        return this.triggerType;
+    }
+
+    /**
+     * Setter for <code>workflow_scheduling.trigger_type</code>.
+     */
+    public void setTriggerType(String triggerType) {
+        this.triggerType = triggerType;
     }
 
     /**
@@ -298,6 +334,8 @@ error:出现异常
 
         sb.append(id);
         sb.append(", ").append(tenantId);
+        sb.append(", ").append(triggerId);
+        sb.append(", ").append(triggerType);
         sb.append(", ").append(workflowId);
         sb.append(", ").append(workflowSchedulingId);
         sb.append(", ").append(cronExpression);

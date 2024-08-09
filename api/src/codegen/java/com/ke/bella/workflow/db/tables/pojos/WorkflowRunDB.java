@@ -34,6 +34,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        callbackUrl;
     private Integer       callbackStatus;
     private String        workflowSchedulingId;
+    private String        triggerId;
     private String        responseMode;
     private String        traceId;
     private Integer       spanLev;
@@ -63,6 +64,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.callbackUrl = value.callbackUrl;
         this.callbackStatus = value.callbackStatus;
         this.workflowSchedulingId = value.workflowSchedulingId;
+        this.triggerId = value.triggerId;
         this.responseMode = value.responseMode;
         this.traceId = value.traceId;
         this.spanLev = value.spanLev;
@@ -91,6 +93,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        callbackUrl,
         Integer       callbackStatus,
         String        workflowSchedulingId,
+        String        triggerId,
         String        responseMode,
         String        traceId,
         Integer       spanLev,
@@ -117,6 +120,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.callbackUrl = callbackUrl;
         this.callbackStatus = callbackStatus;
         this.workflowSchedulingId = workflowSchedulingId;
+        this.triggerId = triggerId;
         this.responseMode = responseMode;
         this.traceId = traceId;
         this.spanLev = spanLev;
@@ -375,6 +379,20 @@ API
     }
 
     /**
+     * Getter for <code>workflow_run.trigger_id</code>.
+     */
+    public String getTriggerId() {
+        return this.triggerId;
+    }
+
+    /**
+     * Setter for <code>workflow_run.trigger_id</code>.
+     */
+    public void setTriggerId(String triggerId) {
+        this.triggerId = triggerId;
+    }
+
+    /**
      * Getter for <code>workflow_run.response_mode</code>.
      */
     public String getResponseMode() {
@@ -520,6 +538,7 @@ API
         sb.append(", ").append(callbackUrl);
         sb.append(", ").append(callbackStatus);
         sb.append(", ").append(workflowSchedulingId);
+        sb.append(", ").append(triggerId);
         sb.append(", ").append(responseMode);
         sb.append(", ").append(traceId);
         sb.append(", ").append(spanLev);

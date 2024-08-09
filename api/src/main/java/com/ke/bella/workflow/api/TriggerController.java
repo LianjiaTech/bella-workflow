@@ -12,10 +12,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ke.bella.workflow.api.WorkflowOps.KafkaTriggerCreate;
+import com.ke.bella.workflow.api.WorkflowOps.KafkaTriggerDeactivate;
+import com.ke.bella.workflow.api.WorkflowOps.TriggerQuery;
 import com.ke.bella.workflow.db.repo.Page;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
-import com.ke.bella.workflow.service.WorkflowSchedulingService;
+import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.utils.CronUtils;
 
 @RestController
@@ -23,7 +27,7 @@ import com.ke.bella.workflow.utils.CronUtils;
 public class TriggerController {
 
     @Autowired
-    WorkflowSchedulingService ws;
+    WorkflowTriggerService ws;
 
     @PostMapping("/scheduling/create")
     public WorkflowSchedulingDB createScheduling(@RequestBody WorkflowOps.WorkflowScheduling op) {
@@ -45,21 +49,21 @@ public class TriggerController {
     @PostMapping("/scheduling/stop")
     public WorkflowSchedulingDB stopScheduling(@RequestBody WorkflowOps.WorkflowSchedulingOp op) {
         Assert.hasText(op.getTenantId(), "tenantId不能为空");
-        Assert.hasText(op.getWorkflowSchedulingId(), "workflowSchedulingId不能为空");
+        Assert.hasText(op.getTriggerId(), "triggerId不能为空");
         return ws.stopWorkflowScheduling(op);
     }
 
     @PostMapping("/scheduling/start")
     public WorkflowSchedulingDB startScheduling(@RequestBody WorkflowOps.WorkflowSchedulingOp op) {
         Assert.hasText(op.getTenantId(), "tenantId不能为空");
-        Assert.hasText(op.getWorkflowSchedulingId(), "workflowSchedulingId不能为空");
+        Assert.hasText(op.getTriggerId(), "triggerId不能为空");
         return ws.startWorkflowScheduling(op);
     }
 
     @PostMapping("/scheduling/run")
     public BellaResponse<WorkflowRunDB> runScheduling(@RequestBody WorkflowOps.WorkflowSchedulingOp op) {
         Assert.hasText(op.getTenantId(), "tenantId不能为空");
-        Assert.hasText(op.getWorkflowSchedulingId(), "workflowSchedulingId不能为空");
+        Assert.hasText(op.getTriggerId(), "triggerId不能为空");
         return BellaResponse.<WorkflowRunDB>builder().code(201).data(ws.runWorkflowScheduling(op)).build();
     }
 
@@ -74,12 +78,39 @@ public class TriggerController {
     public Page<WorkflowRunDB> pageScheduling(@RequestBody WorkflowOps.WorkflowSchedulingRunPage op) {
         Assert.notNull(op, "body不能为空");
         Assert.hasText(op.getTenantId(), "tenantId不能为空");
-        Assert.hasText(op.getWorkflowSchedulingId(), "workflowSchedulingId不能为空");
+        Assert.hasText(op.getTriggerId(), "triggerId不能为空");
         return ws.pageWorkflowRuns(op);
     }
 
-    @PostMapping("/scheduling/callback/{workflow_scheduling_id}")
-    public void callback(@PathVariable("workflow_scheduling_id") String workflowSchedulingId, @RequestBody Object obj) {
+    @PostMapping("/callback/{triggerId}")
+    public void callback(@PathVariable("triggerId") String triggerId, @RequestBody Object obj) {
         // todo:
+    }
+
+    @PostMapping("/kafka/create")
+    public WorkflowKafkaTriggerDB createKafkaTrigger(@RequestBody KafkaTriggerCreate op) {
+        Assert.notNull(op, "body不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
+        Assert.hasText(op.getDatasourceId(), "datasourceId不能为空");
+        Assert.hasText(op.getExpression(), "expression不能为空");
+        Assert.hasText(op.getInputkey(), "inputKey不能为空");
+
+        return ws.createKafkaTrigger(op);
+    }
+
+    @PostMapping("/kafka/deactive")
+    public void deactiveKafkaTrigger(@RequestBody KafkaTriggerDeactivate op) {
+        Assert.notNull(op, "body不能为空");
+        Assert.hasText(op.getTriggerId(), "triggerId不能为空");
+
+        ws.deactiveKafkaTrigger(op.getTenantId());
+    }
+
+    public Object queryKafkaTrigger(@RequestBody TriggerQuery op) {
+        Assert.notNull(op, "body不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
+        Assert.hasText(op.getTriggerId(), "triggerId不能为空");
+
+        return ws.queryKafkaTrigger(op.getTriggerId());
     }
 }

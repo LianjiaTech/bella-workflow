@@ -5,11 +5,13 @@ package com.ke.bella.workflow.db;
 
 
 import com.ke.bella.workflow.db.tables.Instance;
+import com.ke.bella.workflow.db.tables.KafkaDatasource;
 import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.WecomGroupInfo;
 import com.ke.bella.workflow.db.tables.WecomGroupMember;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowAggregate;
+import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
@@ -42,6 +44,11 @@ public class DefaultSchema extends SchemaImpl {
     public final Instance INSTANCE = Instance.INSTANCE;
 
     /**
+     * The table <code>kafka_datasource</code>.
+     */
+    public final KafkaDatasource KAFKA_DATASOURCE = KafkaDatasource.KAFKA_DATASOURCE;
+
+    /**
      * The table <code>tenant</code>.
      */
     public final Tenant TENANT = Tenant.TENANT;
@@ -65,6 +72,11 @@ public class DefaultSchema extends SchemaImpl {
      * The table <code>workflow_aggregate</code>.
      */
     public final WorkflowAggregate WORKFLOW_AGGREGATE = WorkflowAggregate.WORKFLOW_AGGREGATE;
+
+    /**
+     * The table <code>workflow_kafka_trigger</code>.
+     */
+    public final WorkflowKafkaTrigger WORKFLOW_KAFKA_TRIGGER = WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER;
 
     /**
      * The table <code>workflow_node_run</code>.
@@ -103,11 +115,13 @@ public class DefaultSchema extends SchemaImpl {
     public final List<Table<?>> getTables() {
         return Arrays.<Table<?>>asList(
             Instance.INSTANCE,
+            KafkaDatasource.KAFKA_DATASOURCE,
             Tenant.TENANT,
             WecomGroupInfo.WECOM_GROUP_INFO,
             WecomGroupMember.WECOM_GROUP_MEMBER,
             Workflow.WORKFLOW,
             WorkflowAggregate.WORKFLOW_AGGREGATE,
+            WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER,
             WorkflowNodeRun.WORKFLOW_NODE_RUN,
             WorkflowRun.WORKFLOW_RUN,
             WorkflowRunSharding.WORKFLOW_RUN_SHARDING,

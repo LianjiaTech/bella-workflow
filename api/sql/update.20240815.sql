@@ -1,3 +1,6 @@
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
 CREATE TABLE `wecom_group_info`
 (
     `id`          BIGINT ( 20 ) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -41,3 +44,68 @@ CREATE TABLE `wecom_group_member`
     PRIMARY KEY (`id`),
     KEY             `idx_tenant_id_space_code_cuid_group_code` ( `tenant_id`, `space_code`, `group_code` )
 ) ENGINE = INNODB AUTO_INCREMENT = 0 DEFAULT CHARSET = utf8mb4 COMMENT = '企业微信群成员信息';
+
+
+DROP TABLE IF EXISTS `kafka_datasource`;
+CREATE TABLE `kafka_datasource` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '租户ID',
+  `datasource_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `space_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'PERSONNAL',
+  `server` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'kafka服务地址\nhost:port',
+  `topic` varchar(255) NOT NULL COMMENT 'Kafka topic',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '数据源名称',
+  `msg_schema` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '消息体的json schema',
+  `status` int NOT NULL DEFAULT '0' COMMENT '数据源状态\n-1: 无笑\n0: 生效',
+  `cuid` bigint NOT NULL DEFAULT '0',
+  `muid` bigint NOT NULL DEFAULT '0',
+  `ctime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `cu_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  `mu_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_id` (`datasource_id`),
+  KEY `idx_t_space_topic` (`tenant_id`,`topic`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Table structure for workflow_kafka_trigger
+-- ----------------------------
+DROP TABLE IF EXISTS `workflow_kafka_trigger`;
+CREATE TABLE `workflow_kafka_trigger` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  `trigger_type` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'KFKA',
+  `trigger_id` varchar(128) NOT NULL,
+  `datasource_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `expression` text NOT NULL,
+  `workflow_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `inputs` text NOT NULL,
+  `inputKey` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '调用工作流的时候作为inputs的一个字段',
+  `status` int NOT NULL DEFAULT '0',
+  `cuid` bigint NOT NULL DEFAULT '0',
+  `muid` bigint NOT NULL,
+  `cu_name` varchar(32) NOT NULL DEFAULT '',
+  `mu_name` varchar(32) NOT NULL DEFAULT '',
+  `ctime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_id` (`trigger_id`),
+  KEY `idx_dsid` (`datasource_id`),
+  KEY `idx_tenantid` (`tenant_id`,`cuid`,`ctime`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+ALTER TABLE `workflow_run` ADD COLUMN `trigger_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' AFTER `workflow_scheduling_id`;
+
+UPDATE `workflow_run` set `trigger_id` = `workflow_scheduling_id`;
+
+ALTER TABLE `workflow_scheduling` ADD COLUMN `trigger_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' AFTER `tenant_id`;
+ALTER TABLE `workflow_scheduling` ADD COLUMN `trigger_type` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'SCHD' AFTER `trigger_id`;
+
+UPDATE `workflow_scheduling` set `trigger_id` = `workflow_scheduling_id`;
+
+ALTER TABLE `workflow_scheduling` DROP INDEX `idx_workflow_scheduling_id`;
+ALTER TABLE `bella_workflow_junit`.`workflow_scheduling` ADD UNIQUE INDEX `idx_trigger_id`(`trigger_id` ASC) USING BTREE;
+
+SET FOREIGN_KEY_CHECKS = 1;

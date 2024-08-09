@@ -5,11 +5,13 @@ package com.ke.bella.workflow.db;
 
 
 import com.ke.bella.workflow.db.tables.Instance;
+import com.ke.bella.workflow.db.tables.KafkaDatasource;
 import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.WecomGroupInfo;
 import com.ke.bella.workflow.db.tables.WecomGroupMember;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowAggregate;
+import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
@@ -26,6 +28,11 @@ public class Tables {
      * The table <code>instance</code>.
      */
     public static final Instance INSTANCE = Instance.INSTANCE;
+
+    /**
+     * The table <code>kafka_datasource</code>.
+     */
+    public static final KafkaDatasource KAFKA_DATASOURCE = KafkaDatasource.KAFKA_DATASOURCE;
 
     /**
      * The table <code>tenant</code>.
@@ -51,6 +58,11 @@ public class Tables {
      * The table <code>workflow_aggregate</code>.
      */
     public static final WorkflowAggregate WORKFLOW_AGGREGATE = WorkflowAggregate.WORKFLOW_AGGREGATE;
+
+    /**
+     * The table <code>workflow_kafka_trigger</code>.
+     */
+    public static final WorkflowKafkaTrigger WORKFLOW_KAFKA_TRIGGER = WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER;
 
     /**
      * The table <code>workflow_node_run</code>.

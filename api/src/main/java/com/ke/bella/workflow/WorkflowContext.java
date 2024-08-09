@@ -59,12 +59,14 @@ public class WorkflowContext {
             throw new IllegalArgumentException(String.format("%s is required", variable.getVariable()));
         }
         if("object".equals(variable.getVarType())) {
-            for (WorkflowSchema.VariableEntity child : variable.getChildren()) {
-                Object o = inputs.get(variable.getVariable());
-                if(!(o instanceof Map)) {
-                    throw new IllegalArgumentException(String.format("invalid json input %s", variable.getVariable()));
+            if(variable.getChildren() != null) {
+                for (WorkflowSchema.VariableEntity child : variable.getChildren()) {
+                    Object o = inputs.get(variable.getVariable());
+                    if(!(o instanceof Map)) {
+                        throw new IllegalArgumentException(String.format("invalid json input %s", variable.getVariable()));
+                    }
+                    validate(child, (Map) o);
                 }
-                validate(child, (Map) o);
             }
         }
     }

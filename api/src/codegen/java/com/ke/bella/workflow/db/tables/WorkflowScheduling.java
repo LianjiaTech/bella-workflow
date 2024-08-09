@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row14;
+import org.jooq.Row16;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -62,6 +62,16 @@ public class WorkflowScheduling extends TableImpl<WorkflowSchedulingRecord> {
     public final TableField<WorkflowSchedulingRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
+     * The column <code>workflow_scheduling.trigger_id</code>.
+     */
+    public final TableField<WorkflowSchedulingRecord, String> TRIGGER_ID = createField(DSL.name("trigger_id"), SQLDataType.VARCHAR(64).nullable(false), this, "");
+
+    /**
+     * The column <code>workflow_scheduling.trigger_type</code>.
+     */
+    public final TableField<WorkflowSchedulingRecord, String> TRIGGER_TYPE = createField(DSL.name("trigger_type"), SQLDataType.VARCHAR(16).nullable(false).defaultValue(DSL.inline("SCHD", SQLDataType.VARCHAR)), this, "");
+
+    /**
      * The column <code>workflow_scheduling.workflow_id</code>.
      */
     public final TableField<WorkflowSchedulingRecord, String> WORKFLOW_ID = createField(DSL.name("workflow_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
@@ -84,7 +94,7 @@ public class WorkflowScheduling extends TableImpl<WorkflowSchedulingRecord> {
     /**
      * The column <code>workflow_scheduling.inputs</code>.
      */
-    public final TableField<WorkflowSchedulingRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");
+    public final TableField<WorkflowSchedulingRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB, this, "");
 
     /**
      * The column <code>workflow_scheduling.status</code>. 调度任务状态；
@@ -182,7 +192,7 @@ error:出现异常
 
     @Override
     public List<UniqueKey<WorkflowSchedulingRecord>> getKeys() {
-        return Arrays.<UniqueKey<WorkflowSchedulingRecord>>asList(Keys.KEY_WORKFLOW_SCHEDULING_PRIMARY, Keys.KEY_WORKFLOW_SCHEDULING_IDX_WORKFLOW_SCHEDULING_ID);
+        return Arrays.<UniqueKey<WorkflowSchedulingRecord>>asList(Keys.KEY_WORKFLOW_SCHEDULING_PRIMARY, Keys.KEY_WORKFLOW_SCHEDULING_IDX_TRIGGER_ID);
     }
 
     @Override
@@ -212,11 +222,11 @@ error:出现异常
     }
 
     // -------------------------------------------------------------------------
-    // Row14 type methods
+    // Row16 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row14<Long, String, String, String, String, LocalDateTime, String, String, LocalDateTime, String, Long, LocalDateTime, String, Long> fieldsRow() {
-        return (Row14) super.fieldsRow();
+    public Row16<Long, String, String, String, String, String, String, LocalDateTime, String, String, LocalDateTime, String, Long, LocalDateTime, String, Long> fieldsRow() {
+        return (Row16) super.fieldsRow();
     }
 }

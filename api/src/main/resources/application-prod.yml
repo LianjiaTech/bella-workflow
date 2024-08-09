@@ -59,8 +59,7 @@ bella:
   workflow:
     domain: http://example.com
     trigger:
-      scheduling:
-        callback-path: /v1/workflow/trigger/scheduling
+        callback-path: /v1/workflow/trigger/callback
     run-path: /v1/workflow/run
   knowledge-file:
     search: http://example.com/api/v1/knowledge/searchNew/forWorkflow

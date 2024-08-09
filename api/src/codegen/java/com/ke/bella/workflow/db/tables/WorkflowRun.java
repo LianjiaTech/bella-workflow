@@ -103,7 +103,7 @@ API
     /**
      * The column <code>workflow_run.inputs</code>.
      */
-    public final TableField<WorkflowRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");
+    public final TableField<WorkflowRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB, this, "");
 
     /**
      * The column <code>workflow_run.outputs</code>. 最后一个节点的输出
@@ -140,6 +140,11 @@ API
      * The column <code>workflow_run.workflow_scheduling_id</code>.
      */
     public final TableField<WorkflowRunRecord, String> WORKFLOW_SCHEDULING_ID = createField(DSL.name("workflow_scheduling_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
+     * The column <code>workflow_run.trigger_id</code>.
+     */
+    public final TableField<WorkflowRunRecord, String> TRIGGER_ID = createField(DSL.name("trigger_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow_run.response_mode</code>.

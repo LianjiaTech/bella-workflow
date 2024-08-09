@@ -94,7 +94,7 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
     /**
      * The column <code>workflow_node_run.inputs</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");
+    public final TableField<WorkflowNodeRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB, this, "");
 
     /**
      * The column <code>workflow_node_run.outputs</code>.

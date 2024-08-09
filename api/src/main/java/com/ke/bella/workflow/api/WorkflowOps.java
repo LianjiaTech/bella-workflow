@@ -28,7 +28,8 @@ public class WorkflowOps {
         DEBUG,
         DEBUG_NODE,
         API,
-        SCHEDULE;
+        SCHEDULE,
+        KAFKA;
     }
 
     @Getter
@@ -86,7 +87,7 @@ public class WorkflowOps {
     public static class WorkflowRunPage extends Operator {
         String workflowId;
 
-        String workflowSchedulingId;
+        String triggerId;
 
         @Builder.Default
         LocalDateTime startTime = LocalDateTime.now().minusDays(7);
@@ -118,7 +119,7 @@ public class WorkflowOps {
         @Builder.Default
         String triggerFrom = TriggerFrom.DEBUG.name();
 
-        String workflowSchedulingId;
+        String triggerId;
 
         String threadId;
         String query;
@@ -175,8 +176,9 @@ public class WorkflowOps {
     @SuperBuilder
     @NoArgsConstructor
     @AllArgsConstructor
+    @SuppressWarnings("rawtypes")
     public static class WorkflowSchedulingOp extends Operator {
-        String workflowSchedulingId;
+        String triggerId;
 
         Map inputs;
     }
@@ -187,7 +189,7 @@ public class WorkflowOps {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class WorkflowSchedulingPage extends Operator {
-        String workflowSchedulingId;
+        String triggerId;
 
         @Builder.Default
         LocalDateTime startTime = LocalDateTime.now().minusDays(7);
@@ -248,5 +250,49 @@ public class WorkflowOps {
                     .ctime(wf.getCtime())
                     .build();
         }
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @SuppressWarnings("rawtypes")
+    public static class KafkaTriggerCreate extends WorkflowOp {
+        @Builder.Default
+        Map inputs = new HashMap();
+
+        /**
+         * 条件表达式，
+         * 默认内置event变量，代表kafka收到的消息体
+         * 可以基于event进行条件判断
+         * 符合条件的情况下，才会触发工作流执行
+         * 表达式必须返回boolean
+         */
+        String expression;
+
+        /** 数据源ID */
+        String datasourceId;
+
+        /** event作为inputs里的哪一个字段 */
+        String inputkey;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class KafkaTriggerDeactivate extends WorkflowOp {
+        String triggerId;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class TriggerQuery extends WorkflowOp {
+        String triggerId;
     }
 }

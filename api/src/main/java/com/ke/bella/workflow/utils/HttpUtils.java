@@ -124,9 +124,9 @@ public class HttpUtils {
         MIME_TO_EXTENSION.put("image/png", "png");
         MIME_TO_EXTENSION.put("image/gif", "gif");
         MIME_TO_EXTENSION.put("application/pdf", "pdf");
-        MIME_TO_EXTENSION.put("application/zip", ".zip");
-        MIME_TO_EXTENSION.put("audio/mpeg", ".mp3");
-        MIME_TO_EXTENSION.put("video/mp4", ".mp4");
+        MIME_TO_EXTENSION.put("application/zip", "zip");
+        MIME_TO_EXTENSION.put("audio/mpeg", "mp3");
+        MIME_TO_EXTENSION.put("video/mp4", "mp4");
 
         // Microsoft Word文档
         MIME_TO_EXTENSION.put("application/msword", "doc");
@@ -140,7 +140,7 @@ public class HttpUtils {
     }
 
     public static String getExtensionFromMimeType(String mimeType) {
-        return MIME_TO_EXTENSION.getOrDefault(mimeType.toLowerCase(), ".bin");
+        return MIME_TO_EXTENSION.getOrDefault(mimeType.toLowerCase(), "bin");
     }
 
     public static String getFileType(String mimeType) {

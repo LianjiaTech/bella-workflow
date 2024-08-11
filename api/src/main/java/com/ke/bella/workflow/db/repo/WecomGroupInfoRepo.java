@@ -9,6 +9,7 @@ import org.jooq.SelectSeekStep1;
 import javax.annotation.Resource;
 import org.springframework.util.StringUtils;
 import com.ke.bella.workflow.db.IDGenerator;
+import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.enums.StatusEnum;
 import com.ke.bella.workflow.api.ops.GroupOps;
@@ -22,6 +23,8 @@ import static com.ke.bella.workflow.db.tables.WecomGroupMember.WECOM_GROUP_MEMBE
 
 @Component
 public class WecomGroupInfoRepo implements BaseRepo {
+
+    private static final String WEB_HOOK_URL_PARAMS_KEY = "key";
 
     @Resource
     private DSLContext db;
@@ -125,6 +128,7 @@ public class WecomGroupInfoRepo implements BaseRepo {
         }
         if(!StringUtils.isEmpty(op.getRobotWebhook())) {
             rec.setRobotWebhook(op.getRobotWebhook());
+            rec.setRobotId(HttpUtils.getQueryParamValue(op.getRobotWebhook(), WEB_HOOK_URL_PARAMS_KEY));
         }
         rec.setType(op.getType());
         WecomGroupMemberDB wecomGroupMember = queryGroupMemberForMember(op);
@@ -153,6 +157,7 @@ public class WecomGroupInfoRepo implements BaseRepo {
         }
         if(!StringUtils.isEmpty(op.getRobotWebhook())) {
             rec.setRobotWebhook(op.getRobotWebhook());
+            rec.setRobotId(HttpUtils.getQueryParamValue(op.getRobotWebhook(), WEB_HOOK_URL_PARAMS_KEY));
         }
         rec.setType(op.getType());
         WecomGroupMemberDB wecomGroupMember = queryGroupMemberForMember(op);

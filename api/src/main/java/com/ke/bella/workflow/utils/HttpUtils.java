@@ -19,6 +19,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
+import org.springframework.web.util.UriComponentsBuilder;
 
 public class HttpUtils {
     static HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
@@ -160,5 +161,10 @@ public class HttpUtils {
 
     public static boolean isMIMEFile(String mimeType) {
         return MIME_TO_EXTENSION.containsKey(mimeType.toLowerCase());
+    }
+
+    public static String getQueryParamValue(String url, String paramName) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url);
+        return builder.build().getQueryParams().getFirst(paramName);
     }
 }

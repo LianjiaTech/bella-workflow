@@ -16,6 +16,7 @@ import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowWebotTriggerDB;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 
@@ -26,7 +27,7 @@ public class WorkflowClient {
     private String workflowDomain;
 
     @Value("${bella.workflow.trigger.callback-path}")
-    private String schedulingCallbackPath;
+    private String triggerCallbackPath;
 
     @Value("${bella.workflow.run-path}")
     private String workflowRunPath;
@@ -51,7 +52,7 @@ public class WorkflowClient {
                 .inputs(JsonUtils.fromJson(schedulingDb.getInputs(), Map.class))
                 .responseMode(WorkflowOps.ResponseMode.callback.name())
                 .triggerFrom(WorkflowOps.TriggerFrom.SCHEDULE.name())
-                .callbackUrl(String.format("%s%s%s", workflowDomain, schedulingCallbackPath, schedulingDb.getWorkflowSchedulingId()))
+                .callbackUrl(String.format("%s%s%s", workflowDomain, triggerCallbackPath, schedulingDb.getWorkflowSchedulingId()))
                 .build();
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + tenantDB.getOpenapiKey());
@@ -84,7 +85,40 @@ public class WorkflowClient {
                 .responseMode(WorkflowOps.ResponseMode.callback.name())
                 .triggerFrom(WorkflowOps.TriggerFrom.API.name())
                 .traceId(db.getTriggerId())
-                .callbackUrl(String.format("%s%s%s", workflowDomain, schedulingCallbackPath, db.getTriggerId()))
+                .callbackUrl(String.format("%s%s%s", workflowDomain, triggerCallbackPath, db.getTriggerId()))
+                .build();
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + tenantDB.getOpenapiKey());
+        BellaResponse<WorkflowRunDB> bellaResp = HttpUtils.postJson(headers, String.format("%s%s", workflowDomain, workflowRunPath),
+                JsonUtils.toJson(body),
+                new TypeReference<BellaResponse<WorkflowRunDB>>() {
+                });
+        if(200 <= bellaResp.getCode() && bellaResp.getCode() < 300) {
+            return bellaResp.getData();
+        } else {
+            throw new IllegalStateException(Optional.ofNullable(bellaResp.getMessage()).orElse("unknown error"));
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public WorkflowRunDB runWorkflow(TenantDB tenantDB, WorkflowWebotTriggerDB db, Object event) {
+        Map inputs = JsonUtils.fromJson(db.getInputs(), Map.class);
+        if(inputs == null) {
+            inputs = new HashMap();
+        }
+
+        inputs.put(db.getInputkey(), event);
+
+        WorkflowOps.WorkflowRun body = WorkflowOps.WorkflowRun.builder()
+                .userId(db.getCuid())
+                .userName(db.getCuName())
+                .tenantId(db.getTenantId())
+                .workflowId(db.getWorkflowId())
+                .inputs(inputs)
+                .responseMode(WorkflowOps.ResponseMode.callback.name())
+                .triggerFrom(WorkflowOps.TriggerFrom.API.name())
+                .traceId(db.getTriggerId())
+                .callbackUrl(String.format("%s%s%s", workflowDomain, triggerCallbackPath, db.getTriggerId()))
                 .build();
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + tenantDB.getOpenapiKey());

@@ -23,6 +23,7 @@ import com.ke.bella.workflow.db.repo.InstanceRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowWebotTriggerDB;
 import com.ke.bella.workflow.service.WorkflowClient;
 import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.service.WorkflowService;
@@ -88,6 +89,22 @@ public class WorkflowSchedulingTriggerHelper {
         Map<String, TenantDB> tenantsMap = getTenantsMap(tenantIds);
         if(!CollectionUtils.isEmpty(dbs)) {
             for (WorkflowKafkaTriggerDB t : dbs) {
+                TenantDB tenantDB = tenantsMap.get(t.getTenantId());
+                CompletableFuture.runAsync(() -> {
+                    workflowClient.runWorkflow(tenantDB, t, event);
+                }, triggerPool).exceptionally(e -> {
+                    LOGGER.error("workflow trigger error, e: {}", Throwables.getStackTraceAsString(e));
+                    return null;
+                });
+            }
+        }
+    }
+
+    public void tryWebotTrigger(List<WorkflowWebotTriggerDB> dbs, Object event) {
+        List<String> tenantIds = dbs.stream().map(WorkflowWebotTriggerDB::getTenantId).collect(Collectors.toList());
+        Map<String, TenantDB> tenantsMap = getTenantsMap(tenantIds);
+        if(!CollectionUtils.isEmpty(dbs)) {
+            for (WorkflowWebotTriggerDB t : dbs) {
                 TenantDB tenantDB = tenantsMap.get(t.getTenantId());
                 CompletableFuture.runAsync(() -> {
                     workflowClient.runWorkflow(tenantDB, t, event);

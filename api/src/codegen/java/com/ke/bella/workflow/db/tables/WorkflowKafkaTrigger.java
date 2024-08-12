@@ -59,7 +59,7 @@ public class WorkflowKafkaTrigger extends TableImpl<WorkflowKafkaTriggerRecord> 
     /**
      * The column <code>workflow_kafka_trigger.tenant_id</code>.
      */
-    public final TableField<WorkflowKafkaTriggerRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(64).nullable(false), this, "");
+    public final TableField<WorkflowKafkaTriggerRecord, String> TENANT_ID = createField(DSL.name("tenant_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow_kafka_trigger.trigger_type</code>.

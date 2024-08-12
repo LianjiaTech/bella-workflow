@@ -46,7 +46,6 @@ CREATE TABLE `wecom_group_member`
 ) ENGINE = INNODB AUTO_INCREMENT = 0 DEFAULT CHARSET = utf8mb4 COMMENT = '企业微信群成员信息';
 
 
-DROP TABLE IF EXISTS `kafka_datasource`;
 CREATE TABLE `kafka_datasource` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `tenant_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '租户ID',
@@ -68,10 +67,7 @@ CREATE TABLE `kafka_datasource` (
   KEY `idx_t_space_topic` (`tenant_id`,`topic`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- ----------------------------
--- Table structure for workflow_kafka_trigger
--- ----------------------------
-DROP TABLE IF EXISTS `workflow_kafka_trigger`;
+
 CREATE TABLE `workflow_kafka_trigger` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `tenant_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
@@ -94,6 +90,30 @@ CREATE TABLE `workflow_kafka_trigger` (
   KEY `idx_dsid` (`datasource_id`),
   KEY `idx_tenantid` (`tenant_id`,`cuid`,`ctime`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE `workflow_webot_trigger` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tenant_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  `trigger_type` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'WBOT',
+  `trigger_id` varchar(128) NOT NULL,
+  `chat_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  `robot_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+  `expression` text NOT NULL,
+  `workflow_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `inputs` text NOT NULL,
+  `inputKey` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '调用工作流的时候作为inputs的一个字段',
+  `status` int NOT NULL DEFAULT '0',
+  `cuid` bigint NOT NULL DEFAULT '0',
+  `muid` bigint NOT NULL,
+  `cu_name` varchar(32) NOT NULL DEFAULT '',
+  `mu_name` varchar(32) NOT NULL DEFAULT '',
+  `ctime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `mtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_id` (`trigger_id`),
+  KEY `idx_tenantid` (`tenant_id`,`cuid`,`ctime`),
+  KEY `idx_robotid` (`robot_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 ALTER TABLE `workflow_run` ADD COLUMN `trigger_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '' AFTER `workflow_scheduling_id`;

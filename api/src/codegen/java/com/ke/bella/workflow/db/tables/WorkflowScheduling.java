@@ -64,7 +64,7 @@ public class WorkflowScheduling extends TableImpl<WorkflowSchedulingRecord> {
     /**
      * The column <code>workflow_scheduling.trigger_id</code>.
      */
-    public final TableField<WorkflowSchedulingRecord, String> TRIGGER_ID = createField(DSL.name("trigger_id"), SQLDataType.VARCHAR(64).nullable(false), this, "");
+    public final TableField<WorkflowSchedulingRecord, String> TRIGGER_ID = createField(DSL.name("trigger_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow_scheduling.trigger_type</code>.

@@ -16,6 +16,7 @@ import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.WorkflowScheduling;
+import com.ke.bella.workflow.db.tables.WorkflowWebotTrigger;
 
 
 /**
@@ -83,4 +84,9 @@ public class Tables {
      * The table <code>workflow_scheduling</code>.
      */
     public static final WorkflowScheduling WORKFLOW_SCHEDULING = WorkflowScheduling.WORKFLOW_SCHEDULING;
+
+    /**
+     * The table <code>workflow_webot_trigger</code>.
+     */
+    public static final WorkflowWebotTrigger WORKFLOW_WEBOT_TRIGGER = WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER;
 }

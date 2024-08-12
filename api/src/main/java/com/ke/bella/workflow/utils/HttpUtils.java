@@ -152,12 +152,13 @@ public class HttpUtils {
         // 可以根据需要添加更多的MIME类型
     }
 
-    public static String getExtensionFromMimeType(String mimeType) {
-        return MIME_TO_EXTENSION.getOrDefault(mimeType.toLowerCase(), "bin");
+    public static String getExtensionFromMimeType(MediaType mimeType) {
+        String pure = extraPureMediaType(mimeType);
+        return MIME_TO_EXTENSION.getOrDefault(pure.toLowerCase(), "bin");
     }
 
-    public static String getFileType(String mimeType) {
-        String t = mimeType.toLowerCase();
+    public static String getFileType(MediaType mimeType) {
+        String t = extraPureMediaType(mimeType).toLowerCase();
         if(t.startsWith("image")) {
             return "image";
         } else if(t.startsWith("audio")) {
@@ -171,8 +172,9 @@ public class HttpUtils {
         }
     }
 
-    public static boolean isMIMEFile(String mimeType) {
-        return MIME_TO_EXTENSION.containsKey(mimeType.toLowerCase());
+    public static boolean isMIMEFile(MediaType mimeType) {
+        String pure = extraPureMediaType(mimeType);
+        return MIME_TO_EXTENSION.containsKey(pure.toLowerCase());
     }
 
     public static String getQueryParamValue(String url, String paramName) {
@@ -180,7 +182,7 @@ public class HttpUtils {
         return builder.build().getQueryParams().getFirst(paramName);
     }
 
-    public static String extraPureMediaType(MediaType source) {
+    private static String extraPureMediaType(MediaType source) {
         MediaType mediaType = Optional.ofNullable(source)
                 .orElseThrow(() -> new IllegalStateException("invalid response body mime type, mime type is null"));
 

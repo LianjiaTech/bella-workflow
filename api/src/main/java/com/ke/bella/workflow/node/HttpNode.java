@@ -161,9 +161,7 @@ public class HttpNode extends BaseNode {
             return result;
         }
 
-        String mediaTypeWithoutCharset = HttpUtils.extraPureMediaType(response.body().contentType());
-
-        if(HttpUtils.isMIMEFile(mediaTypeWithoutCharset)) {
+        if(HttpUtils.isMIMEFile(response.body().contentType())) {
             List<File> files = extractFiles(request, response);
             result.setFiles(files);
         } else {
@@ -319,14 +317,13 @@ public class HttpNode extends BaseNode {
             return files;
         }
 
-        String mediaType = contentType.toString();
-        if(!HttpUtils.isMIMEFile(mediaType)) {
+        if(!HttpUtils.isMIMEFile(contentType)) {
             return files;
         }
 
         byte[] bytes = HttpUtils.readBodyWithinLimit(body, MAX_RESPONSE_BINARY_SIZE);
 
-        String ext = HttpUtils.getExtensionFromMimeType(mediaType);
+        String ext = HttpUtils.getExtensionFromMimeType(contentType);
         String filename = String.format("%s.%s", UUID.randomUUID().toString(), ext);
         OpenAiService service = new OpenAiService(BellaContext.getApiKey(), Duration.ZERO, Configs.API_BASE);
         com.theokanning.openai.file.File file = service.uploadFile("assistants", new ByteArrayInputStream(bytes), filename);
@@ -334,9 +331,8 @@ public class HttpNode extends BaseNode {
                 .fileId(file.getId())
                 .filename(file.getFilename())
                 .extension(ext)
-                .type(HttpUtils.getFileType(mediaType))
-                .mimeType(mediaType)
-                .type(mediaType)
+                .type(HttpUtils.getFileType(contentType))
+                .mimeType(contentType.toString())
                 .build());
         return files;
     }

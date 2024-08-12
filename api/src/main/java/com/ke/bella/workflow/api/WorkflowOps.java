@@ -283,7 +283,40 @@ public class WorkflowOps {
     @SuperBuilder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class KafkaTriggerDeactivate extends WorkflowOp {
+    @SuppressWarnings("rawtypes")
+    public static class WebotTriggerCreate extends WorkflowOp {
+        @Builder.Default
+        Map inputs = new HashMap();
+
+        /**
+         * 群机器人ID，也就是webhook url里的key
+         */
+        String robotId;
+
+        /**
+         * 群聊ID
+         */
+        String chatId;
+
+        /**
+         * 条件表达式，
+         * 默认内置event变量，代表企微群机器人收到的消息体
+         * 可以基于event进行条件判断
+         * 符合条件的情况下，才会触发工作流执行
+         * 表达式必须返回boolean
+         */
+        String expression;
+
+        /** event作为inputs里的哪一个字段 */
+        String inputkey;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class TriggerDeactivate extends WorkflowOp {
         String triggerId;
     }
 

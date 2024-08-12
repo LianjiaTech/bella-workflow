@@ -56,7 +56,8 @@ public class HttpUtils {
         return executePost(headers, url, requestBody, typeReference);
     }
 
-    public static <T> T postFrom(Map<String, String> headers, String url, Map<String, String> params, TypeReference<T> typeReference) {
+    public static <T> T postFrom(Map<String, String> headers, String url, Map<String, String> params,
+            TypeReference<T> typeReference) {
         FormBody.Builder formBodyBuilder = new FormBody.Builder();
         params.forEach(formBodyBuilder::add);
         RequestBody requestBody = formBodyBuilder.build();
@@ -67,7 +68,8 @@ public class HttpUtils {
         return get(null, url, queryParams, typeReference);
     }
 
-    public static <T> T get(Map<String, String> headers, String url, Map<String, String> queryParams, TypeReference<T> typeReference) {
+    public static <T> T get(Map<String, String> headers, String url, Map<String, String> queryParams,
+            TypeReference<T> typeReference) {
         HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(url)).newBuilder();
         if(queryParams != null) {
             for (Map.Entry<String, String> entry : queryParams.entrySet()) {
@@ -78,11 +80,13 @@ public class HttpUtils {
         return executeRequest(headers, finalUrl, null, typeReference, "GET");
     }
 
-    private static <T> T executePost(Map<String, String> headers, String url, RequestBody requestBody, TypeReference<T> typeReference) {
+    private static <T> T executePost(Map<String, String> headers, String url, RequestBody requestBody,
+            TypeReference<T> typeReference) {
         return executeRequest(headers, url, requestBody, typeReference, "POST");
     }
 
-    private static <T> T executeRequest(Map<String, String> headers, String url, RequestBody requestBody, TypeReference<T> typeReference,
+    private static <T> T executeRequest(Map<String, String> headers, String url, RequestBody requestBody,
+            TypeReference<T> typeReference,
             String method) {
         Request.Builder requestBuilder = new Request.Builder().url(url);
         Response resp = null;
@@ -102,7 +106,8 @@ public class HttpUtils {
             respBody = resp.body();
             if(!resp.isSuccessful()) {
                 throw new IllegalStateException(
-                        "failed to " + method.toLowerCase() + " to " + url + ": url: " + url + ", code: " + resp.code() + ", body: "
+                        "failed to " + method.toLowerCase() + " to " + url + ": url: " + url + ", code: " + resp.code()
+                                + ", body: "
                                 + (Objects.isNull(respBody) ? "" : respBody.string()));
             }
             if(Objects.isNull(respBody)) {

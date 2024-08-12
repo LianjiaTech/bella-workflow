@@ -1,16 +1,17 @@
 package com.ke.bella.workflow;
 
-import com.ke.bella.workflow.api.Operator;
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.service.Configs;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import com.ke.bella.workflow.api.Operator;
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.service.Configs;
 
 public class ParameterExtractorNodeTest {
 
@@ -23,6 +24,7 @@ public class ParameterExtractorNodeTest {
 
     @Test
     public void testToolCallsMode() throws IOException {
+        initBellaContext();
         HashMap<String, Object> inputs = new HashMap<>();
         inputs.put("inputs", "模型名字是 \"ali-qwen15-72b-chathome-agent-v6-chat-20240314\"");
         WorkflowContext context = CommonNodeTest.createContext("src/test/resources/parameter_extractor_tool_calls.json", inputs);
@@ -70,6 +72,7 @@ public class ParameterExtractorNodeTest {
 
     @Test
     public void testPromptMode() throws IOException {
+        initBellaContext();
         HashMap<String, Object> inputs = new HashMap<>();
         inputs.put("inputs", "模型名字是 \"ali-qwen15-72b-chathome-agent-v6-chat-20240314\"");
         WorkflowContext context = CommonNodeTest.createContext("src/test/resources/parameter_extractor_prompts.json", inputs);

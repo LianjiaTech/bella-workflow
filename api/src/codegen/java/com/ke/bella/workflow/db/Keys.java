@@ -16,6 +16,7 @@ import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.WorkflowScheduling;
+import com.ke.bella.workflow.db.tables.WorkflowWebotTrigger;
 import com.ke.bella.workflow.db.tables.records.InstanceRecord;
 import com.ke.bella.workflow.db.tables.records.KafkaDatasourceRecord;
 import com.ke.bella.workflow.db.tables.records.TenantRecord;
@@ -28,6 +29,7 @@ import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunShardingRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowSchedulingRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowWebotTriggerRecord;
 
 import org.jooq.TableField;
 import org.jooq.UniqueKey;
@@ -67,4 +69,6 @@ public class Keys {
     public static final UniqueKey<WorkflowRunShardingRecord> KEY_WORKFLOW_RUN_SHARDING_PRIMARY = Internal.createUniqueKey(WorkflowRunSharding.WORKFLOW_RUN_SHARDING, DSL.name("KEY_workflow_run_sharding_PRIMARY"), new TableField[] { WorkflowRunSharding.WORKFLOW_RUN_SHARDING.ID }, true);
     public static final UniqueKey<WorkflowSchedulingRecord> KEY_WORKFLOW_SCHEDULING_IDX_TRIGGER_ID = Internal.createUniqueKey(WorkflowScheduling.WORKFLOW_SCHEDULING, DSL.name("KEY_workflow_scheduling_idx_trigger_id"), new TableField[] { WorkflowScheduling.WORKFLOW_SCHEDULING.TRIGGER_ID }, true);
     public static final UniqueKey<WorkflowSchedulingRecord> KEY_WORKFLOW_SCHEDULING_PRIMARY = Internal.createUniqueKey(WorkflowScheduling.WORKFLOW_SCHEDULING, DSL.name("KEY_workflow_scheduling_PRIMARY"), new TableField[] { WorkflowScheduling.WORKFLOW_SCHEDULING.ID }, true);
+    public static final UniqueKey<WorkflowWebotTriggerRecord> KEY_WORKFLOW_WEBOT_TRIGGER_IDX_ID = Internal.createUniqueKey(WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER, DSL.name("KEY_workflow_webot_trigger_idx_id"), new TableField[] { WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER.TRIGGER_ID }, true);
+    public static final UniqueKey<WorkflowWebotTriggerRecord> KEY_WORKFLOW_WEBOT_TRIGGER_PRIMARY = Internal.createUniqueKey(WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER, DSL.name("KEY_workflow_webot_trigger_PRIMARY"), new TableField[] { WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER.ID }, true);
 }

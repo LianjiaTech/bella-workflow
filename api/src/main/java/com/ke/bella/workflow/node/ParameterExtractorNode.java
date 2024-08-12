@@ -47,7 +47,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ParameterExtractorNode extends BaseNode {
 
     private static final String FUNCTION_CALLING_EXTRACTOR_NAME = "extract_parameters";
@@ -162,6 +164,7 @@ public class ParameterExtractorNode extends BaseNode {
                     .outputs(outputs)
                     .processData(processData).build();
         } catch (Exception e) {
+            LOGGER.info(e.getMessage(), e);
             outputs.put("__is_success", 0);
             outputs.put("__reason", e.getMessage());
             return WorkflowRunState.NodeRunResult.builder()

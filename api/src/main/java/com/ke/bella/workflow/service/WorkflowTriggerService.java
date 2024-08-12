@@ -14,12 +14,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.KafkaTriggerCreate;
+import com.ke.bella.workflow.api.WorkflowOps.WebotTriggerCreate;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowTriggerRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowWebotTriggerDB;
 import com.ke.bella.workflow.trigger.WorkflowSchedulingStatus;
 import com.ke.bella.workflow.utils.CronUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -124,4 +126,16 @@ public class WorkflowTriggerService {
 	public WorkflowKafkaTriggerDB queryKafkaTrigger(String triggerId) {
 		return repo.queryKafkaTrigger(triggerId);
 	}
+
+    public WorkflowWebotTriggerDB createWebotTrigger(WebotTriggerCreate op) {
+        return repo.addWebotTrigger(op);
+    }
+
+    public void deactiveWebotTrigger(String triggerId) {
+        repo.deactiveWebotTrigger(triggerId);
+    }
+
+    public WorkflowWebotTriggerDB queryWebotTrigger(String triggerId) {
+        return repo.queryWebotTrigger(triggerId);
+    }
 }

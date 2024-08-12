@@ -6,13 +6,17 @@ import java.util.HashMap;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-import com.ke.bella.workflow.WorkflowCallbackAdaptor;
-import com.ke.bella.workflow.WorkflowContext;
-import com.ke.bella.workflow.WorkflowRunState;
-import com.ke.bella.workflow.WorkflowRunner;
+import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class HttpNodeTest {
+
+    static OkHttpClient client = new OkHttpClient.Builder()
+            .build();
 
     @Test
     public void testGetMethodWhenNobody() throws IOException {
@@ -70,5 +74,18 @@ public class HttpNodeTest {
 
             }
         });
+    }
+
+    @Test
+    public void testResponseOverLimit() throws IOException {
+        Request request = new Request.Builder()
+                .url("http://example.com/bclever/bella/ali-qwen15-72b-chathome-v2-chat-20240807/healthCheck")
+                .method("GET", null)
+                .build();
+        Response resp = client.newCall(request).execute();
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalStateException.class, () -> HttpUtils.readBodyWithinLimit(resp.body(), 1));
+        Response resp2 = client.newCall(request).execute();
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> HttpUtils.readBodyWithinLimit(resp2.body(), 200));
+
     }
 }

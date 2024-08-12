@@ -1,14 +1,21 @@
 package com.ke.bella.workflow.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -19,8 +26,8 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.logging.HttpLoggingInterceptor.Level;
-import org.springframework.web.util.UriComponentsBuilder;
 
+@Slf4j
 public class HttpUtils {
     static HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
     static OkHttpClient client = new OkHttpClient.Builder()
@@ -166,5 +173,57 @@ public class HttpUtils {
     public static String getQueryParamValue(String url, String paramName) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url);
         return builder.build().getQueryParams().getFirst(paramName);
+    }
+
+    public static String extraPureMediaType(MediaType source) {
+        MediaType mediaType = Optional.ofNullable(source)
+                .orElseThrow(() -> new IllegalStateException("invalid response body mime type, mime type is null"));
+
+        return mediaType.type() + "/" + mediaType.subtype();
+    }
+
+    public static byte[] readBodyWithinLimit(ResponseBody body, int limitLength) {
+        InputStream inputStream = null;
+        ByteArrayOutputStream outputStream = null;
+        try {
+            inputStream = body.byteStream();
+            outputStream = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+                if(outputStream.size() > limitLength) {
+                    throw new IllegalStateException(
+                            String.format("response body is too large, max size is %s, but current size is %s", limitLength,
+                                    outputStream.size()));
+                }
+            }
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } finally {
+            if(inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                }
+            }
+            if(outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    public static Charset getCharset(ResponseBody body, Charset defaultCharset) {
+        MediaType mediaType = body.contentType();
+        if(mediaType == null || mediaType.charset() == null) {
+            return defaultCharset;
+        }
+        return mediaType.charset();
     }
 }

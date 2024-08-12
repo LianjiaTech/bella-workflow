@@ -2,14 +2,17 @@ package com.ke.bella.workflow.node;
 
 import static okhttp3.internal.Util.EMPTY_REQUEST;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,9 +44,11 @@ import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.KeIAM;
 import com.theokanning.openai.service.OpenAiService;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.Headers.Builder;
@@ -71,6 +76,10 @@ public class HttpNode extends BaseNode {
     static {
         logging.setLevel(Level.BASIC);
     }
+
+    private static final int MAX_RESPONSE_BINARY_SIZE = 10 * 1024 * 1024;
+
+    private static final int MAX_TEXT_SIZE = 1024 * 1024;
 
     private Data data;
 
@@ -119,20 +128,19 @@ public class HttpNode extends BaseNode {
 
             Map outputs = new LinkedHashMap<>();
             int statusCode = response.code();
-            String body = extractBody(response);
+
+            ResponseHelper helper = handleResponseBody(request, response);
+
             outputs.put("status_code", statusCode);
             outputs.put("headers", response.headers().toMultimap());
-            outputs.put("files", extractFiles(request, response));
+            outputs.put("files", helper.getFiles());
+            outputs.put("body", helper.getBody());
             boolean success = statusCode >= 200 && statusCode <= 299;
-            if(Objects.nonNull(data.getResponse()) && "json".equals(data.getResponse().getType())) {
-                outputs.put("body", JsonUtils.fromJson(body, Map.class));
-            } else {
-                outputs.put("body", body);
-            }
+
             return resultBuilder
                     .outputs(outputs)
                     .status(success ? NodeRunResult.Status.succeeded : NodeRunResult.Status.failed)
-                    .error(success ? null : new IllegalStateException(body))
+                    .error(success ? null : new IllegalStateException(helper.getBody().toString()))
                     .build();
         } catch (Exception e) {
             return NodeRunResult.builder()
@@ -143,6 +151,49 @@ public class HttpNode extends BaseNode {
             if(response != null) {
                 response.close();
             }
+        }
+    }
+
+    private ResponseHelper handleResponseBody(Request request, Response response) throws IOException {
+        ResponseHelper result = ResponseHelper.defaultHelper();
+
+        if(Objects.isNull(response.body())) {
+            return result;
+        }
+
+        String mediaTypeWithoutCharset = HttpUtils.extraPureMediaType(response.body().contentType());
+
+        if(HttpUtils.isMIMEFile(mediaTypeWithoutCharset)) {
+            List<File> files = extractFiles(request, response);
+            result.setFiles(files);
+        } else {
+            Object body = "";
+            String bodyStr = extractBody(response);
+            // parse json only if http code is 2xx
+            if(200 < response.code() && response.code() <= 299
+                    && Objects.nonNull(data.getResponse()) && "json".equals(data.getResponse().getType())) {
+                body = JsonUtils.fromJson(bodyStr, Map.class);
+            } else {
+                body = bodyStr;
+            }
+            result.setBody(body);
+        }
+        return result;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    @lombok.Data
+    private static class ResponseHelper {
+        private Object body;
+        private List<File> files;
+
+        public static ResponseHelper defaultHelper() {
+            return ResponseHelper.builder()
+                    .body("")
+                    .files(Collections.emptyList())
+                    .build();
         }
     }
 
@@ -273,10 +324,12 @@ public class HttpNode extends BaseNode {
             return files;
         }
 
+        byte[] bytes = HttpUtils.readBodyWithinLimit(body, MAX_RESPONSE_BINARY_SIZE);
+
         String ext = HttpUtils.getExtensionFromMimeType(mediaType);
         String filename = String.format("%s.%s", UUID.randomUUID().toString(), ext);
         OpenAiService service = new OpenAiService(BellaContext.getApiKey(), Duration.ZERO, Configs.API_BASE);
-        com.theokanning.openai.file.File file = service.uploadFile("assistants", body.byteStream(), filename);
+        com.theokanning.openai.file.File file = service.uploadFile("assistants", new ByteArrayInputStream(bytes), filename);
         files.add(File.builder()
                 .fileId(file.getId())
                 .filename(file.getFilename())
@@ -301,16 +354,10 @@ public class HttpNode extends BaseNode {
         }
     }
 
-    private String extractBody(Response response) throws IOException {
+    private String extractBody(Response response) {
         ResponseBody body = response.body();
         if(body != null) {
-            MediaType contentType = body.contentType();
-            if(contentType != null) {
-                String mediaType = contentType.toString();
-                if(mediaType.contains("json") || mediaType.contains("xml")) {
-                    return body.string();
-                }
-            }
+            return new String(HttpUtils.readBodyWithinLimit(body, MAX_TEXT_SIZE), HttpUtils.getCharset(body, StandardCharsets.UTF_8));
         }
         return "";
     }

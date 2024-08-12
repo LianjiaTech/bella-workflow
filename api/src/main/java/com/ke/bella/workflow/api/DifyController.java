@@ -72,6 +72,13 @@ public class DifyController {
     @Value("${bella.open.api.key}")
     private String openApiKey;
 
+    private void initContext(Operator op) {
+        if(op != null) {
+            BellaContext.setOperator(op);
+        }
+        initContext();
+    }
+
     private void initContext() {
         if(Objects.isNull(BellaContext.getOperator()) ||
                 !StringUtils.hasText(BellaContext.getOperator().getTenantId()) ||
@@ -235,8 +242,9 @@ public class DifyController {
     }
 
     @PostMapping("/{workflowId}/workflows/draft")
-    public DifyResponse saveDraftInfo(@PathVariable String workflowId, @RequestBody WorkflowSchema schema) {
-        initContext();
+    public DifyResponse saveDraftInfo(@PathVariable String workflowId, @RequestBody WorkflowSchema schema, Operator op) {
+        // 前端当页面退出等情况，使用navigator.sendBeacon的形式发送请求，此api不支持设置header，故此处通过请求参数实现。
+        initContext(op);
         Assert.hasText(workflowId, "workflowId不能为空");
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         WorkflowSync sync = WorkflowSync.builder()

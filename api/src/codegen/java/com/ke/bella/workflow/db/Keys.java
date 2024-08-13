@@ -5,21 +5,31 @@ package com.ke.bella.workflow.db;
 
 
 import com.ke.bella.workflow.db.tables.Instance;
+import com.ke.bella.workflow.db.tables.KafkaDatasource;
 import com.ke.bella.workflow.db.tables.Tenant;
+import com.ke.bella.workflow.db.tables.WecomGroupInfo;
+import com.ke.bella.workflow.db.tables.WecomGroupMember;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowAggregate;
+import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.WorkflowScheduling;
+import com.ke.bella.workflow.db.tables.WorkflowWebotTrigger;
 import com.ke.bella.workflow.db.tables.records.InstanceRecord;
+import com.ke.bella.workflow.db.tables.records.KafkaDatasourceRecord;
 import com.ke.bella.workflow.db.tables.records.TenantRecord;
+import com.ke.bella.workflow.db.tables.records.WecomGroupInfoRecord;
+import com.ke.bella.workflow.db.tables.records.WecomGroupMemberRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowAggregateRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowKafkaTriggerRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunShardingRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowSchedulingRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowWebotTriggerRecord;
 
 import org.jooq.TableField;
 import org.jooq.UniqueKey;
@@ -39,17 +49,26 @@ public class Keys {
     // -------------------------------------------------------------------------
 
     public static final UniqueKey<InstanceRecord> KEY_INSTANCE_PRIMARY = Internal.createUniqueKey(Instance.INSTANCE, DSL.name("KEY_instance_PRIMARY"), new TableField[] { Instance.INSTANCE.ID }, true);
+    public static final UniqueKey<KafkaDatasourceRecord> KEY_KAFKA_DATASOURCE_IDX_ID = Internal.createUniqueKey(KafkaDatasource.KAFKA_DATASOURCE, DSL.name("KEY_kafka_datasource_idx_id"), new TableField[] { KafkaDatasource.KAFKA_DATASOURCE.DATASOURCE_ID }, true);
+    public static final UniqueKey<KafkaDatasourceRecord> KEY_KAFKA_DATASOURCE_PRIMARY = Internal.createUniqueKey(KafkaDatasource.KAFKA_DATASOURCE, DSL.name("KEY_kafka_datasource_PRIMARY"), new TableField[] { KafkaDatasource.KAFKA_DATASOURCE.ID }, true);
     public static final UniqueKey<TenantRecord> KEY_TENANT_IDX_TENANT_ID = Internal.createUniqueKey(Tenant.TENANT, DSL.name("KEY_tenant_idx_tenant_id"), new TableField[] { Tenant.TENANT.TENANT_ID }, true);
     public static final UniqueKey<TenantRecord> KEY_TENANT_PRIMARY = Internal.createUniqueKey(Tenant.TENANT, DSL.name("KEY_tenant_PRIMARY"), new TableField[] { Tenant.TENANT.ID }, true);
+    public static final UniqueKey<WecomGroupInfoRecord> KEY_WECOM_GROUP_INFO_PRIMARY = Internal.createUniqueKey(WecomGroupInfo.WECOM_GROUP_INFO, DSL.name("KEY_wecom_group_info_PRIMARY"), new TableField[] { WecomGroupInfo.WECOM_GROUP_INFO.ID }, true);
+    public static final UniqueKey<WecomGroupInfoRecord> KEY_WECOM_GROUP_INFO_UK_GROUP_CODE = Internal.createUniqueKey(WecomGroupInfo.WECOM_GROUP_INFO, DSL.name("KEY_wecom_group_info_uk_group_code"), new TableField[] { WecomGroupInfo.WECOM_GROUP_INFO.GROUP_CODE }, true);
+    public static final UniqueKey<WecomGroupMemberRecord> KEY_WECOM_GROUP_MEMBER_PRIMARY = Internal.createUniqueKey(WecomGroupMember.WECOM_GROUP_MEMBER, DSL.name("KEY_wecom_group_member_PRIMARY"), new TableField[] { WecomGroupMember.WECOM_GROUP_MEMBER.ID }, true);
     public static final UniqueKey<WorkflowRecord> KEY_WORKFLOW_IDX_TENANT_ID = Internal.createUniqueKey(Workflow.WORKFLOW, DSL.name("KEY_workflow_idx_tenant_id"), new TableField[] { Workflow.WORKFLOW.TENANT_ID, Workflow.WORKFLOW.WORKFLOW_ID, Workflow.WORKFLOW.VERSION }, true);
     public static final UniqueKey<WorkflowRecord> KEY_WORKFLOW_PRIMARY = Internal.createUniqueKey(Workflow.WORKFLOW, DSL.name("KEY_workflow_PRIMARY"), new TableField[] { Workflow.WORKFLOW.ID }, true);
     public static final UniqueKey<WorkflowAggregateRecord> KEY_WORKFLOW_AGGREGATE_IDX_TENANT_ID = Internal.createUniqueKey(WorkflowAggregate.WORKFLOW_AGGREGATE, DSL.name("KEY_workflow_aggregate_idx_tenant_id"), new TableField[] { WorkflowAggregate.WORKFLOW_AGGREGATE.TENANT_ID, WorkflowAggregate.WORKFLOW_AGGREGATE.WORKFLOW_ID }, true);
     public static final UniqueKey<WorkflowAggregateRecord> KEY_WORKFLOW_AGGREGATE_PRIMARY = Internal.createUniqueKey(WorkflowAggregate.WORKFLOW_AGGREGATE, DSL.name("KEY_workflow_aggregate_PRIMARY"), new TableField[] { WorkflowAggregate.WORKFLOW_AGGREGATE.ID }, true);
+    public static final UniqueKey<WorkflowKafkaTriggerRecord> KEY_WORKFLOW_KAFKA_TRIGGER_IDX_ID = Internal.createUniqueKey(WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER, DSL.name("KEY_workflow_kafka_trigger_idx_id"), new TableField[] { WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER.TRIGGER_ID }, true);
+    public static final UniqueKey<WorkflowKafkaTriggerRecord> KEY_WORKFLOW_KAFKA_TRIGGER_PRIMARY = Internal.createUniqueKey(WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER, DSL.name("KEY_workflow_kafka_trigger_PRIMARY"), new TableField[] { WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER.ID }, true);
     public static final UniqueKey<WorkflowNodeRunRecord> KEY_WORKFLOW_NODE_RUN_PRIMARY = Internal.createUniqueKey(WorkflowNodeRun.WORKFLOW_NODE_RUN, DSL.name("KEY_workflow_node_run_PRIMARY"), new TableField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.ID }, true);
     public static final UniqueKey<WorkflowRunRecord> KEY_WORKFLOW_RUN_IDX_WORKFLOW_RUN_ID = Internal.createUniqueKey(WorkflowRun.WORKFLOW_RUN, DSL.name("KEY_workflow_run_idx_workflow_run_id"), new TableField[] { WorkflowRun.WORKFLOW_RUN.WORKFLOW_RUN_ID }, true);
     public static final UniqueKey<WorkflowRunRecord> KEY_WORKFLOW_RUN_PRIMARY = Internal.createUniqueKey(WorkflowRun.WORKFLOW_RUN, DSL.name("KEY_workflow_run_PRIMARY"), new TableField[] { WorkflowRun.WORKFLOW_RUN.ID }, true);
     public static final UniqueKey<WorkflowRunShardingRecord> KEY_WORKFLOW_RUN_SHARDING_IDX_KEY = Internal.createUniqueKey(WorkflowRunSharding.WORKFLOW_RUN_SHARDING, DSL.name("KEY_workflow_run_sharding_idx_key"), new TableField[] { WorkflowRunSharding.WORKFLOW_RUN_SHARDING.KEY }, true);
     public static final UniqueKey<WorkflowRunShardingRecord> KEY_WORKFLOW_RUN_SHARDING_PRIMARY = Internal.createUniqueKey(WorkflowRunSharding.WORKFLOW_RUN_SHARDING, DSL.name("KEY_workflow_run_sharding_PRIMARY"), new TableField[] { WorkflowRunSharding.WORKFLOW_RUN_SHARDING.ID }, true);
-    public static final UniqueKey<WorkflowSchedulingRecord> KEY_WORKFLOW_SCHEDULING_IDX_WORKFLOW_SCHEDULING_ID = Internal.createUniqueKey(WorkflowScheduling.WORKFLOW_SCHEDULING, DSL.name("KEY_workflow_scheduling_idx_workflow_scheduling_id"), new TableField[] { WorkflowScheduling.WORKFLOW_SCHEDULING.WORKFLOW_SCHEDULING_ID }, true);
+    public static final UniqueKey<WorkflowSchedulingRecord> KEY_WORKFLOW_SCHEDULING_IDX_TRIGGER_ID = Internal.createUniqueKey(WorkflowScheduling.WORKFLOW_SCHEDULING, DSL.name("KEY_workflow_scheduling_idx_trigger_id"), new TableField[] { WorkflowScheduling.WORKFLOW_SCHEDULING.TRIGGER_ID }, true);
     public static final UniqueKey<WorkflowSchedulingRecord> KEY_WORKFLOW_SCHEDULING_PRIMARY = Internal.createUniqueKey(WorkflowScheduling.WORKFLOW_SCHEDULING, DSL.name("KEY_workflow_scheduling_PRIMARY"), new TableField[] { WorkflowScheduling.WORKFLOW_SCHEDULING.ID }, true);
+    public static final UniqueKey<WorkflowWebotTriggerRecord> KEY_WORKFLOW_WEBOT_TRIGGER_IDX_ID = Internal.createUniqueKey(WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER, DSL.name("KEY_workflow_webot_trigger_idx_id"), new TableField[] { WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER.TRIGGER_ID }, true);
+    public static final UniqueKey<WorkflowWebotTriggerRecord> KEY_WORKFLOW_WEBOT_TRIGGER_PRIMARY = Internal.createUniqueKey(WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER, DSL.name("KEY_workflow_webot_trigger_PRIMARY"), new TableField[] { WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER.ID }, true);
 }

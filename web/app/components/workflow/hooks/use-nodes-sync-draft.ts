@@ -12,6 +12,7 @@ import { useNodesReadOnly } from './use-workflow'
 import { syncWorkflowDraft } from '@/service/workflow'
 import { useFeaturesStore } from '@/app/components/base/features/hooks'
 import { API_PREFIX } from '@/config'
+import { getUserInfo } from '@/utils/getQueryParams'
 
 export const useNodesSyncDraft = () => {
   const store = useStoreApi()
@@ -92,11 +93,12 @@ export const useNodesSyncDraft = () => {
     if (getNodesReadOnly())
       return
     const postParams = getPostParams()
+    const { userName, ucid, tenantId } = getUserInfo()
 
     if (postParams) {
       const data = JSON.stringify(postParams.params)
       const blob = new Blob([data], { type: 'application/json' })
-      navigator.sendBeacon(`${API_PREFIX}/apps/${params.appId}/workflows/draft?_token=${localStorage.getItem('console_token')}`, blob)
+      navigator.sendBeacon(`${API_PREFIX}/apps/${params.appId}/workflows/draft?userId=${ucid}&userName=${userName}&tenantId=${tenantId}`, blob)
     }
   }, [getPostParams, params.appId, getNodesReadOnly])
 

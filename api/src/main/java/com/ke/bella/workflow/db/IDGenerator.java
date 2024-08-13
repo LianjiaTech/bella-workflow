@@ -72,10 +72,17 @@ public class IDGenerator {
         return "WKFL-" + UUID.randomUUID().toString();
     }
 
-    public static String newWorkflowSchedulingId() {
-        return "SCHD-" + UUID.randomUUID().toString();
+    public static String newTriggerId(String type) {
+        return "TRG-" + type + "-" + UUID.randomUUID().toString();
     }
 
+    public static String newDataSourceId() {
+        return "DS-" + UUID.randomUUID().toString();
+    }
+
+	public static String newWecomGroupCode() {
+		return "WCGP-" + UUID.randomUUID().toString();
+	}
     public static String timeStrFromCode(String code) {
         int index = code.indexOf('-') + 1;
         String str = code.substring(index, index + 12);

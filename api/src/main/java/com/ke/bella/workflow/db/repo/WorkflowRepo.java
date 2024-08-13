@@ -59,7 +59,7 @@ public class WorkflowRepo implements BaseRepo {
         return DSLContextHolder.get(shardingKey, db);
     }
 
-    private String shardingKeyByworkflowRunId(String workflowRunId) {
+    private String shardingKeyByWorkflowRunId(String workflowRunId) {
         WorkflowRunShardingDB s = queryWorkflowRunShardingByRunID(workflowRunId);
         return s.getKey();
     }
@@ -239,7 +239,7 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     public WorkflowRunDB queryWorkflowRun(String workflowRunId) {
-        String shardKey = shardingKeyByworkflowRunId(workflowRunId);
+        String shardKey = shardingKeyByWorkflowRunId(workflowRunId);
         return db(shardKey).selectFrom(WORKFLOW_RUN)
                 .where(WORKFLOW_RUN.WORKFLOW_RUN_ID.eq(workflowRunId))
                 .fetchOne().into(WorkflowRunDB.class);
@@ -253,8 +253,8 @@ public class WorkflowRepo implements BaseRepo {
             SelectConditionStep<WorkflowRunRecord> sql = db(sharding.getKey()).selectFrom(WORKFLOW_RUN)
                     .where(WORKFLOW_RUN.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                     .and(WORKFLOW_RUN.WORKFLOW_ID.eq(op.getWorkflowId()))
-                    .and(StringUtils.isEmpty(op.getWorkflowSchedulingId()) ? DSL.noCondition()
-                            : WORKFLOW_RUN.WORKFLOW_SCHEDULING_ID.eq(op.getWorkflowSchedulingId()))
+                    .and(StringUtils.isEmpty(op.getTriggerId()) ? DSL.noCondition()
+                            : WORKFLOW_RUN.TRIGGER_ID.eq(op.getTriggerId()))
                     .and(StringUtils.isEmpty(op.getLastId()) ? DSL.noCondition() : WORKFLOW_RUN.WORKFLOW_RUN_ID.ge(op.getLastId()));
             if(i == 0) {
                 query = sql;
@@ -272,15 +272,15 @@ public class WorkflowRepo implements BaseRepo {
         WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
 
         String runId = IDGenerator.newWorkflowRunId();
-        String shardKey = shardingKeyByworkflowRunId(runId);
+        String shardKey = shardingKeyByWorkflowRunId(runId);
 
         rec.setTenantId(BellaContext.getOperator().getTenantId());
         rec.setWorkflowId(wf.getWorkflowId());
         rec.setWorkflowVersion(wf.getVersion());
         rec.setWorkflowRunId(runId);
         rec.setWorkflowRunShardingKey(shardKey);
-        if(op.getWorkflowSchedulingId() != null) {
-            rec.setWorkflowSchedulingId(op.getWorkflowSchedulingId());
+        if(op.getTriggerId() != null) {
+            rec.setWorkflowSchedulingId(op.getTriggerId());
         }
         if(op.getQuery() != null) {
             rec.setQuery(op.getQuery());
@@ -320,7 +320,7 @@ public class WorkflowRepo implements BaseRepo {
         rec.from(wr);
         fillUpdatorInfo(rec);
 
-        String shardKey = shardingKeyByworkflowRunId(wr.getWorkflowRunId());
+        String shardKey = shardingKeyByWorkflowRunId(wr.getWorkflowRunId());
         db(shardKey).update(WORKFLOW_RUN)
                 .set(rec)
                 .where(WORKFLOW_RUN.WORKFLOW_RUN_ID.eq(wr.getWorkflowRunId()))
@@ -417,7 +417,7 @@ public class WorkflowRepo implements BaseRepo {
 
         fillCreatorInfo(rec);
 
-        String shardKey = shardingKeyByworkflowRunId(wnr.getWorkflowRunId());
+        String shardKey = shardingKeyByWorkflowRunId(wnr.getWorkflowRunId());
         db(shardKey).insertInto(WORKFLOW_NODE_RUN)
                 .set(rec)
                 .execute();
@@ -428,7 +428,7 @@ public class WorkflowRepo implements BaseRepo {
         rec.from(wnr);
 
         fillUpdatorInfo(rec);
-        String shardKey = shardingKeyByworkflowRunId(wnr.getWorkflowRunId());
+        String shardKey = shardingKeyByWorkflowRunId(wnr.getWorkflowRunId());
         db(shardKey).update(WORKFLOW_NODE_RUN)
                 .set(rec)
                 .where(WORKFLOW_NODE_RUN.TENANT_ID.eq(wnr.getTenantId()))
@@ -440,7 +440,7 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     public List<WorkflowNodeRunDB> queryWorkflowNodeRuns(String workflowRunId, Set<String> nodeids) {
-        String shardKey = shardingKeyByworkflowRunId(workflowRunId);
+        String shardKey = shardingKeyByWorkflowRunId(workflowRunId);
         return db(shardKey).selectFrom(WORKFLOW_NODE_RUN)
                 .where(WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID.eq(workflowRunId)
                         .and(WORKFLOW_NODE_RUN.NODE_ID.in(nodeids)))
@@ -448,7 +448,7 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     public List<WorkflowNodeRunDB> queryWorkflowNodeRuns(String workflowRunId) {
-        String shardKey = shardingKeyByworkflowRunId(workflowRunId);
+        String shardKey = shardingKeyByWorkflowRunId(workflowRunId);
         return db(shardKey).selectFrom(WORKFLOW_NODE_RUN)
                 .where(WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID.eq(workflowRunId))
                 .fetchInto(WorkflowNodeRunDB.class);

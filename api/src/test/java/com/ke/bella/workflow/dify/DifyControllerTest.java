@@ -14,14 +14,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.andrewoma.dexx.collection.Maps;
 import com.ke.bella.workflow.AbstractTest;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.db.IDGenerator;
-import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.api.DifyController;
 import com.ke.bella.workflow.api.DifyController.DifyWorkflowRun;
 import com.ke.bella.workflow.api.Operator;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.db.IDGenerator;
+import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,7 +44,7 @@ public class DifyControllerTest extends AbstractTest {
         Example<WorkflowSchema, Map> source = readJson("post-apps-workflowid-workflow-draft.json",
                 new TypeReference<Example<WorkflowSchema, Map>>() {
                 });
-        dify.saveDraftInfo(WORKFLOW_ID, source.getRequest());
+        dify.saveDraftInfo(WORKFLOW_ID, source.getRequest(), null);
         WorkflowSchema target = dify.getDraftInfo(WORKFLOW_ID);
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
     }
@@ -56,7 +56,7 @@ public class DifyControllerTest extends AbstractTest {
         Example<WorkflowSchema, Map> source = readJson("post-apps-workflowid-workflow-draft.json",
                 new TypeReference<Example<WorkflowSchema, Map>>() {
                 });
-        dify.saveDraftInfo(WORKFLOW_ID, source.getRequest());
+        dify.saveDraftInfo(WORKFLOW_ID, source.getRequest(), null);
         WorkflowSchema target = dify.getDraftInfo(WORKFLOW_ID);
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
 
@@ -76,7 +76,7 @@ public class DifyControllerTest extends AbstractTest {
         Example<WorkflowSchema, Map> source = readJson("post-apps-workflowid-workflow-draft.json",
                 new TypeReference<Example<WorkflowSchema, Map>>() {
                 });
-        dify.saveDraftInfo(WORKFLOW_ID, source.getRequest());
+        dify.saveDraftInfo(WORKFLOW_ID, source.getRequest(), null);
         WorkflowSchema target = dify.getDraftInfo(WORKFLOW_ID);
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
 
@@ -95,7 +95,7 @@ public class DifyControllerTest extends AbstractTest {
         Example<WorkflowSchema, Map> source = readJson("post-apps-workflowid-workflow-draft.json",
                 new TypeReference<Example<WorkflowSchema, Map>>() {
                 });
-        dify.saveDraftInfo(WORKFLOW_ID, source.getRequest());
+        dify.saveDraftInfo(WORKFLOW_ID, source.getRequest(), null);
         WorkflowSchema target = dify.getDraftInfo(WORKFLOW_ID);
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
 

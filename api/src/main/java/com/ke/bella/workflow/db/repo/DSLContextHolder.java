@@ -48,10 +48,10 @@ public class DSLContextHolder {
                                                 .withOutput(targetTableName(WORKFLOW_NODE_RUN.getName(), key)))));
     }
 
-    public static String targetTableName(String orignalName, String key) {
+    public static String targetTableName(String originalName, String key) {
         if(StringUtils.isEmpty(key)) {
-            return orignalName;
+            return originalName;
         }
-        return String.format("%s_%s", orignalName, key);
+        return String.format("%s_%s", originalName, key);
     }
 }

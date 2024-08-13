@@ -233,6 +233,11 @@ const translation = {
         tip: '聊天记忆',
         builtIn: '内置',
       },
+      delta: {
+        title: '直接回复',
+        tip: '将节点输出作为回答直接回复',
+      },
+
     },
     start: {
       required: '必填',

@@ -101,20 +101,23 @@ public class GroupOps {
         @ApiModelProperty(value = "群编码-暗号")
         private String groupCode = "";
 
-		@ApiModelProperty(value = "群成员系统号")
-		private String userCode = "";
+        @ApiModelProperty(value = "群成员系统号")
+        private String userCode = "";
 
-		@ApiModelProperty(value = "机器人ID")
-		private String robotId = "";
+        @ApiModelProperty(value = "机器人ID")
+        private String robotId = "";
 
-		@ApiModelProperty(value = "名称")
-		private String name = "";
+        @ApiModelProperty(value = "外部机器人ID")
+        private String robotOuterId = "";
 
-		@ApiModelProperty(value = "机器人钩子地址")
-		private String robotWebhook = "";
+        @ApiModelProperty(value = "名称")
+        private String name = "";
 
-		@ApiModelProperty(value = "成员类型（0:未知,1:虚拟账号,2:机器人,3:真实用户）")
-		private Integer type = 0;
+        @ApiModelProperty(value = "机器人钩子地址")
+        private String robotWebhook = "";
+
+        @ApiModelProperty(value = "成员类型（0:未知,1:虚拟账号,2:机器人,3:真实用户）")
+        private Integer type = 0;
     }
 
     @Getter

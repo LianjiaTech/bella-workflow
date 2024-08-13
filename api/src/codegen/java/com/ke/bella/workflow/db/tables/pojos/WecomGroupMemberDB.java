@@ -24,6 +24,7 @@ public class WecomGroupMemberDB implements Operator, Serializable {
     private String        groupCode;
     private String        userCode;
     private String        robotId;
+    private String        robotOuterId;
     private String        name;
     private String        robotWebhook;
     private Integer       type;
@@ -44,6 +45,7 @@ public class WecomGroupMemberDB implements Operator, Serializable {
         this.groupCode = value.groupCode;
         this.userCode = value.userCode;
         this.robotId = value.robotId;
+        this.robotOuterId = value.robotOuterId;
         this.name = value.name;
         this.robotWebhook = value.robotWebhook;
         this.type = value.type;
@@ -63,6 +65,7 @@ public class WecomGroupMemberDB implements Operator, Serializable {
         String        groupCode,
         String        userCode,
         String        robotId,
+        String        robotOuterId,
         String        name,
         String        robotWebhook,
         Integer       type,
@@ -80,6 +83,7 @@ public class WecomGroupMemberDB implements Operator, Serializable {
         this.groupCode = groupCode;
         this.userCode = userCode;
         this.robotId = robotId;
+        this.robotOuterId = robotOuterId;
         this.name = name;
         this.robotWebhook = robotWebhook;
         this.type = type;
@@ -174,6 +178,20 @@ public class WecomGroupMemberDB implements Operator, Serializable {
      */
     public void setRobotId(String robotId) {
         this.robotId = robotId;
+    }
+
+    /**
+     * Getter for <code>wecom_group_member.robot_outer_id</code>. 机器人外部id
+     */
+    public String getRobotOuterId() {
+        return this.robotOuterId;
+    }
+
+    /**
+     * Setter for <code>wecom_group_member.robot_outer_id</code>. 机器人外部id
+     */
+    public void setRobotOuterId(String robotOuterId) {
+        this.robotOuterId = robotOuterId;
     }
 
     /**
@@ -326,6 +344,7 @@ public class WecomGroupMemberDB implements Operator, Serializable {
         sb.append(", ").append(groupCode);
         sb.append(", ").append(userCode);
         sb.append(", ").append(robotId);
+        sb.append(", ").append(robotOuterId);
         sb.append(", ").append(name);
         sb.append(", ").append(robotWebhook);
         sb.append(", ").append(type);

@@ -126,6 +126,9 @@ public class WecomGroupInfoRepo implements BaseRepo {
         if(!StringUtils.isEmpty(op.getRobotId())) {
             rec.setRobotId(op.getRobotId());
         }
+        if(!StringUtils.isEmpty(op.getRobotOuterId())) {
+            rec.setRobotOuterId(op.getRobotOuterId());
+        }
         if(!StringUtils.isEmpty(op.getRobotWebhook())) {
             rec.setRobotWebhook(op.getRobotWebhook());
             rec.setRobotId(HttpUtils.getQueryParamValue(op.getRobotWebhook(), WEB_HOOK_URL_PARAMS_KEY));
@@ -154,6 +157,9 @@ public class WecomGroupInfoRepo implements BaseRepo {
         }
         if(!StringUtils.isEmpty(op.getRobotId())) {
             rec.setRobotId(op.getRobotId());
+        }
+        if(!StringUtils.isEmpty(op.getRobotOuterId())) {
+            rec.setRobotOuterId(op.getRobotOuterId());
         }
         if(!StringUtils.isEmpty(op.getRobotWebhook())) {
             rec.setRobotWebhook(op.getRobotWebhook());

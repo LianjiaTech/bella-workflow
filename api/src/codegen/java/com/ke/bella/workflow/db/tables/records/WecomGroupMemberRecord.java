@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 
 import org.jooq.Field;
 import org.jooq.Record1;
-import org.jooq.Record16;
-import org.jooq.Row16;
+import org.jooq.Record17;
+import org.jooq.Row17;
 import org.jooq.impl.UpdatableRecordImpl;
 
 
@@ -20,7 +20,7 @@ import org.jooq.impl.UpdatableRecordImpl;
  * 企业微信群成员信息
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class WecomGroupMemberRecord extends UpdatableRecordImpl<WecomGroupMemberRecord> implements Operator, Record16<Long, String, String, String, String, String, String, String, Integer, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> {
+public class WecomGroupMemberRecord extends UpdatableRecordImpl<WecomGroupMemberRecord> implements Operator, Record17<Long, String, String, String, String, String, String, String, String, Integer, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> {
 
     private static final long serialVersionUID = 1L;
 
@@ -109,143 +109,157 @@ public class WecomGroupMemberRecord extends UpdatableRecordImpl<WecomGroupMember
     }
 
     /**
+     * Setter for <code>wecom_group_member.robot_outer_id</code>. 机器人外部id
+     */
+    public void setRobotOuterId(String value) {
+        set(6, value);
+    }
+
+    /**
+     * Getter for <code>wecom_group_member.robot_outer_id</code>. 机器人外部id
+     */
+    public String getRobotOuterId() {
+        return (String) get(6);
+    }
+
+    /**
      * Setter for <code>wecom_group_member.name</code>. 名称
      */
     public void setName(String value) {
-        set(6, value);
+        set(7, value);
     }
 
     /**
      * Getter for <code>wecom_group_member.name</code>. 名称
      */
     public String getName() {
-        return (String) get(6);
+        return (String) get(7);
     }
 
     /**
      * Setter for <code>wecom_group_member.robot_webhook</code>. 机器人钩子地址
      */
     public void setRobotWebhook(String value) {
-        set(7, value);
+        set(8, value);
     }
 
     /**
      * Getter for <code>wecom_group_member.robot_webhook</code>. 机器人钩子地址
      */
     public String getRobotWebhook() {
-        return (String) get(7);
+        return (String) get(8);
     }
 
     /**
      * Setter for <code>wecom_group_member.type</code>. 成员类型（0:未知,1:虚拟账号,2:机器人,3:真实用户）
      */
     public void setType(Integer value) {
-        set(8, value);
+        set(9, value);
     }
 
     /**
      * Getter for <code>wecom_group_member.type</code>. 成员类型（0:未知,1:虚拟账号,2:机器人,3:真实用户）
      */
     public Integer getType() {
-        return (Integer) get(8);
+        return (Integer) get(9);
     }
 
     /**
      * Setter for <code>wecom_group_member.cuid</code>. 创建人ucid
      */
     public void setCuid(Long value) {
-        set(9, value);
+        set(10, value);
     }
 
     /**
      * Getter for <code>wecom_group_member.cuid</code>. 创建人ucid
      */
     public Long getCuid() {
-        return (Long) get(9);
+        return (Long) get(10);
     }
 
     /**
      * Setter for <code>wecom_group_member.cu_name</code>. 创建人名字
      */
     public void setCuName(String value) {
-        set(10, value);
+        set(11, value);
     }
 
     /**
      * Getter for <code>wecom_group_member.cu_name</code>. 创建人名字
      */
     public String getCuName() {
-        return (String) get(10);
+        return (String) get(11);
     }
 
     /**
      * Setter for <code>wecom_group_member.muid</code>. 修改人ucid
      */
     public void setMuid(Long value) {
-        set(11, value);
+        set(12, value);
     }
 
     /**
      * Getter for <code>wecom_group_member.muid</code>. 修改人ucid
      */
     public Long getMuid() {
-        return (Long) get(11);
+        return (Long) get(12);
     }
 
     /**
      * Setter for <code>wecom_group_member.mu_name</code>. 修改人名字
      */
     public void setMuName(String value) {
-        set(12, value);
+        set(13, value);
     }
 
     /**
      * Getter for <code>wecom_group_member.mu_name</code>. 修改人名字
      */
     public String getMuName() {
-        return (String) get(12);
+        return (String) get(13);
     }
 
     /**
      * Setter for <code>wecom_group_member.status</code>. 记录状态（0:正常, -1:已删除）
      */
     public void setStatus(Integer value) {
-        set(13, value);
+        set(14, value);
     }
 
     /**
      * Getter for <code>wecom_group_member.status</code>. 记录状态（0:正常, -1:已删除）
      */
     public Integer getStatus() {
-        return (Integer) get(13);
+        return (Integer) get(14);
     }
 
     /**
      * Setter for <code>wecom_group_member.ctime</code>. 创建时间
      */
     public void setCtime(LocalDateTime value) {
-        set(14, value);
+        set(15, value);
     }
 
     /**
      * Getter for <code>wecom_group_member.ctime</code>. 创建时间
      */
     public LocalDateTime getCtime() {
-        return (LocalDateTime) get(14);
+        return (LocalDateTime) get(15);
     }
 
     /**
      * Setter for <code>wecom_group_member.mtime</code>. 更新时间
      */
     public void setMtime(LocalDateTime value) {
-        set(15, value);
+        set(16, value);
     }
 
     /**
      * Getter for <code>wecom_group_member.mtime</code>. 更新时间
      */
     public LocalDateTime getMtime() {
-        return (LocalDateTime) get(15);
+        return (LocalDateTime) get(16);
     }
 
     // -------------------------------------------------------------------------
@@ -258,17 +272,17 @@ public class WecomGroupMemberRecord extends UpdatableRecordImpl<WecomGroupMember
     }
 
     // -------------------------------------------------------------------------
-    // Record16 type implementation
+    // Record17 type implementation
     // -------------------------------------------------------------------------
 
     @Override
-    public Row16<Long, String, String, String, String, String, String, String, Integer, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> fieldsRow() {
-        return (Row16) super.fieldsRow();
+    public Row17<Long, String, String, String, String, String, String, String, String, Integer, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> fieldsRow() {
+        return (Row17) super.fieldsRow();
     }
 
     @Override
-    public Row16<Long, String, String, String, String, String, String, String, Integer, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> valuesRow() {
-        return (Row16) super.valuesRow();
+    public Row17<Long, String, String, String, String, String, String, String, String, Integer, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> valuesRow() {
+        return (Row17) super.valuesRow();
     }
 
     @Override
@@ -303,51 +317,56 @@ public class WecomGroupMemberRecord extends UpdatableRecordImpl<WecomGroupMember
 
     @Override
     public Field<String> field7() {
-        return WecomGroupMember.WECOM_GROUP_MEMBER.NAME;
+        return WecomGroupMember.WECOM_GROUP_MEMBER.ROBOT_OUTER_ID;
     }
 
     @Override
     public Field<String> field8() {
+        return WecomGroupMember.WECOM_GROUP_MEMBER.NAME;
+    }
+
+    @Override
+    public Field<String> field9() {
         return WecomGroupMember.WECOM_GROUP_MEMBER.ROBOT_WEBHOOK;
     }
 
     @Override
-    public Field<Integer> field9() {
+    public Field<Integer> field10() {
         return WecomGroupMember.WECOM_GROUP_MEMBER.TYPE;
     }
 
     @Override
-    public Field<Long> field10() {
+    public Field<Long> field11() {
         return WecomGroupMember.WECOM_GROUP_MEMBER.CUID;
     }
 
     @Override
-    public Field<String> field11() {
+    public Field<String> field12() {
         return WecomGroupMember.WECOM_GROUP_MEMBER.CU_NAME;
     }
 
     @Override
-    public Field<Long> field12() {
+    public Field<Long> field13() {
         return WecomGroupMember.WECOM_GROUP_MEMBER.MUID;
     }
 
     @Override
-    public Field<String> field13() {
+    public Field<String> field14() {
         return WecomGroupMember.WECOM_GROUP_MEMBER.MU_NAME;
     }
 
     @Override
-    public Field<Integer> field14() {
+    public Field<Integer> field15() {
         return WecomGroupMember.WECOM_GROUP_MEMBER.STATUS;
     }
 
     @Override
-    public Field<LocalDateTime> field15() {
+    public Field<LocalDateTime> field16() {
         return WecomGroupMember.WECOM_GROUP_MEMBER.CTIME;
     }
 
     @Override
-    public Field<LocalDateTime> field16() {
+    public Field<LocalDateTime> field17() {
         return WecomGroupMember.WECOM_GROUP_MEMBER.MTIME;
     }
 
@@ -383,51 +402,56 @@ public class WecomGroupMemberRecord extends UpdatableRecordImpl<WecomGroupMember
 
     @Override
     public String component7() {
-        return getName();
+        return getRobotOuterId();
     }
 
     @Override
     public String component8() {
+        return getName();
+    }
+
+    @Override
+    public String component9() {
         return getRobotWebhook();
     }
 
     @Override
-    public Integer component9() {
+    public Integer component10() {
         return getType();
     }
 
     @Override
-    public Long component10() {
+    public Long component11() {
         return getCuid();
     }
 
     @Override
-    public String component11() {
+    public String component12() {
         return getCuName();
     }
 
     @Override
-    public Long component12() {
+    public Long component13() {
         return getMuid();
     }
 
     @Override
-    public String component13() {
+    public String component14() {
         return getMuName();
     }
 
     @Override
-    public Integer component14() {
+    public Integer component15() {
         return getStatus();
     }
 
     @Override
-    public LocalDateTime component15() {
+    public LocalDateTime component16() {
         return getCtime();
     }
 
     @Override
-    public LocalDateTime component16() {
+    public LocalDateTime component17() {
         return getMtime();
     }
 
@@ -463,51 +487,56 @@ public class WecomGroupMemberRecord extends UpdatableRecordImpl<WecomGroupMember
 
     @Override
     public String value7() {
-        return getName();
+        return getRobotOuterId();
     }
 
     @Override
     public String value8() {
+        return getName();
+    }
+
+    @Override
+    public String value9() {
         return getRobotWebhook();
     }
 
     @Override
-    public Integer value9() {
+    public Integer value10() {
         return getType();
     }
 
     @Override
-    public Long value10() {
+    public Long value11() {
         return getCuid();
     }
 
     @Override
-    public String value11() {
+    public String value12() {
         return getCuName();
     }
 
     @Override
-    public Long value12() {
+    public Long value13() {
         return getMuid();
     }
 
     @Override
-    public String value13() {
+    public String value14() {
         return getMuName();
     }
 
     @Override
-    public Integer value14() {
+    public Integer value15() {
         return getStatus();
     }
 
     @Override
-    public LocalDateTime value15() {
+    public LocalDateTime value16() {
         return getCtime();
     }
 
     @Override
-    public LocalDateTime value16() {
+    public LocalDateTime value17() {
         return getMtime();
     }
 
@@ -549,66 +578,72 @@ public class WecomGroupMemberRecord extends UpdatableRecordImpl<WecomGroupMember
 
     @Override
     public WecomGroupMemberRecord value7(String value) {
-        setName(value);
+        setRobotOuterId(value);
         return this;
     }
 
     @Override
     public WecomGroupMemberRecord value8(String value) {
+        setName(value);
+        return this;
+    }
+
+    @Override
+    public WecomGroupMemberRecord value9(String value) {
         setRobotWebhook(value);
         return this;
     }
 
     @Override
-    public WecomGroupMemberRecord value9(Integer value) {
+    public WecomGroupMemberRecord value10(Integer value) {
         setType(value);
         return this;
     }
 
     @Override
-    public WecomGroupMemberRecord value10(Long value) {
+    public WecomGroupMemberRecord value11(Long value) {
         setCuid(value);
         return this;
     }
 
     @Override
-    public WecomGroupMemberRecord value11(String value) {
+    public WecomGroupMemberRecord value12(String value) {
         setCuName(value);
         return this;
     }
 
     @Override
-    public WecomGroupMemberRecord value12(Long value) {
+    public WecomGroupMemberRecord value13(Long value) {
         setMuid(value);
         return this;
     }
 
     @Override
-    public WecomGroupMemberRecord value13(String value) {
+    public WecomGroupMemberRecord value14(String value) {
         setMuName(value);
         return this;
     }
 
     @Override
-    public WecomGroupMemberRecord value14(Integer value) {
+    public WecomGroupMemberRecord value15(Integer value) {
         setStatus(value);
         return this;
     }
 
     @Override
-    public WecomGroupMemberRecord value15(LocalDateTime value) {
+    public WecomGroupMemberRecord value16(LocalDateTime value) {
         setCtime(value);
         return this;
     }
 
     @Override
-    public WecomGroupMemberRecord value16(LocalDateTime value) {
+    public WecomGroupMemberRecord value17(LocalDateTime value) {
         setMtime(value);
         return this;
     }
 
     @Override
-    public WecomGroupMemberRecord values(Long value1, String value2, String value3, String value4, String value5, String value6, String value7, String value8, Integer value9, Long value10, String value11, Long value12, String value13, Integer value14, LocalDateTime value15, LocalDateTime value16) {
+    public WecomGroupMemberRecord values(Long value1, String value2, String value3, String value4, String value5, String value6, String value7, String value8, String value9, Integer value10, Long value11, String value12, Long value13, String value14, Integer value15, LocalDateTime value16, LocalDateTime value17) {
         value1(value1);
         value2(value2);
         value3(value3);
@@ -625,6 +660,7 @@ public class WecomGroupMemberRecord extends UpdatableRecordImpl<WecomGroupMember
         value14(value14);
         value15(value15);
         value16(value16);
+        value17(value17);
         return this;
     }
 
@@ -642,7 +678,7 @@ public class WecomGroupMemberRecord extends UpdatableRecordImpl<WecomGroupMember
     /**
      * Create a detached, initialised WecomGroupMemberRecord
      */
-    public WecomGroupMemberRecord(Long id, String tenantId, String spaceCode, String groupCode, String userCode, String robotId, String name, String robotWebhook, Integer type, Long cuid, String cuName, Long muid, String muName, Integer status, LocalDateTime ctime, LocalDateTime mtime) {
+    public WecomGroupMemberRecord(Long id, String tenantId, String spaceCode, String groupCode, String userCode, String robotId, String robotOuterId, String name, String robotWebhook, Integer type, Long cuid, String cuName, Long muid, String muName, Integer status, LocalDateTime ctime, LocalDateTime mtime) {
         super(WecomGroupMember.WECOM_GROUP_MEMBER);
 
         setId(id);
@@ -651,6 +687,7 @@ public class WecomGroupMemberRecord extends UpdatableRecordImpl<WecomGroupMember
         setGroupCode(groupCode);
         setUserCode(userCode);
         setRobotId(robotId);
+        setRobotOuterId(robotOuterId);
         setName(name);
         setRobotWebhook(robotWebhook);
         setType(type);

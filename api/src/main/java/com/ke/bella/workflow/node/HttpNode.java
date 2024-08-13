@@ -168,7 +168,7 @@ public class HttpNode extends BaseNode {
             Object body = "";
             String bodyStr = extractBody(response);
             // parse json only if http code is 2xx
-            if(200 < response.code() && response.code() <= 299
+            if(200 <= response.code() && response.code() <= 299
                     && Objects.nonNull(data.getResponse()) && "json".equals(data.getResponse().getType())) {
                 body = JsonUtils.fromJson(bodyStr, Map.class);
             } else {

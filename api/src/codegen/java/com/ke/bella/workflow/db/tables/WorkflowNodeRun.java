@@ -4,11 +4,6 @@
 package com.ke.bella.workflow.db.tables;
 
 
-import com.ke.bella.workflow.db.DefaultSchema;
-import com.ke.bella.workflow.db.Indexes;
-import com.ke.bella.workflow.db.Keys;
-import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
-
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +23,11 @@ import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
+
+import com.ke.bella.workflow.db.DefaultSchema;
+import com.ke.bella.workflow.db.Indexes;
+import com.ke.bella.workflow.db.Keys;
+import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
 
 
 /**
@@ -94,7 +94,7 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
     /**
      * The column <code>workflow_node_run.inputs</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB, this, "");
+    public final TableField<WorkflowNodeRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_node_run.outputs</code>.

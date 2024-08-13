@@ -4,11 +4,6 @@
 package com.ke.bella.workflow.db.tables;
 
 
-import com.ke.bella.workflow.db.DefaultSchema;
-import com.ke.bella.workflow.db.Indexes;
-import com.ke.bella.workflow.db.Keys;
-import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
-
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +22,11 @@ import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
+
+import com.ke.bella.workflow.db.DefaultSchema;
+import com.ke.bella.workflow.db.Indexes;
+import com.ke.bella.workflow.db.Keys;
+import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
 
 
 /**
@@ -103,7 +103,7 @@ API
     /**
      * The column <code>workflow_run.inputs</code>.
      */
-    public final TableField<WorkflowRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB, this, "");
+    public final TableField<WorkflowRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_run.outputs</code>. 最后一个节点的输出
@@ -111,7 +111,7 @@ API
     public final TableField<WorkflowRunRecord, String> OUTPUTS = createField(DSL.name("outputs"), SQLDataType.CLOB.nullable(false), this, "最后一个节点的输出");
 
     /**
-     * The column <code>workflow_run.status</code>.     
+     * The column <code>workflow_run.status</code>.
     INIT=‘init’
     RUNNING = 'running'
     SUCCEEDED = 'succeeded'

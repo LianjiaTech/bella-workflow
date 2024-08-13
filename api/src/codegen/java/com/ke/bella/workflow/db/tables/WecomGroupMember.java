@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row16;
+import org.jooq.Row17;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -80,6 +80,11 @@ public class WecomGroupMember extends TableImpl<WecomGroupMemberRecord> {
      * The column <code>wecom_group_member.robot_id</code>. 机器人ID
      */
     public final TableField<WecomGroupMemberRecord, String> ROBOT_ID = createField(DSL.name("robot_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "机器人ID");
+
+    /**
+     * The column <code>wecom_group_member.robot_outer_id</code>. 机器人外部id
+     */
+    public final TableField<WecomGroupMemberRecord, String> ROBOT_OUTER_ID = createField(DSL.name("robot_outer_id"), SQLDataType.VARCHAR(32).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "机器人外部id");
 
     /**
      * The column <code>wecom_group_member.name</code>. 名称
@@ -216,11 +221,11 @@ public class WecomGroupMember extends TableImpl<WecomGroupMemberRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row16 type methods
+    // Row17 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row16<Long, String, String, String, String, String, String, String, Integer, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> fieldsRow() {
-        return (Row16) super.fieldsRow();
+    public Row17<Long, String, String, String, String, String, String, String, String, Integer, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> fieldsRow() {
+        return (Row17) super.fieldsRow();
     }
 }

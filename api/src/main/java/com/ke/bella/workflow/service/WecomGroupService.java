@@ -35,10 +35,10 @@ public class WecomGroupService {
         return repo.createGroupMemberInfo(op);
     }
 
-	public WecomGroupMemberDB updateGroupMemberInfo(GroupOps.GroupMemberOp op) {
+    public WecomGroupMemberDB updateGroupMemberInfo(GroupOps.GroupMemberOp op) {
 
-		return repo.updateGroupMemberInfo(op);
-	}
+        return repo.updateGroupMemberInfo(op);
+    }
 
     public Boolean deleteMemberInfo(GroupOps.GroupMemberOp op) {
 

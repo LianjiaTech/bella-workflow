@@ -4,6 +4,11 @@
 package com.ke.bella.workflow.db.tables;
 
 
+import com.ke.bella.workflow.db.DefaultSchema;
+import com.ke.bella.workflow.db.Indexes;
+import com.ke.bella.workflow.db.Keys;
+import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -23,11 +28,6 @@ import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
-
-import com.ke.bella.workflow.db.DefaultSchema;
-import com.ke.bella.workflow.db.Indexes;
-import com.ke.bella.workflow.db.Keys;
-import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
 
 
 /**

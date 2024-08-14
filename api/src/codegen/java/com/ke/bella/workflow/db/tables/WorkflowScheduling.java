@@ -94,7 +94,7 @@ public class WorkflowScheduling extends TableImpl<WorkflowSchedulingRecord> {
     /**
      * The column <code>workflow_scheduling.inputs</code>.
      */
-    public final TableField<WorkflowSchedulingRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB, this, "");
+    public final TableField<WorkflowSchedulingRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_scheduling.status</code>. 调度任务状态；

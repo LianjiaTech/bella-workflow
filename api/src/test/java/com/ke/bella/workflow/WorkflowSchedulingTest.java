@@ -74,7 +74,7 @@ public class WorkflowSchedulingTest extends AbstractTest {
         // 3. 测试停止一个scheduling任务
         WorkflowOps.WorkflowSchedulingOp wlsOp = WorkflowOps.WorkflowSchedulingOp.builder()
                 .tenantId("04633c4f-8638-43a3-a02e-af23c29f821f")
-                .triggerId(wfs.getData().getWorkflowSchedulingId())
+                .triggerId(wfs.getData().getTriggerId())
                 .build();
         MvcResult stopResult = mockMvc.perform(post("/v1/workflow/trigger/scheduling/stop")
                 .contentType(MediaType.APPLICATION_JSON)

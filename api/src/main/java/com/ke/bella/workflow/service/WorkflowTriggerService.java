@@ -47,22 +47,22 @@ public class WorkflowTriggerService {
     public void refreshTriggerNextTime(WorkflowSchedulingDB scheduling) {
         LocalDateTime nextExecution = CronUtils.nextExecution(scheduling.getCronExpression());
         if(Objects.isNull(nextExecution)) {
-            finishedWorkflowScheduling(scheduling.getWorkflowSchedulingId());
+            finishedWorkflowScheduling(scheduling.getTriggerId());
         } else {
-            updateWorkflowScheduling(scheduling.getWorkflowSchedulingId(), nextExecution);
+            updateWorkflowScheduling(scheduling.getTriggerId(), nextExecution);
         }
     }
 
-    private void finishedWorkflowScheduling(String workflowSchedulingId) {
+    private void finishedWorkflowScheduling(String triggerId) {
         WorkflowSchedulingDB scheduling = new WorkflowSchedulingDB();
-        scheduling.setWorkflowSchedulingId(workflowSchedulingId);
+        scheduling.setTriggerId(triggerId);
         scheduling.setStatus(WorkflowSchedulingStatus.finished.name());
         repo.updateWorkflowScheduling(scheduling);
     }
 
     public void updateWorkflowScheduling(String workflowSchedulingId, LocalDateTime nextExecution) {
         WorkflowSchedulingDB scheduling = new WorkflowSchedulingDB();
-        scheduling.setWorkflowSchedulingId(workflowSchedulingId);
+        scheduling.setTriggerId(workflowSchedulingId);
         scheduling.setTriggerNextTime(nextExecution);
         repo.updateWorkflowScheduling(scheduling);
     }

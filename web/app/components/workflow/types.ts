@@ -128,6 +128,7 @@ export enum InputVarType {
 }
 
 export type InputVar = {
+  defaultValue?: string | number | boolean | Record<string, any>
   type: InputVarType
   label: string | {
     nodeType: BlockEnum

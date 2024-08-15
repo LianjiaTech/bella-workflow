@@ -15,6 +15,7 @@ import { ModalContextProvider } from '@/context/modal-context'
 const Layout = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname()
   const isBella = pathname.startsWith('/bella')
+  const isHuiting = pathname.startsWith('/huiting')
   return (
     <>
       <GA gaType={GaType.admin} />
@@ -23,9 +24,9 @@ const Layout = ({ children }: { children: ReactNode }) => {
           <EventEmitterContextProvider>
             <ProviderContextProvider>
               <ModalContextProvider>
-                <HeaderWrapper>
+                {!isHuiting && <HeaderWrapper>
                   {isBella ? (<BellaHeader/>) : (<Header />)}
-                </HeaderWrapper>
+                </HeaderWrapper>}
                 {children}
               </ModalContextProvider>
             </ProviderContextProvider>

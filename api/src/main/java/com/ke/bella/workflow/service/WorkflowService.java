@@ -10,7 +10,6 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import com.ke.bella.workflow.node.BaseNode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +63,7 @@ public class WorkflowService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void syncWorkflow(WorkflowSync op) {
+    public WorkflowDB syncWorkflow(WorkflowSync op) {
         WorkflowDB wf = repo.queryDraftWorkflow(op.getWorkflowId());
         if(wf == null) {
             WorkflowDB workflowDb = repo.addDraftWorkflow(op);
@@ -77,6 +76,7 @@ public class WorkflowService {
                 repo.updateWorkflowAggregate(op);
             }
         }
+        return repo.queryDraftWorkflow(op.getWorkflowId());
     }
 
     public WorkflowDB getDraftWorkflow(String workflowId) {
@@ -96,7 +96,7 @@ public class WorkflowService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void publish(String workflowId) {
+    public WorkflowDB publish(String workflowId) {
         // 校验工作流配置是否合法
         WorkflowDB wf = getDraftWorkflow(workflowId);
         validateWorkflow(wf);
@@ -109,6 +109,7 @@ public class WorkflowService {
 
         long version = repo.publishWorkflow(workflowId);
         repo.publishWorkflowAggregate(workflowId, version);
+        return repo.queryWorkflow(workflowId, version);
     }
 
     @Transactional(rollbackFor = Exception.class)

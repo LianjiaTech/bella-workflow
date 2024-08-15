@@ -210,7 +210,7 @@ public class WorkflowRepo implements BaseRepo {
         rec.from(wf);
         rec.setId(null);
         rec.setVersion(version);
-        fillUpdatorInfo(rec);
+        fillCreatorInfo(rec);
 
         int num = db.insertInto(WORKFLOW).set(rec).execute();
 

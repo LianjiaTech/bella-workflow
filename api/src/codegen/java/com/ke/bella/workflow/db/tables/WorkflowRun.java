@@ -103,7 +103,7 @@ API
     /**
      * The column <code>workflow_run.inputs</code>.
      */
-    public final TableField<WorkflowRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB, this, "");
+    public final TableField<WorkflowRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_run.outputs</code>. 最后一个节点的输出

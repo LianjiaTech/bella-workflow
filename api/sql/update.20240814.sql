@@ -1,0 +1,5 @@
+ALTER TABLE workflow
+    MODIFY graph LONGTEXT NOT NULL COMMENT '工作流DAG配置';
+
+ALTER TABLE workflow_aggregate
+    MODIFY graph LONGTEXT NOT NULL COMMENT '工作流DAG配置';

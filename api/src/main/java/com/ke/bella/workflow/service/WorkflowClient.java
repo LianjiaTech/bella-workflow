@@ -36,7 +36,7 @@ public class WorkflowClient {
         if(Objects.isNull(tenantDB) || StringUtils.isEmpty(tenantDB.getOpenapiKey())) {
             String msg = String.format("workflow scheduling failed, reason: tenantId %s is invalid, schedulingId = %s",
                     workflowScheduling.getTenantId(),
-                    workflowScheduling.getWorkflowSchedulingId());
+                    workflowScheduling.getTriggerId());
             throw new IllegalStateException(msg);
         }
     }
@@ -52,7 +52,7 @@ public class WorkflowClient {
                 .inputs(JsonUtils.fromJson(schedulingDb.getInputs(), Map.class))
                 .responseMode(WorkflowOps.ResponseMode.callback.name())
                 .triggerFrom(WorkflowOps.TriggerFrom.SCHEDULE.name())
-                .callbackUrl(String.format("%s%s%s", workflowDomain, triggerCallbackPath, schedulingDb.getWorkflowSchedulingId()))
+                .callbackUrl(String.format("%s%s%s", workflowDomain, triggerCallbackPath, schedulingDb.getTriggerId()))
                 .build();
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + tenantDB.getOpenapiKey());

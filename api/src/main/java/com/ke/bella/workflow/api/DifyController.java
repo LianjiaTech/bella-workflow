@@ -73,17 +73,14 @@ public class DifyController {
     private String openApiKey;
 
     private void initContext(Operator op) {
-        if(op != null) {
+        if(op != null && contextOperatorInvalid()) {
             BellaContext.setOperator(op);
         }
         initContext();
     }
 
     private void initContext() {
-        if(Objects.isNull(BellaContext.getOperator()) ||
-                !StringUtils.hasText(BellaContext.getOperator().getTenantId()) ||
-                !StringUtils.hasText(BellaContext.getOperator().getUserName()) ||
-                Objects.isNull(BellaContext.getOperator().getUserId())) {
+        if(contextOperatorInvalid()) {
             BellaContext.setOperator(Operator.builder()
                     .userId(userIdL)
                     .tenantId("test")
@@ -91,6 +88,13 @@ public class DifyController {
                     .build());
         }
         BellaContext.setApiKey(openApiKey);
+    }
+
+    private static boolean contextOperatorInvalid() {
+        return Objects.isNull(BellaContext.getOperator()) ||
+                !StringUtils.hasText(BellaContext.getOperator().getTenantId()) ||
+                !StringUtils.hasText(BellaContext.getOperator().getUserName()) ||
+                Objects.isNull(BellaContext.getOperator().getUserId());
     }
 
     @GetMapping

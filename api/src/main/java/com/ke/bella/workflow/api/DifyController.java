@@ -231,9 +231,8 @@ public class DifyController {
                 .desc(app.getDescription())
                 .workflowId(workflowId)
                 .build();
-        ws.syncWorkflow(op);
+        WorkflowDB wf = ws.syncWorkflow(op);
 
-        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         return DifyApp.builder()
                 .tenantId(wf.getTenantId())
                 .id(workflowId)
@@ -307,11 +306,12 @@ public class DifyController {
         initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
         try {
-            ws.publish(workflowId);
+            WorkflowDB wf = ws.publish(workflowId);
+            return DifyResponse.builder().code(200).message("发布成功").status("success")
+                    .createdAt(wf.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond()).build();
         } catch (Exception e) {
             return DifyResponse.builder().code(400).message(e.getMessage()).status("invalid_param").build();
         }
-        return DifyResponse.builder().code(200).message("发布成功").status("success").createdAt(System.currentTimeMillis() / 1000).build();
     }
 
     @PostMapping({ "/{workflowId}/workflows/draft/run", "/{workflowId}/advanced-chat/workflows/draft/run" })

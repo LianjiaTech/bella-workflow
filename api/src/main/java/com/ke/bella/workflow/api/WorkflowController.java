@@ -43,6 +43,7 @@ public class WorkflowController {
 
     @Autowired
     WorkflowService ws;
+
     @PostMapping("/draft/info")
     public WorkflowDB draftInfo(@RequestBody WorkflowOp op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
@@ -60,14 +61,14 @@ public class WorkflowController {
     }
 
     @PostMapping("/draft/sync")
-    public void sync(@RequestBody WorkflowSync op) {
+    public WorkflowDB sync(@RequestBody WorkflowSync op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.graph, "graph不能为空");
 
         if(StringUtils.isEmpty(op.getWorkflowId())) {
-            ws.newWorkflow(op);
+            return ws.newWorkflow(op);
         } else {
-            ws.syncWorkflow(op);
+            return ws.syncWorkflow(op);
         }
     }
 
@@ -87,11 +88,11 @@ public class WorkflowController {
     }
 
     @PostMapping("/draft/publish")
-    public void publish(@RequestBody WorkflowOp op) {
+    public WorkflowDB publish(@RequestBody WorkflowOp op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
-        ws.publish(op.workflowId);
+        return ws.publish(op.workflowId);
     }
 
     @PostMapping("/draft/run")

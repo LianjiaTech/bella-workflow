@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row16;
+import org.jooq.Row18;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -72,6 +72,16 @@ public class WorkflowKafkaTrigger extends TableImpl<WorkflowKafkaTriggerRecord> 
     public final TableField<WorkflowKafkaTriggerRecord, String> TRIGGER_ID = createField(DSL.name("trigger_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
 
     /**
+     * The column <code>workflow_kafka_trigger.name</code>.
+     */
+    public final TableField<WorkflowKafkaTriggerRecord, String> NAME = createField(DSL.name("name"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
+     * The column <code>workflow_kafka_trigger.desc</code>.
+     */
+    public final TableField<WorkflowKafkaTriggerRecord, String> DESC = createField(DSL.name("desc"), SQLDataType.VARCHAR(1024).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
      * The column <code>workflow_kafka_trigger.datasource_id</code>.
      */
     public final TableField<WorkflowKafkaTriggerRecord, String> DATASOURCE_ID = createField(DSL.name("datasource_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
@@ -94,7 +104,7 @@ public class WorkflowKafkaTrigger extends TableImpl<WorkflowKafkaTriggerRecord> 
     /**
      * The column <code>workflow_kafka_trigger.inputKey</code>. 调用工作流的时候作为inputs的一个字段
      */
-    public final TableField<WorkflowKafkaTriggerRecord, String> INPUTKEY = createField(DSL.name("inputKey"), SQLDataType.VARCHAR(255).nullable(false), this, "调用工作流的时候作为inputs的一个字段");
+    public final TableField<WorkflowKafkaTriggerRecord, String> INPUTKEY = createField(DSL.name("inputKey"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("event", SQLDataType.VARCHAR)), this, "调用工作流的时候作为inputs的一个字段");
 
     /**
      * The column <code>workflow_kafka_trigger.status</code>.
@@ -171,7 +181,7 @@ public class WorkflowKafkaTrigger extends TableImpl<WorkflowKafkaTriggerRecord> 
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.WORKFLOW_KAFKA_TRIGGER_IDX_DSID, Indexes.WORKFLOW_KAFKA_TRIGGER_IDX_TENANTID);
+        return Arrays.<Index>asList(Indexes.WORKFLOW_KAFKA_TRIGGER_IDX_DSID, Indexes.WORKFLOW_KAFKA_TRIGGER_IDX_TENANTID, Indexes.WORKFLOW_KAFKA_TRIGGER_IDX_WORKFLOW_ID);
     }
 
     @Override
@@ -216,11 +226,11 @@ public class WorkflowKafkaTrigger extends TableImpl<WorkflowKafkaTriggerRecord> 
     }
 
     // -------------------------------------------------------------------------
-    // Row16 type methods
+    // Row18 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row16<Long, String, String, String, String, String, String, String, String, Integer, Long, Long, String, String, LocalDateTime, LocalDateTime> fieldsRow() {
-        return (Row16) super.fieldsRow();
+    public Row18<Long, String, String, String, String, String, String, String, String, String, String, Integer, Long, Long, String, String, LocalDateTime, LocalDateTime> fieldsRow() {
+        return (Row18) super.fieldsRow();
     }
 }

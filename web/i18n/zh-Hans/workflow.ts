@@ -504,6 +504,47 @@ const translation = {
   tracing: {
     stopBy: '由{{user}}终止',
   },
+  trigger: {
+    title: '触发器',
+    desc: '触发器允许您在特定事件发生时运行工作流',
+    add: '添加触发器',
+    name: '名称',
+    namePlaceholder: '请填写触发器名称',
+    description: '描述',
+    descriptionPlaceholder: '请填写触发器描述',
+    startFromBlank: '创建触发器',
+    captionTriggerType: '触发器类型',
+    crontab: '触发时间',
+    inputs: '工作流入参',
+    inputsPlaceholder: '请填写工作流入参',
+    schdDescription: '指定工作流的执行时间',
+    kafkaDescription: '从 Kafka 接收消息触发工作流',
+    expression: '触发条件',
+    datasource: '数据源',
+    toggle: {
+      activate: '触发器已激活',
+      deactivate: '触发器已停用',
+    },
+    types: {
+      schd: '定时触发',
+      kafka: 'Kafka 触发',
+    },
+    table: {
+      header: {
+        id: 'ID',
+        type: '类型',
+        expression: '触发条件',
+        name: '名称',
+        actions: '操作',
+        status: '状态',
+      },
+      empty: {
+        element: {
+          content: '没有找到对应的触发器',
+        },
+      },
+    },
+  },
 }
 
 export default translation

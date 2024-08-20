@@ -32,6 +32,12 @@ public class WorkflowOps {
         KAFKA;
     }
 
+    public enum TriggerType {
+        SCHD,
+        KFKA,
+        WBOT;
+    }
+
     @Getter
     @Setter
     @SuperBuilder
@@ -169,6 +175,9 @@ public class WorkflowOps {
          * quartz标准的cron表达式
          */
         String cronExpression;
+
+        String name;
+        String desc;
     }
 
     @Getter
@@ -276,6 +285,10 @@ public class WorkflowOps {
 
         /** event作为inputs里的哪一个字段 */
         String inputkey;
+
+        String name;
+
+        String desc;
     }
 
     @Getter
@@ -327,5 +340,23 @@ public class WorkflowOps {
     @AllArgsConstructor
     public static class TriggerQuery extends WorkflowOp {
         String triggerId;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WorkflowTrigger {
+        String triggerId;
+        String triggerType;
+        String name;
+        String desc;
+        String expression;
+        String datasourceId;
+        String status;
+        String workflowId;
+        String inputs;
+        String inputKey;
     }
 }

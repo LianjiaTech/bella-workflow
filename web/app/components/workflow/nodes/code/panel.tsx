@@ -12,7 +12,6 @@ import AddButton from '@/app/components/base/button/add-button'
 import Field from '@/app/components/workflow/nodes/_base/components/field'
 import Split from '@/app/components/workflow/nodes/_base/components/split'
 import CodeEditor from '@/app/components/workflow/nodes/_base/components/editor/code-editor'
-import TypeSelector from '@/app/components/workflow/nodes/_base/components/selector'
 import type { NodePanelProps } from '@/app/components/workflow/types'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
@@ -113,13 +112,6 @@ const Panel: FC<NodePanelProps<CodeNodeType>> = ({
         <CodeEditor
           isInNode
           readOnly={readOnly}
-          title={
-            <TypeSelector
-              options={codeLanguages}
-              value={inputs.code_language}
-              onChange={handleCodeLanguageChange}
-            />
-          }
           language={inputs.code_language}
           value={inputs.code}
           onChange={handleCodeChange}

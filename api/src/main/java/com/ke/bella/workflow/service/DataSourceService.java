@@ -23,4 +23,11 @@ public class DataSourceService {
         repo.removeKafkaDs(op);
     }
 
+    public Object listDataSources(String type) {
+        if("kafka".equals(type)) {
+            return repo.listTenantAllActiveKafkaDs();
+        }
+        return null;
+    }
+
 }

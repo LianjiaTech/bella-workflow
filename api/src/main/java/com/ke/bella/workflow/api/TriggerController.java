@@ -1,9 +1,5 @@
 package com.ke.bella.workflow.api;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +20,6 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowWebotTriggerDB;
 import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.trigger.WebotTriggerRunner;
-import com.ke.bella.workflow.utils.CronUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -46,14 +41,7 @@ public class TriggerController {
         Assert.hasText(op.workflowId, "workflowId不能为空");
         Assert.hasText(op.cronExpression, "cronExpression不能为空");
 
-        List<LocalDateTime> nextTimes = CronUtils.nextExecutions(op.getCronExpression(), 2);
-        Assert.isTrue(!nextTimes.isEmpty(), "不存在晚于当前时间的下次执行时间，请检查cron表达式");
-        if(nextTimes.size() == 2) {
-            Assert.isTrue(ChronoUnit.SECONDS.between(nextTimes.get(0), nextTimes.get(1)) < 5 * 60,
-                    "不允许两次时间间隔小于5分钟，请检查cron表达式");
-        }
-
-        WorkflowSchedulingDB wsDb = ws.createSchedulingTrigger(op.getWorkflowId(), op.getCronExpression(), op.getInputs(), nextTimes.get(0));
+        WorkflowSchedulingDB wsDb = ws.createSchedulingTrigger(op);
         return wsDb;
     }
 

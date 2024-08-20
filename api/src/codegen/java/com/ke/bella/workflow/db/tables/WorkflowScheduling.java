@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row16;
+import org.jooq.Row19;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -72,6 +72,16 @@ public class WorkflowScheduling extends TableImpl<WorkflowSchedulingRecord> {
     public final TableField<WorkflowSchedulingRecord, String> TRIGGER_TYPE = createField(DSL.name("trigger_type"), SQLDataType.VARCHAR(16).nullable(false).defaultValue(DSL.inline("SCHD", SQLDataType.VARCHAR)), this, "");
 
     /**
+     * The column <code>workflow_scheduling.name</code>.
+     */
+    public final TableField<WorkflowSchedulingRecord, String> NAME = createField(DSL.name("name"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
+     * The column <code>workflow_scheduling.desc</code>.
+     */
+    public final TableField<WorkflowSchedulingRecord, String> DESC = createField(DSL.name("desc"), SQLDataType.VARCHAR(1024).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
      * The column <code>workflow_scheduling.workflow_id</code>.
      */
     public final TableField<WorkflowSchedulingRecord, String> WORKFLOW_ID = createField(DSL.name("workflow_id"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
@@ -97,7 +107,7 @@ public class WorkflowScheduling extends TableImpl<WorkflowSchedulingRecord> {
     public final TableField<WorkflowSchedulingRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
-     * The column <code>workflow_scheduling.status</code>. 调度任务状态；
+     * The column <code>workflow_scheduling.running_status</code>. 调度任务状态；
 init:待执行
 pending:已有线程在处理,等待提交workflow_run
 running:workflow_run进行中
@@ -105,7 +115,12 @@ finished:已完成
 error:出现异常
 :canceled:取消
      */
-    public final TableField<WorkflowSchedulingRecord, String> STATUS = createField(DSL.name("status"), SQLDataType.VARCHAR(32).nullable(false).defaultValue(DSL.inline("init", SQLDataType.VARCHAR)), this, "调度任务状态；\ninit:待执行\npending:已有线程在处理,等待提交workflow_run\nrunning:workflow_run进行中\nfinished:已完成\nerror:出现异常\n:canceled:取消");
+    public final TableField<WorkflowSchedulingRecord, String> RUNNING_STATUS = createField(DSL.name("running_status"), SQLDataType.VARCHAR(32).nullable(false).defaultValue(DSL.inline("init", SQLDataType.VARCHAR)), this, "调度任务状态；\ninit:待执行\npending:已有线程在处理,等待提交workflow_run\nrunning:workflow_run进行中\nfinished:已完成\nerror:出现异常\n:canceled:取消");
+
+    /**
+     * The column <code>workflow_scheduling.status</code>.
+     */
+    public final TableField<WorkflowSchedulingRecord, Integer> STATUS = createField(DSL.name("status"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.inline("0", SQLDataType.INTEGER)), this, "");
 
     /**
      * The column <code>workflow_scheduling.ctime</code>.
@@ -177,7 +192,7 @@ error:出现异常
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.WORKFLOW_SCHEDULING_IDX_STATUS_TRIGGER_NEXT_TIME);
+        return Arrays.<Index>asList(Indexes.WORKFLOW_SCHEDULING_IDX_STATUS_TRIGGER_NEXT_TIME, Indexes.WORKFLOW_SCHEDULING_IDX_WORKFLOW_ID);
     }
 
     @Override
@@ -222,11 +237,11 @@ error:出现异常
     }
 
     // -------------------------------------------------------------------------
-    // Row16 type methods
+    // Row19 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row16<Long, String, String, String, String, String, String, LocalDateTime, String, String, LocalDateTime, String, Long, LocalDateTime, String, Long> fieldsRow() {
-        return (Row16) super.fieldsRow();
+    public Row19<Long, String, String, String, String, String, String, String, String, LocalDateTime, String, String, Integer, LocalDateTime, String, Long, LocalDateTime, String, Long> fieldsRow() {
+        return (Row19) super.fieldsRow();
     }
 }

@@ -37,6 +37,7 @@ import type {
 } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import type { RETRIEVE_METHOD } from '@/types/app'
 import type { SystemFeatures } from '@/types/feature'
+import type { Datasource } from '@/types/workflow'
 
 export const login: Fetcher<CommonResponse & { data: string }, { url: string; body: Record<string, any> }> = ({ url, body }) => {
   return post(url, { body }) as Promise<CommonResponse & { data: string }>
@@ -312,3 +313,7 @@ export const verifyForgotPasswordToken: Fetcher<CommonResponse & { is_valid: boo
 
 export const changePasswordWithToken: Fetcher<CommonResponse, { url: string; body: { token: string; new_password: string; password_confirm: string } }> = ({ url, body }) =>
   post<CommonResponse>(url, { body })
+
+export const fetchDatasourceList: Fetcher<Datasource[], string> = (url) => {
+  return get<Datasource[]>(url)
+}

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.ke.bella.workflow.service.DataSourceService;
 import com.ke.bella.workflow.tool.ApiTool;
 import com.ke.bella.workflow.tool.BellaToolService;
 import com.ke.bella.workflow.tool.BellaToolService.ToolCollect;
@@ -44,6 +46,12 @@ public class DifyWorkspacesController {
     @Value("${bella.llm.models.params}")
     private String llmModelParams;
 
+    @Autowired
+    DifyController dc;
+
+    @Autowired
+    DataSourceService ds;
+
     @GetMapping("/current/models/model-types/{model_type}")
     public Object llmModel(@PathVariable("model_type") String modelType) {
         // 默认返回c4ai-command-r-plus
@@ -58,6 +66,12 @@ public class DifyWorkspacesController {
                 .map(providerMap -> providerMap.get(model))
                 .orElse(Collections.emptyMap());
         return ImmutableMap.of("data", paramsMap);
+    }
+
+    @GetMapping("/current/datasource/{type}")
+    public Object listDataSources(@PathVariable("type") String type) {
+        dc.initContext();
+        return ds.listDataSources(type);
     }
 
     @GetMapping("/current/tools/api")

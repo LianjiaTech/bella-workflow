@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row17;
+import org.jooq.Row19;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -70,6 +70,16 @@ public class WorkflowWebotTrigger extends TableImpl<WorkflowWebotTriggerRecord> 
      * The column <code>workflow_webot_trigger.trigger_id</code>.
      */
     public final TableField<WorkflowWebotTriggerRecord, String> TRIGGER_ID = createField(DSL.name("trigger_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
+
+    /**
+     * The column <code>workflow_webot_trigger.name</code>.
+     */
+    public final TableField<WorkflowWebotTriggerRecord, String> NAME = createField(DSL.name("name"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
+    /**
+     * The column <code>workflow_webot_trigger.desc</code>.
+     */
+    public final TableField<WorkflowWebotTriggerRecord, String> DESC = createField(DSL.name("desc"), SQLDataType.VARCHAR(1024).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow_webot_trigger.chat_id</code>.
@@ -176,7 +186,7 @@ public class WorkflowWebotTrigger extends TableImpl<WorkflowWebotTriggerRecord> 
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.WORKFLOW_WEBOT_TRIGGER_IDX_ROBOTID, Indexes.WORKFLOW_WEBOT_TRIGGER_IDX_TENANTID);
+        return Arrays.<Index>asList(Indexes.WORKFLOW_WEBOT_TRIGGER_IDX_ROBOTID, Indexes.WORKFLOW_WEBOT_TRIGGER_IDX_TENANTID, Indexes.WORKFLOW_WEBOT_TRIGGER_IDX_WORKFLOW_ID);
     }
 
     @Override
@@ -221,11 +231,11 @@ public class WorkflowWebotTrigger extends TableImpl<WorkflowWebotTriggerRecord> 
     }
 
     // -------------------------------------------------------------------------
-    // Row17 type methods
+    // Row19 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row17<Long, String, String, String, String, String, String, String, String, String, Integer, Long, Long, String, String, LocalDateTime, LocalDateTime> fieldsRow() {
-        return (Row17) super.fieldsRow();
+    public Row19<Long, String, String, String, String, String, String, String, String, String, String, String, Integer, Long, Long, String, String, LocalDateTime, LocalDateTime> fieldsRow() {
+        return (Row19) super.fieldsRow();
     }
 }

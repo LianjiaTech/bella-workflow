@@ -162,4 +162,3 @@ pyrightconfig.json
 
 .project
 .settings/**
-yarn.lock

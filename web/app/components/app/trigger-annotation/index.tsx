@@ -19,8 +19,8 @@ const TriggerAnnotation: FC = () => {
 
   return (
     <div className='pt-4 px-6 h-full flex flex-col'>
-      <div className={cn('grow', appDetail.mode !== 'workflow' && 'mt-3')}>
-        {appDetail.mode === 'workflow' && (<WorkflowTrigger appDetail={appDetail} />)}
+      <div className={cn('grow')}>
+        <WorkflowTrigger appDetail={appDetail} />
       </div>
     </div>
   )

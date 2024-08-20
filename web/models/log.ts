@@ -265,11 +265,29 @@ export type WorkflowLogsResponse = {
   total: number
   page: number
 }
+
 export type WorkflowLogsRequest = {
   keyword: string
   status: string
   page: number
   limit: number // The default value is 20 and the range is 1-100
+}
+
+export type WorkflowTriggersRequest = {
+  triggerType: string
+}
+
+export type WorkflowTriggerDetail = {
+  triggerId: string
+  triggerType: string
+  expression: string
+  name: string
+  desc: string
+  status: string
+}
+
+export type WorkflowTriggersResponse = {
+  data: Array<WorkflowTriggerDetail>
 }
 
 export type WorkflowRunDetailResponse = {

@@ -28,6 +28,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.ke.bella.workflow.IWorkflowCallback.File;
@@ -35,11 +36,13 @@ import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
+import com.ke.bella.workflow.api.WorkflowOps.TriggerType;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowTrigger;
 import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
@@ -52,6 +55,7 @@ import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.WorkflowService;
+import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
@@ -69,6 +73,9 @@ public class DifyController {
     @Autowired
     WorkflowService ws;
 
+    @Autowired
+    WorkflowTriggerService ts;
+
     @Value("${bella.open.api.key}")
     private String openApiKey;
 
@@ -79,7 +86,7 @@ public class DifyController {
         initContext();
     }
 
-    private void initContext() {
+    public void initContext() {
         if(contextOperatorInvalid()) {
             BellaContext.setOperator(Operator.builder()
                     .userId(userIdL)
@@ -90,7 +97,7 @@ public class DifyController {
         BellaContext.setApiKey(openApiKey);
     }
 
-    private static boolean contextOperatorInvalid() {
+    public static boolean contextOperatorInvalid() {
         return Objects.isNull(BellaContext.getOperator()) ||
                 !StringUtils.hasText(BellaContext.getOperator().getTenantId()) ||
                 !StringUtils.hasText(BellaContext.getOperator().getUserName()) ||
@@ -356,6 +363,44 @@ public class DifyController {
         return ws.listWorkflowRun(WorkflowRunPage.builder().workflowId(workflowId).build());
     }
 
+    @RequestMapping("/{workflowId}/workflow-triggers")
+    public Object listWorkflowTriggers(@PathVariable String workflowId, @RequestParam String triggerType) {
+        initContext();
+
+        List<WorkflowTrigger> triggers = ts.listWorkflowTriggers(workflowId, TriggerType.valueOf(triggerType));
+        return ImmutableMap.of("data", triggers);
+    }
+
+    @PostMapping("/{workflowId}/trigger/create")
+    public Object createWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowTrigger trigger) {
+        initContext();
+
+        return ts.createWorkflowTrigger(workflowId, trigger);
+    }
+
+    @PostMapping("/{workflowId}/trigger/activate")
+    public Object activateWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowTrigger trigger) {
+        Assert.hasText(trigger.getTriggerId(), "triggerId不能为空");
+        Assert.hasText(trigger.getTriggerType(), "triggerType不能为空");
+
+        initContext();
+
+        ts.activateWorkflowTrigger(trigger.getTriggerId(), trigger.getTriggerType());
+
+        return trigger;
+    }
+
+    @PostMapping("/{workflowId}/trigger/deactivate")
+    public Object deactivateWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowTrigger trigger) {
+        Assert.hasText(trigger.getTriggerId(), "triggerId不能为空");
+        Assert.hasText(trigger.getTriggerType(), "triggerType不能为空");
+
+        initContext();
+
+        ts.deactivateWorkflowTrigger(trigger.getTriggerId(), trigger.getTriggerType());
+        return trigger;
+    }
+
     private static DifyRunHistory transfer(WorkflowRunDB e) {
         return DifyRunHistory.builder()
                 .id(e.getWorkflowRunId())
@@ -376,6 +421,7 @@ public class DifyController {
                         Account.builder().id(String.valueOf(wr.getCuid())).name(wr.getCuName()).email("").build())
                 .created_at(wr.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
                 .finished_at(wr.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                .elapsed_time(1.0)
                 .graph(workflowSchema.getGraph())
                 .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class)).build();
     }

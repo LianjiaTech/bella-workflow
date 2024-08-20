@@ -45,7 +45,7 @@ public class WorkflowSchedulingTest extends AbstractTest {
                 .tenantId("04633c4f-8638-43a3-a02e-af23c29f821f")
                 .workflowId("55513295-ab05-4da7-b99b-bab26596ec9c")
                 .inputs(Collections.singletonMap("demo", "demo"))
-                .cronExpression("0 0/2 * * * ?")
+                .cronExpression("*/2 * * * *")
                 .build();
         MvcResult schedulingResult = mockMvc.perform(post("/v1/workflow/trigger/scheduling/create")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -84,7 +84,7 @@ public class WorkflowSchedulingTest extends AbstractTest {
         BellaResponse<WorkflowSchedulingDB> stopWfs = JsonUtils.fromJson(stopResp.getContentAsString(),
                 new TypeReference<BellaResponse<WorkflowSchedulingDB>>() {
                 });
-        Assertions.assertEquals(WorkflowSchedulingStatus.stopped.name(), stopWfs.getData().getStatus());
+        Assertions.assertEquals(WorkflowSchedulingStatus.stopped.name(), stopWfs.getData().getRunningStatus());
 
         // 4. 测试重新启动
         MvcResult startResult = mockMvc.perform(post("/v1/workflow/trigger/scheduling/start")
@@ -95,7 +95,7 @@ public class WorkflowSchedulingTest extends AbstractTest {
         BellaResponse<WorkflowSchedulingDB> startWfs = JsonUtils.fromJson(startResp.getContentAsString(),
                 new TypeReference<BellaResponse<WorkflowSchedulingDB>>() {
                 });
-        Assertions.assertEquals(WorkflowSchedulingStatus.running.name(), startWfs.getData().getStatus());
+        Assertions.assertEquals(WorkflowSchedulingStatus.running.name(), startWfs.getData().getRunningStatus());
 
         // 5. 手动触发
         mockMvc.perform(post("/v1/workflow/trigger/scheduling/run")

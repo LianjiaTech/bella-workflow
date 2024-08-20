@@ -20,6 +20,8 @@ import type {
   WorkflowLogsRequest,
   WorkflowLogsResponse,
   WorkflowRunDetailResponse,
+  WorkflowTriggersRequest,
+  WorkflowTriggersResponse,
 } from '@/models/log'
 import type { NodeTracingListResponse } from '@/types/workflow'
 
@@ -78,4 +80,8 @@ export const fetchTracingList: Fetcher<NodeTracingListResponse, { url: string }>
 
 export const fetchAgentLogDetail = ({ appID, params }: { appID: string; params: AgentLogDetailRequest }) => {
   return get<AgentLogDetailResponse>(`/apps/${appID}/agent/logs`, { params })
+}
+
+export const fetchWorkflowTriggers: Fetcher<WorkflowTriggersResponse, { url: string; params?: WorkflowTriggersRequest }> = ({ url, params }) => {
+  return get<WorkflowTriggersResponse>(url, { params })
 }

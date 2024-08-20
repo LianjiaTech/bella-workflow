@@ -103,9 +103,9 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh }) => {
               <td className='w-[160px]'>{log.ctime}</td>
               <td>{statusTdRender(log.status)}</td>
               <td>
-                <div className={cn(
+                {/* <div className={cn(
                   log.workflow_run.elapsed_time === 0 && 'text-gray-400',
-                )}>{`${log.workflow_run.elapsed_time.toFixed(3)}s`}</div>
+                )}>{`${log.workflow_run.elapsed_time.toFixed(3)}s`}</div> */}
               </td>
               <td></td>
               <td>

@@ -444,6 +444,7 @@ const translation = {
     apiAccess: '访问 API',
     logAndAnn: '日志与标注',
     logs: '日志',
+    trigger: '触发器',
   },
   environment: {
     testing: '测试环境',

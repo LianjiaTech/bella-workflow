@@ -8,6 +8,8 @@ import {
   RiTerminalBoxLine,
   RiTerminalWindowFill,
   RiTerminalWindowLine,
+  RiTimerFlashFill,
+  RiTimerFlashLine,
 } from '@remixicon/react'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
@@ -65,6 +67,12 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         href: `/app/${appId}/develop`,
         icon: RiTerminalBoxLine,
         selectedIcon: RiTerminalBoxFill,
+      },
+      {
+        name: t('common.appMenus.trigger'),
+        href: `/app/${appId}/trigger`,
+        icon: RiTimerFlashLine,
+        selectedIcon: RiTimerFlashFill,
       },
       /* ...(isCurrentWorkspaceEditor
         ? [{

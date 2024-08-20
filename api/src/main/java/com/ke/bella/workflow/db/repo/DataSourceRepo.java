@@ -12,6 +12,7 @@ import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.api.DataSourceOps.KafkaDataSourceAdd;
 import com.ke.bella.workflow.api.DataSourceOps.KafkaDataSourceRm;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.tables.pojos.KafkaDatasourceDB;
 import com.ke.bella.workflow.db.tables.records.KafkaDatasourceRecord;
@@ -50,6 +51,13 @@ public class DataSourceRepo implements BaseRepo {
 
     public List<KafkaDatasourceDB> listAllKafkaDs() {
         return db.selectFrom(KAFKA_DATASOURCE)
+                .fetchInto(KafkaDatasourceDB.class);
+    }
+
+    public List<KafkaDatasourceDB> listTenantAllActiveKafkaDs() {
+        return db.selectFrom(KAFKA_DATASOURCE)
+                .where(KAFKA_DATASOURCE.TENANT_ID.eq(BellaContext.getOperator().getTenantId())
+                        .and(KAFKA_DATASOURCE.STATUS.eq(0)))
                 .fetchInto(KafkaDatasourceDB.class);
     }
 

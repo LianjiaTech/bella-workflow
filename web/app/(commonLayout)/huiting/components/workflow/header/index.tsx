@@ -37,7 +37,6 @@ const Header: FC = () => {
   const { t } = useTranslation()
   const workflowStore = useWorkflowStore()
   const appDetail = useAppStore(s => s.appDetail)
-  const appSidebarExpand = useAppStore(s => s.appSidebarExpand)
   const appID = appDetail?.id
   const { getNodesReadOnly } = useNodesReadOnly()
   const workflowRunningData = useStore(s => s.workflowRunningData)
@@ -116,11 +115,6 @@ const Header: FC = () => {
       }}
     >
       <div>
-        {
-          appSidebarExpand === 'collapse' && (
-            <div className='text-xs font-medium text-gray-700'>{appDetail?.name}</div>
-          )
-        }
         {
           normal && <EditingTitle />
         }

@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useMemo } from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import type { FC } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -53,6 +53,10 @@ const ConfigContent: FC<Props> = ({
       retrieval_model: value,
     }, true)
   }
+  // componentDidMount 时无脑修改成multiple模式
+  useEffect(() => {
+    setType(RETRIEVE_TYPE.multiWay)
+  }, [])
   const {
     modelList: rerankModelList,
     defaultModel: rerankDefaultModel,

@@ -74,7 +74,7 @@ public class KnowledgeRetrievalNode extends BaseNode {
         params.put("file_ids", datasetIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
         params.put("query", query);
         params.put("top_k", String.valueOf(topK));
-        params.put("score_threshold", String.valueOf(scoreThreshold));
+        params.put("score", String.valueOf(scoreThreshold));
 
         BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postFrom(headers, fileRetrieveUrl, params,
                 new TypeReference<BellaFileRetrieveResult>() {

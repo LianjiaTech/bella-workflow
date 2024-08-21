@@ -1,7 +1,10 @@
 package com.ke.bella.workflow.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,4 +26,12 @@ public class BellaCustomController {
     public Page<WorkflowAggregateDB> pageWorkflowCustom(WorkflowOps.WorkflowPage op) {
         return ws.pageWorkflowAggregate(op);
     }
+
+	@PostMapping("/delete")
+	public void delete(@RequestBody WorkflowOps.WorkflowOp op) {
+		Assert.hasText(op.tenantId, "tenantId不能为空");
+		Assert.hasText(op.workflowId, "workflowId不能为空");
+
+		ws.deleteWorkflowAggregate(op.workflowId);
+	}
 }

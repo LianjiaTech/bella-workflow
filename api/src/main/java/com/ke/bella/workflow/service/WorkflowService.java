@@ -406,4 +406,8 @@ public class WorkflowService {
     public List<WorkflowNodeRunDB> getNodeRuns(String workflowRunId) {
         return repo.queryWorkflowNodeRuns(workflowRunId);
     }
+
+    public void deleteWorkflowAggregate(String workflowId) {
+        repo.updateWorkflowAggregate(WorkflowSync.builder().workflowId(workflowId).status(-1).build());
+    }
 }

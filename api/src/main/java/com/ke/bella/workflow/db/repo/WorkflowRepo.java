@@ -158,6 +158,9 @@ public class WorkflowRepo implements BaseRepo {
         if(!StringUtils.isEmpty(op.getDesc())) {
             rec.setDesc(op.getDesc());
         }
+        if(op.getStatus() != null) {
+            rec.setStatus(op.getStatus());
+        }
         fillUpdatorInfo(rec);
 
         int num = db.update(WORKFLOW_AGGREGATE)
@@ -471,6 +474,7 @@ public class WorkflowRepo implements BaseRepo {
                 .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition()
                         : WORKFLOW_AGGREGATE.TITLE.like("%" + DSL.escape(op.getName(), '\\') + "%"))
                 .and(StringUtils.isEmpty(op.getWorkflowId()) ? DSL.noCondition() : WORKFLOW_AGGREGATE.WORKFLOW_ID.eq(op.getWorkflowId()))
+                .and(WORKFLOW_AGGREGATE.STATUS.eq(0))
                 .orderBy(DSL.when(WORKFLOW_AGGREGATE.LATEST_PUBLISH_VERSION.gt(0L), 0).otherwise(1).asc(), WORKFLOW_AGGREGATE.MTIME.desc());
         return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowAggregateDB.class);
     }

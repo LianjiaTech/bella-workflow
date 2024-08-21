@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.ke.bella.workflow.service.Configs;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -19,6 +18,7 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 
@@ -50,7 +50,8 @@ public class KnowledgeRetrievalNode extends BaseNode {
                     .error(new IllegalArgumentException("query is required")).build();
         }
         try {
-            List<KnowledgeRetrievalResult> retrieveResult = invokeFileRetrieve(query, data.getDatasetIds());
+            List<KnowledgeRetrievalResult> retrieveResult = invokeFileRetrieve(query, data.getDatasetIds(), data.multipleRetrievalConfig.getTopK(),
+                    data.multipleRetrievalConfig.getScoreThreshold());
 
             Map<String, Object> outputs = Collections.singletonMap("result", retrieveResult);
             return WorkflowRunState.NodeRunResult.builder()
@@ -65,13 +66,15 @@ public class KnowledgeRetrievalNode extends BaseNode {
         }
     }
 
-    private List<KnowledgeRetrievalResult> invokeFileRetrieve(String query, List<String> datasetIds) {
+    private List<KnowledgeRetrievalResult> invokeFileRetrieve(String query, List<String> datasetIds, Integer topK, Float scoreThreshold) {
         Map<String, String> headers = Collections.singletonMap("Authorization", "Bearer " + BellaContext.getApiKey());
         String fileRetrieveUrl = Configs.API_BASE + FILES_RETRIEVE;
 
         Map<String, String> params = new HashMap<>();
         params.put("file_ids", datasetIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
         params.put("query", query);
+        params.put("top_k", String.valueOf(topK));
+        params.put("score_threshold", String.valueOf(scoreThreshold));
 
         BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postFrom(headers, fileRetrieveUrl, params,
                 new TypeReference<BellaFileRetrieveResult>() {
@@ -97,6 +100,20 @@ public class KnowledgeRetrievalNode extends BaseNode {
         private List<String> queryVariableSelector;
         @JsonAlias("dataset_ids")
         private List<String> datasetIds;
+        @JsonAlias("multiple_retrieval_config")
+        private MultipleRetrievalConfig multipleRetrievalConfig;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class MultipleRetrievalConfig {
+        @JsonAlias("top_k")
+        private int topK;
+        @JsonAlias("score_threshold")
+        private float scoreThreshold;
     }
 
     @Getter
@@ -124,6 +141,8 @@ public class KnowledgeRetrievalNode extends BaseNode {
             private String fileName;
             @JsonAlias("chunkId")
             private String chunkId;
+            @JsonAlias("score")
+            private Float score;
             private String content;
             @JsonAlias("file_tag")
             private String fileTag;

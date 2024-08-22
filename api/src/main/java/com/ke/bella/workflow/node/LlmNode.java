@@ -114,6 +114,8 @@ public class LlmNode extends BaseNode {
             IWorkflowCallback callback) {
         StringBuilder fullText = new StringBuilder();
         CompletableFuture<String> completionFuture = new CompletableFuture<>();
+        final String messageId = data.isGenerateNewMessage() ? IDGenerator.newMessageId()
+                : (String) context.getState().getVariable("sys", "message_id");
         // todo usage
         Disposable subscribe = llmResult.subscribe(chunk -> {
             if(fullText.length() == 0) {
@@ -131,8 +133,7 @@ public class LlmNode extends BaseNode {
                     Delta delta = Delta.builder()
                             .name(data.getMessageRoleName())
                             .content(Delta.fromText(content))
-                            .messageId(data.isGenerateNewMessage() ? IDGenerator.newMessageId()
-                                    : (String) context.getState().getVariable("sys", "message_id"))
+                            .messageId(messageId)
                             .build();
                     callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
                             ProgressData.builder()

@@ -15,6 +15,7 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.WorkflowSchema.Variable;
+import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.service.code.CodeExecutor;
 import com.ke.bella.workflow.utils.JsonUtils;
 
@@ -48,7 +49,12 @@ public class TemplateTransformNode extends BaseNode {
             Assert.isTrue(text.length() <= MAX_TEMPLATE_TRANSFORM_OUTPUT_LENGTH, "Output length exceeds");
 
             if(data.isGenerateDeltaContent()) {
-                Delta delta = Delta.builder().content(Delta.fromText(text)).build();
+                Delta delta = Delta.builder()
+                        .name(data.getMessageRoleName())
+                        .content(Delta.fromText(text))
+                        .messageId(data.isGenerateNewMessage() ? IDGenerator.newMessageId()
+                                : (String) context.getState().getVariable("sys", "message_id"))
+                        .build();
                 callback.onWorkflowNodeRunProgress(context, getNodeId(), nodeRunId, ProgressData
                         .builder()
                         .data(delta)

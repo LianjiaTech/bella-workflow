@@ -28,6 +28,7 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
+import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
@@ -131,6 +132,7 @@ public class WorkflowService {
         WorkflowRunState state = new WorkflowRunState();
         state.putVariable("sys", "query", op.getQuery());
         state.putVariable("sys", "files", op.getFiles());
+        state.putVariable("sys", "message_id", IDGenerator.newMessageId());
 
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())

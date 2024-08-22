@@ -236,6 +236,8 @@ const translation = {
       delta: {
         title: '直接回复',
         tip: '将节点输出作为回答直接回复',
+        new_msg: '创建新消息',
+        new_msg_tip: '将节点输出作为新消息',
       },
 
     },

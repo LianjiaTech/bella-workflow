@@ -143,6 +143,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData pdata) {
         if(ProgressData.ObjectType.DELTA_CONTENT.equals(pdata.getObject())) {
             DifyEvent event = DifyEvent.builder()
+                    .id(((Delta) pdata.getData()).getMessageId())
                     .workflowRunId(context.getRunId())
                     .workflowId(context.getWorkflowId())
                     .taskId(context.getRunId())
@@ -305,6 +306,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         private String taskId;
         private DifyData data;
         private String answer;
+        private String id;
     }
 
     @Data

@@ -23,6 +23,7 @@ import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.completion.chat.AssistantMessage;
 import com.theokanning.openai.completion.chat.ChatCompletionChunk;
@@ -127,7 +128,12 @@ public class LlmNode extends BaseNode {
                 String content = chunk.getChoices().get(0).getMessage().getContent();
                 fullText.append(content);
                 if(data.isGenerateDeltaContent()) {
-                    Delta delta = Delta.builder().content(Delta.fromText(content)).build();
+                    Delta delta = Delta.builder()
+                            .name(data.getMessageRoleName())
+                            .content(Delta.fromText(content))
+                            .messageId(data.isGenerateNewMessage() ? IDGenerator.newMessageId()
+                                    : (String) context.getState().getVariable("sys", "message_id"))
+                            .build();
                     callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
                             ProgressData.builder()
                                     .data(delta)

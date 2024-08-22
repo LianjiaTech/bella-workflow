@@ -83,6 +83,11 @@ public class IDGenerator {
 	public static String newWecomGroupCode() {
 		return "WCGP-" + UUID.randomUUID().toString();
 	}
+
+    public static String newMessageId() {
+        return "MSG-" + UUID.randomUUID().toString();
+    }
+
     public static String timeStrFromCode(String code) {
         int index = code.indexOf('-') + 1;
         String str = code.substring(index, index + 12);

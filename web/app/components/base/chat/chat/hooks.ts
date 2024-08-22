@@ -233,7 +233,7 @@ export const useChat = (
     handleUpdateChatList(newList)
 
     // answer
-    const responseItem: ChatItem = {
+    let responseItem: ChatItem = {
       id: placeholderAnswerId,
       content: '',
       agent_thoughts: [],
@@ -287,6 +287,15 @@ export const useChat = (
       {
         isPublicAPI,
         onData: (message: string, isFirstMessage: boolean, { conversationId: newConversationId, messageId, taskId }: any) => {
+          if (messageId && messageId !== responseItem.id) {
+            responseItem = {
+              id: messageId,
+              content: '',
+              agent_thoughts: [],
+              message_files: [],
+              isAnswer: true,
+            }
+          }
           if (!isAgentMode) {
             responseItem.content = responseItem.content + message
           }

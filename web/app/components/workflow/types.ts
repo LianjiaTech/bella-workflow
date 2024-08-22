@@ -55,6 +55,7 @@ export type CommonNodeType<T = {}> = {
   desc: string
   type: BlockEnum
   generateDeltaContent?: boolean
+  generateNewMessage?: boolean
   width?: number
   height?: number
 } & T & Partial<Pick<ToolDefaultValue, 'provider_id' | 'provider_type' | 'provider_name' | 'tool_name'>>

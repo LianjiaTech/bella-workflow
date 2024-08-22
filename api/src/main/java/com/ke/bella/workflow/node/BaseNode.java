@@ -30,6 +30,8 @@ class BaseNodeData {
     private String desc;
     private String type;
     private boolean generateDeltaContent = false;
+    private boolean generateNewMessage = false;
+    private String messageRoleName;
 
     @lombok.Getter
     @lombok.Setter

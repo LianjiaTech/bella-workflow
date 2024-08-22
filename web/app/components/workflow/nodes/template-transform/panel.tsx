@@ -48,6 +48,7 @@ const Panel: FC<NodePanelProps<TemplateTransformNodeType>> = ({
     inputVarValues,
     setInputVarValues,
     runResult,
+    handleNewMessageChange,
   } = useConfig(id, data)
 
   return (
@@ -102,7 +103,9 @@ const Panel: FC<NodePanelProps<TemplateTransformNodeType>> = ({
           <DirectlyAnswerConfig
             readonly={readOnly}
             generateDeltaContent={inputs.generateDeltaContent }
+            generateNewMessage={inputs.generateNewMessage}
             onChange={handleDeltaChange}
+            onNewMessageChange={handleNewMessageChange}
             className='px-4 pt-4 pb-2'
           />
         </div>

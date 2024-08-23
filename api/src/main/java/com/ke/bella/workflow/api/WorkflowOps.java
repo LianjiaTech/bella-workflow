@@ -123,7 +123,7 @@ public class WorkflowOps {
         String callbackUrl;
 
         @Builder.Default
-        String triggerFrom = TriggerFrom.DEBUG.name();
+        String triggerFrom = TriggerFrom.API.name();
 
         String triggerId;
 

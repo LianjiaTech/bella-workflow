@@ -16,6 +16,7 @@ import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.WorkflowSchema.Variable;
 import com.ke.bella.workflow.db.IDGenerator;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.service.code.CodeExecutor;
 import com.ke.bella.workflow.utils.JsonUtils;
 
@@ -24,15 +25,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @SuppressWarnings("rawtypes")
-public class TemplateTransformNode extends BaseNode {
+public class TemplateTransformNode extends BaseNode<TemplateTransformNode.Data> {
 
     private static final int MAX_TEMPLATE_TRANSFORM_OUTPUT_LENGTH = 80000;
 
-    private Data data;
-
     public TemplateTransformNode(Node meta) {
-        super(meta);
-        this.data = JsonUtils.convertValue(meta.getData(), Data.class);
+        super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
     }
 
     @SuppressWarnings("unchecked")

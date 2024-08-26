@@ -3,6 +3,8 @@ package com.ke.bella.workflow.node;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -13,6 +15,8 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData.Authorization;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatCompletionResult;
@@ -25,14 +29,11 @@ import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class QuestionClassifierNode extends BaseNode {
-
-    private final Data data;
+public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data> {
 
     @SuppressWarnings("unchecked")
     public QuestionClassifierNode(Node meta) {
-        super(meta);
-        this.data = JsonUtils.convertValue(meta.getData(), Data.class);
+        super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
         meta.getData().put("source_handles_size", this.data.classes.size());
     }
 
@@ -169,6 +170,11 @@ public class QuestionClassifierNode extends BaseNode {
 
         @Builder.Default
         Authorization authorization = new Authorization();
+
+        @Override
+        public List<String> getSourceHandles() {
+            return classes.stream().map(ClassConfig::getId).collect(Collectors.toList());
+        }
 
         @lombok.Getter
         @lombok.Setter

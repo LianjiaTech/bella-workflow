@@ -1,6 +1,6 @@
 package com.ke.bella.workflow.node;
 
-import static okhttp3.internal.Util.EMPTY_REQUEST;
+import static okhttp3.internal.Util.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -38,6 +38,7 @@ import com.ke.bella.workflow.WorkflowRunState.NodeRunResult.NodeRunResultBuilder
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -67,7 +68,7 @@ import okhttp3.sse.EventSourceListener;
 import okio.Buffer;
 
 @SuppressWarnings("rawtypes")
-public class HttpNode extends BaseNode {
+public class HttpNode extends BaseNode<HttpNode.Data> {
     static HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
     static OkHttpClient client = new OkHttpClient.Builder()
             .addInterceptor(logging)
@@ -81,11 +82,9 @@ public class HttpNode extends BaseNode {
 
     private static final int MAX_TEXT_SIZE = 1024 * 1024;
 
-    private Data data;
 
     public HttpNode(Node meta) {
-        super(meta);
-        this.data = JsonUtils.convertValue(meta.getData(), Data.class);
+        super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
         exclusiveClient = client.newBuilder()
                 .connectTimeout(data.getTimeout().getConnect(), TimeUnit.SECONDS)
                 .readTimeout(data.getTimeout().getRead(), TimeUnit.SECONDS)

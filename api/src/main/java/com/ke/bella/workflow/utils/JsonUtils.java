@@ -16,6 +16,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class JsonUtils {
     private static ObjectMapper mapper = new ObjectMapper();
+    private static ObjectMapper mapper2 = new ObjectMapper();
     static {
         mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
@@ -60,6 +61,14 @@ public class JsonUtils {
     public static String toJson(Object obj) {
         try {
             return mapper.writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static String toJsonWithNull(Object obj) {
+        try {
+            return mapper2.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException(e);
         }

@@ -1,5 +1,6 @@
 package com.ke.bella.workflow;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +48,7 @@ public class WorkflowContext {
     private void validateInputs() {
         if(NodeType.START.name.equals(graph.getStartNode().getNodeType())) {
             Start start = (Start) BaseNode.from(graph.getStartNode());
-            List<WorkflowSchema.VariableEntity> variables = start.getData().getVariables();
+            List<WorkflowSchema.VariableEntity> variables = start.getNodeData().getVariables();
             for (WorkflowSchema.VariableEntity variable : variables) {
                 validate(variable, userInputs);
             }
@@ -97,10 +98,13 @@ public class WorkflowContext {
             Set<String> ids = graph.nodeIds();
             ids.removeAll(state.completedNodeIds());
 
+            // 把所有执行不到的node标记为跳过
+            List<String> deadNodeIds = skipDeadNodes(ids);
+            ids.removeAll(deadNodeIds);
+
             // 只有当所有依赖节点都ready的时候才可以执行
             List<WorkflowSchema.Node> nodes = ids.stream()
-                    .filter(id -> graph.inEdges(id).stream()
-                            .allMatch(edge -> state.isActivated(edge.getSource(), edge.getSourceHandle())))
+                    .filter(this::canNodeActive)
                     .map(graph::node)
                     .collect(Collectors.toList());
 
@@ -108,15 +112,44 @@ public class WorkflowContext {
         }
     }
 
-    public synchronized void putNodeRunResult(String nodeId, NodeRunResult result) {
-        // 针对只有一个后继节点的边集中处理激活标记
-        // 这样，只有if，switch等多后继节点才需要单独在node runner中处理
-        List<Edge> edges = this.graph.outEdges(nodeId);
-        if(result.getError() == null && edges.size() == 1) {
-            result.activatedSourceHandles = Arrays.asList(edges.get(0).getSourceHandle());
+    private List<String> skipDeadNodes(Set<String> ids) {
+        List<String> dids = ids.stream()
+                .filter(id -> graph.inEdges(id).stream()
+                        .allMatch(
+                                edge -> state.isDeadEdge(edge.getSource(), edge.getSourceHandle())))
+                .collect(Collectors.toList());
+        dids.forEach(id -> {
+            BaseNode node = BaseNode.from(graph.node(id));
+            List<String> handles = node.getNodeData().getSourceHandles();
+            putNodeRunResult(node, NodeRunResult.newSkippedResult(handles));
+        });
+        return dids;
+    }
+
+    private boolean canNodeActive(String nodeId) {
+        return graph.inEdges(nodeId).stream()
+                .allMatch(edge -> state.isActivated(edge.getSource(), edge.getSourceHandle())
+                        || state.isDeadEdge(edge.getSource(), edge.getSourceHandle()))
+                && graph.inEdges(nodeId).stream()
+                        .anyMatch(edge -> state.isActivated(edge.getSource(), edge.getSourceHandle()));
+
+    }
+
+    public synchronized void putNodeRunResult(BaseNode node, NodeRunResult result) {
+        if(result.status != NodeRunResult.Status.skipped) {
+            // 针对只有一个后继节点的边集中处理激活标记
+            // 这样，只有if，switch等多后继节点才需要单独在node runner中处理
+            List<Edge> edges = this.graph.outEdges(node.getNodeId());
+            if(result.getError() == null && edges.size() == 1) {
+                result.activatedSourceHandles = Arrays.asList(edges.get(0).getSourceHandle());
+            }
+
+            List<String> handles = new ArrayList<>(node.getNodeData().getSourceHandles());
+            handles.removeAll(result.getActivatedSourceHandles());
+            result.setDeadSourceHandles(handles);
         }
 
-        this.state.putNodeState(nodeId, result);
+        this.state.putNodeState(node.getNodeId(), result);
     }
 
     public void putWorkflowRunResult(NodeRunResult result) {

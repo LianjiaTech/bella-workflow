@@ -18,6 +18,7 @@ public class WorkflowRunner {
         run0(context, callback, context.getNextNodes());
     }
 
+    @SuppressWarnings("rawtypes")
     public void runNode(WorkflowContext context, IWorkflowCallback callback, String nodeId) {
         BaseNode node = context.getNode(nodeId);
         try {
@@ -28,6 +29,7 @@ public class WorkflowRunner {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public void resume(WorkflowContext context, IWorkflowCallback callback, List<String> nodeIds) {
         context.getState().setStatus(WorkflowRunStatus.running);
         callback.onWorkflowRunResumed(context);
@@ -36,6 +38,7 @@ public class WorkflowRunner {
         run0(context, callback, nodes);
     }
 
+    @SuppressWarnings("rawtypes")
     private void run0(WorkflowContext context, IWorkflowCallback callback, List<BaseNode> nodes) {
         try {
             context.validate();

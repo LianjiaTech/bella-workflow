@@ -11,6 +11,7 @@ import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.tool.ApiTool;
 import com.ke.bella.workflow.tool.ToolManager;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -19,17 +20,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-public class ToolNode extends BaseNode {
-
-    private final Data data;
+public class ToolNode extends BaseNode<ToolNode.Data> {
 
     public ToolNode(WorkflowSchema.Node meta) {
-        super(meta);
-        this.data = JsonUtils.convertValue(meta.getData(), Data.class);
+        super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected WorkflowRunState.NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
         Map<String, Object> params = null;
         try {

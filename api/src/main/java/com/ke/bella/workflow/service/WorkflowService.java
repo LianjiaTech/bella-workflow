@@ -383,6 +383,7 @@ public class WorkflowService {
         tryResumeWorkflow(context, callback);
     }
 
+    @SuppressWarnings("unchecked")
     public WorkflowRunState getWorkflowRunState(String workflowRunId) {
         List<WorkflowNodeRunDB> wrs = repo.queryWorkflowNodeRuns(workflowRunId);
         WorkflowRunState state = new WorkflowRunState();
@@ -391,6 +392,7 @@ public class WorkflowService {
                 .outputs(JsonUtils.fromJson(wr.getOutputs(), Map.class))
                 .processData(JsonUtils.fromJson(wr.getProcessData(), Map.class))
                 .status(NodeRunResult.Status.valueOf(wr.getStatus()))
+                .activatedSourceHandles(JsonUtils.fromJson(wr.getActivedTargetHandles(), List.class))
                 .build()));
         return state;
     }

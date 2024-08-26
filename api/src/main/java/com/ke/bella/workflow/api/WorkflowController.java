@@ -36,7 +36,7 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.service.WorkflowService;
 
 @RestController
-@RequestMapping("/v1/workflow")
+@RequestMapping("/v1")
 public class WorkflowController {
 
     public static final long MAX_TIMEOUT = 300000L;
@@ -44,7 +44,7 @@ public class WorkflowController {
     @Autowired
     WorkflowService ws;
 
-    @PostMapping("/draft/info")
+    @PostMapping("/workflow/draft/info")
     public WorkflowDB draftInfo(@RequestBody WorkflowOp op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
@@ -52,7 +52,7 @@ public class WorkflowController {
         return ws.getDraftWorkflow(op.workflowId);
     }
 
-    @PostMapping("/info")
+    @PostMapping("/workflow/info")
     public WorkflowDB info(@RequestBody WorkflowOp op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
@@ -60,7 +60,7 @@ public class WorkflowController {
         return ws.getPublishedWorkflow(op.workflowId, op.version);
     }
 
-    @PostMapping("/draft/sync")
+    @PostMapping("/workflow/draft/sync")
     public WorkflowDB sync(@RequestBody WorkflowSync op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.graph, "graph不能为空");
@@ -72,7 +72,7 @@ public class WorkflowController {
         }
     }
 
-    @PostMapping("/copy")
+    @PostMapping("/workflow/copy")
     public WorkflowDB copy(@RequestBody WorkflowCopy op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
@@ -87,7 +87,7 @@ public class WorkflowController {
         return ws.newWorkflow(sync);
     }
 
-    @PostMapping("/draft/publish")
+    @PostMapping("/workflow/draft/publish")
     public WorkflowDB publish(@RequestBody WorkflowOp op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
@@ -95,17 +95,26 @@ public class WorkflowController {
         return ws.publish(op.workflowId);
     }
 
-    @PostMapping("/draft/run")
+    @PostMapping("/workflow/draft/run")
     public Object runDraft(@RequestBody WorkflowRun op) {
         op.setTriggerFrom(TriggerFrom.DEBUG.name());
         return run0(op, "draft");
     }
 
-    @PostMapping("/run")
+    @PostMapping("/workflow/run")
     public Object run(@RequestBody WorkflowRun op) {
         TriggerFrom tf = TriggerFrom.valueOf(op.triggerFrom);
         Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE]之一");
 
+        return run0(op, "published");
+    }
+
+    @PostMapping("/{tenantId}/workflow/{workflowId}/run")
+    public Object run(@PathVariable String tenantId, @PathVariable String workflowId, @RequestBody WorkflowRun op) {
+        TriggerFrom tf = TriggerFrom.valueOf(op.triggerFrom);
+        Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE]之一");
+        op.setTenantId(tenantId);
+        op.setWorkflowId(workflowId);
         return run0(op, "published");
     }
 
@@ -149,7 +158,7 @@ public class WorkflowController {
         }
     }
 
-    @PostMapping("/draft/node/run")
+    @PostMapping("/workflow/draft/node/run")
     public Object runSingleNode(@RequestBody WorkflowNodeRun op) {
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
         Assert.hasText(op.tenantId, "tenantId不能为空");
@@ -184,14 +193,14 @@ public class WorkflowController {
         }
     }
 
-    @PostMapping("/tenant/create")
+    @PostMapping("/workflow/tenant/create")
     public TenantDB createTenant(@RequestBody TenantCreate op) {
         Assert.hasText(op.tenantName, "tenantName不能为空");
 
         return ws.createTenant(op.tenantName, op.parentTenantId);
     }
 
-    @PostMapping("/run/page")
+    @PostMapping("/workflow/run/page")
     public Page<WorkflowRunDB> listWorkflowRun(@RequestBody WorkflowRunPage op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
@@ -199,7 +208,7 @@ public class WorkflowController {
         return ws.listWorkflowRun(op);
     }
 
-    @PostMapping("/run/info")
+    @PostMapping("/workflow/run/info")
     public WorkflowRunResponse getWorkflowRun(@RequestBody WorkflowRunInfo op) {
         Assert.hasText(op.workflowRunId, "workflowRunId不能为空");
 
@@ -208,7 +217,7 @@ public class WorkflowController {
     }
 
     @SuppressWarnings("rawtypes")
-    @PostMapping("/callback/{tenantId}/{workflowId}/{workflowRunId}/{nodeId}/{nodeRunId}")
+    @PostMapping("/workflow/callback/{tenantId}/{workflowId}/{workflowRunId}/{nodeId}/{nodeRunId}")
     public BellaResponse callback(@PathVariable String tenantId,
             @PathVariable String workflowId,
             @PathVariable String workflowRunId,

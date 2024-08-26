@@ -83,6 +83,7 @@ public class WorkflowOps {
         String title;
         String desc;
         String mode;
+        Integer status;
     }
 
     @Getter

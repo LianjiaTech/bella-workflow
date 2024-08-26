@@ -27,6 +27,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
     private String        graph;
     private Long          version;
     private Long          latestPublishVersion;
+    private Integer       status;
     private Long          cuid;
     private String        cuName;
     private LocalDateTime ctime;
@@ -46,6 +47,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         this.graph = value.graph;
         this.version = value.version;
         this.latestPublishVersion = value.latestPublishVersion;
+        this.status = value.status;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
         this.ctime = value.ctime;
@@ -64,6 +66,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         String        graph,
         Long          version,
         Long          latestPublishVersion,
+        Integer       status,
         Long          cuid,
         String        cuName,
         LocalDateTime ctime,
@@ -80,6 +83,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         this.graph = graph;
         this.version = version;
         this.latestPublishVersion = latestPublishVersion;
+        this.status = status;
         this.cuid = cuid;
         this.cuName = cuName;
         this.ctime = ctime;
@@ -215,6 +219,20 @@ public class WorkflowAggregateDB implements Operator, Serializable {
     }
 
     /**
+     * Getter for <code>workflow_aggregate.status</code>. 状态（0:正常, -1:已删除）
+     */
+    public Integer getStatus() {
+        return this.status;
+    }
+
+    /**
+     * Setter for <code>workflow_aggregate.status</code>. 状态（0:正常, -1:已删除）
+     */
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    /**
      * Getter for <code>workflow_aggregate.cuid</code>.
      */
     public Long getCuid() {
@@ -311,6 +329,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         sb.append(", ").append(graph);
         sb.append(", ").append(version);
         sb.append(", ").append(latestPublishVersion);
+        sb.append(", ").append(status);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);
         sb.append(", ").append(ctime);

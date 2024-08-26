@@ -36,4 +36,6 @@ ALTER TABLE `workflow_webot_trigger` ADD COLUMN `desc` varchar(1024) CHARACTER S
 
 ALTER TABLE `workflow_webot_trigger` ADD INDEX `idx_workflow_id`(`workflow_id` ASC) USING BTREE;
 
+ALTER TABLE `workflow_aggregate` ADD COLUMN `status` TINYINT(4) NOT NULL DEFAULT 0 COMMENT '状态（0:正常, -1:已删除）' AFTER `latest_publish_version`;
+
 SET FOREIGN_KEY_CHECKS=1;

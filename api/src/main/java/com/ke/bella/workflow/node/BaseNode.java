@@ -24,50 +24,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Data
-class BaseNodeData {
-    private String title;
-    private String desc;
-    private String type;
-    private boolean generateDeltaContent = false;
-    private boolean generateNewMessage = false;
-    private String messageRoleName;
-
-    @lombok.Getter
-    @lombok.Setter
-    @lombok.Builder
-    @lombok.NoArgsConstructor
-    @lombok.AllArgsConstructor
-    public static class Authorization {
-        String apiKey;
-        String apiBaseUrl;
-
-        public String getToken() {
-            if(apiKey == null) {
-                apiKey = BellaContext.getApiKey();
-            }
-            return String.format("Bearer %s", apiKey);
-        }
-
-        public String getApiBaseUrl() {
-            return StringUtils.isEmpty(apiBaseUrl) ? Configs.API_BASE : apiBaseUrl;
-        }
-    }
-
-    @lombok.Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class Model {
-        private String provider;
-        private String name;
-        private String mode;
-        @JsonAlias("completion_params")
-        private Map<String, Object> completionParams;
-    }
-}
-
 @Slf4j
-public abstract class BaseNode implements RunnableNode {
+public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements RunnableNode {
+    @SuppressWarnings("rawtypes")
     private static final Map<String, Class<? extends BaseNode>> NODE_RUNNER_CLASSES = new ConcurrentHashMap<>();
     static {
         register(NodeType.START.name, Start.class);
@@ -86,14 +45,16 @@ public abstract class BaseNode implements RunnableNode {
 
     protected WorkflowSchema.Node meta;
     protected String nodeRunId;
+    protected T data;
 
-    protected BaseNode(WorkflowSchema.Node meta) {
-        this(meta, UUID.randomUUID().toString());
+    protected BaseNode(WorkflowSchema.Node meta, T data) {
+        this(meta, UUID.randomUUID().toString(), data);
     }
 
-    protected BaseNode(WorkflowSchema.Node meta, String nodeRunId) {
+    protected BaseNode(WorkflowSchema.Node meta, String nodeRunId, T data) {
         this.meta = meta;
         this.nodeRunId = nodeRunId;
+        this.data = data;
     }
 
     protected void beforeExecute(WorkflowContext context) {
@@ -104,6 +65,10 @@ public abstract class BaseNode implements RunnableNode {
 
     protected void afterExecute(WorkflowContext context) {
         // no-op
+    }
+
+    public T getNodeData() {
+        return data;
     }
 
     public String getNodeId() {
@@ -133,7 +98,7 @@ public abstract class BaseNode implements RunnableNode {
         NodeRunResult result = execute(context, callback);
         try {
             result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);
-            context.putNodeRunResult(meta.getId(), result);
+            context.putNodeRunResult(this, result);
             if(result.getStatus() == NodeRunResult.Status.succeeded) {
                 callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
             } else if(result.getStatus() == NodeRunResult.Status.failed) {
@@ -185,10 +150,12 @@ public abstract class BaseNode implements RunnableNode {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public static void register(String nodeType, Class<? extends BaseNode> clazz) {
         NODE_RUNNER_CLASSES.put(nodeType, clazz);
     }
 
+    @SuppressWarnings("rawtypes")
     public static BaseNode from(WorkflowSchema.Node meta) {
         String type = meta.getNodeType();
         Class<? extends BaseNode> clazz = NODE_RUNNER_CLASSES.get(type);
@@ -202,6 +169,7 @@ public abstract class BaseNode implements RunnableNode {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public static List<BaseNode> from(List<WorkflowSchema.Node> metas) {
         List<BaseNode> ret = new ArrayList<>();
         for (WorkflowSchema.Node meta : metas) {
@@ -210,11 +178,12 @@ public abstract class BaseNode implements RunnableNode {
         return ret;
     }
 
+    @SuppressWarnings("rawtypes")
     public static List<BaseNode> from(WorkflowSchema.Node... metas) {
         return from(Arrays.asList(metas));
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static List<Map<String, Object>> defaultConfigs() {
         try {
             List<Map<String, Object>> result = new ArrayList<>();
@@ -242,5 +211,51 @@ public abstract class BaseNode implements RunnableNode {
 
     public static Map<String, Object> defaultConfig(Map<String, Object> filters) {
         return Collections.emptyMap();
+    }
+
+    @Data
+    public static class BaseNodeData {
+        private String title;
+        private String desc;
+        private String type;
+        private boolean generateDeltaContent = false;
+        private boolean generateNewMessage = false;
+        private String messageRoleName;
+
+        public List<String> getSourceHandles() {
+            return Arrays.asList("source");
+        }
+
+        @lombok.Getter
+        @lombok.Setter
+        @lombok.Builder
+        @lombok.NoArgsConstructor
+        @lombok.AllArgsConstructor
+        public static class Authorization {
+            String apiKey;
+            String apiBaseUrl;
+
+            public String getToken() {
+                if(apiKey == null) {
+                    apiKey = BellaContext.getApiKey();
+                }
+                return String.format("Bearer %s", apiKey);
+            }
+
+            public String getApiBaseUrl() {
+                return StringUtils.isEmpty(apiBaseUrl) ? Configs.API_BASE : apiBaseUrl;
+            }
+        }
+
+        @lombok.Data
+        @AllArgsConstructor
+        @NoArgsConstructor
+        public static class Model {
+            private String provider;
+            private String name;
+            private String mode;
+            @JsonAlias("completion_params")
+            private Map<String, Object> completionParams;
+        }
     }
 }

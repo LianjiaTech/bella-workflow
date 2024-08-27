@@ -176,6 +176,7 @@ const translation = {
     'iteration-start': '迭代开始',
     'iteration': '迭代',
     'parameter-extractor': '参数提取器',
+    'parallel': '并行',
   },
   blocksAbout: {
     'start': '定义一个 workflow 流程启动的初始参数',
@@ -192,6 +193,7 @@ const translation = {
     'variable-aggregator': '将多路分支的变量聚合为一个变量，以实现下游节点统一配置。',
     'iteration': '对列表对象执行多次步骤直至输出所有结果。',
     'parameter-extractor': '利用 LLM 从自然语言内推理提取出结构化参数，用于后置的工具调用或 HTTP 请求。',
+    'parallel': '并行执行多个节点，直到所有节点完成。',
   },
   operator: {
     zoomIn: '放大',

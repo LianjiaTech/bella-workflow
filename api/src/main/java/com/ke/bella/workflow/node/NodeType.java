@@ -15,6 +15,7 @@ public enum NodeType {
     PARAMETER_EXTRACTOR("parameter-extractor"),
     CODE("code"),
     TOOL("tool"),
+    PARALLEL("parallel"),
     ;
 
     public final String name;

@@ -136,7 +136,7 @@ public class WorkflowContext {
     }
 
     public synchronized void putNodeRunResult(BaseNode node, NodeRunResult result) {
-        if(result.status != NodeRunResult.Status.skipped) {
+        if(result.status == NodeRunResult.Status.succeeded) {
             // 针对只有一个后继节点的边集中处理激活标记
             // 这样，只有if，switch等多后继节点才需要单独在node runner中处理
             List<Edge> edges = this.graph.outEdges(node.getNodeId());

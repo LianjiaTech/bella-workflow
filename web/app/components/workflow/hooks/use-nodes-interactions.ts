@@ -298,7 +298,6 @@ export const useNodesInteractions = () => {
       return
     if (getNodesReadOnly())
       return
-
     const {
       getNodes,
       setNodes,
@@ -308,8 +307,7 @@ export const useNodesInteractions = () => {
     const nodes = getNodes()
     const targetNode = nodes.find(node => node.id === target!)
     const sourceNode = nodes.find(node => node.id === source!)
-
-    if (targetNode?.parentId !== sourceNode?.parentId)
+    if (targetNode?.parentId && targetNode?.parentId !== sourceNode?.parentId)
       return
 
     if (targetNode?.data.isIterationStart)
@@ -320,9 +318,10 @@ export const useNodesInteractions = () => {
 
     const multiInputNodeTypes = [BlockEnum.VariableAssigner, BlockEnum.VariableAggregator, BlockEnum.Code, BlockEnum.End]
     const canNotSameTargetNodeTypes = [BlockEnum.IfElse, BlockEnum.QuestionClassifier]
+    const multiOutputNodeTypes = [BlockEnum.Parallel]
     const needDeleteEdges = edges.filter((edge) => {
       if (
-        (edge.source === source && edge.sourceHandle === sourceHandle)
+        (edge.source === source && edge.sourceHandle === sourceHandle && !multiOutputNodeTypes.includes(sourceNode?.data.type))
         || (edge.target === target && edge.targetHandle === targetHandle && canNotSameTargetNodeTypes.includes(sourceNode?.data.type))
         || (edge.target === target && edge.targetHandle === targetHandle && !multiInputNodeTypes.includes(targetNode?.data.type))
       )
@@ -330,6 +329,7 @@ export const useNodesInteractions = () => {
 
       return false
     })
+
     const needDeleteEdgesIds = needDeleteEdges.map(edge => edge.id)
     const newEdge = {
       id: `${source}-${sourceHandle}-${target}-${targetHandle}`,
@@ -380,7 +380,6 @@ export const useNodesInteractions = () => {
   const handleNodeConnectStart = useCallback<OnConnectStart>((_, { nodeId, handleType, handleId }) => {
     if (getNodesReadOnly())
       return
-
     if (nodeId && handleType) {
       const { setConnectingNodePayload } = workflowStore.getState()
       const { getNodes } = store.getState()

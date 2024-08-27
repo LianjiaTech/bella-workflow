@@ -38,7 +38,10 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.utils.JsonUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class WorkflowService {
 
     @Resource
@@ -110,6 +113,8 @@ public class WorkflowService {
 
         long version = repo.publishWorkflow(workflowId);
         repo.publishWorkflowAggregate(workflowId, version);
+
+        LOGGER.info("{} workflow published, version: {}", workflowId, version);
         return repo.queryWorkflow(workflowId, version);
     }
 
@@ -186,6 +191,8 @@ public class WorkflowService {
     public WorkflowRunDB newWorkflowRun(WorkflowDB wf, WorkflowRun op) {
         final WorkflowRunDB wr = repo.addWorkflowRun(wf, op);
         TaskExecutor.submit(() -> counter.increase(wr));
+
+        LOGGER.info("{} {} created new workflow run.", wf.getWorkflowId(), wr.getWorkflowRunId());
         return wr;
     }
 

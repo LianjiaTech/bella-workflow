@@ -45,6 +45,11 @@ export const BLOCKS: Block[] = [
     title: 'Iteration',
   },
   {
+    classification: BlockClassificationEnum.Logic,
+    type: BlockEnum.Parallel,
+    title: 'Parallel',
+  },
+  {
     classification: BlockClassificationEnum.Transform,
     type: BlockEnum.Code,
     title: 'Code',

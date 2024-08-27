@@ -41,6 +41,8 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         register(NodeType.TOOL.name, ToolNode.class);
         register(NodeType.PARAMETER_EXTRACTOR.name, ParameterExtractorNode.class);
         register(NodeType.CODE.name, CodeNode.class);
+        register(NodeType.PARALLEL.name, ParallelNode.class);
+
     }
 
     protected WorkflowSchema.Node meta;

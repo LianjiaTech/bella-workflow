@@ -11,6 +11,7 @@ import {
   Iteration,
   KnowledgeRetrieval,
   Llm,
+  Parallel,
   ParameterExtractor,
   QuestionClassifier,
   TemplatingTransform,
@@ -46,6 +47,7 @@ const getIcon = (type: BlockEnum, className: string) => {
     [BlockEnum.Tool]: <VariableX className={className} />,
     [BlockEnum.Iteration]: <Iteration className={className} />,
     [BlockEnum.ParameterExtractor]: <ParameterExtractor className={className} />,
+    [BlockEnum.Parallel]: <Parallel className={className} />,
   }[type]
 }
 const ICON_CONTAINER_BG_COLOR_MAP: Record<string, string> = {
@@ -63,6 +65,7 @@ const ICON_CONTAINER_BG_COLOR_MAP: Record<string, string> = {
   [BlockEnum.VariableAssigner]: 'bg-[#2E90FA]',
   [BlockEnum.VariableAggregator]: 'bg-[#2E90FA]',
   [BlockEnum.ParameterExtractor]: 'bg-[#2E90FA]',
+  [BlockEnum.Parallel]: 'bg-[#06AED4]',
 }
 const BlockIcon: FC<BlockIconProps> = ({
   type,

@@ -26,8 +26,6 @@ import TryToAsk from './try-to-ask'
 import { ChatContextProvider } from './context'
 import classNames from '@/utils/classnames'
 import type { Emoji } from '@/app/components/tools/types'
-import Button from '@/app/components/base/button'
-import { StopCircle } from '@/app/components/base/icons/src/vender/solid/mediaAndDevices'
 import AgentLogModal from '@/app/components/base/agent-log-modal'
 import PromptLogModal from '@/app/components/base/prompt-log-modal'
 import { useStore as useAppStore } from '@/app/components/app/store'
@@ -244,14 +242,14 @@ const Chat: FC<ChatProps> = ({
             className={`${chatFooterInnerClassName}`}
           >
             {
-              !noStopResponding && isResponding && (
+              /*! noStopResponding && isResponding && (
                 <div className='flex justify-center mb-2'>
                   <Button onClick={onStopResponding}>
                     <StopCircle className='mr-[5px] w-3.5 h-3.5 text-gray-500' />
                     <span className='text-xs text-gray-500 font-normal'>{t('appDebug.operation.stopResponding')}</span>
                   </Button>
                 </div>
-              )
+              ) */
             }
             {
               hasTryToAsk && (

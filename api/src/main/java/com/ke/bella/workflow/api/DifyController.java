@@ -12,6 +12,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.api.callbacks.DifyChatflowStreamingCallback;
+import com.theokanning.openai.assistants.thread.Thread;
+import com.theokanning.openai.assistants.thread.ThreadRequest;
+import com.theokanning.openai.service.OpenAiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
@@ -321,13 +326,28 @@ public class DifyController {
         }
     }
 
-    @PostMapping({ "/{workflowId}/workflows/draft/run", "/{workflowId}/advanced-chat/workflows/draft/run" })
+    @PostMapping({ "/{workflowId}/workflows/draft/run" })
     public Object workflowRun(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
+        return workflowRun0(workflowId, op, "workflow");
+    }
+
+    @PostMapping({ "/{workflowId}/advanced-chat/workflows/draft/run" })
+    public Object chatFlowRun(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
+        return workflowRun0(workflowId, op, "advanced-chat");
+    }
+
+    private Object workflowRun0(String workflowId, DifyWorkflowRun op, String workflowMode) {
         initContext();
         op.setWorkflowId(workflowId);
-        WorkflowOps.ResponseMode mode = WorkflowOps.ResponseMode.valueOf(op.responseMode);
+        ResponseMode mode = ResponseMode.valueOf(op.responseMode);
         Assert.hasText(workflowId, "workflowId不能为空");
         Assert.notNull(op.inputs, "inputs不能为空");
+
+        if("advanced-chat".equals(workflowMode) && !StringUtils.hasText(op.getThreadId())) {
+            OpenAiService openAiService = new OpenAiService(BellaContext.getApiKey(), Configs.API_BASE);
+            Thread thread = openAiService.createThread(new ThreadRequest());
+            op.setThreadId(thread.getId());
+        }
 
         WorkflowRun op2 = WorkflowRun.builder()
                 .userId(op.getUserId())
@@ -346,13 +366,21 @@ public class DifyController {
         Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法调试", op2.workflowId));
 
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
-        if(mode == WorkflowOps.ResponseMode.blocking) {
+        if(mode == ResponseMode.blocking) {
             WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, 300000L);
             TaskExecutor.submit(() -> ws.runWorkflow(wr, op2, callback));
             return callback.getWorkflowRunResult();
         } else {
             SseEmitter emitter = SseHelper.createSse(300000L, wr.getWorkflowRunId());
-            TaskExecutor.submit(() -> ws.runWorkflow(wr, op2, new DifyWorkflowRunStreamingCallback(emitter)));
+            TaskExecutor.submit(() -> {
+                IWorkflowCallback callback = null;
+                if("advanced-chat".equals(workflowMode)) {
+                    callback = new DifyChatflowStreamingCallback(new DifyWorkflowRunStreamingCallback(emitter));
+                } else {
+                    callback = new DifyWorkflowRunStreamingCallback(emitter);
+                }
+                ws.runWorkflow(wr, op2, callback);
+            });
             return emitter;
         }
     }

@@ -163,4 +163,8 @@ public class WorkflowContext {
     public boolean isResume(String nodeId) {
         return this.state.isResume(nodeId);
     }
+
+    public String getThreadId() {
+        return this.getState().getVariable("sys", "thread_id") == null ? null : this.getState().getVariable("sys", "thread_id").toString();
+    }
 }

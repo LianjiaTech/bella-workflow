@@ -138,6 +138,7 @@ public class WorkflowService {
         state.putVariable("sys", "query", op.getQuery());
         state.putVariable("sys", "files", op.getFiles());
         state.putVariable("sys", "message_id", IDGenerator.newMessageId());
+        state.putVariable("sys", "thread_id", op.getThreadId());
 
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())

@@ -48,7 +48,7 @@ const DirectlyAnswerConfig: FC<Props> = ({
           />
         }
       />
-      <Field
+      {/* <Field
         title={t(`${i18nPrefix}.new_msg`)}
         tooltip={t(`${i18nPrefix}.new_msg_tip`)!}
         operations={
@@ -59,7 +59,7 @@ const DirectlyAnswerConfig: FC<Props> = ({
             disabled={readonly}
           />
         }
-      />
+      /> */}
     </div>
   )
 }

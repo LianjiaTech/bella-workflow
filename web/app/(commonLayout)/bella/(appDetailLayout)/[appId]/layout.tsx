@@ -7,6 +7,7 @@ import cn from 'classnames'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import { useContext, useContextSelector } from 'use-context-selector'
+import { RiTerminalBoxFill, RiTerminalBoxLine, RiTimerFlashFill, RiTimerFlashLine } from '@remixicon/react'
 import AppSideBar from '../../components/app-sidebar/index'
 import s from './style.module.css'
 import { useStore } from '@/app/components/app/store'
@@ -16,11 +17,9 @@ import AppsContext, { useAppContext } from '@/context/app-context'
 import Loading from '@/app/components/base/loading'
 import {
   PromptEngineering,
-  TerminalSquare,
 } from '@/app/components/base/icons/src/vender/line/development'
 import {
   PromptEngineering as PromptEngineeringSolid,
-  TerminalSquare as TerminalSquareSolid,
 } from '@/app/components/base/icons/src/vender/solid/development'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import CreateAppModal from '@/app/components/explore/create-app-modal'
@@ -70,12 +69,20 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         }]
         : []
       ),
-      {
-        name: t('common.appMenus.apiAccess'),
-        href: `/bella/${appId}/develop${urlParams}`,
-        icon: TerminalSquare,
-        selectedIcon: TerminalSquareSolid,
-      },
+      ...(mode === 'workflow'
+        ? [{
+          name: t('common.appMenus.apiAccess'),
+          href: `/app/${appId}/develop`,
+          icon: RiTerminalBoxLine,
+          selectedIcon: RiTerminalBoxFill,
+        }, {
+          name: t('common.appMenus.trigger'),
+          href: `/app/${appId}/trigger`,
+          icon: RiTimerFlashLine,
+          selectedIcon: RiTimerFlashFill,
+        }]
+        : []
+      ),
     ]
     return navs
   }, [t])

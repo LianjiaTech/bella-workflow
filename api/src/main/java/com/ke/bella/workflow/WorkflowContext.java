@@ -19,6 +19,7 @@ import com.ke.bella.workflow.node.Start;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.util.CollectionUtils;
 
 @Getter
 @Setter
@@ -60,12 +61,15 @@ public class WorkflowContext {
             throw new IllegalArgumentException(String.format("%s is required", variable.getVariable()));
         }
         if("object".equals(variable.getVarType())) {
-            if(variable.getChildren() != null) {
+            Object o = inputs.get(variable.getVariable());
+            if(o == null) {
+                return;
+            }
+            if(!CollectionUtils.isEmpty(variable.getChildren())) {
+                if(!(o instanceof Map)) {
+                    throw new IllegalArgumentException(String.format("invalid json input %s", variable.getVariable()));
+                }
                 for (WorkflowSchema.VariableEntity child : variable.getChildren()) {
-                    Object o = inputs.get(variable.getVariable());
-                    if(!(o instanceof Map)) {
-                        throw new IllegalArgumentException(String.format("invalid json input %s", variable.getVariable()));
-                    }
                     validate(child, (Map) o);
                 }
             }

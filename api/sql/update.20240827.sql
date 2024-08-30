@@ -1,0 +1,21 @@
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+ALTER TABLE workflow_run
+    MODIFY inputs LONGTEXT NOT NULL COMMENT '',
+    MODIFY outputs LONGTEXT NOT NULL COMMENT '';
+
+ALTER TABLE workflow_node_run
+    MODIFY inputs LONGTEXT NOT NULL COMMENT '',
+    MODIFY outputs LONGTEXT NOT NULL COMMENT '';
+
+ALTER TABLE workflow_scheduling
+    MODIFY inputs LONGTEXT NOT NULL COMMENT '';
+
+ALTER TABLE workflow_webot_trigger
+    MODIFY inputs LONGTEXT NOT NULL COMMENT '';
+
+ALTER TABLE workflow_kafka_trigger
+    MODIFY inputs LONGTEXT NOT NULL COMMENT '';
+
+SET FOREIGN_KEY_CHECKS = 1;

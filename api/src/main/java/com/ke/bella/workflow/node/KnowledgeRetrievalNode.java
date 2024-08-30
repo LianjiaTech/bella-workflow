@@ -132,7 +132,7 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         @AllArgsConstructor
         @Builder
         public static class Chunk {
-            private Long id;
+            private String id;
             @JsonAlias("file_id")
             private String fileId;
             @JsonAlias("file_name")

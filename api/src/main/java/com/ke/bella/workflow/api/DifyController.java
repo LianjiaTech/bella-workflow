@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.api.callbacks.DifyChatflowStreamingCallback;
+import com.theokanning.openai.assistants.message.Message;
+import com.theokanning.openai.assistants.message.MessageListSearchParameters;
 import com.theokanning.openai.assistants.thread.Thread;
 import com.theokanning.openai.assistants.thread.ThreadRequest;
 import com.theokanning.openai.service.OpenAiService;
@@ -433,6 +435,8 @@ public class DifyController {
         return DifyRunHistory.builder()
                 .id(e.getWorkflowRunId())
                 .version(String.valueOf(e.getWorkflowVersion()))
+                .conversation_id(String.valueOf(e.getThreadId()))
+                .message_id(String.valueOf(e.getWorkflowVersion()))
                 .status(e.getStatus())
                 .created_by_account(Account.builder().id(String.valueOf(e.getCuid())).name(e.getCuName()).email("").build())
                 .created_at(e.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
@@ -454,7 +458,7 @@ public class DifyController {
                 .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class)).build();
     }
 
-    @RequestMapping("/{workflowId}/workflow-runs")
+    @RequestMapping(path = { "/{workflowId}/workflow-runs", "/{workflowId}/advanced-chat/workflow-runs" })
     public Page<DifyRunHistory> pageWorkflowRuns(@PathVariable String workflowId,
             @RequestParam(value = "last_id", required = false) String lastId,
             @RequestParam(value = "limit", defaultValue = "100") int limit) {
@@ -462,8 +466,7 @@ public class DifyController {
         Assert.isTrue(limit > 0, "limit必须大于0");
         Assert.isTrue(limit < 101, "limit必须小于100");
         WorkflowRunPage page = WorkflowRunPage.builder().lastId(lastId).pageSize(limit).workflowId(workflowId).build();
-        Page<WorkflowRunDB> workflowRunsDbPage = ws.listWorkflowRun(
-                page);
+        Page<WorkflowRunDB> workflowRunsDbPage = ws.listWorkflowRun(page);
         List<WorkflowRunDB> workflowRunsDb = workflowRunsDbPage.getData();
         AtomicInteger counter = new AtomicInteger(1);
         List<DifyRunHistory> list = workflowRunsDb.stream()
@@ -476,6 +479,44 @@ public class DifyController {
         result.pageSize(page.getPageSize());
         result.total(workflowRunsDbPage.getTotal());
         result.list(list);
+        return result;
+    }
+
+    @RequestMapping("/{workflowId}/chat-messages")
+    public Page<DifyChatFlowRun> pageChatFlowRuns(@PathVariable String workflowId,
+            @RequestParam(value = "conversation_id", required = false) String threadId) {
+        initContext();
+        OpenAiService openAiService = new OpenAiService(BellaContext.getApiKey(), Configs.API_BASE);
+
+        List<Message> messages = openAiService.listMessages(threadId, new MessageListSearchParameters()).getData();
+        // messages按照createAt排序，从低到高
+        // fixme：目前一问一答的场景, messages
+        messages.sort(Comparator.comparing(Message::getCreatedAt));
+        // messages 两两配对 然后，按照user、assistant排序
+        // 将role="user"的content作为query，role="assistant"的content作为answer
+        // ，得到DifyChatflowRun对象
+        List<DifyChatFlowRun> chatFlowRuns = Lists.newArrayList();
+        for (int i = 0; i < messages.size(); i += 2) {
+            Message userMessage = messages.get(i);
+            Message assistantMessage = messages.get(i + 1);
+            DifyChatFlowRun chatFlowRun = DifyChatFlowRun.builder()
+                    .id(assistantMessage.getId())
+                    .conversation_id(threadId)
+                    .query(userMessage.getContent().get(0).getText().getValue())
+                    .answer(assistantMessage.getContent().get(0).getText().getValue())
+                    .created_at((long) assistantMessage.getCreatedAt())
+                    .workflow_run_id(workflowId)
+                    .from_account_id("assistant")
+                    .status("normal")
+                    .build();
+            chatFlowRuns.add(chatFlowRun);
+        }
+
+        Page<DifyChatFlowRun> result = new Page<>();
+        result.setPage(1);
+        result.pageSize(chatFlowRuns.size());
+        result.total(chatFlowRuns.size());
+        result.list(chatFlowRuns);
         return result;
     }
 
@@ -605,11 +646,29 @@ public class DifyController {
 
         private String id;
         private Integer sequence_number;
+        private String conversation_id;
+        private String message_id;
         private String version;
         private Account created_by_account;
         private String status;
         private Long created_at;
         private Long finished_at;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @SuperBuilder(toBuilder = true)
+    public static class DifyChatFlowRun {
+        private String id;
+        private String conversation_id;
+        private String query;
+        private String answer;
+        private Long created_at;
+        private String workflow_run_id;
+        private String from_account_id;
+        @Builder.Default
+        private String status = "normal";
     }
 
     @AllArgsConstructor

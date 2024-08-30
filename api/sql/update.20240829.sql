@@ -38,4 +38,6 @@ ALTER TABLE `workflow_webot_trigger` ADD INDEX `idx_workflow_id`(`workflow_id` A
 
 ALTER TABLE `workflow_aggregate` ADD COLUMN `status` TINYINT(4) NOT NULL DEFAULT 0 COMMENT '状态（0:正常, -1:已删除）' AFTER `latest_publish_version`;
 
+ALTER TABLE `workflow_run` add column `thread_id` varchar(64) not null default '' comment 'thread_id'ALTER TABLE `workflow_run`
+
 SET FOREIGN_KEY_CHECKS=1;

@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Throwables;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.api.callbacks.DifyChatflowStreamingCallback;
 import com.theokanning.openai.assistants.message.Message;
@@ -19,9 +20,11 @@ import com.theokanning.openai.assistants.message.MessageListSearchParameters;
 import com.theokanning.openai.assistants.thread.Thread;
 import com.theokanning.openai.assistants.thread.ThreadRequest;
 import com.theokanning.openai.service.OpenAiService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -75,6 +78,7 @@ import lombok.experimental.SuperBuilder;
 
 @RestController
 @RequestMapping("/console/api/apps")
+@Slf4j
 public class DifyController {
 
     @Autowired
@@ -490,26 +494,41 @@ public class DifyController {
 
         List<Message> messages = openAiService.listMessages(threadId, new MessageListSearchParameters()).getData();
         // messages按照createAt排序，从低到高
-        // fixme：目前一问一答的场景, messages
         messages.sort(Comparator.comparing(Message::getCreatedAt));
-        // messages 两两配对 然后，按照user、assistant排序
-        // 将role="user"的content作为query，role="assistant"的content作为answer
-        // ，得到DifyChatflowRun对象
-        List<DifyChatFlowRun> chatFlowRuns = Lists.newArrayList();
-        for (int i = 0; i < messages.size(); i += 2) {
-            Message userMessage = messages.get(i);
-            Message assistantMessage = messages.get(i + 1);
-            DifyChatFlowRun chatFlowRun = DifyChatFlowRun.builder()
-                    .id(assistantMessage.getId())
-                    .conversation_id(threadId)
-                    .query(userMessage.getContent().get(0).getText().getValue())
-                    .answer(assistantMessage.getContent().get(0).getText().getValue())
-                    .created_at((long) assistantMessage.getCreatedAt())
-                    .workflow_run_id(workflowId)
-                    .from_account_id("assistant")
-                    .status("normal")
-                    .build();
-            chatFlowRuns.add(chatFlowRun);
+        List<List<Message>> groupedMessages = new ArrayList<>();
+        List<Message> currentGroup = null;
+
+        List<DifyChatFlowRun> chatFlowRuns = new ArrayList<>();
+
+        try {
+            for (Message message : messages) {
+                if(message.getRole().equals("user")) {
+                    currentGroup = new ArrayList<>();
+                    groupedMessages.add(currentGroup);
+                    currentGroup.add(message);
+                } else {
+                    if(CollectionUtils.isEmpty(currentGroup)) {
+                        continue;
+                    }
+                    currentGroup.add(message);
+                }
+            }
+
+            for (List<Message> groupedMessage : groupedMessages) {
+                DifyChatFlowRun run = DifyChatFlowRun.builder()
+                        .id(groupedMessage.get(0).getId())
+                        .conversation_id(groupedMessage.get(0).getThreadId())
+                        .query(groupedMessage.get(0).getContent().get(0).getText().getValue())
+                        .answer(groupedMessage.subList(1, groupedMessage.size()).stream().map(e -> e.getContent().get(0).getText().getValue())
+                                .collect(Collectors.joining()))
+                        .created_at((long) groupedMessage.get(0).getCreatedAt())
+                        .workflow_run_id(groupedMessage.get(0).getRunId())
+                        .build();
+                chatFlowRuns.add(run);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("pageChatFlowRuns error={}", Throwables.getStackTraceAsString(e));
+            // fixme
         }
 
         Page<DifyChatFlowRun> result = new Page<>();

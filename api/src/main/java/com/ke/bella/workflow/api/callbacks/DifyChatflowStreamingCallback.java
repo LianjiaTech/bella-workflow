@@ -7,14 +7,17 @@ import com.ke.bella.workflow.service.Configs;
 import com.theokanning.openai.assistants.message.MessageRequest;
 import com.theokanning.openai.service.OpenAiService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class DifyChatflowStreamingCallback extends WorkflowCallbackAdaptor {
 
     final DifyWorkflowRunStreamingCallback difyStreamingCallback;
-    final StringBuilder resultBuffer;
+    final Map<String, StringBuilder> resultBufferMap;
     final OpenAiService openAiService;
 
     public DifyChatflowStreamingCallback(DifyWorkflowRunStreamingCallback difyStreamingCallback) {
-        this.resultBuffer = new StringBuilder();
+        this.resultBufferMap = new HashMap<>();
         this.difyStreamingCallback = difyStreamingCallback;
         this.openAiService = new OpenAiService(BellaContext.getApiKey(), Configs.API_BASE);
     }
@@ -29,7 +32,9 @@ public class DifyChatflowStreamingCallback extends WorkflowCallbackAdaptor {
         difyStreamingCallback.onWorkflowRunSucceeded(context);
         // record messages only if chatflow run success
         openAiService.createMessage(context.getThreadId(), new MessageRequest("user", context.getState().getVariable("sys", "query"), null, null));
-        openAiService.createMessage(context.getThreadId(), new MessageRequest("assistant", resultBuffer.toString(), null, null));
+        for (StringBuilder buffer : resultBufferMap.values()) {
+            openAiService.createMessage(context.getThreadId(), new MessageRequest("assistant", buffer.toString(), null, null));
+        }
     }
 
     @Override
@@ -56,7 +61,11 @@ public class DifyChatflowStreamingCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData pdata) {
         difyStreamingCallback.onWorkflowNodeRunProgress(context, nodeId, nodeRunId, pdata);
         if(ProgressData.ObjectType.DELTA_CONTENT.equals(pdata.getObject())) {
-            resultBuffer.append(pdata.getData().toString());
+
+            if(!resultBufferMap.containsKey(((Delta) pdata.getData()).getMessageId())) {
+                resultBufferMap.put(((Delta) pdata.getData()).getMessageId(), new StringBuilder());
+            }
+            resultBufferMap.get(((Delta) pdata.getData()).getMessageId()).append(pdata.getData().toString());
         }
     }
 
@@ -78,9 +87,5 @@ public class DifyChatflowStreamingCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowIterationCompleted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
         difyStreamingCallback.onWorkflowIterationCompleted(context, nodeId, nodeRunId, index);
-    }
-
-    public String getResult() {
-        return resultBuffer.toString();
     }
 }

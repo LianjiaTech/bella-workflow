@@ -26,6 +26,9 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData.Authorization;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData.Model;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.assistants.run.Function;
 import com.theokanning.openai.assistants.run.ToolChoice;
@@ -50,7 +53,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ParameterExtractorNode extends BaseNode {
+public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data> {
 
     private static final String FUNCTION_CALLING_EXTRACTOR_NAME = "extract_parameters";
 
@@ -94,11 +97,9 @@ public class ParameterExtractorNode extends BaseNode {
             + "</context>\\n\n"
             + "<structure>\\n%s\n"
             + "</structure>\\n";
-    private Data data;
 
     public ParameterExtractorNode(WorkflowSchema.Node meta) {
-        super(meta);
-        this.data = JsonUtils.convertValue(meta.getData(), Data.class);
+        super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
     }
 
     @Override
@@ -498,6 +499,7 @@ public class ParameterExtractorNode extends BaseNode {
         private List<ParameterConfig> parameters;
         private String instruction;
         @JsonAlias("reasoning_mode")
+        @Builder.Default
         private String reasoningMode = ReasoningMode.functionCall.getValue();
         @Builder.Default
         Timeout timeout = new Timeout();

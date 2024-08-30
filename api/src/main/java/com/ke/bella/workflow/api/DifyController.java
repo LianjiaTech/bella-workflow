@@ -12,9 +12,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import com.google.common.base.Throwables;
+import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.api.callbacks.DifyChatflowStreamingCallback;
+import com.theokanning.openai.assistants.message.Message;
+import com.theokanning.openai.assistants.message.MessageListSearchParameters;
+import com.theokanning.openai.assistants.thread.Thread;
+import com.theokanning.openai.assistants.thread.ThreadRequest;
+import com.theokanning.openai.service.OpenAiService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +38,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.ke.bella.workflow.IWorkflowCallback.File;
@@ -35,11 +46,13 @@ import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
+import com.ke.bella.workflow.api.WorkflowOps.TriggerType;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowTrigger;
 import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
@@ -52,6 +65,7 @@ import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.WorkflowService;
+import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
@@ -64,10 +78,14 @@ import lombok.experimental.SuperBuilder;
 
 @RestController
 @RequestMapping("/console/api/apps")
+@Slf4j
 public class DifyController {
 
     @Autowired
     WorkflowService ws;
+
+    @Autowired
+    WorkflowTriggerService ts;
 
     @Value("${bella.open.api.key}")
     private String openApiKey;
@@ -79,7 +97,7 @@ public class DifyController {
         initContext();
     }
 
-    private void initContext() {
+    public void initContext() {
         if(contextOperatorInvalid()) {
             BellaContext.setOperator(Operator.builder()
                     .userId(userIdL)
@@ -90,7 +108,7 @@ public class DifyController {
         BellaContext.setApiKey(openApiKey);
     }
 
-    private static boolean contextOperatorInvalid() {
+    public static boolean contextOperatorInvalid() {
         return Objects.isNull(BellaContext.getOperator()) ||
                 !StringUtils.hasText(BellaContext.getOperator().getTenantId()) ||
                 !StringUtils.hasText(BellaContext.getOperator().getUserName()) ||
@@ -314,13 +332,28 @@ public class DifyController {
         }
     }
 
-    @PostMapping({ "/{workflowId}/workflows/draft/run", "/{workflowId}/advanced-chat/workflows/draft/run" })
+    @PostMapping({ "/{workflowId}/workflows/draft/run" })
     public Object workflowRun(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
+        return workflowRun0(workflowId, op, "workflow");
+    }
+
+    @PostMapping({ "/{workflowId}/advanced-chat/workflows/draft/run" })
+    public Object chatFlowRun(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
+        return workflowRun0(workflowId, op, "advanced-chat");
+    }
+
+    private Object workflowRun0(String workflowId, DifyWorkflowRun op, String workflowMode) {
         initContext();
         op.setWorkflowId(workflowId);
-        WorkflowOps.ResponseMode mode = WorkflowOps.ResponseMode.valueOf(op.responseMode);
+        ResponseMode mode = ResponseMode.valueOf(op.responseMode);
         Assert.hasText(workflowId, "workflowId不能为空");
         Assert.notNull(op.inputs, "inputs不能为空");
+
+        if("advanced-chat".equals(workflowMode) && !StringUtils.hasText(op.getThreadId())) {
+            OpenAiService openAiService = new OpenAiService(BellaContext.getApiKey(), Configs.API_BASE);
+            Thread thread = openAiService.createThread(new ThreadRequest());
+            op.setThreadId(thread.getId());
+        }
 
         WorkflowRun op2 = WorkflowRun.builder()
                 .userId(op.getUserId())
@@ -339,13 +372,21 @@ public class DifyController {
         Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法调试", op2.workflowId));
 
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
-        if(mode == WorkflowOps.ResponseMode.blocking) {
+        if(mode == ResponseMode.blocking) {
             WorkflowRunBlockingCallback callback = new WorkflowRunBlockingCallback(ws, 300000L);
             TaskExecutor.submit(() -> ws.runWorkflow(wr, op2, callback));
             return callback.getWorkflowRunResult();
         } else {
             SseEmitter emitter = SseHelper.createSse(300000L, wr.getWorkflowRunId());
-            TaskExecutor.submit(() -> ws.runWorkflow(wr, op2, new DifyWorkflowRunStreamingCallback(emitter)));
+            TaskExecutor.submit(() -> {
+                IWorkflowCallback callback = null;
+                if("advanced-chat".equals(workflowMode)) {
+                    callback = new DifyChatflowStreamingCallback(new DifyWorkflowRunStreamingCallback(emitter));
+                } else {
+                    callback = new DifyWorkflowRunStreamingCallback(emitter);
+                }
+                ws.runWorkflow(wr, op2, callback);
+            });
             return emitter;
         }
     }
@@ -356,10 +397,50 @@ public class DifyController {
         return ws.listWorkflowRun(WorkflowRunPage.builder().workflowId(workflowId).build());
     }
 
+    @RequestMapping("/{workflowId}/workflow-triggers")
+    public Object listWorkflowTriggers(@PathVariable String workflowId, @RequestParam String triggerType) {
+        initContext();
+
+        List<WorkflowTrigger> triggers = ts.listWorkflowTriggers(workflowId, TriggerType.valueOf(triggerType));
+        return ImmutableMap.of("data", triggers);
+    }
+
+    @PostMapping("/{workflowId}/trigger/create")
+    public Object createWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowTrigger trigger) {
+        initContext();
+
+        return ts.createWorkflowTrigger(workflowId, trigger);
+    }
+
+    @PostMapping("/{workflowId}/trigger/activate")
+    public Object activateWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowTrigger trigger) {
+        Assert.hasText(trigger.getTriggerId(), "triggerId不能为空");
+        Assert.hasText(trigger.getTriggerType(), "triggerType不能为空");
+
+        initContext();
+
+        ts.activateWorkflowTrigger(trigger.getTriggerId(), trigger.getTriggerType());
+
+        return trigger;
+    }
+
+    @PostMapping("/{workflowId}/trigger/deactivate")
+    public Object deactivateWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowTrigger trigger) {
+        Assert.hasText(trigger.getTriggerId(), "triggerId不能为空");
+        Assert.hasText(trigger.getTriggerType(), "triggerType不能为空");
+
+        initContext();
+
+        ts.deactivateWorkflowTrigger(trigger.getTriggerId(), trigger.getTriggerType());
+        return trigger;
+    }
+
     private static DifyRunHistory transfer(WorkflowRunDB e) {
         return DifyRunHistory.builder()
                 .id(e.getWorkflowRunId())
                 .version(String.valueOf(e.getWorkflowVersion()))
+                .conversation_id(String.valueOf(e.getThreadId()))
+                .message_id(String.valueOf(e.getWorkflowVersion()))
                 .status(e.getStatus())
                 .created_by_account(Account.builder().id(String.valueOf(e.getCuid())).name(e.getCuName()).email("").build())
                 .created_at(e.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
@@ -376,11 +457,12 @@ public class DifyController {
                         Account.builder().id(String.valueOf(wr.getCuid())).name(wr.getCuName()).email("").build())
                 .created_at(wr.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
                 .finished_at(wr.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                .elapsed_time(1.0)
                 .graph(workflowSchema.getGraph())
                 .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class)).build();
     }
 
-    @RequestMapping("/{workflowId}/workflow-runs")
+    @RequestMapping(path = { "/{workflowId}/workflow-runs", "/{workflowId}/advanced-chat/workflow-runs" })
     public Page<DifyRunHistory> pageWorkflowRuns(@PathVariable String workflowId,
             @RequestParam(value = "last_id", required = false) String lastId,
             @RequestParam(value = "limit", defaultValue = "100") int limit) {
@@ -388,8 +470,7 @@ public class DifyController {
         Assert.isTrue(limit > 0, "limit必须大于0");
         Assert.isTrue(limit < 101, "limit必须小于100");
         WorkflowRunPage page = WorkflowRunPage.builder().lastId(lastId).pageSize(limit).workflowId(workflowId).build();
-        Page<WorkflowRunDB> workflowRunsDbPage = ws.listWorkflowRun(
-                page);
+        Page<WorkflowRunDB> workflowRunsDbPage = ws.listWorkflowRun(page);
         List<WorkflowRunDB> workflowRunsDb = workflowRunsDbPage.getData();
         AtomicInteger counter = new AtomicInteger(1);
         List<DifyRunHistory> list = workflowRunsDb.stream()
@@ -402,6 +483,59 @@ public class DifyController {
         result.pageSize(page.getPageSize());
         result.total(workflowRunsDbPage.getTotal());
         result.list(list);
+        return result;
+    }
+
+    @RequestMapping("/{workflowId}/chat-messages")
+    public Page<DifyChatFlowRun> pageChatFlowRuns(@PathVariable String workflowId,
+            @RequestParam(value = "conversation_id", required = false) String threadId) {
+        initContext();
+        OpenAiService openAiService = new OpenAiService(BellaContext.getApiKey(), Configs.API_BASE);
+
+        List<Message> messages = openAiService.listMessages(threadId, new MessageListSearchParameters()).getData();
+        // messages按照createAt排序，从低到高
+        messages.sort(Comparator.comparing(Message::getCreatedAt));
+        List<List<Message>> groupedMessages = new ArrayList<>();
+        List<Message> currentGroup = null;
+
+        List<DifyChatFlowRun> chatFlowRuns = new ArrayList<>();
+
+        try {
+            for (Message message : messages) {
+                if(message.getRole().equals("user")) {
+                    currentGroup = new ArrayList<>();
+                    groupedMessages.add(currentGroup);
+                    currentGroup.add(message);
+                } else {
+                    if(CollectionUtils.isEmpty(currentGroup)) {
+                        continue;
+                    }
+                    currentGroup.add(message);
+                }
+            }
+
+            for (List<Message> groupedMessage : groupedMessages) {
+                DifyChatFlowRun run = DifyChatFlowRun.builder()
+                        .id(groupedMessage.get(0).getId())
+                        .conversation_id(groupedMessage.get(0).getThreadId())
+                        .query(groupedMessage.get(0).getContent().get(0).getText().getValue())
+                        .answer(groupedMessage.subList(1, groupedMessage.size()).stream().map(e -> e.getContent().get(0).getText().getValue())
+                                .collect(Collectors.joining()))
+                        .created_at((long) groupedMessage.get(0).getCreatedAt())
+                        .workflow_run_id(groupedMessage.get(0).getRunId())
+                        .build();
+                chatFlowRuns.add(run);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("pageChatFlowRuns error={}", Throwables.getStackTraceAsString(e));
+            // fixme
+        }
+
+        Page<DifyChatFlowRun> result = new Page<>();
+        result.setPage(1);
+        result.pageSize(chatFlowRuns.size());
+        result.total(chatFlowRuns.size());
+        result.list(chatFlowRuns);
         return result;
     }
 
@@ -531,11 +665,29 @@ public class DifyController {
 
         private String id;
         private Integer sequence_number;
+        private String conversation_id;
+        private String message_id;
         private String version;
         private Account created_by_account;
         private String status;
         private Long created_at;
         private Long finished_at;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @SuperBuilder(toBuilder = true)
+    public static class DifyChatFlowRun {
+        private String id;
+        private String conversation_id;
+        private String query;
+        private String answer;
+        private Long created_at;
+        private String workflow_run_id;
+        private String from_account_id;
+        @Builder.Default
+        private String status = "normal";
     }
 
     @AllArgsConstructor

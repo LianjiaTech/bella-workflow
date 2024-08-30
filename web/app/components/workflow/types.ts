@@ -25,6 +25,7 @@ export enum BlockEnum {
   Tool = 'tool',
   ParameterExtractor = 'parameter-extractor',
   Iteration = 'iteration',
+  Parallel = 'parallel',
 }
 
 export type Branch = {
@@ -55,6 +56,7 @@ export type CommonNodeType<T = {}> = {
   desc: string
   type: BlockEnum
   generateDeltaContent?: boolean
+  generateNewMessage?: boolean
   width?: number
   height?: number
 } & T & Partial<Pick<ToolDefaultValue, 'provider_id' | 'provider_type' | 'provider_name' | 'tool_name'>>
@@ -128,6 +130,7 @@ export enum InputVarType {
 }
 
 export type InputVar = {
+  defaultValue?: string | number | boolean | Record<string, any>
   type: InputVarType
   label: string | {
     nodeType: BlockEnum

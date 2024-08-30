@@ -176,6 +176,7 @@ const translation = {
     'iteration-start': '迭代开始',
     'iteration': '迭代',
     'parameter-extractor': '参数提取器',
+    'parallel': '并行',
   },
   blocksAbout: {
     'start': '定义一个 workflow 流程启动的初始参数',
@@ -192,6 +193,7 @@ const translation = {
     'variable-aggregator': '将多路分支的变量聚合为一个变量，以实现下游节点统一配置。',
     'iteration': '对列表对象执行多次步骤直至输出所有结果。',
     'parameter-extractor': '利用 LLM 从自然语言内推理提取出结构化参数，用于后置的工具调用或 HTTP 请求。',
+    'parallel': '并行执行多个节点，直到所有节点完成。',
   },
   operator: {
     zoomIn: '放大',
@@ -236,6 +238,8 @@ const translation = {
       delta: {
         title: '直接回复',
         tip: '将节点输出作为回答直接回复',
+        new_msg: '创建新消息',
+        new_msg_tip: '将节点输出作为新消息',
       },
 
     },
@@ -503,6 +507,47 @@ const translation = {
   },
   tracing: {
     stopBy: '由{{user}}终止',
+  },
+  trigger: {
+    title: '触发器',
+    desc: '触发器允许您在特定事件发生时运行工作流',
+    add: '添加触发器',
+    name: '名称',
+    namePlaceholder: '请填写触发器名称',
+    description: '描述',
+    descriptionPlaceholder: '请填写触发器描述',
+    startFromBlank: '创建触发器',
+    captionTriggerType: '触发器类型',
+    crontab: '触发时间',
+    inputs: '工作流入参',
+    inputsPlaceholder: '请填写工作流入参',
+    schdDescription: '指定工作流的执行时间',
+    kafkaDescription: '从 Kafka 接收消息触发工作流',
+    expression: '触发条件',
+    datasource: '数据源',
+    toggle: {
+      activate: '触发器已激活',
+      deactivate: '触发器已停用',
+    },
+    types: {
+      schd: '定时触发',
+      kafka: 'Kafka 触发',
+    },
+    table: {
+      header: {
+        id: 'ID',
+        type: '类型',
+        expression: '触发条件',
+        name: '名称',
+        actions: '操作',
+        status: '状态',
+      },
+      empty: {
+        element: {
+          content: '没有找到对应的触发器',
+        },
+      },
+    },
   },
 }
 

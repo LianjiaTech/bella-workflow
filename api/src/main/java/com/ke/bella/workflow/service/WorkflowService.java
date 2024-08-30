@@ -10,6 +10,7 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import com.ke.bella.workflow.node.BaseNode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
+import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
@@ -37,7 +39,10 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.utils.JsonUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class WorkflowService {
 
     @Resource
@@ -109,6 +114,8 @@ public class WorkflowService {
 
         long version = repo.publishWorkflow(workflowId);
         repo.publishWorkflowAggregate(workflowId, version);
+
+        LOGGER.info("{} workflow published, version: {}", workflowId, version);
         return repo.queryWorkflow(workflowId, version);
     }
 
@@ -131,6 +138,8 @@ public class WorkflowService {
         WorkflowRunState state = new WorkflowRunState();
         state.putVariable("sys", "query", op.getQuery());
         state.putVariable("sys", "files", op.getFiles());
+        state.putVariable("sys", "message_id", IDGenerator.newMessageId());
+        state.putVariable("sys", "thread_id", op.getThreadId());
 
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())
@@ -184,6 +193,8 @@ public class WorkflowService {
     public WorkflowRunDB newWorkflowRun(WorkflowDB wf, WorkflowRun op) {
         final WorkflowRunDB wr = repo.addWorkflowRun(wf, op);
         TaskExecutor.submit(() -> counter.increase(wr));
+
+        LOGGER.info("{} {} created new workflow run.", wf.getWorkflowId(), wr.getWorkflowRunId());
         return wr;
     }
 
@@ -381,6 +392,7 @@ public class WorkflowService {
         tryResumeWorkflow(context, callback);
     }
 
+    @SuppressWarnings("unchecked")
     public WorkflowRunState getWorkflowRunState(String workflowRunId) {
         List<WorkflowNodeRunDB> wrs = repo.queryWorkflowNodeRuns(workflowRunId);
         WorkflowRunState state = new WorkflowRunState();
@@ -389,6 +401,7 @@ public class WorkflowService {
                 .outputs(JsonUtils.fromJson(wr.getOutputs(), Map.class))
                 .processData(JsonUtils.fromJson(wr.getProcessData(), Map.class))
                 .status(NodeRunResult.Status.valueOf(wr.getStatus()))
+                .activatedSourceHandles(JsonUtils.fromJson(wr.getActivedTargetHandles(), List.class))
                 .build()));
         return state;
     }
@@ -403,5 +416,9 @@ public class WorkflowService {
 
     public List<WorkflowNodeRunDB> getNodeRuns(String workflowRunId) {
         return repo.queryWorkflowNodeRuns(workflowRunId);
+    }
+
+    public void deleteWorkflowAggregate(String workflowId) {
+        repo.updateWorkflowAggregate(WorkflowSync.builder().workflowId(workflowId).status(-1).build());
     }
 }

@@ -30,6 +30,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowRunStarted(WorkflowContext context) {
         DifyEvent event = DifyEvent.builder()
                 .workflowRunId(context.getRunId())
+                .threadId(context.getThreadId())
                 .workflowId(context.getWorkflowId())
                 .taskId(context.getRunId())
                 .event("workflow_started")
@@ -47,6 +48,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowRunSucceeded(WorkflowContext context) {
         DifyEvent event = DifyEvent.builder()
                 .workflowRunId(context.getRunId())
+                .threadId(context.getThreadId())
                 .workflowId(context.getWorkflowId())
                 .taskId(context.getRunId())
                 .event("workflow_finished")
@@ -82,6 +84,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t) {
         DifyEvent event = DifyEvent.builder()
                 .workflowRunId(context.getRunId())
+                .threadId(context.getThreadId())
                 .workflowId(context.getWorkflowId())
                 .taskId(context.getRunId())
                 .event("workflow_finished")
@@ -108,6 +111,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
             Object metadata = context.getState().getVariable(nodeId, "metadata");
             event = DifyEvent.builder()
                     .workflowRunId(context.getRunId())
+                    .threadId(context.getThreadId())
                     .workflowId(context.getWorkflowId())
                     .taskId(context.getRunId())
                     .event("iteration_started")
@@ -123,6 +127,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         } else {
             event = DifyEvent.builder()
                     .workflowRunId(context.getRunId())
+                    .threadId(context.getThreadId())
                     .workflowId(context.getWorkflowId())
                     .taskId(context.getRunId())
                     .event("node_started")
@@ -143,13 +148,14 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData pdata) {
         if(ProgressData.ObjectType.DELTA_CONTENT.equals(pdata.getObject())) {
             DifyEvent event = DifyEvent.builder()
+                    .id(((Delta) pdata.getData()).getMessageId())
                     .workflowRunId(context.getRunId())
+                    .threadId(context.getThreadId())
                     .workflowId(context.getWorkflowId())
                     .taskId(context.getRunId())
                     .event("message")
                     .answer(pdata.getData().toString())
                     .build();
-
             SseHelper.sendEvent(emitter, event);
         }
     }
@@ -167,6 +173,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
             Object metadata = context.getState().getVariable(nodeId, "metadata");
             event = DifyEvent.builder()
                     .workflowRunId(context.getRunId())
+                    .threadId(context.getThreadId())
                     .workflowId(context.getWorkflowId())
                     .taskId(context.getRunId())
                     .event("iteration_completed")
@@ -189,6 +196,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         } else {
             event = DifyEvent.builder()
                     .workflowRunId(context.getRunId())
+                    .threadId(context.getThreadId())
                     .workflowId(context.getWorkflowId())
                     .taskId(context.getRunId())
                     .event("node_finished")
@@ -224,6 +232,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
             Object metadata = context.getState().getVariable(nodeId, "metadata");
             event = DifyEvent.builder()
                     .workflowRunId(context.getRunId())
+                    .threadId(context.getThreadId())
                     .workflowId(context.getWorkflowId())
                     .taskId(context.getRunId())
                     .event("iteration_completed")
@@ -247,6 +256,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         } else {
             event = DifyEvent.builder()
                     .workflowRunId(context.getRunId())
+                    .threadId(context.getThreadId())
                     .workflowId(context.getWorkflowId())
                     .taskId(context.getRunId())
                     .event("node_finished")
@@ -273,6 +283,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowIterationStarted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
         DifyEvent event = DifyEvent.builder()
                 .workflowRunId(context.getRunId())
+                .threadId(context.getThreadId())
                 .workflowId(context.getWorkflowId())
                 .taskId(context.getRunId())
                 .event("iteration_next")
@@ -305,6 +316,14 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         private String taskId;
         private DifyData data;
         private String answer;
+        private String id;
+        @JsonProperty("thread_id")
+        private String threadId;
+
+        @JsonProperty("conversation_id")
+        public String getConversationId() {
+            return threadId;
+        }
     }
 
     @Data

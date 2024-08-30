@@ -22,12 +22,15 @@ public class WorkflowSchedulingDB implements Operator, Serializable {
     private String        tenantId;
     private String        triggerId;
     private String        triggerType;
+    private String        name;
+    private String        desc;
     private String        workflowId;
     private String        workflowSchedulingId;
     private String        cronExpression;
     private LocalDateTime triggerNextTime;
     private String        inputs;
-    private String        status;
+    private String        runningStatus;
+    private Integer       status;
     private LocalDateTime ctime;
     private String        cuName;
     private Long          cuid;
@@ -42,11 +45,14 @@ public class WorkflowSchedulingDB implements Operator, Serializable {
         this.tenantId = value.tenantId;
         this.triggerId = value.triggerId;
         this.triggerType = value.triggerType;
+        this.name = value.name;
+        this.desc = value.desc;
         this.workflowId = value.workflowId;
         this.workflowSchedulingId = value.workflowSchedulingId;
         this.cronExpression = value.cronExpression;
         this.triggerNextTime = value.triggerNextTime;
         this.inputs = value.inputs;
+        this.runningStatus = value.runningStatus;
         this.status = value.status;
         this.ctime = value.ctime;
         this.cuName = value.cuName;
@@ -61,12 +67,15 @@ public class WorkflowSchedulingDB implements Operator, Serializable {
         String        tenantId,
         String        triggerId,
         String        triggerType,
+        String        name,
+        String        desc,
         String        workflowId,
         String        workflowSchedulingId,
         String        cronExpression,
         LocalDateTime triggerNextTime,
         String        inputs,
-        String        status,
+        String        runningStatus,
+        Integer       status,
         LocalDateTime ctime,
         String        cuName,
         Long          cuid,
@@ -78,11 +87,14 @@ public class WorkflowSchedulingDB implements Operator, Serializable {
         this.tenantId = tenantId;
         this.triggerId = triggerId;
         this.triggerType = triggerType;
+        this.name = name;
+        this.desc = desc;
         this.workflowId = workflowId;
         this.workflowSchedulingId = workflowSchedulingId;
         this.cronExpression = cronExpression;
         this.triggerNextTime = triggerNextTime;
         this.inputs = inputs;
+        this.runningStatus = runningStatus;
         this.status = status;
         this.ctime = ctime;
         this.cuName = cuName;
@@ -146,6 +158,34 @@ public class WorkflowSchedulingDB implements Operator, Serializable {
      */
     public void setTriggerType(String triggerType) {
         this.triggerType = triggerType;
+    }
+
+    /**
+     * Getter for <code>workflow_scheduling.name</code>.
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Setter for <code>workflow_scheduling.name</code>.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Getter for <code>workflow_scheduling.desc</code>.
+     */
+    public String getDesc() {
+        return this.desc;
+    }
+
+    /**
+     * Setter for <code>workflow_scheduling.desc</code>.
+     */
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
     /**
@@ -219,7 +259,7 @@ public class WorkflowSchedulingDB implements Operator, Serializable {
     }
 
     /**
-     * Getter for <code>workflow_scheduling.status</code>. 调度任务状态；
+     * Getter for <code>workflow_scheduling.running_status</code>. 调度任务状态；
 init:待执行
 pending:已有线程在处理,等待提交workflow_run
 running:workflow_run进行中
@@ -227,20 +267,34 @@ finished:已完成
 error:出现异常
 :canceled:取消
      */
-    public String getStatus() {
+    public String getRunningStatus() {
+        return this.runningStatus;
+    }
+
+    /**
+     * Setter for <code>workflow_scheduling.running_status</code>. 调度任务状态；
+init:待执行
+pending:已有线程在处理,等待提交workflow_run
+running:workflow_run进行中
+finished:已完成
+error:出现异常
+:canceled:取消
+     */
+    public void setRunningStatus(String runningStatus) {
+        this.runningStatus = runningStatus;
+    }
+
+    /**
+     * Getter for <code>workflow_scheduling.status</code>.
+     */
+    public Integer getStatus() {
         return this.status;
     }
 
     /**
-     * Setter for <code>workflow_scheduling.status</code>. 调度任务状态；
-init:待执行
-pending:已有线程在处理,等待提交workflow_run
-running:workflow_run进行中
-finished:已完成
-error:出现异常
-:canceled:取消
+     * Setter for <code>workflow_scheduling.status</code>.
      */
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -336,11 +390,14 @@ error:出现异常
         sb.append(", ").append(tenantId);
         sb.append(", ").append(triggerId);
         sb.append(", ").append(triggerType);
+        sb.append(", ").append(name);
+        sb.append(", ").append(desc);
         sb.append(", ").append(workflowId);
         sb.append(", ").append(workflowSchedulingId);
         sb.append(", ").append(cronExpression);
         sb.append(", ").append(triggerNextTime);
         sb.append(", ").append(inputs);
+        sb.append(", ").append(runningStatus);
         sb.append(", ").append(status);
         sb.append(", ").append(ctime);
         sb.append(", ").append(cuName);

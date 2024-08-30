@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.util.CollectionUtils;
 
@@ -17,6 +18,7 @@ import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
@@ -26,14 +28,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @SuppressWarnings("rawtypes")
-public class IfElseNode extends BaseNode {
-
-    private Data data;
+public class IfElseNode extends BaseNode<IfElseNode.Data> {
 
     @SuppressWarnings("unchecked")
     public IfElseNode(Node meta) {
-        super(meta);
-        this.data = JsonUtils.convertValue(meta.getData(), Data.class);
+        super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
         meta.getData().put("source_handles_size", this.data.getCases().size() + 1);
     }
 
@@ -72,12 +71,13 @@ public class IfElseNode extends BaseNode {
             Map outputs = new LinkedHashMap();
             outputs.put("result", finalResult);
             outputs.put("selected_case_id", selectedCaseId);
+            String activeHandle = Objects.nonNull(selectedCaseId) ? selectedCaseId : "false";
 
             return NodeRunResult.builder()
                     .processData(processData)
                     .inputs(inputs)
                     .outputs(outputs)
-                    .activatedSourceHandles(Collections.singletonList(Objects.nonNull(selectedCaseId) ? selectedCaseId : "false"))
+                    .activatedSourceHandles(Collections.singletonList(activeHandle))
                     .status(NodeRunResult.Status.succeeded)
                     .build();
         } catch (Exception e) {
@@ -345,6 +345,13 @@ public class IfElseNode extends BaseNode {
             } else {
                 return cases;
             }
+        }
+
+        @Override
+        public List<String> getSourceHandles() {
+            List<String> ret = getCases().stream().map(Case::getCaseId).collect(Collectors.toList());
+            ret.add("false");
+            return ret;
         }
     }
 }

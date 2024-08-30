@@ -15,35 +15,39 @@ import com.cronutils.model.time.ExecutionTime;
 import com.cronutils.parser.CronParser;
 
 public class CronUtils {
+    private static final CronParser parser = new CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.UNIX));
 
-    public static Cron parse(String cronExpression) {
-        CronParser parser = new CronParser(CronDefinitionBuilder.instanceDefinitionFor(CronType.QUARTZ));
-        return parser.parse(cronExpression);
+    @Nullable
+    public static ZonedDateTime nextExecution(Cron cron) {
+        ZonedDateTime now = ZonedDateTime.now();
+        return nextExecution(cron, now);
     }
 
     @Nullable
-    public static LocalDateTime nextExecution(Cron cron) {
+    public static ZonedDateTime nextExecution(Cron cron, ZonedDateTime from) {
         ExecutionTime executionTime = ExecutionTime.forCron(cron);
-        ZonedDateTime now = ZonedDateTime.now();
-        ZonedDateTime nextExecution = executionTime.nextExecution(now).orElse(null);
-        if(Objects.isNull(nextExecution)) {
-            return null;
-        }
-        return nextExecution.toLocalDateTime();
+        return executionTime.nextExecution(from).orElse(null);
     }
 
     public static LocalDateTime nextExecution(String cronExpression) {
-        return nextExecution(parse(cronExpression));
+        ZonedDateTime time = nextExecution(parser.parse(cronExpression));
+        if(time == null) {
+            return null;
+        }
+        return time.toLocalDateTime();
     }
 
     public static List<LocalDateTime> nextExecutions(String cronExpression, Integer n) {
         List<LocalDateTime> result = new ArrayList<>();
+        ZonedDateTime from = ZonedDateTime.now();
+        Cron cron = parser.parse(cronExpression);
         for (int i = 0; i < n; i++) {
-            LocalDateTime nextTime = nextExecution(cronExpression);
+            ZonedDateTime nextTime = nextExecution(cron, from);
             if(Objects.isNull(nextTime)) {
                 break;
             }
-            result.add(nextTime);
+            result.add(nextTime.toLocalDateTime());
+            from = nextTime;
         }
         return result;
     }

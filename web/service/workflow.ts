@@ -6,6 +6,7 @@ import type {
   FetchWorkflowDraftResponse,
   NodesDefaultConfigsResponse,
   WorkflowRunHistoryResponse,
+  WorkflowTriggerDetail,
 } from '@/types/workflow'
 import type { BlockEnum } from '@/app/components/workflow/types'
 
@@ -57,4 +58,16 @@ export const fetchNodeDefault = (appId: string, blockType: BlockEnum, query = {}
 
 export const updateWorkflowDraftFromDSL = (appId: string, data: string) => {
   return post<FetchWorkflowDraftResponse>(`apps/${appId}/workflows/draft/import`, { body: { data } })
+}
+
+export const createSchedulingTrigger: Fetcher<WorkflowTriggerDetail, { name: string; desc?: string; expression: string; inputs: string; workflowId: string; triggerType: string; datasourceId: string }> = ({ name, desc, expression, inputs, workflowId, triggerType, datasourceId }) => {
+  return post<WorkflowTriggerDetail>(`apps/${workflowId}/trigger/create`, { body: { name, desc, expression, inputs, workflowId, triggerType, datasourceId } })
+}
+
+export const activateTrigger: Fetcher<WorkflowTriggerDetail, { workflowId: string; triggerId: string; triggerType: string }> = ({ workflowId, triggerId, triggerType }) => {
+  return post<WorkflowTriggerDetail>(`apps/${workflowId}/trigger/activate`, { body: { triggerId, triggerType } })
+}
+
+export const deactivateTrigger: Fetcher<WorkflowTriggerDetail, { workflowId: string; triggerId: string; triggerType: string }> = ({ workflowId, triggerId, triggerType }) => {
+  return post<WorkflowTriggerDetail>(`apps/${workflowId}/trigger/deactivate`, { body: { triggerId, triggerType } })
 }

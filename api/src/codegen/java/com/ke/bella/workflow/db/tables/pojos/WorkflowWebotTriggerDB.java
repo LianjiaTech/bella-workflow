@@ -22,6 +22,8 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
     private String        tenantId;
     private String        triggerType;
     private String        triggerId;
+    private String        name;
+    private String        desc;
     private String        chatId;
     private String        robotId;
     private String        expression;
@@ -43,6 +45,8 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
         this.tenantId = value.tenantId;
         this.triggerType = value.triggerType;
         this.triggerId = value.triggerId;
+        this.name = value.name;
+        this.desc = value.desc;
         this.chatId = value.chatId;
         this.robotId = value.robotId;
         this.expression = value.expression;
@@ -63,6 +67,8 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
         String        tenantId,
         String        triggerType,
         String        triggerId,
+        String        name,
+        String        desc,
         String        chatId,
         String        robotId,
         String        expression,
@@ -81,6 +87,8 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
         this.tenantId = tenantId;
         this.triggerType = triggerType;
         this.triggerId = triggerId;
+        this.name = name;
+        this.desc = desc;
         this.chatId = chatId;
         this.robotId = robotId;
         this.expression = expression;
@@ -150,6 +158,34 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
      */
     public void setTriggerId(String triggerId) {
         this.triggerId = triggerId;
+    }
+
+    /**
+     * Getter for <code>workflow_webot_trigger.name</code>.
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Setter for <code>workflow_webot_trigger.name</code>.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Getter for <code>workflow_webot_trigger.desc</code>.
+     */
+    public String getDesc() {
+        return this.desc;
+    }
+
+    /**
+     * Setter for <code>workflow_webot_trigger.desc</code>.
+     */
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
     /**
@@ -342,6 +378,8 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
         sb.append(", ").append(tenantId);
         sb.append(", ").append(triggerType);
         sb.append(", ").append(triggerId);
+        sb.append(", ").append(name);
+        sb.append(", ").append(desc);
         sb.append(", ").append(chatId);
         sb.append(", ").append(robotId);
         sb.append(", ").append(expression);

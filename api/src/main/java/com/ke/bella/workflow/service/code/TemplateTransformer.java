@@ -63,7 +63,7 @@ public interface TemplateTransformer {
     }
 
     default String serializeInputs(Map<String, Object> inputs) {
-        String inputsJsonStr = JsonUtils.toJson(inputs);
+        String inputsJsonStr = JsonUtils.toJsonWithNull(inputs);
         return Base64.getEncoder().encodeToString(inputsJsonStr.getBytes(StandardCharsets.UTF_8));
     }
 

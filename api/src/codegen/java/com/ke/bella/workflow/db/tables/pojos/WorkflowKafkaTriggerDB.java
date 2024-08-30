@@ -22,6 +22,8 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
     private String        tenantId;
     private String        triggerType;
     private String        triggerId;
+    private String        name;
+    private String        desc;
     private String        datasourceId;
     private String        expression;
     private String        workflowId;
@@ -42,6 +44,8 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
         this.tenantId = value.tenantId;
         this.triggerType = value.triggerType;
         this.triggerId = value.triggerId;
+        this.name = value.name;
+        this.desc = value.desc;
         this.datasourceId = value.datasourceId;
         this.expression = value.expression;
         this.workflowId = value.workflowId;
@@ -61,6 +65,8 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
         String        tenantId,
         String        triggerType,
         String        triggerId,
+        String        name,
+        String        desc,
         String        datasourceId,
         String        expression,
         String        workflowId,
@@ -78,6 +84,8 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
         this.tenantId = tenantId;
         this.triggerType = triggerType;
         this.triggerId = triggerId;
+        this.name = name;
+        this.desc = desc;
         this.datasourceId = datasourceId;
         this.expression = expression;
         this.workflowId = workflowId;
@@ -146,6 +154,34 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
      */
     public void setTriggerId(String triggerId) {
         this.triggerId = triggerId;
+    }
+
+    /**
+     * Getter for <code>workflow_kafka_trigger.name</code>.
+     */
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Setter for <code>workflow_kafka_trigger.name</code>.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Getter for <code>workflow_kafka_trigger.desc</code>.
+     */
+    public String getDesc() {
+        return this.desc;
+    }
+
+    /**
+     * Setter for <code>workflow_kafka_trigger.desc</code>.
+     */
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
     /**
@@ -324,6 +360,8 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
         sb.append(", ").append(tenantId);
         sb.append(", ").append(triggerType);
         sb.append(", ").append(triggerId);
+        sb.append(", ").append(name);
+        sb.append(", ").append(desc);
         sb.append(", ").append(datasourceId);
         sb.append(", ").append(expression);
         sb.append(", ").append(workflowId);

@@ -1,3 +1,4 @@
+
 package com.ke.bella.workflow;
 
 import java.util.ArrayList;
@@ -37,7 +38,9 @@ public interface IWorkflowCallback {
     @AllArgsConstructor
     @Builder
     public static class Delta {
+        String messageId;
         String role;
+        String name;
         List<DeltaContent> content;
 
         @Override
@@ -63,7 +66,9 @@ public interface IWorkflowCallback {
     @AllArgsConstructor
     @Builder
     public static class Message {
+        String messageId;
         String role;
+        String name;
         List<MessageContent> content;
 
         public static List<MessageContent> fromText(String... contents) {

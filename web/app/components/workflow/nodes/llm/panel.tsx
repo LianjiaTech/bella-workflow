@@ -69,6 +69,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
     varInputs,
     runResult,
     handleDeltaChange,
+    handleNewMessageChange,
   } = useConfig(id, data)
 
   const model = inputs.model
@@ -258,8 +259,10 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
             /> */}
             <DirectlyAnswerConfig
               readonly={readOnly}
-              generateDeltaContent={inputs.generateDeltaContent }
+              generateDeltaContent={inputs.generateDeltaContent || false}
+              generateNewMessage={inputs.generateNewMessage}
               onChange={handleDeltaChange}
+              onNewMessageChange={handleNewMessageChange}
             />
           </>
         )}

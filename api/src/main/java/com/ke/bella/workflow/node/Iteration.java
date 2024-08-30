@@ -13,10 +13,11 @@ import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowGraph;
 import com.ke.bella.workflow.WorkflowRunState;
+import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
@@ -26,13 +27,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @SuppressWarnings("rawtypes")
-public class Iteration extends BaseNode {
-
-    private Data data;
+public class Iteration extends BaseNode<Iteration.Data> {
 
     public Iteration(Node meta) {
-        super(meta);
-        this.data = JsonUtils.convertValue(meta.getData(), Data.class);
+        super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
     }
 
     @Override

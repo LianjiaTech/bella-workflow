@@ -298,7 +298,6 @@ export const useNodesInteractions = () => {
       return
     if (getNodesReadOnly())
       return
-
     const {
       getNodes,
       setNodes,
@@ -308,8 +307,7 @@ export const useNodesInteractions = () => {
     const nodes = getNodes()
     const targetNode = nodes.find(node => node.id === target!)
     const sourceNode = nodes.find(node => node.id === source!)
-
-    if (targetNode?.parentId !== sourceNode?.parentId)
+    if (targetNode?.parentId && targetNode?.parentId !== sourceNode?.parentId)
       return
 
     if (targetNode?.data.isIterationStart)
@@ -318,15 +316,20 @@ export const useNodesInteractions = () => {
     if (sourceNode?.type === CUSTOM_NOTE_NODE || targetNode?.type === CUSTOM_NOTE_NODE)
       return
 
+    const multiInputNodeTypes = [BlockEnum.VariableAssigner, BlockEnum.VariableAggregator, BlockEnum.Code, BlockEnum.End]
+    const canNotSameTargetNodeTypes = [BlockEnum.IfElse, BlockEnum.QuestionClassifier]
+    const multiOutputNodeTypes = [BlockEnum.Parallel]
     const needDeleteEdges = edges.filter((edge) => {
       if (
-        (edge.source === source && edge.sourceHandle === sourceHandle)
-        || (edge.target === target && edge.targetHandle === targetHandle && targetNode?.data.type !== BlockEnum.VariableAssigner && targetNode?.data.type !== BlockEnum.VariableAggregator)
+        (edge.source === source && edge.sourceHandle === sourceHandle && !multiOutputNodeTypes.includes(sourceNode?.data.type))
+        || (edge.target === target && edge.targetHandle === targetHandle && canNotSameTargetNodeTypes.includes(sourceNode?.data.type))
+        || (edge.target === target && edge.targetHandle === targetHandle && !multiInputNodeTypes.includes(targetNode?.data.type))
       )
         return true
 
       return false
     })
+
     const needDeleteEdgesIds = needDeleteEdges.map(edge => edge.id)
     const newEdge = {
       id: `${source}-${sourceHandle}-${target}-${targetHandle}`,
@@ -377,7 +380,6 @@ export const useNodesInteractions = () => {
   const handleNodeConnectStart = useCallback<OnConnectStart>((_, { nodeId, handleType, handleId }) => {
     if (getNodesReadOnly())
       return
-
     if (nodeId && handleType) {
       const { setConnectingNodePayload } = workflowStore.getState()
       const { getNodes } = store.getState()

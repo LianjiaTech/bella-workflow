@@ -44,6 +44,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private Long          muid;
     private String        muName;
     private LocalDateTime mtime;
+    private String        threadId;
 
     public WorkflowRunDB() {}
 
@@ -74,6 +75,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.muid = value.muid;
         this.muName = value.muName;
         this.mtime = value.mtime;
+        this.threadId = value.threadId;
     }
 
     public WorkflowRunDB(
@@ -102,7 +104,8 @@ public class WorkflowRunDB implements Operator, Serializable {
         LocalDateTime ctime,
         Long          muid,
         String        muName,
-        LocalDateTime mtime
+        LocalDateTime mtime,
+        String        threadId
     ) {
         this.id = id;
         this.tenantId = tenantId;
@@ -130,6 +133,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.muid = muid;
         this.muName = muName;
         this.mtime = mtime;
+        this.threadId = threadId;
     }
 
     /**
@@ -283,14 +287,14 @@ API
     }
 
     /**
-     * Getter for <code>workflow_run.outputs</code>. 最后一个节点的输出
+     * Getter for <code>workflow_run.outputs</code>.
      */
     public String getOutputs() {
         return this.outputs;
     }
 
     /**
-     * Setter for <code>workflow_run.outputs</code>. 最后一个节点的输出
+     * Setter for <code>workflow_run.outputs</code>.
      */
     public void setOutputs(String outputs) {
         this.outputs = outputs;
@@ -518,6 +522,20 @@ API
         this.mtime = mtime;
     }
 
+    /**
+     * Getter for <code>workflow_run.thread_id</code>. thread_id
+     */
+    public String getThreadId() {
+        return this.threadId;
+    }
+
+    /**
+     * Setter for <code>workflow_run.thread_id</code>. thread_id
+     */
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("WorkflowRunDB (");
@@ -548,6 +566,7 @@ API
         sb.append(", ").append(muid);
         sb.append(", ").append(muName);
         sb.append(", ").append(mtime);
+        sb.append(", ").append(threadId);
 
         sb.append(")");
         return sb.toString();

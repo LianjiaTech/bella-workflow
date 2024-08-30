@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -14,7 +15,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.KafkaTriggerCreate;
+import com.ke.bella.workflow.api.WorkflowOps.TriggerType;
 import com.ke.bella.workflow.api.WorkflowOps.WebotTriggerCreate;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowScheduling;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowTrigger;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowTriggerRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
@@ -38,10 +42,8 @@ public class WorkflowTriggerService {
     @Autowired
     WorkflowClient wfc;
 
-    @SuppressWarnings("rawtypes")
-    public WorkflowSchedulingDB createSchedulingTrigger(String workflowId, String cronExpression, Map inputs,
-            LocalDateTime nextTriggerTime) {
-        return repo.insertWorkflowScheduling(workflowId, cronExpression, nextTriggerTime, JsonUtils.toJson(inputs));
+    public WorkflowSchedulingDB createSchedulingTrigger(WorkflowScheduling op) {
+        return repo.insertWorkflowScheduling(op);
     }
 
     public void refreshTriggerNextTime(WorkflowSchedulingDB scheduling) {
@@ -56,7 +58,7 @@ public class WorkflowTriggerService {
     private void finishedWorkflowScheduling(String triggerId) {
         WorkflowSchedulingDB scheduling = new WorkflowSchedulingDB();
         scheduling.setTriggerId(triggerId);
-        scheduling.setStatus(WorkflowSchedulingStatus.finished.name());
+        scheduling.setRunningStatus(WorkflowSchedulingStatus.finished.name());
         repo.updateWorkflowScheduling(scheduling);
     }
 
@@ -87,7 +89,7 @@ public class WorkflowTriggerService {
         WorkflowSchedulingDB scheduling = new WorkflowSchedulingDB();
         scheduling.setTriggerId(triggerId);
         scheduling.setTenantId(tenantId);
-        scheduling.setStatus(status.name());
+        scheduling.setRunningStatus(status.name());
         repo.updateWorkflowScheduling(scheduling);
     }
 
@@ -119,13 +121,17 @@ public class WorkflowTriggerService {
         return repo.addKafkaTrigger(op);
     }
 
+    public void activeKafkaTrigger(String triggerId) {
+        repo.activeKafkaTrigger(triggerId);
+    }
+
     public void deactiveKafkaTrigger(String triggerId) {
         repo.deactiveKafkaTrigger(triggerId);
     }
 
-	public WorkflowKafkaTriggerDB queryKafkaTrigger(String triggerId) {
-		return repo.queryKafkaTrigger(triggerId);
-	}
+    public WorkflowKafkaTriggerDB queryKafkaTrigger(String triggerId) {
+        return repo.queryKafkaTrigger(triggerId);
+    }
 
     public WorkflowWebotTriggerDB createWebotTrigger(WebotTriggerCreate op) {
         return repo.addWebotTrigger(op);
@@ -137,5 +143,123 @@ public class WorkflowTriggerService {
 
     public WorkflowWebotTriggerDB queryWebotTrigger(String triggerId) {
         return repo.queryWebotTrigger(triggerId);
+    }
+
+    public List<WorkflowTrigger> listWorkflowTriggers(String workflowId, TriggerType type) {
+        List<WorkflowTrigger> res = new ArrayList<>();
+        if(type == TriggerType.KFKA) {
+            List<WorkflowKafkaTriggerDB> triggers = repo.listKafkaTriggersWithWorkflow(workflowId);
+            triggers.forEach(t -> {
+                WorkflowTrigger tt = WorkflowTrigger.builder()
+                        .triggerId(t.getTriggerId())
+                        .triggerType(t.getTriggerType())
+                        .name(t.getName())
+                        .desc(t.getDesc())
+                        .expression(t.getExpression())
+                        .inputs(t.getInputs())
+                        .status(t.getStatus().intValue() == 0 ? "active" : "inactive")
+                        .build();
+                res.add(tt);
+            });
+
+        } else if(type == TriggerType.SCHD) {
+            List<WorkflowSchedulingDB> triggers = repo.listWorkflowSchedulingWithWorkflow(workflowId);
+            triggers.forEach(t -> {
+                WorkflowTrigger tt = WorkflowTrigger.builder()
+                        .triggerId(t.getTriggerId())
+                        .triggerType(t.getTriggerType())
+                        .name(t.getName())
+                        .desc(t.getDesc())
+                        .inputs(t.getInputs())
+                        .expression(t.getCronExpression())
+                        .status(t.getStatus().intValue() == 0 ? "active" : "inactive")
+                        .build();
+                res.add(tt);
+            });
+
+        } else if(type == TriggerType.WBOT) {
+            List<WorkflowWebotTriggerDB> triggers = repo.listWebotTriggersWithWorkflow(workflowId);
+            triggers.forEach(t -> {
+                WorkflowTrigger tt = WorkflowTrigger.builder()
+                        .triggerId(t.getTriggerId())
+                        .triggerType(t.getTriggerType())
+                        .name(t.getName())
+                        .desc(t.getDesc())
+                        .inputs(t.getInputs())
+                        .expression(t.getExpression())
+                        .status(t.getStatus().intValue() == 0 ? "active" : "inactive")
+                        .build();
+                res.add(tt);
+            });
+        }
+        return res;
+    }
+
+    public WorkflowTrigger createWorkflowTrigger(String workflowId, WorkflowTrigger trigger) {
+        TriggerType type = TriggerType.valueOf(trigger.getTriggerType());
+        if(type == TriggerType.KFKA) {
+            KafkaTriggerCreate op = KafkaTriggerCreate.builder()
+                    .datasourceId(trigger.getDatasourceId())
+                    .workflowId(workflowId)
+                    .expression(trigger.getExpression())
+                    .inputs(JsonUtils.fromJson(trigger.getInputs(), Map.class))
+                    .inputkey(trigger.getInputKey())
+                    .name(trigger.getName())
+                    .desc(trigger.getDesc())
+                    .build();
+            WorkflowKafkaTriggerDB t = createKafkaTrigger(op);
+            return WorkflowTrigger.builder()
+                    .triggerId(t.getTriggerId())
+                    .triggerType(t.getTriggerType())
+                    .name(t.getName())
+                    .desc(t.getDesc())
+                    .expression(t.getExpression())
+                    .status(t.getStatus().intValue() == 0 ? "active" : "inactive")
+                    .build();
+
+        } else if(type == TriggerType.SCHD) {
+            WorkflowScheduling op = WorkflowScheduling.builder()
+                    .workflowId(workflowId)
+                    .workflowId(workflowId)
+                    .cronExpression(trigger.getExpression())
+                    .inputs(JsonUtils.fromJson(trigger.getInputs(), Map.class))
+                    .name(trigger.getName())
+                    .desc(trigger.getDesc())
+                    .build();
+            WorkflowSchedulingDB t = createSchedulingTrigger(op);
+            return WorkflowTrigger.builder()
+                    .triggerId(t.getTriggerId())
+                    .triggerType(t.getTriggerType())
+                    .name(t.getName())
+                    .desc(t.getDesc())
+                    .expression(t.getCronExpression())
+                    .status(t.getStatus().intValue() == 0 ? "active" : "inactive")
+                    .build();
+        } else if(type == TriggerType.WBOT) {
+            // TODO
+        }
+        return trigger;
+    }
+
+    public void activateWorkflowTrigger(String triggerId, String triggerType) {
+        TriggerType type = TriggerType.valueOf(triggerType);
+        if(type == TriggerType.KFKA) {
+            repo.activeKafkaTrigger(triggerId);
+        } else if(type == TriggerType.SCHD) {
+            repo.activeWorkflowScheduling(triggerId);
+        } else if(type == TriggerType.WBOT) {
+            repo.activeWebotTrigger(triggerId);
+        }
+    }
+
+    public void deactivateWorkflowTrigger(String triggerId, String triggerType) {
+        TriggerType type = TriggerType.valueOf(triggerType);
+        if(type == TriggerType.KFKA) {
+            deactiveKafkaTrigger(triggerId);
+        } else if(type == TriggerType.SCHD) {
+            repo.deactiveWorkflowScheduling(triggerId);
+        } else if(type == TriggerType.WBOT) {
+            deactiveWebotTrigger(triggerId);
+        }
     }
 }

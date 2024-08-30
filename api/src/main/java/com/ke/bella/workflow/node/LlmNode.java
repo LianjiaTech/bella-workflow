@@ -23,6 +23,10 @@ import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.db.IDGenerator;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData.Authorization;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData.Model;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.completion.chat.AssistantMessage;
 import com.theokanning.openai.completion.chat.ChatCompletionChunk;
@@ -41,16 +45,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-public class LlmNode extends BaseNode {
+public class LlmNode extends BaseNode<LlmNode.Data> {
 
-    private Data data;
     private long ttftStart;
     private long ttftEnd;
     private long tokens;
 
     public LlmNode(WorkflowSchema.Node meta) {
-        super(meta);
-        this.data = JsonUtils.convertValue(meta.getData(), Data.class);
+        super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
     }
 
     @Override
@@ -113,6 +115,8 @@ public class LlmNode extends BaseNode {
             IWorkflowCallback callback) {
         StringBuilder fullText = new StringBuilder();
         CompletableFuture<String> completionFuture = new CompletableFuture<>();
+        final String messageId = data.isGenerateNewMessage() ? IDGenerator.newMessageId()
+                : (String) context.getState().getVariable("sys", "message_id");
         // todo usage
         Disposable subscribe = llmResult.subscribe(chunk -> {
             if(fullText.length() == 0) {
@@ -127,7 +131,11 @@ public class LlmNode extends BaseNode {
                 String content = chunk.getChoices().get(0).getMessage().getContent();
                 fullText.append(content);
                 if(data.isGenerateDeltaContent()) {
-                    Delta delta = Delta.builder().content(Delta.fromText(content)).build();
+                    Delta delta = Delta.builder()
+                            .name(data.getMessageRoleName())
+                            .content(Delta.fromText(content))
+                            .messageId(messageId)
+                            .build();
                     callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
                             ProgressData.builder()
                                     .data(delta)

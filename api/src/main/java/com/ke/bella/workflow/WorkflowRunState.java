@@ -27,6 +27,7 @@ public class WorkflowRunState {
     @SuppressWarnings("rawtypes")
     final Map<String, Map> notifyDataMap = new HashMap<>();
     final Set<String> activatedSourceHandles = new HashSet<>();
+    final Set<String> deadSourceHandles = new HashSet<>();
 
     @Getter
     @Setter
@@ -93,6 +94,10 @@ public class WorkflowRunState {
         return activatedSourceHandles.contains(String.format("%s/%s", sourceNodeId, sourceHandle));
     }
 
+    synchronized boolean isDeadEdge(String sourceNodeId, String sourceHandle) {
+        return deadSourceHandles.contains(String.format("%s/%s", sourceNodeId, sourceHandle));
+    }
+
     @SuppressWarnings("rawtypes")
     public synchronized Map getVariablePool() {
         return Collections.unmodifiableMap(variablePoolMap);
@@ -144,6 +149,12 @@ public class WorkflowRunState {
                 nodeCompletedStates.put(nodeId, state);
                 state.activatedSourceHandles
                         .forEach(h -> activatedSourceHandles.add(String.format("%s/%s", nodeId, h)));
+                state.deadSourceHandles
+                        .forEach(h -> deadSourceHandles.add(String.format("%s/%s", nodeId, h)));
+            } else if(s == NodeRunResult.Status.skipped) {
+                nodeCompletedStates.put(nodeId, state);
+                state.deadSourceHandles
+                        .forEach(h -> deadSourceHandles.add(String.format("%s/%s", nodeId, h)));
             } else {
                 nodeCompletedStates.put(nodeId, state);
             }
@@ -159,6 +170,7 @@ public class WorkflowRunState {
             waiting,
             notified,
             succeeded,
+            skipped,
             failed;
         }
 
@@ -171,6 +183,16 @@ public class WorkflowRunState {
 
         @Builder.Default
         List<String> activatedSourceHandles = new ArrayList();
+
+        @Builder.Default
+        List<String> deadSourceHandles = new ArrayList();
+
+        public static NodeRunResult newSkippedResult(List<String> sourceHandles) {
+            return NodeRunResult.builder()
+                    .status(Status.skipped)
+                    .deadSourceHandles(sourceHandles)
+                    .build();
+        }
     }
 
     public enum WorkflowRunStatus {

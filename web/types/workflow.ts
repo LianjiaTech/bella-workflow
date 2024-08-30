@@ -240,3 +240,22 @@ export type NodesDefaultConfigsResponse = {
   type: string
   config: any
 }[]
+
+export type WorkflowTriggerDetail = {
+  triggerId: string
+  triggerType: String
+  name: string
+  desc: string
+  datasource: string
+  condition: string
+  status: string
+  workflowId: string
+  inputs: string
+}
+
+export type Datasource = {
+  datasourceId: string
+  datasourceType: string
+  name: string
+  config: object
+}

@@ -15,6 +15,7 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.service.code.CodeExecutor;
 import com.ke.bella.workflow.service.code.CodeExecutor.CodeDependency;
 import com.ke.bella.workflow.service.code.CodeExecutor.CodeLanguage;
@@ -26,16 +27,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-public class CodeNode extends BaseNode {
+public class CodeNode extends BaseNode<CodeNode.Data> {
     private static final int MAX_DEPTH = 5;
     private static final int MAX_NUMBER_ARRAY_LENGTH = 1000;
     private static final int MAX_STRING_ARRAY_LENGTH = 30;
     private static final int MAX_OBJECT_ARRAY_LENGTH = 100;
-    private Data data;
 
     public CodeNode(WorkflowSchema.Node meta) {
-        super(meta);
-        this.data = JsonUtils.convertValue(meta.getData(), Data.class);
+        super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
     }
 
     @Override

@@ -27,6 +27,7 @@ const NextStep = ({
   const store = useStoreApi()
   const branches = data._targetBranches || []
   const nodeWithBranches = data.type === BlockEnum.IfElse || data.type === BlockEnum.QuestionClassifier
+  const nodeWithMultiOutput = data.type === BlockEnum.Parallel
   const edges = useEdges()
   const outgoers = getOutgoers(selectedNode as Node, store.getState().getNodes(), edges)
   const connectedEdges = getConnectedEdges([selectedNode] as Node[], edges).filter(edge => edge.source === selectedNode!.id)
@@ -39,10 +40,10 @@ const NextStep = ({
           toolIcon={toolIcon}
         />
       </div>
-      <Line linesNumber={nodeWithBranches ? branches.length : 1} />
+      <Line linesNumber={nodeWithBranches ? branches.length : nodeWithMultiOutput ? outgoers.length : 1} />
       <div className='grow'>
         {
-          !nodeWithBranches && !!outgoers.length && (
+          !nodeWithMultiOutput && !nodeWithBranches && !!outgoers.length && (
             <Item
               nodeId={outgoers[0].id}
               data={outgoers[0].data}
@@ -93,6 +94,23 @@ const NextStep = ({
                   }
                 </div>
               )
+            })
+          )
+        }
+        {
+          nodeWithMultiOutput && (
+            outgoers.map((outgoer) => {
+              return <div
+                key={outgoer.id}
+                className='mb-3 last-of-type:mb-0'
+              >
+                <Item
+                  data={outgoer!.data!}
+                  nodeId={outgoer!.id}
+                  sourceHandle={'source'}
+                  branchName={''}
+                />
+              </div>
             })
           )
         }

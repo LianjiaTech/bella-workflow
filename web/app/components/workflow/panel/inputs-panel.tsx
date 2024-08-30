@@ -2,6 +2,7 @@ import {
   memo,
   useMemo,
 } from 'react'
+import { useMount } from 'ahooks'
 import { useTranslation } from 'react-i18next'
 import { useNodes } from 'reactflow'
 import FormItem from '../nodes/_base/components/before-run-form/form-item'
@@ -68,6 +69,28 @@ const InputsPanel = ({ onRun }: Props) => {
       })
     }
   }
+
+  const initInputValue = () => {
+    if (startVariables?.length) {
+      const newInputs: Record<string, any> = {}
+      startVariables.forEach((variable) => {
+        if (inputs[variable.variable] || !variable.defaultValue)
+          return
+        newInputs[variable.variable] = variable?.defaultValue
+      })
+      if (Object.keys(newInputs)?.length) {
+        workflowStore.getState().setInputs({
+          ...inputs,
+          ...newInputs,
+        })
+      }
+    }
+  }
+
+  useMount(() => {
+    initInputValue()
+  })
+
   const convert = inputs
   const doRun = () => {
     const inputs: any = {}
@@ -99,7 +122,6 @@ const InputsPanel = ({ onRun }: Props) => {
 
     return true
   })()
-
   return (
     <>
       <div className='px-4 pb-2'>

@@ -206,7 +206,10 @@ export const useChat = (
       params,
       {
         onData: (message: string, isFirstMessage: boolean, { conversationId: newConversationId, messageId, taskId }: any) => {
-          responseItem.content = responseItem.content + message
+          if (messageId && messageId !== responseItem.id)
+            responseItem.content = message
+          else
+            responseItem.content = responseItem.content + message
 
           if (messageId && !hasSetResponseId) {
             responseItem.id = messageId

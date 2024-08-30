@@ -11,20 +11,28 @@ const i18nPrefix = 'workflow.nodes.common.delta'
 type Props = {
   className?: string
   readonly: boolean
-  generateDeltaContent: boolean
-  onChange: (memory?: boolean) => void
+  generateDeltaContent?: boolean
+  generateNewMessage?: boolean
+  onChange: (memory: boolean) => void
+  onNewMessageChange: (newMessage: boolean) => void
 }
 
 const DirectlyAnswerConfig: FC<Props> = ({
   className,
   readonly,
   generateDeltaContent,
+  generateNewMessage,
   onChange,
+  onNewMessageChange,
 }) => {
   const { t } = useTranslation()
   const handleEnabledChange = useCallback((enabled: boolean) => {
     onChange(enabled)
   }, [onChange])
+
+  const handleNewMessageChange = useCallback((enabled: boolean) => {
+    onNewMessageChange(enabled)
+  }, [onNewMessageChange])
 
   return (
     <div className={cn(className)}>
@@ -39,8 +47,19 @@ const DirectlyAnswerConfig: FC<Props> = ({
             disabled={readonly}
           />
         }
-      >
-      </Field>
+      />
+      {/* <Field
+        title={t(`${i18nPrefix}.new_msg`)}
+        tooltip={t(`${i18nPrefix}.new_msg_tip`)!}
+        operations={
+          <Switch
+            defaultValue={generateNewMessage}
+            onChange={handleNewMessageChange}
+            size='md'
+            disabled={readonly}
+          />
+        }
+      /> */}
     </div>
   )
 }

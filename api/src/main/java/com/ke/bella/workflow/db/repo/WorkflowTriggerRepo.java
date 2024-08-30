@@ -18,7 +18,9 @@ import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.KafkaTriggerCreate;
+import com.ke.bella.workflow.api.WorkflowOps.TriggerType;
 import com.ke.bella.workflow.api.WorkflowOps.WebotTriggerCreate;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowScheduling;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
@@ -28,31 +30,29 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowWebotTriggerDB;
 import com.ke.bella.workflow.db.tables.records.WorkflowKafkaTriggerRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowSchedulingRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowWebotTriggerRecord;
+import com.ke.bella.workflow.utils.CronUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 @Component
 public class WorkflowTriggerRepo implements BaseRepo {
-    public enum Type {
-        SCHD,
-        KFKA,
-        WBOT;
-    }
 
     @Resource
     private DSLContext db;
 
-    public WorkflowSchedulingDB insertWorkflowScheduling(String workflowId, String cronExpression, LocalDateTime nextTriggerTime,
-            String inputs) {
+    public WorkflowSchedulingDB insertWorkflowScheduling(WorkflowScheduling op) {
         WorkflowSchedulingRecord rec = WORKFLOW_SCHEDULING.newRecord();
-        String triggerId = IDGenerator.newTriggerId(Type.SCHD.name());
+        String triggerId = IDGenerator.newTriggerId(TriggerType.SCHD.name());
 
         rec.setTenantId(BellaContext.getOperator().getTenantId());
-        rec.setWorkflowId(workflowId);
+        rec.setWorkflowId(op.getWorkflowId());
         rec.setTriggerId(triggerId);
+        if(StringUtils.hasText(op.getName())) {
+            rec.setName(op.getName());
+        }
         rec.setWorkflowSchedulingId(triggerId);
-        rec.setCronExpression(cronExpression);
-        rec.setTriggerNextTime(nextTriggerTime);
-        rec.setInputs(inputs);
+        rec.setCronExpression(op.getCronExpression());
+        rec.setTriggerNextTime(CronUtils.nextExecution(op.getCronExpression()));
+        rec.setInputs(JsonUtils.toJson(op.getInputs()));
 
         fillCreatorInfo(rec);
 
@@ -61,6 +61,26 @@ public class WorkflowTriggerRepo implements BaseRepo {
                 .execute();
 
         return rec.into(WorkflowSchedulingDB.class);
+    }
+
+    public void activeWorkflowScheduling(String triggerId) {
+        WorkflowSchedulingRecord rec = WORKFLOW_SCHEDULING.newRecord();
+        rec.setStatus(0);
+        fillUpdatorInfo(rec);
+        db.update(WORKFLOW_SCHEDULING)
+                .set(rec)
+                .where(WORKFLOW_SCHEDULING.TRIGGER_ID.eq(triggerId))
+                .execute();
+    }
+
+    public void deactiveWorkflowScheduling(String triggerId) {
+        WorkflowSchedulingRecord rec = WORKFLOW_SCHEDULING.newRecord();
+        rec.setStatus(-1);
+        fillUpdatorInfo(rec);
+        db.update(WORKFLOW_SCHEDULING)
+                .set(rec)
+                .where(WORKFLOW_SCHEDULING.TRIGGER_ID.eq(triggerId))
+                .execute();
     }
 
     public void updateWorkflowScheduling(WorkflowSchedulingDB schedulingDB) {
@@ -83,8 +103,17 @@ public class WorkflowTriggerRepo implements BaseRepo {
     public List<WorkflowSchedulingDB> listWorkflowScheduling(LocalDateTime endTime, Set<String> status, Integer limit) {
         return db.selectFrom(WORKFLOW_SCHEDULING)
                 .where(WORKFLOW_SCHEDULING.TRIGGER_NEXT_TIME.le(endTime)
-                        .and(WORKFLOW_SCHEDULING.STATUS.in(status)))
+                        .and(WORKFLOW_SCHEDULING.RUNNING_STATUS.in(status)))
+                .and(WORKFLOW_SCHEDULING.STATUS.eq(0))
                 .limit(limit).fetch()
+                .into(WorkflowSchedulingDB.class);
+    }
+
+    public List<WorkflowSchedulingDB> listWorkflowSchedulingWithWorkflow(String workflowId) {
+        return db.selectFrom(WORKFLOW_SCHEDULING)
+                .where(WORKFLOW_SCHEDULING.WORKFLOW_ID.eq(workflowId))
+                .orderBy(WORKFLOW_SCHEDULING.ID.desc())
+                .fetch()
                 .into(WorkflowSchedulingDB.class);
     }
 
@@ -106,22 +135,47 @@ public class WorkflowTriggerRepo implements BaseRepo {
                 .fetchInto(WorkflowKafkaTriggerDB.class);
     }
 
+    public List<WorkflowKafkaTriggerDB> listKafkaTriggersWithWorkflow(String workflowId) {
+        return db.selectFrom(WORKFLOW_KAFKA_TRIGGER)
+                .where(WORKFLOW_KAFKA_TRIGGER.WORKFLOW_ID.in(workflowId))
+                .orderBy(WORKFLOW_KAFKA_TRIGGER.ID.desc())
+                .fetchInto(WorkflowKafkaTriggerDB.class);
+    }
+
     public WorkflowKafkaTriggerDB addKafkaTrigger(KafkaTriggerCreate op) {
         WorkflowKafkaTriggerRecord rec = WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER.newRecord();
-        String triggerId = IDGenerator.newTriggerId(Type.KFKA.name());
+        String triggerId = IDGenerator.newTriggerId(TriggerType.KFKA.name());
 
-        rec.setTenantId(op.getTenantId());
+        rec.setTenantId(BellaContext.getOperator().getTenantId());
         rec.setDatasourceId(op.getDatasourceId());
         rec.setTriggerId(triggerId);
-        rec.setInputs(JsonUtils.toJson(op.getInputs()));
-        rec.setExpression(op.getExpression());
+        if(op.getInputs() != null) {
+            rec.setInputs(JsonUtils.toJson(op.getInputs()));
+        }
+        if(StringUtils.hasText(op.getExpression())) {
+            rec.setExpression(op.getExpression());
+        }
         rec.setWorkflowId(op.getWorkflowId());
-        rec.setInputkey(op.getInputkey());
+        if(StringUtils.hasText(op.getInputkey())) {
+            rec.setInputkey(op.getInputkey());
+        }
+        rec.setStatus(0);
 
         fillCreatorInfo(rec);
         db.insertInto(WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER).set(rec).execute();
 
         return rec.into(WorkflowKafkaTriggerDB.class);
+    }
+
+    public void activeKafkaTrigger(String triggerId) {
+        WorkflowKafkaTriggerRecord rec = WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER.newRecord();
+        rec.setStatus(0);
+        fillUpdatorInfo(rec);
+
+        db.update(WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER)
+                .set(rec)
+                .where(WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER.TRIGGER_ID.eq(triggerId))
+                .execute();
     }
 
     public void deactiveKafkaTrigger(String triggerId) {
@@ -144,7 +198,7 @@ public class WorkflowTriggerRepo implements BaseRepo {
     public WorkflowWebotTriggerDB addWebotTrigger(WebotTriggerCreate op) {
         WorkflowWebotTriggerRecord rec = WORKFLOW_WEBOT_TRIGGER.newRecord();
 
-        String triggerId = IDGenerator.newTriggerId(Type.WBOT.name());
+        String triggerId = IDGenerator.newTriggerId(TriggerType.WBOT.name());
         rec.setTenantId(op.getTenantId());
         rec.setTriggerId(triggerId);
         rec.setRobotId(op.getRobotId());
@@ -161,6 +215,17 @@ public class WorkflowTriggerRepo implements BaseRepo {
         db.insertInto(WORKFLOW_WEBOT_TRIGGER).set(rec).execute();
 
         return rec.into(WorkflowWebotTriggerDB.class);
+    }
+
+    public void activeWebotTrigger(String triggerId) {
+        WorkflowWebotTriggerRecord rec = WORKFLOW_WEBOT_TRIGGER.newRecord();
+        rec.setStatus(0);
+        fillUpdatorInfo(rec);
+
+        db.update(WORKFLOW_WEBOT_TRIGGER)
+                .set(rec)
+                .where(WORKFLOW_WEBOT_TRIGGER.TRIGGER_ID.eq(triggerId))
+                .execute();
     }
 
     public void deactiveWebotTrigger(String triggerId) {
@@ -186,4 +251,11 @@ public class WorkflowTriggerRepo implements BaseRepo {
                 .and(WORKFLOW_KAFKA_TRIGGER.STATUS.eq(0))
                 .fetchInto(WorkflowWebotTriggerDB.class);
     }
+
+    public List<WorkflowWebotTriggerDB> listWebotTriggersWithWorkflow(String workflowId) {
+        return db.selectFrom(WORKFLOW_WEBOT_TRIGGER)
+                .where(WORKFLOW_WEBOT_TRIGGER.WORKFLOW_ID.eq(workflowId))
+                .fetchInto(WorkflowWebotTriggerDB.class);
+    }
+
 }

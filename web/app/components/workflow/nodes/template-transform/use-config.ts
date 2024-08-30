@@ -85,6 +85,13 @@ const useConfig = (id: string, payload: TemplateTransformNodeType) => {
     setInputs(newInputs)
   }, [inputs, setInputs])
 
+  const handleNewMessageChange = useCallback((generateNewMessage?: boolean) => {
+    const newInputs = produce(inputs, (draft) => {
+      draft.generateNewMessage = generateNewMessage
+    })
+    setInputs(newInputs)
+  }, [inputs, setInputs])
+
   // single run
   const {
     isShowSingleRun,
@@ -142,6 +149,7 @@ const useConfig = (id: string, payload: TemplateTransformNodeType) => {
     inputVarValues,
     setInputVarValues,
     runResult,
+    handleNewMessageChange,
   }
 }
 

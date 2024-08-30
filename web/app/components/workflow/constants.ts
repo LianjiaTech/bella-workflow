@@ -14,6 +14,7 @@ import ToolDefault from './nodes/tool/default'
 import VariableAssignerDefault from './nodes/variable-assigner/default'
 import EndNodeDefault from './nodes/end/default'
 import IterationDefault from './nodes/iteration/default'
+import ParallelDefault from './nodes/parallel/default'
 
 type NodesExtraData = {
   author: string
@@ -160,6 +161,15 @@ export const NODES_EXTRA_DATA: Record<BlockEnum, NodesExtraData> = {
     getAvailableNextNodes: ToolDefault.getAvailableNextNodes,
     checkValid: ToolDefault.checkValid,
   },
+  [BlockEnum.Parallel]: {
+    author: 'Dify',
+    about: '',
+    availablePrevNodes: [],
+    availableNextNodes: [],
+    getAvailablePrevNodes: ParallelDefault.getAvailablePrevNodes,
+    getAvailableNextNodes: ParallelDefault.getAvailableNextNodes,
+    checkValid: ParallelDefault.checkValid,
+  },
 }
 
 export const ALL_CHAT_AVAILABLE_BLOCKS = Object.keys(NODES_EXTRA_DATA).filter(key => key !== BlockEnum.Start) as BlockEnum[]
@@ -273,6 +283,12 @@ export const NODES_INITIAL_DATA = {
     title: '',
     desc: '',
     ...ToolDefault.defaultValue,
+  },
+  [BlockEnum.Parallel]: {
+    type: BlockEnum.Parallel,
+    title: '',
+    desc: '',
+    ...ParallelDefault.defaultValue,
   },
 }
 

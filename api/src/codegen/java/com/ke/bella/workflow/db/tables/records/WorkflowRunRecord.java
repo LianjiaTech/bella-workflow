@@ -172,14 +172,14 @@ API
     }
 
     /**
-     * Setter for <code>workflow_run.outputs</code>. 最后一个节点的输出
+     * Setter for <code>workflow_run.outputs</code>.
      */
     public void setOutputs(String value) {
         set(10, value);
     }
 
     /**
-     * Getter for <code>workflow_run.outputs</code>. 最后一个节点的输出
+     * Getter for <code>workflow_run.outputs</code>.
      */
     public String getOutputs() {
         return (String) get(10);
@@ -407,6 +407,20 @@ API
         return (LocalDateTime) get(25);
     }
 
+    /**
+     * Setter for <code>workflow_run.thread_id</code>. thread_id
+     */
+    public void setThreadId(String value) {
+        set(26, value);
+    }
+
+    /**
+     * Getter for <code>workflow_run.thread_id</code>. thread_id
+     */
+    public String getThreadId() {
+        return (String) get(26);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -430,7 +444,7 @@ API
     /**
      * Create a detached, initialised WorkflowRunRecord
      */
-    public WorkflowRunRecord(Long id, String tenantId, String workflowId, Long workflowVersion, String workflowRunId, String workflowRunShardingKey, String triggerFrom, String query, String files, String inputs, String outputs, String status, String error, String callbackUrl, Integer callbackStatus, String workflowSchedulingId, String triggerId, String responseMode, String traceId, Integer spanLev, Long cuid, String cuName, LocalDateTime ctime, Long muid, String muName, LocalDateTime mtime) {
+    public WorkflowRunRecord(Long id, String tenantId, String workflowId, Long workflowVersion, String workflowRunId, String workflowRunShardingKey, String triggerFrom, String query, String files, String inputs, String outputs, String status, String error, String callbackUrl, Integer callbackStatus, String workflowSchedulingId, String triggerId, String responseMode, String traceId, Integer spanLev, Long cuid, String cuName, LocalDateTime ctime, Long muid, String muName, LocalDateTime mtime, String threadId) {
         super(WorkflowRun.WORKFLOW_RUN);
 
         setId(id);
@@ -459,5 +473,6 @@ API
         setMuid(muid);
         setMuName(muName);
         setMtime(mtime);
+        setThreadId(threadId);
     }
 }

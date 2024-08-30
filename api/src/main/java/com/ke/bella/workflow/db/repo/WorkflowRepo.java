@@ -291,6 +291,9 @@ public class WorkflowRepo implements BaseRepo {
         if(op.getFiles() != null) {
             rec.setFiles(JsonUtils.toJson(op.getFiles()));
         }
+        if(op.getThreadId() != null) {
+            rec.setThreadId(op.getThreadId());
+        }
         rec.setInputs(JsonUtils.toJson(op.getInputs()));
         rec.setOutputs("");
         rec.setError("");

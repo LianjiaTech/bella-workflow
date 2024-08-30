@@ -106,9 +106,9 @@ API
     public final TableField<WorkflowRunRecord, String> INPUTS = createField(DSL.name("inputs"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
-     * The column <code>workflow_run.outputs</code>. 最后一个节点的输出
+     * The column <code>workflow_run.outputs</code>.
      */
-    public final TableField<WorkflowRunRecord, String> OUTPUTS = createField(DSL.name("outputs"), SQLDataType.CLOB.nullable(false), this, "最后一个节点的输出");
+    public final TableField<WorkflowRunRecord, String> OUTPUTS = createField(DSL.name("outputs"), SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>workflow_run.status</code>.     
@@ -190,6 +190,11 @@ API
      * The column <code>workflow_run.mtime</code>.
      */
     public final TableField<WorkflowRunRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
+
+    /**
+     * The column <code>workflow_run.thread_id</code>. thread_id
+     */
+    public final TableField<WorkflowRunRecord, String> THREAD_ID = createField(DSL.name("thread_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "thread_id");
 
     private WorkflowRun(Name alias, Table<WorkflowRunRecord> aliased) {
         this(alias, aliased, null);

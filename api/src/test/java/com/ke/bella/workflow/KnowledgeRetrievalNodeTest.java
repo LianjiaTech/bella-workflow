@@ -48,6 +48,7 @@ public class KnowledgeRetrievalNodeTest {
 
             @Override
             public void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t) {
+                Assertions.assertNull(t);
             }
 
             @Override

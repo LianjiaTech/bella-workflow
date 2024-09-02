@@ -71,8 +71,12 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         Map<String, String> params = new HashMap<>();
         params.put("file_ids", datasetIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
         params.put("query", query);
-        params.put("top_k", String.valueOf(topK));
-        params.put("score", String.valueOf(scoreThreshold));
+        if(topK != null) {
+            params.put("top_k", String.valueOf(topK));
+        }
+        if(scoreThreshold != null) {
+            params.put("score", String.valueOf(scoreThreshold));
+        }
 
         BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postFrom(headers, fileRetrieveUrl, params,
                 new TypeReference<BellaFileRetrieveResult>() {
@@ -99,7 +103,7 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         @JsonAlias("dataset_ids")
         private List<String> datasetIds;
         @JsonAlias("multiple_retrieval_config")
-        private MultipleRetrievalConfig multipleRetrievalConfig;
+        private MultipleRetrievalConfig multipleRetrievalConfig = new MultipleRetrievalConfig();
     }
 
     @Getter
@@ -109,9 +113,9 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
     @Builder
     public static class MultipleRetrievalConfig {
         @JsonAlias("top_k")
-        private int topK;
+        private Integer topK;
         @JsonAlias("score_threshold")
-        private float scoreThreshold;
+        private Float scoreThreshold;
     }
 
     @Getter

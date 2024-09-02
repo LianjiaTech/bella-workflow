@@ -84,6 +84,8 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
                     checkNumber(outputValue, newPrefix);
                 } else if(outputValue instanceof String) {
                     checkString(outputValue, newPrefix);
+                } else if(outputValue instanceof Boolean) {
+                    checkBoolean(outputValue, newPrefix);
                 } else if(outputValue instanceof List) {
                     List<?> outputList = (List<?>) outputValue;
                     if(!outputList.isEmpty()) {
@@ -215,6 +217,13 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
     private Object checkString(Object value, String variable) {
         if(!(value instanceof String)) {
             throw new IllegalArgumentException("Variable " + variable + " is not a string.");
+        }
+        return value;
+    }
+
+    private Object checkBoolean(Object value, String variable) {
+        if(!(value instanceof Boolean)) {
+            throw new IllegalArgumentException("Variable " + variable + " is not a bool.");
         }
         return value;
     }

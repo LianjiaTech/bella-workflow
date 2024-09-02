@@ -216,8 +216,10 @@ public class IfElseNode extends BaseNode<IfElseNode.Data> {
 
         if(actualValue instanceof String) {
             return ((String) actualValue).equals(expectedValue);
+        } else if(actualValue instanceof Boolean) {
+            return actualValue.equals(Boolean.valueOf(expectedValue));
         } else {
-            throw new IllegalArgumentException("Invalid actual value type: string or list");
+            throw new IllegalArgumentException("Invalid actual value type: bool, string or list");
         }
     }
 

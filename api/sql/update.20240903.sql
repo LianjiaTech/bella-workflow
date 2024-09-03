@@ -1,0 +1,9 @@
+SET FOREIGN_KEY_CHECKS=0;
+
+ALTER TABLE workflow_run
+    MODIFY `query` LONGTEXT COMMENT '';
+
+ALTER TABLE workflow_node_run
+    MODIFY `process_data` LONGTEXT NOT NULL COMMENT '';
+
+SET FOREIGN_KEY_CHECKS=1;

@@ -33,6 +33,9 @@ import com.ke.bella.workflow.trigger.WorkflowSchedulingStatus;
 import com.ke.bella.workflow.utils.CronUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class WorkflowTriggerService {
 
@@ -49,12 +52,17 @@ public class WorkflowTriggerService {
         return repo.insertWorkflowScheduling(op);
     }
 
-    public void refreshTriggerNextTime(WorkflowSchedulingDB scheduling) {
-        LocalDateTime nextExecution = CronUtils.nextExecution(scheduling.getCronExpression());
-        if(Objects.isNull(nextExecution)) {
-            finishedWorkflowScheduling(scheduling.getTriggerId());
-        } else {
-            updateWorkflowScheduling(scheduling.getTriggerId(), nextExecution);
+    public void refreshTriggerNextTime(WorkflowSchedulingDB trigger) {
+        try {
+            LocalDateTime nextExecution = CronUtils.nextExecution(trigger.getCronExpression());
+            if(Objects.isNull(nextExecution)) {
+                finishedWorkflowScheduling(trigger.getTriggerId());
+            } else {
+                updateWorkflowScheduling(trigger.getTriggerId(), nextExecution);
+            }
+        } catch (Exception e) {
+            updateWorkflowSchedulingStatus(trigger.getTenantId(), trigger.getTriggerId(), WorkflowSchedulingStatus.stopped);
+            LOGGER.warn("failed to refresh scheduling trigger: " + trigger.getTriggerId(), e);
         }
     }
 

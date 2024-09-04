@@ -1,6 +1,5 @@
 package com.ke.bella.workflow.utils;
 
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -30,7 +29,7 @@ public class KeIAM {
             stringToSignArray.add("host=" + host);
 
             if(query != null && !query.isEmpty()) {
-                String[] queryParts = URLEncoder.encode(query, StandardCharsets.UTF_8.toString()).split("&");
+                String[] queryParts = query.split("&");
                 List<String> sortedQuery = new ArrayList<>();
                 Collections.addAll(sortedQuery, queryParts);
                 Collections.sort(sortedQuery);

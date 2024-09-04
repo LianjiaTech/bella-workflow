@@ -93,6 +93,17 @@ const Panel: FC<NodePanelProps<StartNodeType>> = ({
                   </div>
                 }
               />
+              <VarItem
+                readonly
+                payload={{
+                  variable: 'sys.metadata',
+                } as any}
+                rightContent={
+                  <div className='text-xs font-normal text-gray-500'>
+                    Object
+                  </div>
+                }
+              />
               {
                 isChatMode && (
                   <VarItem

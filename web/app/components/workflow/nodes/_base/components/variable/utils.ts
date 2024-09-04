@@ -133,6 +133,10 @@ const formatItem = (
         variable: 'sys.date',
         type: VarType.string,
       })
+      res.vars.push({
+        variable: 'sys.metadata',
+        type: VarType.object,
+      })
       break
     }
 

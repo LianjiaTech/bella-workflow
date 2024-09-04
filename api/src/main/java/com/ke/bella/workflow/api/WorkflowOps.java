@@ -118,6 +118,10 @@ public class WorkflowOps {
         @Builder.Default
         Map inputs = new HashMap();
 
+        /** Set of key-value pairs that can be attached to workflow_run. */
+        @Builder.Default
+        Map metadata = new HashMap();
+
         @Builder.Default
         String responseMode = ResponseMode.streaming.name();
 

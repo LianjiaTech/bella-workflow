@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -27,6 +28,7 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowWebotTriggerDB;
 import com.ke.bella.workflow.trigger.KafkaEventConsumers;
+import com.ke.bella.workflow.trigger.WebotTriggerRunner;
 import com.ke.bella.workflow.trigger.WorkflowSchedulingStatus;
 import com.ke.bella.workflow.utils.CronUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -136,6 +138,9 @@ public class WorkflowTriggerService {
     }
 
     public WorkflowWebotTriggerDB createWebotTrigger(WebotTriggerCreate op) {
+        if(StringUtils.hasText(op.getExpression())) {
+            WebotTriggerRunner.validate(op.getExpression());
+        }
         return repo.addWebotTrigger(op);
     }
 

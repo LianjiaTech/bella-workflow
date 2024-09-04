@@ -23,6 +23,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import com.ke.bella.workflow.utils.OpenAiUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.StringUtils;
 
@@ -81,7 +82,6 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
     private static final int MAX_RESPONSE_BINARY_SIZE = 10 * 1024 * 1024;
 
     private static final int MAX_TEXT_SIZE = 1024 * 1024;
-
 
     public HttpNode(Node meta) {
         super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
@@ -324,7 +324,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
 
         String ext = HttpUtils.getExtensionFromMimeType(contentType);
         String filename = String.format("%s.%s", UUID.randomUUID().toString(), ext);
-        OpenAiService service = new OpenAiService(BellaContext.getApiKey(), Duration.ZERO, Configs.API_BASE);
+        OpenAiService service = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey(), 0, TimeUnit.SECONDS);
         com.theokanning.openai.file.File file = service.uploadFile("assistants", new ByteArrayInputStream(bytes), filename);
         files.add(File.builder()
                 .fileId(file.getId())

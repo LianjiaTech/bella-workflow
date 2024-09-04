@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -18,6 +19,7 @@ import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData.Authorization;
 import com.ke.bella.workflow.utils.JsonUtils;
+import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatCompletionResult;
 import com.theokanning.openai.completion.chat.ChatMessage;
@@ -85,8 +87,7 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
     }
 
     private ChatCompletionResult invokeOpenAPILlm(Data.Authorization authorization, Data.ModelConfig modelConfig, List<ChatMessage> chatMessages) {
-        OpenAiService service = new OpenAiService(authorization.getToken(), Duration.ofSeconds(this.data.getTimeout().getRead()),
-                data.authorization.getApiBaseUrl());
+        OpenAiService service = OpenAiUtils.defaultOpenAiService(authorization.getToken(), this.data.getTimeout().getRead(), TimeUnit.SECONDS);
         return service.createChatCompletion(
                 ChatCompletionRequest.builder().model(modelConfig.getName()).frequencyPenalty(modelConfig.getParam().getFrequencyPenalty())
                         .presencePenalty(modelConfig.getParam().getPresencePenalty()).topP(modelConfig.getParam().getTopP())

@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import com.google.common.base.Throwables;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.api.callbacks.DifyChatflowStreamingCallback;
+import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.assistants.message.Message;
 import com.theokanning.openai.assistants.message.MessageListSearchParameters;
 import com.theokanning.openai.assistants.thread.Thread;
@@ -350,7 +351,7 @@ public class DifyController {
         Assert.notNull(op.inputs, "inputs不能为空");
 
         if("advanced-chat".equals(workflowMode) && !StringUtils.hasText(op.getThreadId())) {
-            OpenAiService openAiService = new OpenAiService(BellaContext.getApiKey(), Configs.API_BASE);
+            OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
             Thread thread = openAiService.createThread(new ThreadRequest());
             op.setThreadId(thread.getId());
         }
@@ -492,7 +493,7 @@ public class DifyController {
     public Page<DifyChatFlowRun> pageChatFlowRuns(@PathVariable String workflowId,
             @RequestParam(value = "conversation_id", required = false) String threadId) {
         initContext();
-        OpenAiService openAiService = new OpenAiService(BellaContext.getApiKey(), Configs.API_BASE);
+        OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
 
         List<Message> messages = openAiService.listMessages(threadId, new MessageListSearchParameters()).getData();
         // messages按照createAt排序，从低到高

@@ -162,6 +162,11 @@ API
     public final TableField<WorkflowRunRecord, String> THREAD_ID = createField(DSL.name("thread_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "thread_id");
 
     /**
+     * The column <code>workflow_run.elapsed_time</code>.
+     */
+    public final TableField<WorkflowRunRecord, Long> ELAPSED_TIME = createField(DSL.name("elapsed_time"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "");
+
+    /**
      * The column <code>workflow_run.trace_id</code>.
      */
     public final TableField<WorkflowRunRecord, String> TRACE_ID = createField(DSL.name("trace_id"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");

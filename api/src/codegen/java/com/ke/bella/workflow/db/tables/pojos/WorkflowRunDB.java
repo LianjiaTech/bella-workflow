@@ -38,6 +38,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        responseMode;
     private String        metadata;
     private String        threadId;
+    private Long          elapsedTime;
     private String        traceId;
     private Integer       spanLev;
     private Long          cuid;
@@ -70,6 +71,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.responseMode = value.responseMode;
         this.metadata = value.metadata;
         this.threadId = value.threadId;
+        this.elapsedTime = value.elapsedTime;
         this.traceId = value.traceId;
         this.spanLev = value.spanLev;
         this.cuid = value.cuid;
@@ -101,6 +103,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        responseMode,
         String        metadata,
         String        threadId,
+        Long          elapsedTime,
         String        traceId,
         Integer       spanLev,
         Long          cuid,
@@ -130,6 +133,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.responseMode = responseMode;
         this.metadata = metadata;
         this.threadId = threadId;
+        this.elapsedTime = elapsedTime;
         this.traceId = traceId;
         this.spanLev = spanLev;
         this.cuid = cuid;
@@ -443,6 +447,20 @@ API
     }
 
     /**
+     * Getter for <code>workflow_run.elapsed_time</code>.
+     */
+    public Long getElapsedTime() {
+        return this.elapsedTime;
+    }
+
+    /**
+     * Setter for <code>workflow_run.elapsed_time</code>.
+     */
+    public void setElapsedTime(Long elapsedTime) {
+        this.elapsedTime = elapsedTime;
+    }
+
+    /**
      * Getter for <code>workflow_run.trace_id</code>.
      */
     public String getTraceId() {
@@ -578,6 +596,7 @@ API
         sb.append(", ").append(responseMode);
         sb.append(", ").append(metadata);
         sb.append(", ").append(threadId);
+        sb.append(", ").append(elapsedTime);
         sb.append(", ").append(traceId);
         sb.append(", ").append(spanLev);
         sb.append(", ").append(cuid);

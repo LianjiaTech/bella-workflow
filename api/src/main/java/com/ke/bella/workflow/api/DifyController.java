@@ -444,7 +444,9 @@ public class DifyController {
                 .status(e.getStatus())
                 .created_by_account(Account.builder().id(String.valueOf(e.getCuid())).name(e.getCuName()).email("").build())
                 .created_at(e.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .finished_at(e.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond()).build();
+                .finished_at(e.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                .elapsed_time(e.getElapsedTime() / 1000d)
+                        .build();
     }
 
     private static DifyRunHistoryDetails transfer(WorkflowRunDB wr, WorkflowDB wf) {
@@ -457,7 +459,7 @@ public class DifyController {
                         Account.builder().id(String.valueOf(wr.getCuid())).name(wr.getCuName()).email("").build())
                 .created_at(wr.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
                 .finished_at(wr.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .elapsed_time(1.0)
+                .elapsed_time(wr.getElapsedTime() / 1000d)
                 .graph(workflowSchema.getGraph())
                 .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class)).build();
     }
@@ -672,6 +674,7 @@ public class DifyController {
         private String status;
         private Long created_at;
         private Long finished_at;
+        private Double elapsed_time;
     }
 
     @AllArgsConstructor

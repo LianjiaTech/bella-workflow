@@ -1,5 +1,7 @@
 package com.ke.bella.workflow.service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -149,6 +151,7 @@ public class WorkflowService {
                 .state(state)
                 .userInputs(op.getInputs())
                 .triggerFrom(wr.getTriggerFrom())
+                .ctime(wr.getCtime())
                 .build();
         new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
     }
@@ -209,6 +212,7 @@ public class WorkflowService {
         wr.setWorkflowId(context.getWorkflowId());
         wr.setWorkflowRunId(context.getRunId());
         wr.setStatus(status);
+        wr.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
         if(outputs != null) {
             wr.setOutputs(JsonUtils.toJson(outputs));
         }
@@ -223,6 +227,7 @@ public class WorkflowService {
         wr.setWorkflowRunId(context.getRunId());
         wr.setStatus(status);
         wr.setError(error);
+        wr.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
 
         repo.updateWorkflowRun(wr);
     }
@@ -387,6 +392,7 @@ public class WorkflowService {
                 .state(getWorkflowRunState(wr))
                 .userInputs(new HashMap())
                 .triggerFrom(wr.getTriggerFrom())
+                .ctime(wr.getCtime())
                 .build();
 
         tryResumeWorkflow(context, callback);

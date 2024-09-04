@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.api.callbacks;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 
@@ -63,7 +64,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                         .status(context.getWorkflowRunResult().getStatus().name())
                         .createdAt(System.currentTimeMillis())
                         .finishedAt(System.currentTimeMillis())
-                        .elapsedTime(context.getWorkflowRunResult().getElapsedTime() / 1000d)
+                        .elapsedTime(context.elapsedTime(LocalDateTime.now()) / 1000d)
                         .build())
                 .build();
         SseHelper.sendEvent(emitter, event);
@@ -96,7 +97,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                         .error(error)
                         .createdAt(System.currentTimeMillis())
                         .finishedAt(System.currentTimeMillis())
-                        .elapsedTime(0.1)
+                        .elapsedTime(context.elapsedTime(LocalDateTime.now()) / 1000d)
                         .build())
                 .build();
         SseHelper.sendEvent(emitter, event);

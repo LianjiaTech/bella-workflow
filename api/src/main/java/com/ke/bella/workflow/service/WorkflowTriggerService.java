@@ -26,6 +26,7 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowWebotTriggerDB;
+import com.ke.bella.workflow.trigger.KafkaEventConsumers;
 import com.ke.bella.workflow.trigger.WorkflowSchedulingStatus;
 import com.ke.bella.workflow.utils.CronUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -118,6 +119,7 @@ public class WorkflowTriggerService {
     }
 
     public WorkflowKafkaTriggerDB createKafkaTrigger(KafkaTriggerCreate op) {
+        KafkaEventConsumers.validate(op.getExpression());
         return repo.addKafkaTrigger(op);
     }
 

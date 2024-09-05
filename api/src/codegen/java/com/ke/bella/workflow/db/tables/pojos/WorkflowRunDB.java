@@ -36,6 +36,9 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        workflowSchedulingId;
     private String        triggerId;
     private String        responseMode;
+    private String        metadata;
+    private String        threadId;
+    private Long          elapsedTime;
     private String        traceId;
     private Integer       spanLev;
     private Long          cuid;
@@ -44,7 +47,6 @@ public class WorkflowRunDB implements Operator, Serializable {
     private Long          muid;
     private String        muName;
     private LocalDateTime mtime;
-    private String        threadId;
 
     public WorkflowRunDB() {}
 
@@ -67,6 +69,9 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.workflowSchedulingId = value.workflowSchedulingId;
         this.triggerId = value.triggerId;
         this.responseMode = value.responseMode;
+        this.metadata = value.metadata;
+        this.threadId = value.threadId;
+        this.elapsedTime = value.elapsedTime;
         this.traceId = value.traceId;
         this.spanLev = value.spanLev;
         this.cuid = value.cuid;
@@ -75,7 +80,6 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.muid = value.muid;
         this.muName = value.muName;
         this.mtime = value.mtime;
-        this.threadId = value.threadId;
     }
 
     public WorkflowRunDB(
@@ -97,6 +101,9 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        workflowSchedulingId,
         String        triggerId,
         String        responseMode,
+        String        metadata,
+        String        threadId,
+        Long          elapsedTime,
         String        traceId,
         Integer       spanLev,
         Long          cuid,
@@ -104,8 +111,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         LocalDateTime ctime,
         Long          muid,
         String        muName,
-        LocalDateTime mtime,
-        String        threadId
+        LocalDateTime mtime
     ) {
         this.id = id;
         this.tenantId = tenantId;
@@ -125,6 +131,9 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.workflowSchedulingId = workflowSchedulingId;
         this.triggerId = triggerId;
         this.responseMode = responseMode;
+        this.metadata = metadata;
+        this.threadId = threadId;
+        this.elapsedTime = elapsedTime;
         this.traceId = traceId;
         this.spanLev = spanLev;
         this.cuid = cuid;
@@ -133,7 +142,6 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.muid = muid;
         this.muName = muName;
         this.mtime = mtime;
-        this.threadId = threadId;
     }
 
     /**
@@ -411,6 +419,48 @@ API
     }
 
     /**
+     * Getter for <code>workflow_run.metadata</code>.
+     */
+    public String getMetadata() {
+        return this.metadata;
+    }
+
+    /**
+     * Setter for <code>workflow_run.metadata</code>.
+     */
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
+    }
+
+    /**
+     * Getter for <code>workflow_run.thread_id</code>. thread_id
+     */
+    public String getThreadId() {
+        return this.threadId;
+    }
+
+    /**
+     * Setter for <code>workflow_run.thread_id</code>. thread_id
+     */
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
+    }
+
+    /**
+     * Getter for <code>workflow_run.elapsed_time</code>.
+     */
+    public Long getElapsedTime() {
+        return this.elapsedTime;
+    }
+
+    /**
+     * Setter for <code>workflow_run.elapsed_time</code>.
+     */
+    public void setElapsedTime(Long elapsedTime) {
+        this.elapsedTime = elapsedTime;
+    }
+
+    /**
      * Getter for <code>workflow_run.trace_id</code>.
      */
     public String getTraceId() {
@@ -522,20 +572,6 @@ API
         this.mtime = mtime;
     }
 
-    /**
-     * Getter for <code>workflow_run.thread_id</code>. thread_id
-     */
-    public String getThreadId() {
-        return this.threadId;
-    }
-
-    /**
-     * Setter for <code>workflow_run.thread_id</code>. thread_id
-     */
-    public void setThreadId(String threadId) {
-        this.threadId = threadId;
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("WorkflowRunDB (");
@@ -558,6 +594,9 @@ API
         sb.append(", ").append(workflowSchedulingId);
         sb.append(", ").append(triggerId);
         sb.append(", ").append(responseMode);
+        sb.append(", ").append(metadata);
+        sb.append(", ").append(threadId);
+        sb.append(", ").append(elapsedTime);
         sb.append(", ").append(traceId);
         sb.append(", ").append(spanLev);
         sb.append(", ").append(cuid);
@@ -566,7 +605,6 @@ API
         sb.append(", ").append(muid);
         sb.append(", ").append(muName);
         sb.append(", ").append(mtime);
-        sb.append(", ").append(threadId);
 
         sb.append(")");
         return sb.toString();

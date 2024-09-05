@@ -71,7 +71,7 @@
           "instruction": "",
           "model": {
             "completion_params": {
-              "temperature": 0.7
+              "temperature": 0.1
             },
             "mode": "chat",
             "name": "gpt-4",

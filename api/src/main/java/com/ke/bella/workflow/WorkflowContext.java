@@ -1,5 +1,7 @@
 package com.ke.bella.workflow;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Edge;
@@ -19,7 +22,6 @@ import com.ke.bella.workflow.node.Start;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.util.CollectionUtils;
 
 @Getter
 @Setter
@@ -33,6 +35,7 @@ public class WorkflowContext {
     private WorkflowGraph graph;
     private WorkflowRunState state;
     private Map userInputs;
+    private LocalDateTime ctime;
 
     public Map userInputs() {
         return this.userInputs;
@@ -170,5 +173,9 @@ public class WorkflowContext {
 
     public String getThreadId() {
         return this.getState().getVariable("sys", "thread_id") == null ? null : this.getState().getVariable("sys", "thread_id").toString();
+    }
+
+    public long elapsedTime(LocalDateTime etime) {
+        return Duration.between(ctime, etime).toMillis();
     }
 }

@@ -200,7 +200,7 @@ const useConfig = (id: string, payload: KnowledgeRetrievalNodeType) => {
   useEffect(() => {
     let query_variable_selector: ValueSelector = inputs.query_variable_selector
     if (isChatMode && inputs.query_variable_selector.length === 0 && startNodeId)
-      query_variable_selector = [startNodeId, 'sys.query']
+      query_variable_selector = ['sys', 'query']
 
     setInputs({
       ...inputs,

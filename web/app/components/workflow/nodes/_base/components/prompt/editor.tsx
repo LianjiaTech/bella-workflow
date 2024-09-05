@@ -220,7 +220,7 @@ const Editor: FC<Props> = ({
                       selectable: false,
                     }}
                     workflowVariableBlock={{
-                      show: isShowVariable,
+                      show: true,
                       variables: nodesOutputVars || [],
                       workflowNodesMap: availableNodes.reduce((acc, node) => {
                         acc[node.id] = {

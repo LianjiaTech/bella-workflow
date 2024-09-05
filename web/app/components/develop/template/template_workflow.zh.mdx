@@ -60,6 +60,8 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
         用户名，Ke内用户必须使用与userId相匹配的真实姓名。
       - `callbackUrl` (string) Optional
         回调地址，当 `responseMode` 为 `callback` 时，必填。当workflow执行结束，会以post请求的方式回调callbackUrl。
+      - `metadata` (object) Optional
+        随路数据，在工作流中可以通过sys.metadata引用，长度不超过4096
 
     ### Response
     当 `responseMode` 为 `blocking` 时，返回 CompletionResponse object。

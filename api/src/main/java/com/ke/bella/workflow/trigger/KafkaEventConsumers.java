@@ -154,6 +154,10 @@ public class KafkaEventConsumers {
         return res instanceof Boolean && (Boolean) res;
     }
 
+    public static void validate(String expression) {
+        AviatorEvaluator.compile(expression);
+    }
+
     class EventListener implements MessageListener<String, String> {
         final String key;
 

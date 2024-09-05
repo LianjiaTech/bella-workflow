@@ -67,7 +67,9 @@ public class ApiTool implements ITool {
                 for (Map.Entry<String, Object> entry : body.entrySet()) {
                     String key = entry.getKey();
                     Object value = entry.getValue();
-                    builder.add(key, value.toString());
+                    if(Objects.nonNull(value)) {
+                        builder.add(key, value.toString());
+                    }
                 }
                 return builder.build();
             } else if("multipart/form-data".equals(contentType)) {
@@ -76,7 +78,9 @@ public class ApiTool implements ITool {
                 for (Map.Entry<String, Object> bodyEntry : body.entrySet()) {
                     String key = bodyEntry.getKey();
                     Object value = bodyEntry.getValue();
-                    builder.addFormDataPart(key, value.toString());
+                    if(Objects.nonNull(value)) {
+                        builder.addFormDataPart(key, value.toString());
+                    }
                 }
                 return builder.build();
             } else {

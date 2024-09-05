@@ -151,7 +151,7 @@ const Panel: FC<NodePanelProps<ParameterExtractorNodeType>> = ({
           <>
 
             {/* Memory */}
-            {isChatMode && (
+            {false && (
               <div className='mt-4'>
                 <MemoryConfig
                   readonly={readOnly}

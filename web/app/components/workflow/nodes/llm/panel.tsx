@@ -173,7 +173,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
             filterVar={filterInputVar}
             isChatModel={isChatModel}
             isChatApp={isChatMode}
-            isShowContext
+            isShowContext={false}
             payload={inputs.prompt_template}
             onChange={handlePromptChange}
             hasSetBlockStatus={hasSetBlockStatus}

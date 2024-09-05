@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import com.google.common.base.Throwables;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.api.callbacks.DifyChatflowStreamingCallback;
+import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.assistants.message.Message;
 import com.theokanning.openai.assistants.message.MessageListSearchParameters;
 import com.theokanning.openai.assistants.thread.Thread;
@@ -350,7 +351,7 @@ public class DifyController {
         Assert.notNull(op.inputs, "inputs不能为空");
 
         if("advanced-chat".equals(workflowMode) && !StringUtils.hasText(op.getThreadId())) {
-            OpenAiService openAiService = new OpenAiService(BellaContext.getApiKey(), Configs.API_BASE);
+            OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
             Thread thread = openAiService.createThread(new ThreadRequest());
             op.setThreadId(thread.getId());
         }
@@ -444,7 +445,9 @@ public class DifyController {
                 .status(e.getStatus())
                 .created_by_account(Account.builder().id(String.valueOf(e.getCuid())).name(e.getCuName()).email("").build())
                 .created_at(e.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .finished_at(e.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond()).build();
+                .finished_at(e.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                .elapsed_time(e.getElapsedTime() / 1000d)
+                        .build();
     }
 
     private static DifyRunHistoryDetails transfer(WorkflowRunDB wr, WorkflowDB wf) {
@@ -457,7 +460,7 @@ public class DifyController {
                         Account.builder().id(String.valueOf(wr.getCuid())).name(wr.getCuName()).email("").build())
                 .created_at(wr.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
                 .finished_at(wr.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .elapsed_time(1.0)
+                .elapsed_time(wr.getElapsedTime() / 1000d)
                 .graph(workflowSchema.getGraph())
                 .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class)).build();
     }
@@ -490,7 +493,7 @@ public class DifyController {
     public Page<DifyChatFlowRun> pageChatFlowRuns(@PathVariable String workflowId,
             @RequestParam(value = "conversation_id", required = false) String threadId) {
         initContext();
-        OpenAiService openAiService = new OpenAiService(BellaContext.getApiKey(), Configs.API_BASE);
+        OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
 
         List<Message> messages = openAiService.listMessages(threadId, new MessageListSearchParameters()).getData();
         // messages按照createAt排序，从低到高
@@ -672,6 +675,7 @@ public class DifyController {
         private String status;
         private Long created_at;
         private Long finished_at;
+        private Double elapsed_time;
     }
 
     @AllArgsConstructor

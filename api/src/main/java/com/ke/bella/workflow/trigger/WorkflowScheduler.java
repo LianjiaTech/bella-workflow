@@ -38,7 +38,7 @@ public class WorkflowScheduler implements ApplicationRunner, DisposableBean {
                 while (triggerNums > 0) {
                     triggerNums = schedulingTriggerHelper.trySchedulingTrigger();
                 }
-                TimeUnit.MINUTES.sleep(5);
+                TimeUnit.MINUTES.sleep(1);
             } catch (InterruptedException e) {
                 if(!scheduleThreadToStop) {
                     LOGGER.error(e.getMessage());

@@ -49,4 +49,8 @@ public class WebotTriggerRunner {
 
         return true;
     }
+
+    public static void validate(String expression) {
+        AviatorEvaluator.compile(expression);
+    }
 }

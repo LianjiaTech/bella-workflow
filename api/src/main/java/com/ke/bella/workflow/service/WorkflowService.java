@@ -1,5 +1,7 @@
 package com.ke.bella.workflow.service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +12,6 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import com.ke.bella.workflow.node.BaseNode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -140,6 +141,7 @@ public class WorkflowService {
         state.putVariable("sys", "files", op.getFiles());
         state.putVariable("sys", "message_id", IDGenerator.newMessageId());
         state.putVariable("sys", "thread_id", op.getThreadId());
+        state.putVariable("sys", "metadata", op.getMetadata());
 
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())
@@ -149,6 +151,7 @@ public class WorkflowService {
                 .state(state)
                 .userInputs(op.getInputs())
                 .triggerFrom(wr.getTriggerFrom())
+                .ctime(wr.getCtime())
                 .build();
         new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
     }
@@ -209,6 +212,7 @@ public class WorkflowService {
         wr.setWorkflowId(context.getWorkflowId());
         wr.setWorkflowRunId(context.getRunId());
         wr.setStatus(status);
+        wr.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
         if(outputs != null) {
             wr.setOutputs(JsonUtils.toJson(outputs));
         }
@@ -223,6 +227,7 @@ public class WorkflowService {
         wr.setWorkflowRunId(context.getRunId());
         wr.setStatus(status);
         wr.setError(error);
+        wr.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
 
         repo.updateWorkflowRun(wr);
     }
@@ -384,25 +389,30 @@ public class WorkflowService {
                 .workflowId(wr.getWorkflowId())
                 .runId(wr.getWorkflowRunId())
                 .graph(graph)
-                .state(getWorkflowRunState(wr.getWorkflowRunId()))
+                .state(getWorkflowRunState(wr))
                 .userInputs(new HashMap())
                 .triggerFrom(wr.getTriggerFrom())
+                .ctime(wr.getCtime())
                 .build();
 
         tryResumeWorkflow(context, callback);
     }
 
     @SuppressWarnings("unchecked")
-    public WorkflowRunState getWorkflowRunState(String workflowRunId) {
-        List<WorkflowNodeRunDB> wrs = repo.queryWorkflowNodeRuns(workflowRunId);
+    public WorkflowRunState getWorkflowRunState(WorkflowRunDB wr) {
+        List<WorkflowNodeRunDB> wrs = repo.queryWorkflowNodeRuns(wr.getWorkflowRunId());
         WorkflowRunState state = new WorkflowRunState();
-        wrs.forEach(wr -> state.putNodeState(wr.getNodeId(), NodeRunResult.builder()
-                .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class))
-                .outputs(JsonUtils.fromJson(wr.getOutputs(), Map.class))
-                .processData(JsonUtils.fromJson(wr.getProcessData(), Map.class))
-                .status(NodeRunResult.Status.valueOf(wr.getStatus()))
-                .activatedSourceHandles(JsonUtils.fromJson(wr.getActivedTargetHandles(), List.class))
+        wrs.forEach(wnr -> state.putNodeState(wnr.getNodeId(), NodeRunResult.builder()
+                .inputs(JsonUtils.fromJson(wnr.getInputs(), Map.class))
+                .outputs(JsonUtils.fromJson(wnr.getOutputs(), Map.class))
+                .processData(JsonUtils.fromJson(wnr.getProcessData(), Map.class))
+                .status(NodeRunResult.Status.valueOf(wnr.getStatus()))
+                .activatedSourceHandles(JsonUtils.fromJson(wnr.getActivedTargetHandles(), List.class))
                 .build()));
+
+        state.putVariable("sys", "query", wr.getQuery());
+        state.putVariable("sys", "files", JsonUtils.fromJson(wr.getFiles(), List.class));
+        state.putVariable("sys", "metadata", JsonUtils.fromJson(wr.getMetadata(), Map.class));
         return state;
     }
 

@@ -4,6 +4,7 @@ import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
+import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.assistants.message.MessageRequest;
 import com.theokanning.openai.service.OpenAiService;
 
@@ -19,7 +20,7 @@ public class DifyChatflowStreamingCallback extends WorkflowCallbackAdaptor {
     public DifyChatflowStreamingCallback(DifyWorkflowRunStreamingCallback difyStreamingCallback) {
         this.resultBufferMap = new HashMap<>();
         this.difyStreamingCallback = difyStreamingCallback;
-        this.openAiService = new OpenAiService(BellaContext.getApiKey(), Configs.API_BASE);
+        this.openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
     }
 
     @Override

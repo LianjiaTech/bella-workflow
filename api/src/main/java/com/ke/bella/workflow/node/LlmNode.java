@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import com.ke.bella.workflow.utils.OpenAiUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 
@@ -160,8 +161,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     }
 
     private Flowable<ChatCompletionChunk> invokeLlm(List<ChatMessage> chatMessages) {
-        OpenAiService service = new OpenAiService(data.getAuthorization().getToken(), Duration.ofSeconds(data.getTimeout().getReadSeconds()),
-                data.getAuthorization().getApiBaseUrl());
+		OpenAiService service = OpenAiUtils.defaultOpenAiService(data.getAuthorization().getToken(), data.getTimeout().getReadSeconds(), TimeUnit.SECONDS);
         ChatCompletionRequest chatCompletionRequest = Optional.ofNullable(JsonUtils.fromJson(JsonUtils.toJson(data.getModel().getCompletionParams()),
                 ChatCompletionRequest.class)).orElse(new ChatCompletionRequest());
         chatCompletionRequest.setMessages(chatMessages);

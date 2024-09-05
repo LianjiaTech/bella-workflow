@@ -103,6 +103,7 @@ public class WorkflowTriggerRepo implements BaseRepo {
     public List<WorkflowSchedulingDB> listWorkflowScheduling(LocalDateTime endTime, Set<String> status, Integer limit) {
         return db.selectFrom(WORKFLOW_SCHEDULING)
                 .where(WORKFLOW_SCHEDULING.TRIGGER_NEXT_TIME.le(endTime)
+                        .and(WORKFLOW_SCHEDULING.TRIGGER_NEXT_TIME.ge(endTime.minusMinutes(10)))
                         .and(WORKFLOW_SCHEDULING.RUNNING_STATUS.in(status)))
                 .and(WORKFLOW_SCHEDULING.STATUS.eq(0))
                 .limit(limit).fetch()

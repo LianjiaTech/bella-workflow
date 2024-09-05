@@ -98,7 +98,7 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
           supportFold
         >
           <AdvancedSetting
-            hideMemorySetting={!isChatMode}
+            hideMemorySetting={true}
             instruction={inputs.instruction}
             onInstructionChange={handleInstructionChange}
             memory={inputs.memory}

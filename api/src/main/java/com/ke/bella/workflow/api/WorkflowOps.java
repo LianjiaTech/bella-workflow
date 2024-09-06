@@ -143,7 +143,9 @@ public class WorkflowOps {
         int flashMode = 1;
 
         public boolean isFlashMode() {
-            return (!ResponseMode.callback.name().equals(responseMode)) && (flashMode > 0);
+            return (!ResponseMode.callback.name().equals(responseMode))
+                    && (flashMode > 0)
+                    && (!TriggerFrom.DEBUG.name().equals(triggerFrom));
         }
     }
 

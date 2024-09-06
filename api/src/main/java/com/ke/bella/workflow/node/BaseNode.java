@@ -107,6 +107,9 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
                 throw new IllegalStateException(result.getError().getMessage());
             } else if(result.getStatus() == NodeRunResult.Status.waiting) {
+                if(context.isFlashMode()) {
+                    throw new IllegalArgumentException("极速模式下不支持节点挂起，请调整请求里的flashMode参数");
+                }
                 callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
             }
         } finally {
@@ -138,6 +141,10 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 .outputs(context.getState().getNotifyData(getNodeId()))
                 .status(NodeRunResult.Status.succeeded)
                 .build();
+    }
+
+    public void validate(WorkflowContext ctx) {
+        // no-op
     }
 
     private void appendBuiltinVariables(WorkflowContext context) {
@@ -260,4 +267,5 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
             private Map<String, Object> completionParams;
         }
     }
+
 }

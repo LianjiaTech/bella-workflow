@@ -39,6 +39,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        metadata;
     private String        threadId;
     private Long          elapsedTime;
+    private Integer       flashMode;
     private String        traceId;
     private Integer       spanLev;
     private Long          cuid;
@@ -72,6 +73,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.metadata = value.metadata;
         this.threadId = value.threadId;
         this.elapsedTime = value.elapsedTime;
+        this.flashMode = value.flashMode;
         this.traceId = value.traceId;
         this.spanLev = value.spanLev;
         this.cuid = value.cuid;
@@ -104,6 +106,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        metadata,
         String        threadId,
         Long          elapsedTime,
+        Integer       flashMode,
         String        traceId,
         Integer       spanLev,
         Long          cuid,
@@ -134,6 +137,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.metadata = metadata;
         this.threadId = threadId;
         this.elapsedTime = elapsedTime;
+        this.flashMode = flashMode;
         this.traceId = traceId;
         this.spanLev = spanLev;
         this.cuid = cuid;
@@ -461,6 +465,20 @@ API
     }
 
     /**
+     * Getter for <code>workflow_run.flash_mode</code>.
+     */
+    public Integer getFlashMode() {
+        return this.flashMode;
+    }
+
+    /**
+     * Setter for <code>workflow_run.flash_mode</code>.
+     */
+    public void setFlashMode(Integer flashMode) {
+        this.flashMode = flashMode;
+    }
+
+    /**
      * Getter for <code>workflow_run.trace_id</code>.
      */
     public String getTraceId() {
@@ -597,6 +615,7 @@ API
         sb.append(", ").append(metadata);
         sb.append(", ").append(threadId);
         sb.append(", ").append(elapsedTime);
+        sb.append(", ").append(flashMode);
         sb.append(", ").append(traceId);
         sb.append(", ").append(spanLev);
         sb.append(", ").append(cuid);

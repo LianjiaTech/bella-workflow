@@ -68,7 +68,9 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId) {
         LOGGER.info("{} {} onWorkflowNodeRunStarted", context.getWorkflowId(), context.getRunId());
 
-        service.createWorkflowNodeRun(context, nodeId, nodeRunId, NodeRunResult.Status.running.name());
+        if(!context.isFlashMode()) {
+            service.createWorkflowNodeRun(context, nodeId, nodeRunId, NodeRunResult.Status.running.name());
+        }
 
         delegate.onWorkflowNodeRunStarted(context, nodeId, nodeRunId);
     }
@@ -83,17 +85,20 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId, String nodeRunId) {
         LOGGER.info("{} {} onWorkflowNodeRunWaited", context.getWorkflowId(), context.getRunId());
 
-        service.updateWorkflowNodeRunWaited(context, nodeId, nodeRunId);
+        if(!context.isFlashMode()) {
+            service.updateWorkflowNodeRunWaited(context, nodeId, nodeRunId);
+        }
 
         delegate.onWorkflowNodeRunWaited(context, nodeId, nodeRunId);
-
     }
 
     @Override
     public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
         LOGGER.info("{} {} onWorkflowNodeRunSucceeded", context.getWorkflowId(), context.getRunId());
 
-        service.updateWorkflowNodeRunSucceeded(context, nodeId, nodeRunId);
+        if(!context.isFlashMode()) {
+            service.updateWorkflowNodeRunSucceeded(context, nodeId, nodeRunId);
+        }
 
         delegate.onWorkflowNodeRunSucceeded(context, nodeId, nodeRunId);
 
@@ -103,7 +108,9 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
         LOGGER.info("{} {} onWorkflowNodeRunFailed. error:{}", context.getWorkflowId(), context.getRunId(), error, t);
 
-        service.updateWorkflowNodeRunFailed(context, nodeId, nodeRunId, error);
+        if(!context.isFlashMode()) {
+            service.updateWorkflowNodeRunFailed(context, nodeId, nodeRunId, error);
+        }
 
         delegate.onWorkflowNodeRunFailed(context, nodeId, nodeRunId, error, t);
     }

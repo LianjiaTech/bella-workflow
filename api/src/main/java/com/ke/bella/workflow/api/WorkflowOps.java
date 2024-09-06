@@ -138,6 +138,12 @@ public class WorkflowOps {
 
         String traceId;
         int spanLev;
+
+        int flashMode;
+
+        public boolean isFlashMode() {
+            return (!ResponseMode.callback.name().equals(responseMode)) && (flashMode > 0);
+        }
     }
 
     @Getter

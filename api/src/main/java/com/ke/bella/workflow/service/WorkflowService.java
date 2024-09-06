@@ -1,6 +1,5 @@
 package com.ke.bella.workflow.service;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -152,6 +151,7 @@ public class WorkflowService {
                 .userInputs(op.getInputs())
                 .triggerFrom(wr.getTriggerFrom())
                 .ctime(wr.getCtime())
+                .flashMode(wr.getFlashMode())
                 .build();
         new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
     }
@@ -393,6 +393,7 @@ public class WorkflowService {
                 .userInputs(new HashMap())
                 .triggerFrom(wr.getTriggerFrom())
                 .ctime(wr.getCtime())
+                .flashMode(wr.getFlashMode())
                 .build();
 
         tryResumeWorkflow(context, callback);

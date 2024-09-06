@@ -167,6 +167,11 @@ API
     public final TableField<WorkflowRunRecord, Long> ELAPSED_TIME = createField(DSL.name("elapsed_time"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "");
 
     /**
+     * The column <code>workflow_run.flash_mode</code>.
+     */
+    public final TableField<WorkflowRunRecord, Integer> FLASH_MODE = createField(DSL.name("flash_mode"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.inline("0", SQLDataType.INTEGER)), this, "");
+
+    /**
      * The column <code>workflow_run.trace_id</code>.
      */
     public final TableField<WorkflowRunRecord, String> TRACE_ID = createField(DSL.name("trace_id"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");

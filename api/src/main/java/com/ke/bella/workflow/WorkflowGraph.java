@@ -107,8 +107,18 @@ public class WorkflowGraph {
     }
 
     public void validate() {
+        validate(null);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void validate(WorkflowContext ctx) {
         // 判断是否存在对应的实现类
-        meta.getGraph().getNodes().forEach(BaseNode::from);
+        List<BaseNode> nodeRuns = meta.getGraph().getNodes().stream()
+                .map(BaseNode::from)
+                .collect(Collectors.toList());
+        if(ctx != null) {
+            nodeRuns.forEach(n -> n.validate(ctx));
+        }
 
         // 判断有且只有一个start
         int startCount = meta.getGraph().getNodes()

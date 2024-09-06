@@ -1,0 +1,1 @@
+ALTER TABLE `workflow_run` ADD COLUMN `flash_mode` int NOT NULL DEFAULT '0' COMMENT '极速模式' AFTER `elapsed_time`;

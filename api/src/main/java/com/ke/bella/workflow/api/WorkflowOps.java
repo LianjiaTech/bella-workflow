@@ -29,7 +29,8 @@ public class WorkflowOps {
         DEBUG_NODE,
         API,
         SCHEDULE,
-        KAFKA;
+        KAFKA,
+        CUSTOM_API;
     }
 
     public enum TriggerType {
@@ -46,6 +47,19 @@ public class WorkflowOps {
     public static class WorkflowOp extends Operator {
         String workflowId;
         Long version;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WorkflowAsApiPublish extends WorkflowOp {
+        String summary;
+        String desc;
+        String operationId;
+        String host;
+        String path;
     }
 
     @Getter
@@ -147,6 +161,16 @@ public class WorkflowOps {
                     && (flashMode > 0)
                     && (!TriggerFrom.DEBUG.name().equals(triggerFrom));
         }
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WorkflowCApiRun extends WorkflowRun {
+        @Builder.Default
+        String responseMode = ResponseMode.blocking.name();
     }
 
     @Getter

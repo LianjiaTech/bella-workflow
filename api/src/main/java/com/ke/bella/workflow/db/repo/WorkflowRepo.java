@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
@@ -33,16 +34,19 @@ import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunShardingDB;
 import com.ke.bella.workflow.db.tables.records.TenantRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowAggregateRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowAsApiRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunShardingRecord;
+import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
@@ -485,6 +489,27 @@ public class WorkflowRepo implements BaseRepo {
                 .and(WORKFLOW_AGGREGATE.STATUS.eq(0))
                 .orderBy(DSL.when(WORKFLOW_AGGREGATE.LATEST_PUBLISH_VERSION.gt(0L), 0).otherwise(1).asc(), WORKFLOW_AGGREGATE.MTIME.desc());
         return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowAggregateDB.class);
+    }
+
+    public WorkflowAsApiDB queryCustomApi(String hash) {
+        return db.selectFrom(WORKFLOW_AS_API)
+                .where(WORKFLOW_AS_API.HASH.eq(hash))
+                .fetchOneInto(WorkflowAsApiDB.class);
+    }
+
+    public WorkflowAsApiDB addCustomApi(WorkflowDB wf, WorkflowAsApiPublish op) {
+        WorkflowAsApiRecord rec = WORKFLOW_AS_API.newRecord();
+        rec.from(op);
+        rec.setTenantId(wf.getTenantId());
+        rec.setWorkflowId(wf.getWorkflowId());
+        rec.setSummary(StringUtils.hasText(op.getSummary()) ? op.getSummary() : wf.getTitle());
+        rec.setDesc(StringUtils.hasText(op.getDesc()) ? op.getDesc() : wf.getDesc());
+        rec.setHash(HttpUtils.sha256(op.getHost() + op.getPath()));
+
+        fillCreatorInfo(rec);
+        db.insertInto(WORKFLOW_AS_API).set(rec).execute();
+
+        return rec.into(WorkflowAsApiDB.class);
     }
 
     @SuppressWarnings("serial")

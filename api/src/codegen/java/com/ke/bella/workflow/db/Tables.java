@@ -11,6 +11,7 @@ import com.ke.bella.workflow.db.tables.WecomGroupInfo;
 import com.ke.bella.workflow.db.tables.WecomGroupMember;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowAggregate;
+import com.ke.bella.workflow.db.tables.WorkflowAsApi;
 import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
@@ -59,6 +60,11 @@ public class Tables {
      * The table <code>workflow_aggregate</code>.
      */
     public static final WorkflowAggregate WORKFLOW_AGGREGATE = WorkflowAggregate.WORKFLOW_AGGREGATE;
+
+    /**
+     * The table <code>workflow_as_api</code>.
+     */
+    public static final WorkflowAsApi WORKFLOW_AS_API = WorkflowAsApi.WORKFLOW_AS_API;
 
     /**
      * The table <code>workflow_kafka_trigger</code>.

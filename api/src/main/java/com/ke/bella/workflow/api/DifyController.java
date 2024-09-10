@@ -332,15 +332,15 @@ public class DifyController {
 
     @PostMapping({ "/{workflowId}/workflows/draft/run" })
     public Object workflowRun(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
-        return workflowRun0(workflowId, op, "workflow");
+        return workflowRun0(workflowId, op);
     }
 
     @PostMapping({ "/{workflowId}/advanced-chat/workflows/draft/run" })
     public Object chatFlowRun(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
-        return workflowRun0(workflowId, op, "advanced-chat");
+        return workflowRun0(workflowId, op);
     }
 
-    private Object workflowRun0(String workflowId, DifyWorkflowRun op, String workflowMode) {
+    private Object workflowRun0(String workflowId, DifyWorkflowRun op) {
         initContext();
         op.setWorkflowId(workflowId);
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
@@ -358,10 +358,8 @@ public class DifyController {
                 .threadId(op.threadId)
                 .query(op.query)
                 .files(op.files)
+                .stateful(op.isStateful())
                 .build();
-        if("advanced-chat".equals(workflowMode)) {
-            op2.setStateful(true);
-        }
 
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法调试", op2.workflowId));
@@ -767,5 +765,8 @@ public class DifyController {
         List<File> files;
         @JsonAlias({ "conversation_id", "thread_id" })
         String threadId;
+
+        @Builder.Default
+        boolean stateful = true;
     }
 }

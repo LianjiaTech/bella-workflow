@@ -10,6 +10,7 @@ import {
   useWorkflow,
 } from '../hooks'
 import DebugAndPreview from './debug-and-preview'
+import CopilotChat from './copilot-chat'
 import Record from './record'
 import WorkflowPreview from './workflow-preview'
 import ChatRecord from './chat-record'
@@ -24,6 +25,7 @@ const Panel: FC = () => {
   const selectedNode = nodes.find(node => node.data.selected)
   const historyWorkflowData = useStore(s => s.historyWorkflowData)
   const showDebugAndPreviewPanel = useStore(s => s.showDebugAndPreviewPanel)
+  const showCopilotPanel = useStore(s => s.showCopilotPanel)
   const showEnvPanel = useStore(s => s.showEnvPanel)
   const isRestoring = useStore(s => s.isRestoring)
   const {
@@ -88,6 +90,11 @@ const Panel: FC = () => {
       {
         showEnvPanel && (
           <EnvPanel />
+        )
+      }
+      {
+        showCopilotPanel && (
+          <CopilotChat />
         )
       }
     </div>

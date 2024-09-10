@@ -1,16 +1,18 @@
 package com.ke.bella.workflow.utils;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ke.bella.workflow.service.Configs;
 import com.theokanning.openai.client.AuthenticationInterceptor;
 import com.theokanning.openai.client.OpenAiApi;
 import com.theokanning.openai.service.OpenAiService;
+
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class OpenAiUtils {
     static HttpLoggingInterceptor logging = new HttpLoggingInterceptor();

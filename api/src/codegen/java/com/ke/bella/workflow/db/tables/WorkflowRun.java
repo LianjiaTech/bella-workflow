@@ -182,6 +182,11 @@ API
     public final TableField<WorkflowRunRecord, Integer> SPAN_LEV = createField(DSL.name("span_lev"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.inline("0", SQLDataType.INTEGER)), this, "");
 
     /**
+     * The column <code>workflow_run.stateful</code>.
+     */
+    public final TableField<WorkflowRunRecord, Integer> STATEFUL = createField(DSL.name("stateful"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.inline("0", SQLDataType.INTEGER)), this, "");
+
+    /**
      * The column <code>workflow_run.cuid</code>.
      */
     public final TableField<WorkflowRunRecord, Long> CUID = createField(DSL.name("cuid"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "");

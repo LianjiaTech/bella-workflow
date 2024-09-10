@@ -12,16 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import com.google.common.base.Throwables;
-import com.ke.bella.workflow.IWorkflowCallback;
-import com.ke.bella.workflow.api.callbacks.DifyChatflowStreamingCallback;
-import com.ke.bella.workflow.utils.OpenAiUtils;
-import com.theokanning.openai.assistants.message.Message;
-import com.theokanning.openai.assistants.message.MessageListSearchParameters;
-import com.theokanning.openai.assistants.thread.Thread;
-import com.theokanning.openai.assistants.thread.ThreadRequest;
-import com.theokanning.openai.service.OpenAiService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
@@ -39,9 +29,11 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
@@ -68,6 +60,10 @@ import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.utils.JsonUtils;
+import com.ke.bella.workflow.utils.OpenAiUtils;
+import com.theokanning.openai.assistants.message.Message;
+import com.theokanning.openai.assistants.message.MessageListSearchParameters;
+import com.theokanning.openai.service.OpenAiService;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -76,6 +72,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/console/api/apps")
@@ -350,12 +347,6 @@ public class DifyController {
         Assert.hasText(workflowId, "workflowId不能为空");
         Assert.notNull(op.inputs, "inputs不能为空");
 
-        if("advanced-chat".equals(workflowMode) && !StringUtils.hasText(op.getThreadId())) {
-            OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
-            Thread thread = openAiService.createThread(new ThreadRequest());
-            op.setThreadId(thread.getId());
-        }
-
         WorkflowRun op2 = WorkflowRun.builder()
                 .userId(op.getUserId())
                 .userName(op.getUserName())
@@ -368,6 +359,9 @@ public class DifyController {
                 .query(op.query)
                 .files(op.files)
                 .build();
+        if("advanced-chat".equals(workflowMode)) {
+            op2.setStateful(true);
+        }
 
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法调试", op2.workflowId));
@@ -380,12 +374,7 @@ public class DifyController {
         } else {
             SseEmitter emitter = SseHelper.createSse(300000L, wr.getWorkflowRunId());
             TaskExecutor.submit(() -> {
-                IWorkflowCallback callback = null;
-                if("advanced-chat".equals(workflowMode)) {
-                    callback = new DifyChatflowStreamingCallback(new DifyWorkflowRunStreamingCallback(emitter));
-                } else {
-                    callback = new DifyWorkflowRunStreamingCallback(emitter);
-                }
+                IWorkflowCallback callback = new DifyWorkflowRunStreamingCallback(emitter);
                 ws.runWorkflow(wr, op2, callback);
             });
             return emitter;

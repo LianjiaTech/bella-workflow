@@ -535,6 +535,8 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
                         return "Basic ";
                     } else if("bearer".equals(type)) {
                         return "Bearer ";
+                    } else if("bella".equals(type)) {
+                        return "Bearer ";
                     }
                     return "";
                 }

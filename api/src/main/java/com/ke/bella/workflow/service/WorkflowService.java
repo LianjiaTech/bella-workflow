@@ -155,6 +155,8 @@ public class WorkflowService {
                 .triggerFrom(wr.getTriggerFrom())
                 .ctime(wr.getCtime())
                 .flashMode(wr.getFlashMode())
+                .workflowMode(wf.getMode())
+                .stateful(op.isStateful())
                 .build();
         new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
     }
@@ -231,6 +233,7 @@ public class WorkflowService {
         wr.setStatus(status);
         wr.setError(error);
         wr.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
+        wr.setThreadId(context.getThreadId());
 
         repo.updateWorkflowRun(wr);
     }
@@ -397,6 +400,8 @@ public class WorkflowService {
                 .triggerFrom(wr.getTriggerFrom())
                 .ctime(wr.getCtime())
                 .flashMode(wr.getFlashMode())
+                .workflowMode(wf.getMode())
+                .stateful(wr.getStateful().intValue() == 1)
                 .build();
 
         tryResumeWorkflow(context, callback);

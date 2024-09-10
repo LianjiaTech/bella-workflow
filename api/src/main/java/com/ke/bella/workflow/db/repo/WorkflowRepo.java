@@ -320,6 +320,7 @@ public class WorkflowRepo implements BaseRepo {
         }
 
         rec.setSpanLev(op.getSpanLev());
+        rec.setStateful(op.isStateful() ? 1 : 0);
 
         fillCreatorInfo(rec);
 

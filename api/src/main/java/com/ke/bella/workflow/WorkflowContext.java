@@ -32,11 +32,13 @@ public class WorkflowContext {
     private String workflowId;
     private String runId;
     private String triggerFrom;
+    private String workflowMode;
     private WorkflowGraph graph;
     private WorkflowRunState state;
     private Map userInputs;
     private LocalDateTime ctime;
     private int flashMode;
+    private boolean stateful;
 
     public Map userInputs() {
         return this.userInputs;
@@ -173,7 +175,11 @@ public class WorkflowContext {
     }
 
     public String getThreadId() {
-        return this.getState().getVariable("sys", "thread_id") == null ? null : this.getState().getVariable("sys", "thread_id").toString();
+        return (String) this.getState().getVariable("sys", "thread_id");
+    }
+
+    public void setThreadId(String threadId) {
+        this.getState().putVariable("sys", "thread_id", threadId);
     }
 
     public long elapsedTime(LocalDateTime etime) {

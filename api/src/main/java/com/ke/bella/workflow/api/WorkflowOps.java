@@ -156,6 +156,9 @@ public class WorkflowOps {
         @Builder.Default
         int flashMode = 1;
 
+        /** chatfow模式下的选项，当为true时，持久化thread及对应的msg到assistants-api */
+        boolean stateful;
+
         public boolean isFlashMode() {
             return (!ResponseMode.callback.name().equals(responseMode))
                     && (flashMode > 0)

@@ -42,6 +42,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private Integer       flashMode;
     private String        traceId;
     private Integer       spanLev;
+    private Integer       stateful;
     private Long          cuid;
     private String        cuName;
     private LocalDateTime ctime;
@@ -76,6 +77,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.flashMode = value.flashMode;
         this.traceId = value.traceId;
         this.spanLev = value.spanLev;
+        this.stateful = value.stateful;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
         this.ctime = value.ctime;
@@ -109,6 +111,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         Integer       flashMode,
         String        traceId,
         Integer       spanLev,
+        Integer       stateful,
         Long          cuid,
         String        cuName,
         LocalDateTime ctime,
@@ -140,6 +143,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.flashMode = flashMode;
         this.traceId = traceId;
         this.spanLev = spanLev;
+        this.stateful = stateful;
         this.cuid = cuid;
         this.cuName = cuName;
         this.ctime = ctime;
@@ -507,6 +511,20 @@ API
     }
 
     /**
+     * Getter for <code>workflow_run.stateful</code>.
+     */
+    public Integer getStateful() {
+        return this.stateful;
+    }
+
+    /**
+     * Setter for <code>workflow_run.stateful</code>.
+     */
+    public void setStateful(Integer stateful) {
+        this.stateful = stateful;
+    }
+
+    /**
      * Getter for <code>workflow_run.cuid</code>.
      */
     public Long getCuid() {
@@ -618,6 +636,7 @@ API
         sb.append(", ").append(flashMode);
         sb.append(", ").append(traceId);
         sb.append(", ").append(spanLev);
+        sb.append(", ").append(stateful);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);
         sb.append(", ").append(ctime);

@@ -61,6 +61,7 @@ public class WorkflowCustomApi {
                 .threadId(op1.getThreadId())
                 .userId(op1.getUserId())
                 .userName(op1.getUserName())
+                .stateful(op1.isStateful())
                 .build();
         BellaContext.setOperator(op);
         return delegate.run(op);

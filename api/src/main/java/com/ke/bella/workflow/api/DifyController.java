@@ -711,7 +711,7 @@ public class DifyController {
         WorkflowSchema.Graph graph = new WorkflowSchema.Graph();
         Map<String, Object> maps = Maps.newHashMap();
         maps.put("type", NodeType.START.name);
-        maps.put("title", "开始节点");
+        maps.put("title", "开始");
         maps.put("variables", Lists.newArrayList());
         maps.put("selected", true);
 

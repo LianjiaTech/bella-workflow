@@ -76,7 +76,7 @@ const useConfig = (id: string, payload: QuestionClassifierNodeType) => {
     if (isReady) {
       let query_variable_selector: ValueSelector = []
       if (isChatMode && inputs.query_variable_selector.length === 0 && startNodeId)
-        query_variable_selector = [startNodeId, 'sys.query']
+        query_variable_selector = ['sys', 'query']
       setInputs({
         ...inputs,
         ...defaultConfig,

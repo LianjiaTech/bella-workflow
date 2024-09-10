@@ -110,10 +110,10 @@ const ComponentPicker = ({
         needRemove.remove()
     })
 
-    if (variables[1] === 'sys.query' || variables[1] === 'sys.files')
+    /* if (variables[1] === 'sys.query' || variables[1] === 'sys.files')
       editor.dispatchCommand(INSERT_WORKFLOW_VARIABLE_BLOCK_COMMAND, [variables[1]])
-    else
-      editor.dispatchCommand(INSERT_WORKFLOW_VARIABLE_BLOCK_COMMAND, variables)
+    else */
+    editor.dispatchCommand(INSERT_WORKFLOW_VARIABLE_BLOCK_COMMAND, variables)
   }, [editor, checkForTriggerMatch, triggerString])
 
   const renderMenu = useCallback<MenuRenderFn<PickerBlockMenuOption>>((

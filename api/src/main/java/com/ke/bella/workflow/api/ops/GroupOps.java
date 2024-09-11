@@ -28,6 +28,9 @@ public class GroupOps {
 
         @ApiModelProperty(value = "空间编码，默认：personal，.......")
         private String spaceCode = "";
+
+        @ApiModelProperty(value = "exclusive_ai_assistant：专属AI助理群.......")
+        private String scene = "";
     }
 
     @Getter
@@ -82,6 +85,9 @@ public class GroupOps {
 
         @ApiModelProperty(value = "群备注", required = true)
         private String groupAlias = "";
+
+        @ApiModelProperty(value = "exclusive_ai_assistant：专属AI助理群.......")
+        private String scene = "";
 
         @ApiModelProperty(value = "页码", required = true)
         private int page = 1;

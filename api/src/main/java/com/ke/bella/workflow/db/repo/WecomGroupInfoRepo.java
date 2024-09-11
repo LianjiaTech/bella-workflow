@@ -45,6 +45,9 @@ public class WecomGroupInfoRepo implements BaseRepo {
         if(!StringUtils.isEmpty(op.getChatId())) {
             rec.setChatId(op.getChatId());
         }
+        if(!StringUtils.isEmpty(op.getScene())) {
+            rec.setScene(op.getScene());
+        }
         fillCreatorInfo(rec);
         db.insertInto(WECOM_GROUP_INFO).set(rec).execute();
 
@@ -109,6 +112,7 @@ public class WecomGroupInfoRepo implements BaseRepo {
                 .and(CollectionUtils.isEmpty(op.getGroupCodes()) ? DSL.noCondition() : WECOM_GROUP_INFO.GROUP_CODE.in(op.getGroupCodes()))
                 .and(StringUtils.isEmpty(op.getGroupName()) ? DSL.noCondition() : WECOM_GROUP_INFO.GROUP_NAME.like("%" + op.getGroupName() + "%"))
                 .and(StringUtils.isEmpty(op.getGroupAlias()) ? DSL.noCondition() : WECOM_GROUP_INFO.GROUP_ALIAS.like("%" + op.getGroupAlias() + "%"))
+                .and(StringUtils.isEmpty(op.getScene()) ? DSL.noCondition() : WECOM_GROUP_INFO.SCENE.eq(op.getScene()))
                 .and(WECOM_GROUP_INFO.STATUS.eq(StatusEnum.ok.getCode()))
                 .orderBy(WECOM_GROUP_INFO.MTIME.desc());
 

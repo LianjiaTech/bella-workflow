@@ -24,3 +24,12 @@ CREATE TABLE `workflow_as_api` (
   KEY `idx_host` (`host`) USING BTREE,
   KEY `idx_wfid` (`tenant_id`,`workflow_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+ALTER TABLE `wecom_group_info`
+    ADD COLUMN `scene` VARCHAR(128) NOT NULL DEFAULT '' COMMENT 'exclusive_ai_assistant：专属AI助理群' AFTER `chat_id`;
+
+ALTER TABLE wecom_group_info
+    ADD INDEX idx_tenant_id_space_code_cuid_scene ( `tenant_id`, `space_code`, `cuid`, `scene` );
+
+ALTER TABLE wecom_group_info DROP INDEX idx_tenant_id_space_code_cuid;

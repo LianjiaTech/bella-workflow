@@ -57,7 +57,7 @@ const RunMode = memo(() => {
         isRunning && (
           <div
             className='flex items-center justify-center ml-0.5 w-7 h-7 cursor-pointer hover:bg-black/5 rounded-md'
-            /* onClick={() => handleStopRun(workflowRunningData?.task_id || '')} */
+            onClick={() => handleStopRun(workflowRunningData?.task_id || '')}
           >
             <StopCircle className='w-4 h-4 text-components-button-ghost-text' />
           </div>

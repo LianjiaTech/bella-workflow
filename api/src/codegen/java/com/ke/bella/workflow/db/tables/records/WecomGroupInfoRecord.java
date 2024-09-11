@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 
 import org.jooq.Field;
 import org.jooq.Record1;
-import org.jooq.Record15;
-import org.jooq.Row15;
+import org.jooq.Record16;
+import org.jooq.Row16;
 import org.jooq.impl.UpdatableRecordImpl;
 
 
@@ -20,7 +20,7 @@ import org.jooq.impl.UpdatableRecordImpl;
  * 企业微信群信息管理
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class WecomGroupInfoRecord extends UpdatableRecordImpl<WecomGroupInfoRecord> implements Operator, Record15<Long, String, String, String, String, String, String, String, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> {
+public class WecomGroupInfoRecord extends UpdatableRecordImpl<WecomGroupInfoRecord> implements Operator, Record16<Long, String, String, String, String, String, String, String, String, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> {
 
     private static final long serialVersionUID = 1L;
 
@@ -137,101 +137,115 @@ public class WecomGroupInfoRecord extends UpdatableRecordImpl<WecomGroupInfoReco
     }
 
     /**
+     * Setter for <code>wecom_group_info.scene</code>. exclusive_ai_assistant：专属AI助理群
+     */
+    public void setScene(String value) {
+        set(8, value);
+    }
+
+    /**
+     * Getter for <code>wecom_group_info.scene</code>. exclusive_ai_assistant：专属AI助理群
+     */
+    public String getScene() {
+        return (String) get(8);
+    }
+
+    /**
      * Setter for <code>wecom_group_info.cuid</code>. 创建人ucid
      */
     public void setCuid(Long value) {
-        set(8, value);
+        set(9, value);
     }
 
     /**
      * Getter for <code>wecom_group_info.cuid</code>. 创建人ucid
      */
     public Long getCuid() {
-        return (Long) get(8);
+        return (Long) get(9);
     }
 
     /**
      * Setter for <code>wecom_group_info.cu_name</code>. 创建人名字
      */
     public void setCuName(String value) {
-        set(9, value);
+        set(10, value);
     }
 
     /**
      * Getter for <code>wecom_group_info.cu_name</code>. 创建人名字
      */
     public String getCuName() {
-        return (String) get(9);
+        return (String) get(10);
     }
 
     /**
      * Setter for <code>wecom_group_info.muid</code>. 修改人ucid
      */
     public void setMuid(Long value) {
-        set(10, value);
+        set(11, value);
     }
 
     /**
      * Getter for <code>wecom_group_info.muid</code>. 修改人ucid
      */
     public Long getMuid() {
-        return (Long) get(10);
+        return (Long) get(11);
     }
 
     /**
      * Setter for <code>wecom_group_info.mu_name</code>. 修改人名字
      */
     public void setMuName(String value) {
-        set(11, value);
+        set(12, value);
     }
 
     /**
      * Getter for <code>wecom_group_info.mu_name</code>. 修改人名字
      */
     public String getMuName() {
-        return (String) get(11);
+        return (String) get(12);
     }
 
     /**
      * Setter for <code>wecom_group_info.status</code>. 记录状态（0:正常, -1:已删除）
      */
     public void setStatus(Integer value) {
-        set(12, value);
+        set(13, value);
     }
 
     /**
      * Getter for <code>wecom_group_info.status</code>. 记录状态（0:正常, -1:已删除）
      */
     public Integer getStatus() {
-        return (Integer) get(12);
+        return (Integer) get(13);
     }
 
     /**
      * Setter for <code>wecom_group_info.ctime</code>. 创建时间
      */
     public void setCtime(LocalDateTime value) {
-        set(13, value);
+        set(14, value);
     }
 
     /**
      * Getter for <code>wecom_group_info.ctime</code>. 创建时间
      */
     public LocalDateTime getCtime() {
-        return (LocalDateTime) get(13);
+        return (LocalDateTime) get(14);
     }
 
     /**
      * Setter for <code>wecom_group_info.mtime</code>. 更新时间
      */
     public void setMtime(LocalDateTime value) {
-        set(14, value);
+        set(15, value);
     }
 
     /**
      * Getter for <code>wecom_group_info.mtime</code>. 更新时间
      */
     public LocalDateTime getMtime() {
-        return (LocalDateTime) get(14);
+        return (LocalDateTime) get(15);
     }
 
     // -------------------------------------------------------------------------
@@ -244,17 +258,17 @@ public class WecomGroupInfoRecord extends UpdatableRecordImpl<WecomGroupInfoReco
     }
 
     // -------------------------------------------------------------------------
-    // Record15 type implementation
+    // Record16 type implementation
     // -------------------------------------------------------------------------
 
     @Override
-    public Row15<Long, String, String, String, String, String, String, String, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> fieldsRow() {
-        return (Row15) super.fieldsRow();
+    public Row16<Long, String, String, String, String, String, String, String, String, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> fieldsRow() {
+        return (Row16) super.fieldsRow();
     }
 
     @Override
-    public Row15<Long, String, String, String, String, String, String, String, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> valuesRow() {
-        return (Row15) super.valuesRow();
+    public Row16<Long, String, String, String, String, String, String, String, String, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> valuesRow() {
+        return (Row16) super.valuesRow();
     }
 
     @Override
@@ -298,37 +312,42 @@ public class WecomGroupInfoRecord extends UpdatableRecordImpl<WecomGroupInfoReco
     }
 
     @Override
-    public Field<Long> field9() {
+    public Field<String> field9() {
+        return WecomGroupInfo.WECOM_GROUP_INFO.SCENE;
+    }
+
+    @Override
+    public Field<Long> field10() {
         return WecomGroupInfo.WECOM_GROUP_INFO.CUID;
     }
 
     @Override
-    public Field<String> field10() {
+    public Field<String> field11() {
         return WecomGroupInfo.WECOM_GROUP_INFO.CU_NAME;
     }
 
     @Override
-    public Field<Long> field11() {
+    public Field<Long> field12() {
         return WecomGroupInfo.WECOM_GROUP_INFO.MUID;
     }
 
     @Override
-    public Field<String> field12() {
+    public Field<String> field13() {
         return WecomGroupInfo.WECOM_GROUP_INFO.MU_NAME;
     }
 
     @Override
-    public Field<Integer> field13() {
+    public Field<Integer> field14() {
         return WecomGroupInfo.WECOM_GROUP_INFO.STATUS;
     }
 
     @Override
-    public Field<LocalDateTime> field14() {
+    public Field<LocalDateTime> field15() {
         return WecomGroupInfo.WECOM_GROUP_INFO.CTIME;
     }
 
     @Override
-    public Field<LocalDateTime> field15() {
+    public Field<LocalDateTime> field16() {
         return WecomGroupInfo.WECOM_GROUP_INFO.MTIME;
     }
 
@@ -373,37 +392,42 @@ public class WecomGroupInfoRecord extends UpdatableRecordImpl<WecomGroupInfoReco
     }
 
     @Override
-    public Long component9() {
+    public String component9() {
+        return getScene();
+    }
+
+    @Override
+    public Long component10() {
         return getCuid();
     }
 
     @Override
-    public String component10() {
+    public String component11() {
         return getCuName();
     }
 
     @Override
-    public Long component11() {
+    public Long component12() {
         return getMuid();
     }
 
     @Override
-    public String component12() {
+    public String component13() {
         return getMuName();
     }
 
     @Override
-    public Integer component13() {
+    public Integer component14() {
         return getStatus();
     }
 
     @Override
-    public LocalDateTime component14() {
+    public LocalDateTime component15() {
         return getCtime();
     }
 
     @Override
-    public LocalDateTime component15() {
+    public LocalDateTime component16() {
         return getMtime();
     }
 
@@ -448,37 +472,42 @@ public class WecomGroupInfoRecord extends UpdatableRecordImpl<WecomGroupInfoReco
     }
 
     @Override
-    public Long value9() {
+    public String value9() {
+        return getScene();
+    }
+
+    @Override
+    public Long value10() {
         return getCuid();
     }
 
     @Override
-    public String value10() {
+    public String value11() {
         return getCuName();
     }
 
     @Override
-    public Long value11() {
+    public Long value12() {
         return getMuid();
     }
 
     @Override
-    public String value12() {
+    public String value13() {
         return getMuName();
     }
 
     @Override
-    public Integer value13() {
+    public Integer value14() {
         return getStatus();
     }
 
     @Override
-    public LocalDateTime value14() {
+    public LocalDateTime value15() {
         return getCtime();
     }
 
     @Override
-    public LocalDateTime value15() {
+    public LocalDateTime value16() {
         return getMtime();
     }
 
@@ -531,49 +560,55 @@ public class WecomGroupInfoRecord extends UpdatableRecordImpl<WecomGroupInfoReco
     }
 
     @Override
-    public WecomGroupInfoRecord value9(Long value) {
+    public WecomGroupInfoRecord value9(String value) {
+        setScene(value);
+        return this;
+    }
+
+    @Override
+    public WecomGroupInfoRecord value10(Long value) {
         setCuid(value);
         return this;
     }
 
     @Override
-    public WecomGroupInfoRecord value10(String value) {
+    public WecomGroupInfoRecord value11(String value) {
         setCuName(value);
         return this;
     }
 
     @Override
-    public WecomGroupInfoRecord value11(Long value) {
+    public WecomGroupInfoRecord value12(Long value) {
         setMuid(value);
         return this;
     }
 
     @Override
-    public WecomGroupInfoRecord value12(String value) {
+    public WecomGroupInfoRecord value13(String value) {
         setMuName(value);
         return this;
     }
 
     @Override
-    public WecomGroupInfoRecord value13(Integer value) {
+    public WecomGroupInfoRecord value14(Integer value) {
         setStatus(value);
         return this;
     }
 
     @Override
-    public WecomGroupInfoRecord value14(LocalDateTime value) {
+    public WecomGroupInfoRecord value15(LocalDateTime value) {
         setCtime(value);
         return this;
     }
 
     @Override
-    public WecomGroupInfoRecord value15(LocalDateTime value) {
+    public WecomGroupInfoRecord value16(LocalDateTime value) {
         setMtime(value);
         return this;
     }
 
     @Override
-    public WecomGroupInfoRecord values(Long value1, String value2, String value3, String value4, String value5, String value6, String value7, String value8, Long value9, String value10, Long value11, String value12, Integer value13, LocalDateTime value14, LocalDateTime value15) {
+    public WecomGroupInfoRecord values(Long value1, String value2, String value3, String value4, String value5, String value6, String value7, String value8, String value9, Long value10, String value11, Long value12, String value13, Integer value14, LocalDateTime value15, LocalDateTime value16) {
         value1(value1);
         value2(value2);
         value3(value3);
@@ -589,6 +624,7 @@ public class WecomGroupInfoRecord extends UpdatableRecordImpl<WecomGroupInfoReco
         value13(value13);
         value14(value14);
         value15(value15);
+        value16(value16);
         return this;
     }
 
@@ -606,7 +642,7 @@ public class WecomGroupInfoRecord extends UpdatableRecordImpl<WecomGroupInfoReco
     /**
      * Create a detached, initialised WecomGroupInfoRecord
      */
-    public WecomGroupInfoRecord(Long id, String tenantId, String spaceCode, String groupCode, String groupName, String groupAlias, String groupId, String chatId, Long cuid, String cuName, Long muid, String muName, Integer status, LocalDateTime ctime, LocalDateTime mtime) {
+    public WecomGroupInfoRecord(Long id, String tenantId, String spaceCode, String groupCode, String groupName, String groupAlias, String groupId, String chatId, String scene, Long cuid, String cuName, Long muid, String muName, Integer status, LocalDateTime ctime, LocalDateTime mtime) {
         super(WecomGroupInfo.WECOM_GROUP_INFO);
 
         setId(id);
@@ -617,6 +653,7 @@ public class WecomGroupInfoRecord extends UpdatableRecordImpl<WecomGroupInfoReco
         setGroupAlias(groupAlias);
         setGroupId(groupId);
         setChatId(chatId);
+        setScene(scene);
         setCuid(cuid);
         setCuName(cuName);
         setMuid(muid);

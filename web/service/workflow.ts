@@ -57,7 +57,7 @@ export const fetchNodeDefault = (appId: string, blockType: BlockEnum, query = {}
 }
 
 export const updateWorkflowDraftFromDSL = (appId: string, data: string) => {
-  return post<FetchWorkflowDraftResponse>(`apps/${appId}/workflows/draft/import`, { body: { data } })
+  return post<FetchWorkflowDraftResponse>(`apps/${appId}/workflows/draft/import`, { body: data }, { bodyStringify: false })
 }
 
 export const createSchedulingTrigger: Fetcher<WorkflowTriggerDetail, { name: string; desc?: string; expression: string; inputs: string; workflowId: string; triggerType: string; datasourceId: string }> = ({ name, desc, expression, inputs, workflowId, triggerType, datasourceId }) => {

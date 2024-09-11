@@ -91,7 +91,7 @@ const Uploader: FC<Props> = ({
         style={{ display: 'none' }}
         type="file"
         id="fileUploader"
-        accept='.yml'
+        accept='.json'
         onChange={fileChangeHandle}
       />
       <div ref={dropRef}>
@@ -111,8 +111,8 @@ const Uploader: FC<Props> = ({
           <div className={cn('flex items-center h-20 px-6 rounded-xl bg-gray-50 border border-gray-200 text-sm font-normal group', 'hover:bg-[#F5F8FF] hover:border-[#B2CCFF]')}>
             <YamlIcon className="shrink-0" />
             <div className='flex ml-2 w-0 grow'>
-              <span className='max-w-[calc(100%_-_30px)] text-ellipsis whitespace-nowrap overflow-hidden text-gray-800'>{file.name.replace(/(.yaml|.yml)$/, '')}</span>
-              <span className='shrink-0 text-gray-500'>.yml</span>
+              <span className='max-w-[calc(100%_-_30px)] text-ellipsis whitespace-nowrap overflow-hidden text-gray-800'>{file.name.replace(/(.json)$/, '')}</span>
+              <span className='shrink-0 text-gray-500'>.json</span>
             </div>
             <div className='hidden group-hover:flex items-center'>
               <Button onClick={selectHandle}>{t('datasetCreation.stepOne.uploader.change')}</Button>

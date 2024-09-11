@@ -166,6 +166,14 @@ public class DifyController {
         return JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
     }
 
+    @GetMapping(value = "/{workflowId}/export")
+    public Object export(@PathVariable String workflowId, @RequestParam("include_secret") boolean inc) throws Exception {
+        initContext();
+        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
+
+        return ImmutableMap.of("data", wf.getGraph());
+    }
+
     @GetMapping("/{workflowId}/workflows")
     public Page<WorkflowDB> getWorkflows(@PathVariable String workflowId, @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int limit) {
@@ -277,6 +285,23 @@ public class DifyController {
         }
         wf = ws.getDraftWorkflow(workflowId);
         return DifyResponse.builder().code(200).message("保存成功").status("success").updatedAt(System.currentTimeMillis() / 1000).build();
+    }
+
+    @PostMapping("/{workflowId}/workflows/draft/import")
+    public WorkflowSchema importDSL(@PathVariable String workflowId, @RequestBody WorkflowSchema dsl) {
+        initContext();
+        Assert.hasText(workflowId, "workflowId不能为空");
+        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
+        WorkflowSync sync = WorkflowSync.builder()
+                .graph(JsonUtils.toJson(dsl))
+                .workflowId(workflowId)
+                .build();
+        if(Objects.isNull(wf)) {
+            ws.newWorkflow(sync);
+        } else {
+            ws.syncWorkflow(sync);
+        }
+        return dsl;
     }
 
     @PostMapping("/{workflowId}/workflows/draft/nodes/{nodeId}/run")

@@ -76,7 +76,7 @@ const translation = {
     importDSL: '导入 DSL',
     importDSLTip: '当前草稿将被覆盖。在导入之前请导出工作流作为备份。',
     backupCurrentDraft: '备份当前草稿',
-    chooseDSL: '选择 DSL(yml) 文件',
+    chooseDSL: '选择 DSL(json) 文件',
     overwriteAndImport: '覆盖并导入',
     importFailure: '导入失败',
     importSuccess: '导入成功',

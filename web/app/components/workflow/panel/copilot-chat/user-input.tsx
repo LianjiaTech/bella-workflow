@@ -20,7 +20,7 @@ const UserInput = () => {
   const inputs = useStore(s => s.inputs)
   const nodes = useNodes<StartNodeType>()
   const startNode = nodes.find(node => node.data.type === BlockEnum.Start)
-  const variables = startNode?.data.variables || []
+  const variables = []
 
   const handleValueChange = (variable: string, v: string) => {
     workflowStore.getState().setInputs({

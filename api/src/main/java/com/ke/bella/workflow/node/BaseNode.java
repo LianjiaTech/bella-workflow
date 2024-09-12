@@ -100,6 +100,14 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         NodeRunResult result = execute(context, callback);
         try {
             result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);
+
+            if(result.getStatus() == NodeRunResult.Status.succeeded) {
+                List<String> handles = data.getSourceHandles();
+                if(handles.size() == 1) {
+                    result.setActivatedSourceHandles(handles);
+                }
+            }
+
             context.putNodeRunResult(this, result);
             if(result.getStatus() == NodeRunResult.Status.succeeded) {
                 callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);

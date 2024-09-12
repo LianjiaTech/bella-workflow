@@ -319,10 +319,10 @@ export const useNodesInteractions = () => {
     const multiInputNodeTypes = [BlockEnum.VariableAssigner, BlockEnum.VariableAggregator,
       BlockEnum.TemplateTransform, BlockEnum.Code, BlockEnum.End]
     const canNotSameTargetNodeTypes = [BlockEnum.IfElse, BlockEnum.QuestionClassifier]
-    const multiOutputNodeTypes = [BlockEnum.Parallel]
+    const canNotMultiOutputNodeTypes = [BlockEnum.End]
     const needDeleteEdges = edges.filter((edge) => {
       if (
-        (edge.source === source && edge.sourceHandle === sourceHandle && !multiOutputNodeTypes.includes(sourceNode?.data.type))
+        (edge.source === source && edge.sourceHandle === sourceHandle && canNotMultiOutputNodeTypes.includes(sourceNode?.data.type))
         || (edge.target === target && edge.targetHandle === targetHandle && !multiInputNodeTypes.includes(targetNode?.data.type))
       )
         return true

@@ -131,15 +131,15 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
-    public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
-        LOGGER.info("{} {} onWorkflowNodeRunSucceeded", context.getWorkflowId(), context.getRunId());
+    public void onWorkflowNodeRunSucceeded(WorkflowContext ctx, String nodeId, String nodeRunId) {
+        LOGGER.info("{} {} onWorkflowNodeRunSucceeded, nodeId:{} result: {}", ctx.getWorkflowId(), ctx.getRunId(), nodeId,
+                ctx.getState().getNodeState(nodeId).getOutputs());
 
-        if(!context.isFlashMode()) {
-            service.updateWorkflowNodeRunSucceeded(context, nodeId, nodeRunId);
+        if(!ctx.isFlashMode()) {
+            service.updateWorkflowNodeRunSucceeded(ctx, nodeId, nodeRunId);
         }
 
-        delegate.onWorkflowNodeRunSucceeded(context, nodeId, nodeRunId);
-
+        delegate.onWorkflowNodeRunSucceeded(ctx, nodeId, nodeRunId);
     }
 
     @Override

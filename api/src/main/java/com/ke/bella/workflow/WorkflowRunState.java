@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import com.ke.bella.workflow.db.BellaContext;
 
@@ -28,6 +29,8 @@ public class WorkflowRunState {
     final Map<String, Map> notifyDataMap = new HashMap<>();
     final Set<String> activatedSourceHandles = new HashSet<>();
     final Set<String> deadSourceHandles = new HashSet<>();
+    final ArrayBlockingQueue<String> nextNodes = new ArrayBlockingQueue<>(64);
+    int runningNodeCount = 0;
 
     @Getter
     @Setter
@@ -51,7 +54,6 @@ public class WorkflowRunState {
     public WorkflowRunState(Map variablePoolMap) {
         this.variablePoolMap.putAll(variablePoolMap);
     }
-
 
     synchronized boolean isEmpty() {
         return nodeCompletedStates.isEmpty();
@@ -159,6 +161,38 @@ public class WorkflowRunState {
                 nodeCompletedStates.put(nodeId, state);
             }
         }
+
+        if(s != NodeRunResult.Status.skipped && s != NodeRunResult.Status.notified) {
+            this.runningNodeCount -= 1;
+        }
+
+        if(s == NodeRunResult.Status.failed) {
+            setStatus(WorkflowRunStatus.failed);
+        }
+    }
+
+    synchronized void putNextNode(String nodeId) {
+        try {
+            nextNodes.put(nodeId);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
+        }
+    }
+
+    synchronized void putNextNodes(List<String> nodeIds) {
+        nextNodes.addAll(nodeIds);
+    }
+
+    synchronized List<String> takeNextNodes() {
+        List<String> ns = new ArrayList<>();
+        nextNodes.drainTo(ns);
+        this.runningNodeCount += ns.size();
+        return ns;
+    }
+
+    synchronized boolean isFinish() {
+        return this.runningNodeCount == 0 && nextNodes.isEmpty();
     }
 
     @Data

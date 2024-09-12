@@ -2,6 +2,7 @@ package com.ke.bella.workflow;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -16,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TaskExecutor {
     static ThreadFactory tf = new NamedThreadFactory("bella-worker-", true);
-    static ScheduledExecutorService executor = Executors.newScheduledThreadPool(100, tf);
+    static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1000, tf);
 
     public static void schedule(Runnable r, long delayMills) {
         executor.schedule(new Task(r), delayMills, TimeUnit.MILLISECONDS);
@@ -27,8 +28,8 @@ public class TaskExecutor {
         executor.scheduleAtFixedRate(r, initialDelay, period, TimeUnit.SECONDS);
     }
 
-    public static void submit(Runnable r) {
-        executor.submit(new Task(r));
+    public static CompletableFuture<Void> submit(Runnable r) {
+        return CompletableFuture.runAsync(new Task(r), executor);
     }
 
     public static class Task implements Runnable {
@@ -47,6 +48,10 @@ public class TaskExecutor {
                 r.run();
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
+                if(!(e instanceof RuntimeException)) {
+                    e = new RuntimeException(e);
+                }
+                throw (RuntimeException) e;
             } finally {
                 BellaContext.clearAll();
             }

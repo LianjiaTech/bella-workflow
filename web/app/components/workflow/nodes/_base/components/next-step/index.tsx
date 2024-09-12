@@ -27,7 +27,7 @@ const NextStep = ({
   const store = useStoreApi()
   const branches = data._targetBranches || []
   const nodeWithBranches = data.type === BlockEnum.IfElse || data.type === BlockEnum.QuestionClassifier
-  const nodeWithMultiOutput = data.type === BlockEnum.Parallel
+  const nodeWithMultiOutput = true
   const edges = useEdges()
   const outgoers = getOutgoers(selectedNode as Node, store.getState().getNodes(), edges)
   const connectedEdges = getConnectedEdges([selectedNode] as Node[], edges).filter(edge => edge.source === selectedNode!.id)
@@ -98,7 +98,7 @@ const NextStep = ({
           )
         }
         {
-          nodeWithMultiOutput && (
+          nodeWithMultiOutput && outgoers.length && (
             outgoers.map((outgoer) => {
               return <div
                 key={outgoer.id}

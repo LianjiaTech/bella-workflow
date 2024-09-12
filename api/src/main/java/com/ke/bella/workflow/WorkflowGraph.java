@@ -77,6 +77,10 @@ public class WorkflowGraph {
         return new HashSet<>(graph.nodes());
     }
 
+    public Set<String> successors(String nodeId) {
+        return graph.successors(nodeId);
+    }
+
     private MutableNetwork<String, Edge> buildGraph(WorkflowSchema meta, Map<String, Node> nodes) {
         MutableNetwork<String, WorkflowSchema.Edge> graph = NetworkBuilder
                 .directed()

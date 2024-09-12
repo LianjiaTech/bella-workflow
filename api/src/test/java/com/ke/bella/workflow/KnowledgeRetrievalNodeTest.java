@@ -4,21 +4,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.node.KnowledgeRetrievalNode;
-import com.ke.bella.workflow.service.Configs;
-import com.ke.bella.workflow.utils.JsonUtils;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.CollectionUtils;
 
-import com.ke.bella.workflow.WorkflowCallbackAdaptor;
-import com.ke.bella.workflow.WorkflowContext;
-import com.ke.bella.workflow.WorkflowRunState;
-import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.api.Operator;
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.node.KnowledgeRetrievalNode;
+import com.ke.bella.workflow.service.Configs;
+import com.ke.bella.workflow.utils.JsonUtils;
 
 public class KnowledgeRetrievalNodeTest {
 

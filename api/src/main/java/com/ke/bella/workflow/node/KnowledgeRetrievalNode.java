@@ -100,8 +100,11 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
     public static class Data extends BaseNodeData {
         @JsonAlias("query_variable_selector")
         private List<String> queryVariableSelector;
+
         @JsonAlias("dataset_ids")
         private List<String> datasetIds;
+
+        @Builder.Default
         @JsonAlias("multiple_retrieval_config")
         private MultipleRetrievalConfig multipleRetrievalConfig = new MultipleRetrievalConfig();
     }
@@ -112,10 +115,13 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
     @AllArgsConstructor
     @Builder
     public static class MultipleRetrievalConfig {
+        @Builder.Default
         @JsonAlias("top_k")
-        private Integer topK;
+        private int topK = 5;
+
+        @Builder.Default
         @JsonAlias("score_threshold")
-        private Float scoreThreshold;
+        private float scoreThreshold = 0.8f;
     }
 
     @Getter

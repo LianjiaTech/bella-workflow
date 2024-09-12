@@ -137,6 +137,10 @@ const formatItem = (
         variable: 'sys.metadata',
         type: VarType.object,
       })
+      res.vars.push({
+        variable: 'sys.run_id',
+        type: VarType.string,
+      })
       break
     }
 

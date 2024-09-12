@@ -144,6 +144,9 @@ public class WorkflowService {
         state.putVariable("sys", "message_id", IDGenerator.newMessageId());
         state.putVariable("sys", "thread_id", op.getThreadId());
         state.putVariable("sys", "metadata", op.getMetadata());
+        state.putVariable("sys", "tenant_id", wr.getTenantId());
+        state.putVariable("sys", "workflow_id", wr.getWorkflowId());
+        state.putVariable("sys", "run_id", wr.getWorkflowRunId());
 
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())
@@ -422,6 +425,9 @@ public class WorkflowService {
         state.putVariable("sys", "query", wr.getQuery());
         state.putVariable("sys", "files", JsonUtils.fromJson(wr.getFiles(), List.class));
         state.putVariable("sys", "metadata", JsonUtils.fromJson(wr.getMetadata(), Map.class));
+        state.putVariable("sys", "tenant_id", wr.getTenantId());
+        state.putVariable("sys", "workflow_id", wr.getWorkflowId());
+        state.putVariable("sys", "run_id", wr.getWorkflowRunId());
         return state;
     }
 

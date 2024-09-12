@@ -29,6 +29,7 @@ public class DifyResponseAdvice implements ResponseBodyAdvice<Object> {
         return true;
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
             Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
@@ -37,6 +38,10 @@ public class DifyResponseAdvice implements ResponseBodyAdvice<Object> {
             if(body instanceof DifyController.DifyResponse) {
                 response.setStatusCode(HttpStatus.valueOf(((DifyController.DifyResponse) body).getCode()));
                 return body;
+            }
+
+            if(body instanceof BellaResponse) {
+                response.setStatusCode(HttpStatus.valueOf(((BellaResponse) body).getCode()));
             }
             return body;
         } finally {

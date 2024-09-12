@@ -203,6 +203,11 @@
       <version>1.5.24</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>com.ke.bella.openapi</groupId>
+      <artifactId>sdk</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>

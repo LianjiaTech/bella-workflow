@@ -7,11 +7,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.ke.bella.workflow.api.model.DifyModelResponse;
+import com.ke.bella.workflow.api.model.ModelInfoService;
+import com.ke.bella.workflow.db.BellaContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,12 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequestMapping("/console/api/workspaces")
 public class DifyWorkspacesController {
-
-    @Value("${bella.llm.models}")
-    private String llmModels;
-
-    @Value("${bella.llm.models.params}")
-    private String llmModelParams;
+    @Autowired
+    ModelInfoService modelInfoService;
 
     @Autowired
     DifyController dc;
@@ -53,19 +53,23 @@ public class DifyWorkspacesController {
     DataSourceService ds;
 
     @GetMapping("/current/models/model-types/{model_type}")
-    public Object llmModel(@PathVariable("model_type") String modelType) {
-        // 默认返回c4ai-command-r-plus
-        return ImmutableMap.of("data", JsonUtils.fromJson(
-                llmModels, List.class));
+    public DifyModelResponse llmModel(@PathVariable("model_type") String modelType) {
+        dc.initContext();
+        String apikey = BellaContext.getApiKey();
+        return DifyModelResponse.builder()
+                .data(modelInfoService.fetchModels(modelType, apikey))
+                .build();
     }
 
     @GetMapping("/current/model-providers/{provider}/models/parameter-rules")
-    public Object llmModelParams(@PathVariable("provider") String provider, @RequestParam("model") String model) {
-        Object paramsMap = Optional.ofNullable(JsonUtils.fromJson(llmModelParams, Map.class))
-                .map(jsonMap -> (Map) jsonMap.get(provider))
-                .map(providerMap -> providerMap.get(model))
-                .orElse(Collections.emptyMap());
-        return ImmutableMap.of("data", paramsMap);
+    public DifyModelResponse llmModelParams(@PathVariable("provider") String provider,
+            @RequestParam("model") String model,
+            @RequestParam(value = "modelType", defaultValue = "llm") String modelType) {
+        dc.initContext();
+        String apikey = BellaContext.getApiKey();
+        return DifyModelResponse.builder()
+                .data(modelInfoService.fetchParameterRules(model, modelType, provider, apikey))
+                .build();
     }
 
     @GetMapping("/current/datasource/{type}")

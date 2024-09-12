@@ -39,8 +39,10 @@ public class WorkflowRunDB implements Operator, Serializable {
     private String        metadata;
     private String        threadId;
     private Long          elapsedTime;
+    private Integer       flashMode;
     private String        traceId;
     private Integer       spanLev;
+    private Integer       stateful;
     private Long          cuid;
     private String        cuName;
     private LocalDateTime ctime;
@@ -72,8 +74,10 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.metadata = value.metadata;
         this.threadId = value.threadId;
         this.elapsedTime = value.elapsedTime;
+        this.flashMode = value.flashMode;
         this.traceId = value.traceId;
         this.spanLev = value.spanLev;
+        this.stateful = value.stateful;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
         this.ctime = value.ctime;
@@ -104,8 +108,10 @@ public class WorkflowRunDB implements Operator, Serializable {
         String        metadata,
         String        threadId,
         Long          elapsedTime,
+        Integer       flashMode,
         String        traceId,
         Integer       spanLev,
+        Integer       stateful,
         Long          cuid,
         String        cuName,
         LocalDateTime ctime,
@@ -134,8 +140,10 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.metadata = metadata;
         this.threadId = threadId;
         this.elapsedTime = elapsedTime;
+        this.flashMode = flashMode;
         this.traceId = traceId;
         this.spanLev = spanLev;
+        this.stateful = stateful;
         this.cuid = cuid;
         this.cuName = cuName;
         this.ctime = ctime;
@@ -461,6 +469,20 @@ API
     }
 
     /**
+     * Getter for <code>workflow_run.flash_mode</code>.
+     */
+    public Integer getFlashMode() {
+        return this.flashMode;
+    }
+
+    /**
+     * Setter for <code>workflow_run.flash_mode</code>.
+     */
+    public void setFlashMode(Integer flashMode) {
+        this.flashMode = flashMode;
+    }
+
+    /**
      * Getter for <code>workflow_run.trace_id</code>.
      */
     public String getTraceId() {
@@ -486,6 +508,20 @@ API
      */
     public void setSpanLev(Integer spanLev) {
         this.spanLev = spanLev;
+    }
+
+    /**
+     * Getter for <code>workflow_run.stateful</code>.
+     */
+    public Integer getStateful() {
+        return this.stateful;
+    }
+
+    /**
+     * Setter for <code>workflow_run.stateful</code>.
+     */
+    public void setStateful(Integer stateful) {
+        this.stateful = stateful;
     }
 
     /**
@@ -597,8 +633,10 @@ API
         sb.append(", ").append(metadata);
         sb.append(", ").append(threadId);
         sb.append(", ").append(elapsedTime);
+        sb.append(", ").append(flashMode);
         sb.append(", ").append(traceId);
         sb.append(", ").append(spanLev);
+        sb.append(", ").append(stateful);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);
         sb.append(", ").append(ctime);

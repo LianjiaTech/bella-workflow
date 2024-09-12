@@ -7,6 +7,7 @@ const i18nPrefix = 'workflow.errorMsg'
 const nodeDefault: NodeDefault<TemplateTransformNodeType> = {
   defaultValue: {
     variables: [],
+    generateDeltaContent: true,
   },
   getAvailablePrevNodes(isChatMode: boolean) {
     const nodes = isChatMode

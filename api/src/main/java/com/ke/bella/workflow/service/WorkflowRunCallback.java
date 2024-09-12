@@ -1,10 +1,20 @@
 package com.ke.bella.workflow.service;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.springframework.util.StringUtils;
+
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.utils.OpenAiUtils;
+import com.theokanning.openai.assistants.message.MessageRequest;
+import com.theokanning.openai.assistants.thread.ThreadRequest;
+import com.theokanning.openai.service.OpenAiService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -13,28 +23,47 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     private final WorkflowService service;
     private final IWorkflowCallback delegate;
+    private final OpenAiService openAiService;
+    private final Map<String, StringBuilder> resultBufferMap;
 
     public WorkflowRunCallback(WorkflowService service, IWorkflowCallback delegate) {
         this.service = service;
         this.delegate = delegate;
+        this.openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
+        this.resultBufferMap = new ConcurrentHashMap<>();
     }
 
     @Override
-    public void onWorkflowRunStarted(WorkflowContext context) {
-        LOGGER.info("{} {} onWorkflowRunStarted", context.getWorkflowId(), context.getRunId());
+    public void onWorkflowRunStarted(WorkflowContext ctx) {
+        LOGGER.info("{} {} onWorkflowRunStarted", ctx.getWorkflowId(), ctx.getRunId());
 
-        service.updateWorkflowRun(context, WorkflowRunStatus.running.name());
+        // 如果stateful打开且为chatflow，则视具体情况创建thread
+        String threadId = ctx.getThreadId();
+        if(ctx.isStateful() && "advanced-chat".equals(ctx.getWorkflowMode()) && !StringUtils.hasText(threadId)) {
+            threadId = openAiService.createThread(new ThreadRequest()).getId();
+            ctx.setThreadId(threadId);
+        }
 
-        delegate.onWorkflowRunStarted(context);
+        service.updateWorkflowRun(ctx, WorkflowRunStatus.running.name());
+
+        delegate.onWorkflowRunStarted(ctx);
     }
 
     @Override
-    public void onWorkflowRunSucceeded(WorkflowContext context) {
-        LOGGER.info("{} {} onWorkflowRunSucceeded", context.getWorkflowId(), context.getRunId());
+    public void onWorkflowRunSucceeded(WorkflowContext ctx) {
+        LOGGER.info("{} {} onWorkflowRunSucceeded", ctx.getWorkflowId(), ctx.getRunId());
 
-        service.updateWorkflowRun(context, WorkflowRunStatus.succeeded.name(), context.getWorkflowRunResult().getOutputs());
+        service.updateWorkflowRun(ctx, WorkflowRunStatus.succeeded.name(), ctx.getWorkflowRunResult().getOutputs());
 
-        delegate.onWorkflowRunSucceeded(context);
+        delegate.onWorkflowRunSucceeded(ctx);
+
+        if(ctx.isStateful() && "advanced-chat".equals(ctx.getWorkflowMode())) {
+            openAiService.createMessage(ctx.getThreadId(),
+                    new MessageRequest("user", ctx.getState().getVariable("sys", "query"), null, null));
+            for (StringBuilder buffer : resultBufferMap.values()) {
+                openAiService.createMessage(ctx.getThreadId(), new MessageRequest("assistant", buffer.toString(), null, null));
+            }
+        }
     }
 
     @Override
@@ -68,7 +97,9 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId) {
         LOGGER.info("{} {} onWorkflowNodeRunStarted", context.getWorkflowId(), context.getRunId());
 
-        service.createWorkflowNodeRun(context, nodeId, nodeRunId, NodeRunResult.Status.running.name());
+        if(!context.isFlashMode()) {
+            service.createWorkflowNodeRun(context, nodeId, nodeRunId, NodeRunResult.Status.running.name());
+        }
 
         delegate.onWorkflowNodeRunStarted(context, nodeId, nodeRunId);
     }
@@ -77,23 +108,35 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData data) {
         LOGGER.info("{} {} onWorkflowNodeRunProgress", context.getWorkflowId(), context.getRunId());
         delegate.onWorkflowNodeRunProgress(context, nodeId, nodeRunId, data);
+
+        if(context.isStateful() && "advanced-chat".equals(context.getWorkflowMode())) {
+            if(ProgressData.ObjectType.DELTA_CONTENT.equals(data.getObject())) {
+                if(!resultBufferMap.containsKey(((Delta) data.getData()).getMessageId())) {
+                    resultBufferMap.put(((Delta) data.getData()).getMessageId(), new StringBuilder());
+                }
+                resultBufferMap.get(((Delta) data.getData()).getMessageId()).append(data.getData().toString());
+            }
+        }
     }
 
     @Override
     public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId, String nodeRunId) {
         LOGGER.info("{} {} onWorkflowNodeRunWaited", context.getWorkflowId(), context.getRunId());
 
-        service.updateWorkflowNodeRunWaited(context, nodeId, nodeRunId);
+        if(!context.isFlashMode()) {
+            service.updateWorkflowNodeRunWaited(context, nodeId, nodeRunId);
+        }
 
         delegate.onWorkflowNodeRunWaited(context, nodeId, nodeRunId);
-
     }
 
     @Override
     public void onWorkflowNodeRunSucceeded(WorkflowContext context, String nodeId, String nodeRunId) {
         LOGGER.info("{} {} onWorkflowNodeRunSucceeded", context.getWorkflowId(), context.getRunId());
 
-        service.updateWorkflowNodeRunSucceeded(context, nodeId, nodeRunId);
+        if(!context.isFlashMode()) {
+            service.updateWorkflowNodeRunSucceeded(context, nodeId, nodeRunId);
+        }
 
         delegate.onWorkflowNodeRunSucceeded(context, nodeId, nodeRunId);
 
@@ -103,7 +146,9 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
         LOGGER.info("{} {} onWorkflowNodeRunFailed. error:{}", context.getWorkflowId(), context.getRunId(), error, t);
 
-        service.updateWorkflowNodeRunFailed(context, nodeId, nodeRunId, error);
+        if(!context.isFlashMode()) {
+            service.updateWorkflowNodeRunFailed(context, nodeId, nodeRunId, error);
+        }
 
         delegate.onWorkflowNodeRunFailed(context, nodeId, nodeRunId, error, t);
     }

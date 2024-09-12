@@ -16,6 +16,7 @@ import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TenantCreate;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowCopy;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowNodeRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
@@ -31,6 +32,7 @@ import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunStreamingCallback;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.service.WorkflowService;
@@ -95,6 +97,16 @@ public class WorkflowController {
         return ws.publish(op.workflowId);
     }
 
+    @PostMapping("/workflow/custom/publish")
+    public WorkflowAsApiDB publishAsApi(@RequestBody WorkflowAsApiPublish op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.workflowId, "workflowId不能为空");
+        Assert.hasText(op.host, "host不能为空");
+        Assert.hasText(op.path, "path不能为空");
+
+        return ws.publishAsApi(op);
+    }
+
     @PostMapping("/workflow/draft/run")
     public Object runDraft(@RequestBody WorkflowRun op) {
         op.setTriggerFrom(TriggerFrom.DEBUG.name());
@@ -130,7 +142,7 @@ public class WorkflowController {
 
         WorkflowDB wf = ver.equals("published") ? ws.getPublishedWorkflow(op.workflowId, op.getVersion())
                 : ws.getDraftWorkflow(op.workflowId);
-        Assert.notNull(wf, String.format("没有找到对应的的工作流, %s(ver. %s)", op.workflowId, ver));
+        Assert.notNull(wf, String.format("没有找到对应的的工作流, %s(ver. %s), tenant: %s", op.workflowId, ver, op.tenantId));
 
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op);
 

@@ -1,6 +1,5 @@
 package com.ke.bella.workflow.service;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +25,7 @@ import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
@@ -35,9 +35,11 @@ import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
+import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -152,6 +154,9 @@ public class WorkflowService {
                 .userInputs(op.getInputs())
                 .triggerFrom(wr.getTriggerFrom())
                 .ctime(wr.getCtime())
+                .flashMode(wr.getFlashMode())
+                .workflowMode(wf.getMode())
+                .stateful(op.isStateful())
                 .build();
         new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
     }
@@ -228,6 +233,7 @@ public class WorkflowService {
         wr.setStatus(status);
         wr.setError(error);
         wr.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
+        wr.setThreadId(context.getThreadId());
 
         repo.updateWorkflowRun(wr);
     }
@@ -393,6 +399,9 @@ public class WorkflowService {
                 .userInputs(new HashMap())
                 .triggerFrom(wr.getTriggerFrom())
                 .ctime(wr.getCtime())
+                .flashMode(wr.getFlashMode())
+                .workflowMode(wf.getMode())
+                .stateful(wr.getStateful().intValue() == 1)
                 .build();
 
         tryResumeWorkflow(context, callback);
@@ -430,5 +439,21 @@ public class WorkflowService {
 
     public void deleteWorkflowAggregate(String workflowId) {
         repo.updateWorkflowAggregate(WorkflowSync.builder().workflowId(workflowId).status(-1).build());
+    }
+
+    public WorkflowAsApiDB getCustomApi(String host, String path) {
+        String hash = HttpUtils.sha256(host + path);
+        return repo.queryCustomApi(hash);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public WorkflowAsApiDB publishAsApi(WorkflowAsApiPublish op) {
+        WorkflowDB wf = null;
+        if(op.getVersion() == null) {
+            wf = getPublishedWorkflow(op.getWorkflowId(), null);
+        } else {
+            wf = getWorkflow(op.getWorkflowId(), op.getVersion());
+        }
+        return repo.addCustomApi(wf, op);
     }
 }

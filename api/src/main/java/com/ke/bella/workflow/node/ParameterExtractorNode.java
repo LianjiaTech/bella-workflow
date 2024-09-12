@@ -205,15 +205,15 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
         if(Objects.isNull(result)) {
             throw new IllegalArgumentException("Invalid extract result");
         }
-        if(data.parameters.size() != result.size()) {
-            throw new IllegalArgumentException("Invalid number of parameters");
-        }
         for (Data.ParameterConfig parameter : data.parameters) {
             if(parameter.required && !result.containsKey(parameter.name)) {
                 throw new IllegalArgumentException("Parameter " + parameter.name + " is required");
             }
 
             Object value = result.get(parameter.name);
+            if(value == null) {
+                continue;
+            }
             if("select".equals(parameter.type) && parameter.options != null && !parameter.options.contains(value)) {
                 throw new IllegalArgumentException("Invalid `select` value for parameter " + parameter.name);
             }

@@ -62,6 +62,7 @@ logging:
 
 bella:
   workflow:
+    hosts: localhost:8080,example.com,0.0.0.0:8080
     domain: http://example.com
     trigger:
         callback-path: /v1/workflow/trigger/callback

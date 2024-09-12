@@ -26,6 +26,7 @@ const nodeDefault: NodeDefault<LLMNodeType> = {
     vision: {
       enabled: false,
     },
+    generateDeltaContent: true,
   },
   getAvailablePrevNodes(isChatMode: boolean) {
     const nodes = isChatMode

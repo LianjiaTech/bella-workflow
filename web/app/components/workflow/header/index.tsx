@@ -4,7 +4,7 @@ import {
   useCallback,
   useMemo,
 } from 'react'
-import { RiApps2AddLine } from '@remixicon/react'
+import { RiApps2AddLine, RiMagicFill, RiMagicLine } from '@remixicon/react'
 import { useNodes } from 'reactflow'
 import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
@@ -40,6 +40,7 @@ import { useFeatures } from '@/app/components/base/features/hooks'
 const Header: FC = () => {
   const { t } = useTranslation()
   const workflowStore = useWorkflowStore()
+  const showCopilotPanel = useStore(s => s.showCopilotPanel)
   const appDetail = useAppStore(s => s.appDetail)
   const appSidebarExpand = useAppStore(s => s.appSidebarExpand)
   const appID = appDetail?.id
@@ -92,6 +93,10 @@ const Header: FC = () => {
       return
     setShowFeaturesPanel(!showFeaturesPanel)
   }, [workflowStore, getNodesReadOnly])
+
+  const handleShowCopilot = useCallback(() => {
+    workflowStore.setState({ showCopilotPanel: !showCopilotPanel })
+  }, [workflowStore, showCopilotPanel])
 
   const handleCancelRestore = useCallback(() => {
     handleLoadBackupDraft()
@@ -173,6 +178,15 @@ const Header: FC = () => {
               <RiApps2AddLine className='w-4 h-4 mr-1 text-components-button-secondary-text' />
               {t('workflow.common.features')}
             </Button> */}
+            <Button className='text-components-button-secondary-text px-2' onClick={handleShowCopilot}>
+              {showCopilotPanel && (
+                <RiMagicFill className='w-4 h-4 mr-1 text-components-button-secondary-text' />)
+              }
+              {!showCopilotPanel && (
+                <RiMagicLine className='w-4 h-4 mr-1 text-components-button-secondary-text' />)
+              }
+              {t('workflow.common.copilot')}
+            </Button>
             <AppPublisher
               {...{
                 publishedAt,

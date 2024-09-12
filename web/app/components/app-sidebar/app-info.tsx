@@ -121,9 +121,9 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
         include,
       })
       const a = document.createElement('a')
-      const file = new Blob([data], { type: 'application/yaml' })
+      const file = new Blob([data], { type: 'application/json' })
       a.href = URL.createObjectURL(file)
-      a.download = `${appDetail.name}.yml`
+      a.download = `${appDetail.id}.json`
       a.click()
     }
     catch (e) {
@@ -319,12 +319,12 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
               }}>
                 <span className='text-gray-700 text-sm leading-5'>{t('app.editApp')}</span>
               </div>
-              <div className='h-9 py-2 px-3 mx-1 flex items-center hover:bg-gray-50 rounded-lg cursor-pointer' onClick={() => {
+              {/* <div className='h-9 py-2 px-3 mx-1 flex items-center hover:bg-gray-50 rounded-lg cursor-pointer' onClick={() => {
                 setOpen(false)
                 setShowDuplicateModal(true)
               }}>
                 <span className='text-gray-700 text-sm leading-5'>{t('app.duplicate')}</span>
-              </div>
+              </div> */}
               {(appDetail.mode === 'completion' || appDetail.mode === 'chat') && (
                 <>
                   <Divider className="!my-1" />
@@ -341,7 +341,7 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
                   </div>
                 </>
               )}
-              {/* <Divider className="!my-1" />
+              <Divider className="!my-1" />
               <div className='h-9 py-2 px-3 mx-1 flex items-center hover:bg-gray-50 rounded-lg cursor-pointer' onClick={exportCheck}>
                 <span className='text-gray-700 text-sm leading-5'>{t('app.export')}</span>
               </div>
@@ -356,7 +356,7 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
                     <span className='text-gray-700 text-sm leading-5'>{t('workflow.common.importDSL')}</span>
                   </div>
                 )
-              } */}
+              }
               {/* <Divider className="!my-1" />
               <div className='group h-9 py-2 px-3 mx-1 flex items-center hover:bg-red-50 rounded-lg cursor-pointer' onClick={() => {
                 setOpen(false)

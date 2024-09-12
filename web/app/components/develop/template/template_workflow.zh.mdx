@@ -62,6 +62,9 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
         回调地址，当 `responseMode` 为 `callback` 时，必填。当workflow执行结束，会以post请求的方式回调callbackUrl。
       - `metadata` (object) Optional
         随路数据，在工作流中可以通过sys.metadata引用，长度不超过4096
+      - `flashMode` (int) Optional
+        极速模式，设置大于0的值时，工作流执行将不再保存node执行的过程数据，响应时间会更快。默认值为1。
+        <i>callback模式下无效</i>
 
     ### Response
     当 `responseMode` 为 `blocking` 时，返回 CompletionResponse object。

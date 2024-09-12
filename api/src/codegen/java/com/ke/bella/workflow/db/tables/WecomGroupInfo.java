@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row15;
+import org.jooq.Row16;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -90,6 +90,11 @@ public class WecomGroupInfo extends TableImpl<WecomGroupInfoRecord> {
      * The column <code>wecom_group_info.chat_id</code>. 会话Id-群Id-机器人指定群发消息
      */
     public final TableField<WecomGroupInfoRecord, String> CHAT_ID = createField(DSL.name("chat_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "会话Id-群Id-机器人指定群发消息");
+
+    /**
+     * The column <code>wecom_group_info.scene</code>. exclusive_ai_assistant：专属AI助理群
+     */
+    public final TableField<WecomGroupInfoRecord, String> SCENE = createField(DSL.name("scene"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "exclusive_ai_assistant：专属AI助理群");
 
     /**
      * The column <code>wecom_group_info.cuid</code>. 创建人ucid
@@ -166,7 +171,7 @@ public class WecomGroupInfo extends TableImpl<WecomGroupInfoRecord> {
 
     @Override
     public List<Index> getIndexes() {
-        return Arrays.<Index>asList(Indexes.WECOM_GROUP_INFO_IDX_TENANT_ID_SPACE_CODE_CUID);
+        return Arrays.<Index>asList(Indexes.WECOM_GROUP_INFO_IDX_TENANT_ID_SPACE_CODE_CUID_SCENE);
     }
 
     @Override
@@ -211,11 +216,11 @@ public class WecomGroupInfo extends TableImpl<WecomGroupInfoRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row15 type methods
+    // Row16 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row15<Long, String, String, String, String, String, String, String, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> fieldsRow() {
-        return (Row15) super.fieldsRow();
+    public Row16<Long, String, String, String, String, String, String, String, String, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> fieldsRow() {
+        return (Row16) super.fieldsRow();
     }
 }

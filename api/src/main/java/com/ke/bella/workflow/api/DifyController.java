@@ -12,16 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import com.google.common.base.Throwables;
-import com.ke.bella.workflow.IWorkflowCallback;
-import com.ke.bella.workflow.api.callbacks.DifyChatflowStreamingCallback;
-import com.ke.bella.workflow.utils.OpenAiUtils;
-import com.theokanning.openai.assistants.message.Message;
-import com.theokanning.openai.assistants.message.MessageListSearchParameters;
-import com.theokanning.openai.assistants.thread.Thread;
-import com.theokanning.openai.assistants.thread.ThreadRequest;
-import com.theokanning.openai.service.OpenAiService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
@@ -39,9 +29,11 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
@@ -68,6 +60,10 @@ import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.utils.JsonUtils;
+import com.ke.bella.workflow.utils.OpenAiUtils;
+import com.theokanning.openai.assistants.message.Message;
+import com.theokanning.openai.assistants.message.MessageListSearchParameters;
+import com.theokanning.openai.service.OpenAiService;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -76,6 +72,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/console/api/apps")
@@ -167,6 +164,14 @@ public class DifyController {
             return getDefaultWorkflowSchema();
         }
         return JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+    }
+
+    @GetMapping(value = "/{workflowId}/export")
+    public Object export(@PathVariable String workflowId, @RequestParam("include_secret") boolean inc) throws Exception {
+        initContext();
+        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
+
+        return ImmutableMap.of("data", wf.getGraph());
     }
 
     @GetMapping("/{workflowId}/workflows")
@@ -282,6 +287,23 @@ public class DifyController {
         return DifyResponse.builder().code(200).message("保存成功").status("success").updatedAt(System.currentTimeMillis() / 1000).build();
     }
 
+    @PostMapping("/{workflowId}/workflows/draft/import")
+    public WorkflowSchema importDSL(@PathVariable String workflowId, @RequestBody WorkflowSchema dsl) {
+        initContext();
+        Assert.hasText(workflowId, "workflowId不能为空");
+        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
+        WorkflowSync sync = WorkflowSync.builder()
+                .graph(JsonUtils.toJson(dsl))
+                .workflowId(workflowId)
+                .build();
+        if(Objects.isNull(wf)) {
+            ws.newWorkflow(sync);
+        } else {
+            ws.syncWorkflow(sync);
+        }
+        return dsl;
+    }
+
     @PostMapping("/{workflowId}/workflows/draft/nodes/{nodeId}/run")
     public Object nodeRun(@PathVariable String workflowId, @PathVariable String nodeId, @RequestBody WorkflowOps.WorkflowNodeRun op) {
         initContext();
@@ -335,26 +357,20 @@ public class DifyController {
 
     @PostMapping({ "/{workflowId}/workflows/draft/run" })
     public Object workflowRun(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
-        return workflowRun0(workflowId, op, "workflow");
+        return workflowRun0(workflowId, op);
     }
 
     @PostMapping({ "/{workflowId}/advanced-chat/workflows/draft/run" })
     public Object chatFlowRun(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
-        return workflowRun0(workflowId, op, "advanced-chat");
+        return workflowRun0(workflowId, op);
     }
 
-    private Object workflowRun0(String workflowId, DifyWorkflowRun op, String workflowMode) {
+    private Object workflowRun0(String workflowId, DifyWorkflowRun op) {
         initContext();
         op.setWorkflowId(workflowId);
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
         Assert.hasText(workflowId, "workflowId不能为空");
         Assert.notNull(op.inputs, "inputs不能为空");
-
-        if("advanced-chat".equals(workflowMode) && !StringUtils.hasText(op.getThreadId())) {
-            OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
-            Thread thread = openAiService.createThread(new ThreadRequest());
-            op.setThreadId(thread.getId());
-        }
 
         WorkflowRun op2 = WorkflowRun.builder()
                 .userId(op.getUserId())
@@ -367,6 +383,7 @@ public class DifyController {
                 .threadId(op.threadId)
                 .query(op.query)
                 .files(op.files)
+                .stateful(op.isStateful())
                 .build();
 
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
@@ -380,12 +397,7 @@ public class DifyController {
         } else {
             SseEmitter emitter = SseHelper.createSse(300000L, wr.getWorkflowRunId());
             TaskExecutor.submit(() -> {
-                IWorkflowCallback callback = null;
-                if("advanced-chat".equals(workflowMode)) {
-                    callback = new DifyChatflowStreamingCallback(new DifyWorkflowRunStreamingCallback(emitter));
-                } else {
-                    callback = new DifyWorkflowRunStreamingCallback(emitter);
-                }
+                IWorkflowCallback callback = new DifyWorkflowRunStreamingCallback(emitter);
                 ws.runWorkflow(wr, op2, callback);
             });
             return emitter;
@@ -722,7 +734,7 @@ public class DifyController {
         WorkflowSchema.Graph graph = new WorkflowSchema.Graph();
         Map<String, Object> maps = Maps.newHashMap();
         maps.put("type", NodeType.START.name);
-        maps.put("title", "开始节点");
+        maps.put("title", "开始");
         maps.put("variables", Lists.newArrayList());
         maps.put("selected", true);
 
@@ -778,5 +790,8 @@ public class DifyController {
         List<File> files;
         @JsonAlias({ "conversation_id", "thread_id" })
         String threadId;
+
+        @Builder.Default
+        boolean stateful = true;
     }
 }

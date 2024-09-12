@@ -10,7 +10,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,7 +39,6 @@ import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
-import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.KeIAM;
@@ -150,6 +148,13 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
             if(response != null) {
                 response.close();
             }
+        }
+    }
+
+    @Override
+    public void validate(WorkflowContext ctx) {
+        if(ctx.getFlashMode() > 0 && data.isCallback()) {
+            throw new IllegalArgumentException("http节点的callback模式下不支持flashMode");
         }
     }
 
@@ -529,6 +534,8 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
                     if("basic".equals(type)) {
                         return "Basic ";
                     } else if("bearer".equals(type)) {
+                        return "Bearer ";
+                    } else if("bella".equals(type)) {
                         return "Bearer ";
                     }
                     return "";

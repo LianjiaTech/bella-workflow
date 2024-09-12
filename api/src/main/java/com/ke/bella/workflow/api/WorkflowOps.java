@@ -29,7 +29,8 @@ public class WorkflowOps {
         DEBUG_NODE,
         API,
         SCHEDULE,
-        KAFKA;
+        KAFKA,
+        CUSTOM_API;
     }
 
     public enum TriggerType {
@@ -46,6 +47,19 @@ public class WorkflowOps {
     public static class WorkflowOp extends Operator {
         String workflowId;
         Long version;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WorkflowAsApiPublish extends WorkflowOp {
+        String summary;
+        String desc;
+        String operationId;
+        String host;
+        String path;
     }
 
     @Getter
@@ -138,6 +152,28 @@ public class WorkflowOps {
 
         String traceId;
         int spanLev;
+
+        @Builder.Default
+        int flashMode = 1;
+
+        /** chatfow模式下的选项，当为true时，持久化thread及对应的msg到assistants-api */
+        boolean stateful;
+
+        public boolean isFlashMode() {
+            return (!ResponseMode.callback.name().equals(responseMode))
+                    && (flashMode > 0)
+                    && (!TriggerFrom.DEBUG.name().equals(triggerFrom));
+        }
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WorkflowCApiRun extends WorkflowRun {
+        @Builder.Default
+        String responseMode = ResponseMode.blocking.name();
     }
 
     @Getter

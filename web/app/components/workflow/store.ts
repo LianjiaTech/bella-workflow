@@ -84,6 +84,8 @@ type Shape = {
   setShortcutsDisabled: (shortcutsDisabled: boolean) => void
   showDebugAndPreviewPanel: boolean
   setShowDebugAndPreviewPanel: (showDebugAndPreviewPanel: boolean) => void
+  showCopilotPanel: boolean
+  setShowCopilotPanel: (showCopilotPanel: boolean) => void
   showEnvPanel: boolean
   setShowEnvPanel: (showEnvPanel: boolean) => void
   environmentVariables: EnvironmentVariable[]
@@ -198,6 +200,8 @@ export const createWorkflowStore = () => {
     setShortcutsDisabled: shortcutsDisabled => set(() => ({ shortcutsDisabled })),
     showDebugAndPreviewPanel: false,
     setShowDebugAndPreviewPanel: showDebugAndPreviewPanel => set(() => ({ showDebugAndPreviewPanel })),
+    showCopilotPanel: false,
+    setShowCopilotPanel: showCopilotPanel => set(() => ({ showCopilotPanel })),
     showEnvPanel: false,
     setShowEnvPanel: showEnvPanel => set(() => ({ showEnvPanel })),
     environmentVariables: [],

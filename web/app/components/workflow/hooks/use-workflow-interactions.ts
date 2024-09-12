@@ -34,8 +34,15 @@ export const useWorkflowInteractions = () => {
     handleEdgeCancelRunningStatus()
   }, [workflowStore, handleNodeCancelRunningStatus, handleEdgeCancelRunningStatus])
 
+  const handleCancelCopilotPanel = useCallback(() => {
+    workflowStore.setState({
+      showCopilotPanel: false,
+    })
+  }, [workflowStore])
+
   return {
     handleCancelDebugAndPreviewPanel,
+    handleCancelCopilotPanel,
   }
 }
 

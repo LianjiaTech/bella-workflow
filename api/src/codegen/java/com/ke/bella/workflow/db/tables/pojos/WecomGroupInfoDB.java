@@ -26,6 +26,7 @@ public class WecomGroupInfoDB implements Operator, Serializable {
     private String        groupAlias;
     private String        groupId;
     private String        chatId;
+    private String        scene;
     private Long          cuid;
     private String        cuName;
     private Long          muid;
@@ -45,6 +46,7 @@ public class WecomGroupInfoDB implements Operator, Serializable {
         this.groupAlias = value.groupAlias;
         this.groupId = value.groupId;
         this.chatId = value.chatId;
+        this.scene = value.scene;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
         this.muid = value.muid;
@@ -63,6 +65,7 @@ public class WecomGroupInfoDB implements Operator, Serializable {
         String        groupAlias,
         String        groupId,
         String        chatId,
+        String        scene,
         Long          cuid,
         String        cuName,
         Long          muid,
@@ -79,6 +82,7 @@ public class WecomGroupInfoDB implements Operator, Serializable {
         this.groupAlias = groupAlias;
         this.groupId = groupId;
         this.chatId = chatId;
+        this.scene = scene;
         this.cuid = cuid;
         this.cuName = cuName;
         this.muid = muid;
@@ -201,6 +205,20 @@ public class WecomGroupInfoDB implements Operator, Serializable {
     }
 
     /**
+     * Getter for <code>wecom_group_info.scene</code>. exclusive_ai_assistant：专属AI助理群
+     */
+    public String getScene() {
+        return this.scene;
+    }
+
+    /**
+     * Setter for <code>wecom_group_info.scene</code>. exclusive_ai_assistant：专属AI助理群
+     */
+    public void setScene(String scene) {
+        this.scene = scene;
+    }
+
+    /**
      * Getter for <code>wecom_group_info.cuid</code>. 创建人ucid
      */
     public Long getCuid() {
@@ -310,6 +328,7 @@ public class WecomGroupInfoDB implements Operator, Serializable {
         sb.append(", ").append(groupAlias);
         sb.append(", ").append(groupId);
         sb.append(", ").append(chatId);
+        sb.append(", ").append(scene);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);
         sb.append(", ").append(muid);

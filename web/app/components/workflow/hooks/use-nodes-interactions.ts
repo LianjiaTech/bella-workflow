@@ -316,13 +316,13 @@ export const useNodesInteractions = () => {
     if (sourceNode?.type === CUSTOM_NOTE_NODE || targetNode?.type === CUSTOM_NOTE_NODE)
       return
 
-    const multiInputNodeTypes = [BlockEnum.VariableAssigner, BlockEnum.VariableAggregator, BlockEnum.Code, BlockEnum.End]
+    const multiInputNodeTypes = [BlockEnum.VariableAssigner, BlockEnum.VariableAggregator,
+      BlockEnum.TemplateTransform, BlockEnum.Code, BlockEnum.End]
     const canNotSameTargetNodeTypes = [BlockEnum.IfElse, BlockEnum.QuestionClassifier]
     const multiOutputNodeTypes = [BlockEnum.Parallel]
     const needDeleteEdges = edges.filter((edge) => {
       if (
         (edge.source === source && edge.sourceHandle === sourceHandle && !multiOutputNodeTypes.includes(sourceNode?.data.type))
-        || (edge.target === target && edge.targetHandle === targetHandle && canNotSameTargetNodeTypes.includes(sourceNode?.data.type))
         || (edge.target === target && edge.targetHandle === targetHandle && !multiInputNodeTypes.includes(targetNode?.data.type))
       )
         return true

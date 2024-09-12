@@ -11,6 +11,7 @@ import com.ke.bella.workflow.db.tables.WecomGroupInfo;
 import com.ke.bella.workflow.db.tables.WecomGroupMember;
 import com.ke.bella.workflow.db.tables.Workflow;
 import com.ke.bella.workflow.db.tables.WorkflowAggregate;
+import com.ke.bella.workflow.db.tables.WorkflowAsApi;
 import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
@@ -75,6 +76,11 @@ public class DefaultSchema extends SchemaImpl {
     public final WorkflowAggregate WORKFLOW_AGGREGATE = WorkflowAggregate.WORKFLOW_AGGREGATE;
 
     /**
+     * The table <code>workflow_as_api</code>.
+     */
+    public final WorkflowAsApi WORKFLOW_AS_API = WorkflowAsApi.WORKFLOW_AS_API;
+
+    /**
      * The table <code>workflow_kafka_trigger</code>.
      */
     public final WorkflowKafkaTrigger WORKFLOW_KAFKA_TRIGGER = WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER;
@@ -127,6 +133,7 @@ public class DefaultSchema extends SchemaImpl {
             WecomGroupMember.WECOM_GROUP_MEMBER,
             Workflow.WORKFLOW,
             WorkflowAggregate.WORKFLOW_AGGREGATE,
+            WorkflowAsApi.WORKFLOW_AS_API,
             WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER,
             WorkflowNodeRun.WORKFLOW_NODE_RUN,
             WorkflowRun.WORKFLOW_RUN,

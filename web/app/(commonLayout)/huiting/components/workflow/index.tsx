@@ -198,8 +198,21 @@ const Workflow: FC<WorkflowProps> = memo(({
       handleSyncWorkflowDraft(true, true)
     }
   }, [])
-
   const { handleRefreshWorkflowDraft } = useWorkflowUpdate()
+
+  const receiveMessage = (event: MessageEvent) => {
+    if (event.data === 'rollback')
+      handleRefreshWorkflowDraft()
+  }
+
+  useEffect(() => {
+    window.addEventListener('message', receiveMessage)
+
+    return () => {
+      window.removeEventListener('message', receiveMessage)
+    }
+  }, [])
+
   const handleSyncWorkflowDraftWhenPageClose = useCallback(() => {
     if (document.visibilityState === 'hidden')
       syncWorkflowDraftWhenPageClose()

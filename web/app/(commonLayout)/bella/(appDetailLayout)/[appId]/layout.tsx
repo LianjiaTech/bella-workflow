@@ -72,12 +72,12 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
       ...(mode === 'workflow'
         ? [{
           name: t('common.appMenus.apiAccess'),
-          href: `/app/${appId}/develop`,
+          href: `/bella/${appId}/develop`,
           icon: RiTerminalBoxLine,
           selectedIcon: RiTerminalBoxFill,
         }, {
           name: t('common.appMenus.trigger'),
-          href: `/app/${appId}/trigger`,
+          href: `/bella/${appId}/trigger`,
           icon: RiTimerFlashLine,
           selectedIcon: RiTimerFlashFill,
         }]

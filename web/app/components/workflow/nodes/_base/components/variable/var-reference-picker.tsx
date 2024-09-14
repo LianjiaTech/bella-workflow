@@ -109,6 +109,7 @@ const VarReferencePicker: FC<Props> = ({
       beforeNodes: availableNodes,
       isChatMode,
       filterVar,
+      currentNode: node,
     })
 
     return vars

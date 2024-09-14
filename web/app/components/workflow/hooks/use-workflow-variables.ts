@@ -19,12 +19,14 @@ export const useWorkflowVariables = () => {
     isChatMode,
     filterVar,
     hideEnv,
+    currentNode,
   }: {
     parentNode?: Node | null
     beforeNodes: Node[]
     isChatMode: boolean
     filterVar: (payload: Var, selector: ValueSelector) => boolean
     hideEnv?: boolean
+    currentNode?: Node
   }): NodeOutPutVar[] => {
     return toNodeAvailableVars({
       parentNode,
@@ -33,6 +35,7 @@ export const useWorkflowVariables = () => {
       isChatMode,
       environmentVariables: hideEnv ? [] : environmentVariables,
       filterVar,
+      currentNode,
     })
   }, [environmentVariables, t])
 

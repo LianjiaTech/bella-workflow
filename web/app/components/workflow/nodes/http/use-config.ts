@@ -12,12 +12,14 @@ import nodeDefault from '@/app/components/workflow/nodes/http/default'
 import useNodeCrud from '@/app/components/workflow/nodes/_base/hooks/use-node-crud'
 import useOneStepRun from '@/app/components/workflow/nodes/_base/hooks/use-one-step-run'
 import {
+  useIsChatMode,
   useNodesReadOnly, useWorkflow,
 } from '@/app/components/workflow/hooks'
 
 const useConfig = (id: string, payload: HttpNodeType) => {
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
 
+  const isChatMode = useIsChatMode()
   const defaultConfig = useStore(s => s.nodesDefaultConfigs)[payload.type]
 
   const { inputs, setInputs } = useNodeCrud<HttpNodeType>(id, payload)
@@ -60,6 +62,13 @@ const useConfig = (id: string, payload: HttpNodeType) => {
   const handleUrlChange = useCallback((url: string) => {
     const newInputs = produce(inputs, (draft: HttpNodeType) => {
       draft.url = url
+    })
+    setInputs(newInputs)
+  }, [inputs, setInputs])
+
+  const handleCallbackChange = useCallback((waitCallback: boolean) => {
+    const newInputs = produce(inputs, (draft: HttpNodeType) => {
+      draft.waitCallback = waitCallback
     })
     setInputs(newInputs)
   }, [inputs, setInputs])
@@ -236,6 +245,7 @@ const useConfig = (id: string, payload: HttpNodeType) => {
   const outputVar = convertVarToVarItemProps(inputs.output)
 
   return {
+    isChatMode,
     readOnly,
     inputs,
     handleVarListChange,
@@ -279,6 +289,7 @@ const useConfig = (id: string, payload: HttpNodeType) => {
     handleRemoveVarConfirm,
     removeVarInNode,
     key,
+    handleCallbackChange,
   }
 }
 

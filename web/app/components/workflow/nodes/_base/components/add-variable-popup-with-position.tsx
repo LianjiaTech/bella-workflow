@@ -35,7 +35,7 @@ const AddVariablePopupWithPosition = ({
   const { handleNodeDataUpdate } = useNodeDataUpdate()
   const { handleAddVariableInAddVariablePopupWithPosition } = useVariableAssigner()
   const isChatMode = useIsChatMode()
-  const { getBeforeNodesInSameBranch } = useWorkflow()
+  const { getBeforeNodesInSameBranch, getNode } = useWorkflow()
   const { getNodeAvailableVars } = useWorkflowVariables()
 
   const outputType = useMemo(() => {
@@ -66,6 +66,7 @@ const AddVariablePopupWithPosition = ({
       hideEnv: true,
       isChatMode,
       filterVar: filterVar(outputType as VarType),
+      currentNode: getNode(showAssignVariablePopup.nodeId),
     })
       .map(node => ({
         ...node,

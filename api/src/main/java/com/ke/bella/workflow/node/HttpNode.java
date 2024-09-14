@@ -507,7 +507,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
         }
 
         boolean isCallback() {
-            return "callback".equalsIgnoreCase(mode);
+            return isWaitCallback() || "callback".equalsIgnoreCase(mode);
         }
 
         boolean isBlocking() {

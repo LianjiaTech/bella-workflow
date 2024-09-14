@@ -30,6 +30,7 @@ import com.ke.bella.workflow.api.callbacks.SingleNodeRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunStreamingCallback;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
@@ -236,6 +237,11 @@ public class WorkflowController {
             @PathVariable String nodeId,
             @PathVariable String nodeRunId,
             @RequestBody Map inputs) {
+        BellaContext.setOperator(Operator.builder()
+                .tenantId(tenantId)
+                .userId(0L)
+                .userName("callback")
+                .build());
 
         WorkflowRunDB wr = ws.getWorkflowRun(workflowRunId);
         Assert.notNull(wr, String.format("找不到对应的工作流运行实例", workflowRunId));

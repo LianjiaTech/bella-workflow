@@ -82,7 +82,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     }
 
     protected boolean isCallback() {
-        return false;
+        return data.isWaitCallback();
     }
 
     @Override
@@ -142,13 +142,33 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     }
 
     public NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback) {
-        NodeRunResult r = context.getState().getNodeState(getNodeId());
-        return NodeRunResult.builder()
-                .inputs(r.getInputs())
-                .processData(r.getProcessData())
-                .outputs(context.getState().getNotifyData(getNodeId()))
-                .status(NodeRunResult.Status.succeeded)
-                .build();
+        NodeRunResult result = null;
+        try {
+            NodeRunResult r = context.getState().getNodeState(getNodeId());
+            result = NodeRunResult.builder()
+                    .inputs(r.getInputs())
+                    .processData(r.getProcessData())
+                    .outputs(context.getState().getNotifyData(getNodeId()))
+                    .status(NodeRunResult.Status.succeeded)
+                    .build();
+            context.putNodeRunResult(this, result);
+            if(result.getStatus() == NodeRunResult.Status.succeeded) {
+                List<String> handles = data.getSourceHandles();
+                if(handles.size() == 1) {
+                    result.setActivatedSourceHandles(handles);
+                }
+                callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
+            } else if(result.getStatus() == NodeRunResult.Status.failed) {
+                callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
+                throw new IllegalStateException(result.getError().getMessage());
+            } else if(result.getStatus() == NodeRunResult.Status.waiting) {
+                callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
+            }
+        } finally {
+            afterExecute(context);
+            LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
+        }
+        return result;
     }
 
     public void validate(WorkflowContext ctx) {
@@ -238,6 +258,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         private boolean generateDeltaContent = false;
         private boolean generateNewMessage = false;
         private String messageRoleName;
+        private boolean waitCallback = false;
 
         public List<String> getSourceHandles() {
             return Arrays.asList("source");

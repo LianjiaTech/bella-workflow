@@ -1,6 +1,7 @@
 import type { FC } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import WaitCallbackConfig from '../_base/components/wait-callback-config'
 import useConfig from './use-config'
 import ApiInput from './components/api-input'
 import KeyValue from './components/key-value'
@@ -28,6 +29,7 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
   const { t } = useTranslation()
 
   const {
+    isChatMode,
     readOnly,
     inputs,
     handleMethodChange,
@@ -60,6 +62,7 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
     handleRemoveVarConfirm,
     removeVarInNode,
     key,
+    handleCallbackChange,
   } = useConfig(id, data)
 
   return (
@@ -122,6 +125,19 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
           />
         </Field>
       </div>
+      {/* Memory */}
+      {!isChatMode && (
+        <>
+          <Split />
+          <div className='px-4 pt-4 pb-4'>
+            <WaitCallbackConfig
+              readonly={readOnly}
+              waitCallback={inputs.waitCallback || false}
+              onChange={handleCallbackChange}
+            />
+          </div>
+        </>
+      )}
       <Split />
       <div className='px-4 pt-4 pb-4'>
         <Timeout

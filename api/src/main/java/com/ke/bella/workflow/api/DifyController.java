@@ -397,7 +397,7 @@ public class DifyController {
         } else {
             SseEmitter emitter = SseHelper.createSse(300000L, wr.getWorkflowRunId());
             TaskExecutor.submit(() -> {
-                IWorkflowCallback callback = new DifyWorkflowRunStreamingCallback(emitter);
+                IWorkflowCallback callback = new DifyWorkflowRunStreamingCallback(emitter, ws);
                 ws.runWorkflow(wr, op2, callback);
             });
             return emitter;

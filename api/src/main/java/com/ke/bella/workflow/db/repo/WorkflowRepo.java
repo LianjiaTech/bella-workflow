@@ -225,7 +225,7 @@ public class WorkflowRepo implements BaseRepo {
         return version;
     }
 
-    public TenantDB addTenant(String tenantName, String parentTenantId) {
+    public TenantDB addTenant(String tenantName, String parentTenantId, String openapiKey) {
         TenantRecord rec = TENANT.newRecord();
 
         rec.setTenantId(IDGenerator.newTenantId());
@@ -234,11 +234,19 @@ public class WorkflowRepo implements BaseRepo {
             rec.setParentId(parentTenantId);
         }
 
+        if(!StringUtils.isEmpty(openapiKey)) {
+            rec.setOpenapiKey(openapiKey);
+        }
+
         fillCreatorInfo(rec);
 
         db.insertInto(TENANT).set(rec).execute();
 
         return rec.into(TenantDB.class);
+    }
+
+    public TenantDB getTenant(String tenantId) {
+        return db.selectFrom(TENANT).where(TENANT.TENANT_ID.eq(tenantId)).fetchOne().into(TenantDB.class);
     }
 
     public List<TenantDB> listTenants(List<String> tenantId) {

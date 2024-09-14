@@ -8,10 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
@@ -85,9 +87,6 @@ public class DifyController {
     @Autowired
     WorkflowTriggerService ts;
 
-    @Value("${bella.open.api.key}")
-    private String openApiKey;
-
     private void initContext(Operator op) {
         if(op != null && contextOperatorInvalid()) {
             BellaContext.setOperator(op);
@@ -103,7 +102,8 @@ public class DifyController {
                     .userName("test")
                     .build());
         }
-        BellaContext.setApiKey(openApiKey);
+        BellaContext.setApiKey(Optional.ofNullable(ws.getTenant(BellaContext.getOperator().getTenantId()))
+                .orElseThrow(() -> new IllegalArgumentException("租户不存在")).getOpenapiKey());
     }
 
     public static boolean contextOperatorInvalid() {
@@ -459,7 +459,7 @@ public class DifyController {
                 .created_at(e.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
                 .finished_at(e.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
                 .elapsed_time(e.getElapsedTime() / 1000d)
-                        .build();
+                .build();
     }
 
     private static DifyRunHistoryDetails transfer(WorkflowRunDB wr, WorkflowDB wf) {

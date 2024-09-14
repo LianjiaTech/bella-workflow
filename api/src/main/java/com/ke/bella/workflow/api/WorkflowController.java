@@ -209,7 +209,7 @@ public class WorkflowController {
     public TenantDB createTenant(@RequestBody TenantCreate op) {
         Assert.hasText(op.tenantName, "tenantName不能为空");
 
-        return ws.createTenant(op.tenantName, op.parentTenantId);
+        return ws.createTenant(op.tenantName, op.parentTenantId, op.getOpenapiKey());
     }
 
     @PostMapping("/workflow/run/page")

@@ -123,8 +123,12 @@ public class WorkflowService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public TenantDB createTenant(String tenantName, String parentTenantId) {
-        return repo.addTenant(tenantName, parentTenantId);
+    public TenantDB createTenant(String tenantName, String parentTenantId, String openapiKey) {
+        return repo.addTenant(tenantName, parentTenantId, openapiKey);
+    }
+
+    public TenantDB getTenant(String tenantId) {
+        return repo.getTenant(tenantId);
     }
 
     public List<TenantDB> listTenants(List<String> tenantIds) {

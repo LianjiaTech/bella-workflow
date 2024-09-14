@@ -201,6 +201,7 @@ public class WorkflowOps {
     public static class TenantCreate extends Operator {
         String tenantName;
         String parentTenantId;
+        String openapiKey;
     }
 
     @Getter

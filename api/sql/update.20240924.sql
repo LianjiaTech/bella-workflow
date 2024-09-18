@@ -10,3 +10,6 @@ where tenant_id in ('TENT-f396b9ed-df0b-4bd5-80b1-d668ce244f94', 'test');
 update tenant
 set openapi_key = 'PPR47yWyKXIxRFLRRiB8XrhgrXOA78BL'
 where tenant_id = 'TENT-d815410c-f9db-459e-b4ab-67a52d8e63ce';
+
+ALTER TABLE `wecom_group_info`
+    ADD COLUMN `thread_id` varchar(64) NOT NULL COMMENT '会话id' AFTER `chat_id`;

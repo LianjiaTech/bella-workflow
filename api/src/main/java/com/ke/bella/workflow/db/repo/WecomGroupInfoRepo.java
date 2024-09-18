@@ -45,6 +45,9 @@ public class WecomGroupInfoRepo implements BaseRepo {
         if(!StringUtils.isEmpty(op.getChatId())) {
             rec.setChatId(op.getChatId());
         }
+        if(!StringUtils.isEmpty(op.getThreadId())) {
+            rec.setThreadId(op.getThreadId());
+        }
         if(!StringUtils.isEmpty(op.getScene())) {
             rec.setScene(op.getScene());
         }
@@ -67,6 +70,9 @@ public class WecomGroupInfoRepo implements BaseRepo {
         }
         if(!StringUtils.isEmpty(op.getChatId())) {
             rec.setChatId(op.getChatId());
+        }
+        if(!StringUtils.isEmpty(op.getThreadId())) {
+            rec.setThreadId(op.getThreadId());
         }
         fillUpdatorInfo(rec);
 
@@ -117,6 +123,27 @@ public class WecomGroupInfoRepo implements BaseRepo {
                 .orderBy(WECOM_GROUP_INFO.MTIME.desc());
 
         return queryPage(db, sql, op.getPage(), op.getPageSize(), WecomGroupInfoDB.class);
+    }
+
+    public WecomGroupInfoDB groupInfoByUserId(GroupOps.GroupQueryByUserOp op) {
+        WecomGroupInfoRecord groupInfoRecord = db.selectFrom(WECOM_GROUP_INFO)
+                .where(WECOM_GROUP_INFO.TENANT_ID.eq(op.getTenantId()))
+                .and(WECOM_GROUP_INFO.SPACE_CODE.eq(op.getSpaceCode()))
+                .and(WECOM_GROUP_INFO.SCENE.eq(op.getScene()))
+                .and(WECOM_GROUP_INFO.CUID.eq(op.getUserId()))
+                .fetchOne();
+
+        return Objects.isNull(groupInfoRecord) ? null : groupInfoRecord.into(WecomGroupInfoDB.class);
+    }
+
+    public WecomGroupInfoDB groupInfoByGroupId(GroupOps.GroupQueryByGroupOp op) {
+        WecomGroupInfoRecord groupInfoRecord = db.selectFrom(WECOM_GROUP_INFO)
+                .where(WECOM_GROUP_INFO.TENANT_ID.eq(op.getTenantId()))
+                .and(WECOM_GROUP_INFO.SCENE.eq(op.getScene()))
+                .and(WECOM_GROUP_INFO.GROUP_ID.eq(op.getGroupId()))
+                .fetchOne();
+
+        return Objects.isNull(groupInfoRecord) ? null : groupInfoRecord.into(WecomGroupInfoDB.class);
     }
 
     public WecomGroupMemberDB createGroupMemberInfo(GroupOps.GroupMemberOp op) {

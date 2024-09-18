@@ -30,6 +30,14 @@ public class WecomGroupService {
         return repo.pageGroupInfo(op);
     }
 
+    public WecomGroupInfoDB groupInfoByUserId(GroupOps.GroupQueryByUserOp op) {
+        return repo.groupInfoByUserId(op);
+    }
+
+    public WecomGroupInfoDB groupInfoByGroupId(GroupOps.GroupQueryByGroupOp op) {
+        return repo.groupInfoByGroupId(op);
+    }
+
     public WecomGroupMemberDB createGroupMemberInfo(GroupOps.GroupMemberOp op) {
 
         return repo.createGroupMemberInfo(op);

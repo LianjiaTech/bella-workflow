@@ -66,6 +66,26 @@ public class WecomGroupController {
         return groupService.pageGroupInfo(op);
     }
 
+    @GetMapping("/userId")
+    public WecomGroupInfoDB queryGroupInfoByUserId(GroupOps.GroupQueryByUserOp op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getSpaceCode(), "spaceCode不能为空");
+        Assert.hasText(op.getScene(), "scene不能为空");
+        Assert.notNull(op.getUserId(), "userId 不能为空");
+        Assert.hasText(op.getUserName(), "userName 不能为空");
+
+        return groupService.groupInfoByUserId(op);
+    }
+
+    @GetMapping("/groupId")
+    public WecomGroupInfoDB queryGroupInfoByGroupId(GroupOps.GroupQueryByGroupOp op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getGroupId(), "groupId不能为空");
+        Assert.hasText(op.getScene(), "scene不能为空");
+
+        return groupService.groupInfoByGroupId(op);
+    }
+
     @PostMapping("member/create")
     public WecomGroupMemberDB createGroupMember(@RequestBody GroupOps.GroupMemberOp op) {
         Assert.hasText(op.tenantId, "tenantId 不能为空");
@@ -78,17 +98,17 @@ public class WecomGroupController {
         return groupService.createGroupMemberInfo(op);
     }
 
-	@PostMapping("member/update")
-	public WecomGroupMemberDB updateGroupMember(@RequestBody GroupOps.GroupMemberOp op) {
-		Assert.hasText(op.tenantId, "tenantId 不能为空");
-		Assert.hasText(op.getSpaceCode(), "spaceCode 不能为空");
-		Assert.hasText(op.getGroupCode(), "groupCode 不能为空");
-		Assert.notNull(op.getUserId(), "userId 不能为空");
-		Assert.hasText(op.getUserName(), "userName 不能为空");
-		validMemberInfo(op);
+    @PostMapping("member/update")
+    public WecomGroupMemberDB updateGroupMember(@RequestBody GroupOps.GroupMemberOp op) {
+        Assert.hasText(op.tenantId, "tenantId 不能为空");
+        Assert.hasText(op.getSpaceCode(), "spaceCode 不能为空");
+        Assert.hasText(op.getGroupCode(), "groupCode 不能为空");
+        Assert.notNull(op.getUserId(), "userId 不能为空");
+        Assert.hasText(op.getUserName(), "userName 不能为空");
+        validMemberInfo(op);
 
-		return groupService.updateGroupMemberInfo(op);
-	}
+        return groupService.updateGroupMemberInfo(op);
+    }
 
     @PostMapping("member/delete")
     public Boolean deleteGroupMember(@RequestBody GroupOps.GroupMemberOp op) {
@@ -113,22 +133,22 @@ public class WecomGroupController {
         return groupService.pageGroupMemberInfo(op);
     }
 
-	public void validMemberInfo(GroupOps.GroupMemberOp op) {
-		if(Objects.isNull(MemberTypeEnum.getByCode(op.getType()))
-			|| op.getType().equals(MemberTypeEnum.UN_KNOW.getCode())) {
-			throw new IllegalArgumentException(String.format("memberInfo.type=%s 不支持", op.getType()));
-		}
-		if(MemberTypeEnum.VIRTUAL_NUMBER.getCode().equals(op.getType())
-			&& StringUtils.isEmpty(op.getRobotId())) {
-			throw new IllegalArgumentException("robotId不为空");
-		}
-		if(MemberTypeEnum.ROBOT.getCode().equals(op.getType())
-			&& StringUtils.isEmpty(op.getRobotWebhook())) {
-			throw new IllegalArgumentException("robotWebhook不为空");
-		}
-		if(MemberTypeEnum.REAL_USER.getCode().equals(op.getType())
-			&& StringUtils.isEmpty(op.getUserCode())) {
-			throw new IllegalArgumentException("userCode不为空");
-		}
-	}
+    public void validMemberInfo(GroupOps.GroupMemberOp op) {
+        if(Objects.isNull(MemberTypeEnum.getByCode(op.getType()))
+                || op.getType().equals(MemberTypeEnum.UN_KNOW.getCode())) {
+            throw new IllegalArgumentException(String.format("memberInfo.type=%s 不支持", op.getType()));
+        }
+        if(MemberTypeEnum.VIRTUAL_NUMBER.getCode().equals(op.getType())
+                && StringUtils.isEmpty(op.getRobotId())) {
+            throw new IllegalArgumentException("robotId不为空");
+        }
+        if(MemberTypeEnum.ROBOT.getCode().equals(op.getType())
+                && StringUtils.isEmpty(op.getRobotWebhook())) {
+            throw new IllegalArgumentException("robotWebhook不为空");
+        }
+        if(MemberTypeEnum.REAL_USER.getCode().equals(op.getType())
+                && StringUtils.isEmpty(op.getUserCode())) {
+            throw new IllegalArgumentException("userCode不为空");
+        }
+    }
 }

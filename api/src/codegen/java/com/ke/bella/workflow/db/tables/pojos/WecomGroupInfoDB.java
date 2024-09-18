@@ -26,6 +26,7 @@ public class WecomGroupInfoDB implements Operator, Serializable {
     private String        groupAlias;
     private String        groupId;
     private String        chatId;
+    private String        threadId;
     private String        scene;
     private Long          cuid;
     private String        cuName;
@@ -46,6 +47,7 @@ public class WecomGroupInfoDB implements Operator, Serializable {
         this.groupAlias = value.groupAlias;
         this.groupId = value.groupId;
         this.chatId = value.chatId;
+        this.threadId = value.threadId;
         this.scene = value.scene;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
@@ -65,6 +67,7 @@ public class WecomGroupInfoDB implements Operator, Serializable {
         String        groupAlias,
         String        groupId,
         String        chatId,
+        String        threadId,
         String        scene,
         Long          cuid,
         String        cuName,
@@ -82,6 +85,7 @@ public class WecomGroupInfoDB implements Operator, Serializable {
         this.groupAlias = groupAlias;
         this.groupId = groupId;
         this.chatId = chatId;
+        this.threadId = threadId;
         this.scene = scene;
         this.cuid = cuid;
         this.cuName = cuName;
@@ -202,6 +206,20 @@ public class WecomGroupInfoDB implements Operator, Serializable {
      */
     public void setChatId(String chatId) {
         this.chatId = chatId;
+    }
+
+    /**
+     * Getter for <code>wecom_group_info.thread_id</code>. 会话id
+     */
+    public String getThreadId() {
+        return this.threadId;
+    }
+
+    /**
+     * Setter for <code>wecom_group_info.thread_id</code>. 会话id
+     */
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
     }
 
     /**
@@ -328,6 +346,7 @@ public class WecomGroupInfoDB implements Operator, Serializable {
         sb.append(", ").append(groupAlias);
         sb.append(", ").append(groupId);
         sb.append(", ").append(chatId);
+        sb.append(", ").append(threadId);
         sb.append(", ").append(scene);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);

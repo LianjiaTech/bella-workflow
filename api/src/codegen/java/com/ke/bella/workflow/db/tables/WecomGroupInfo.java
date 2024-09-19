@@ -94,7 +94,7 @@ public class WecomGroupInfo extends TableImpl<WecomGroupInfoRecord> {
     /**
      * The column <code>wecom_group_info.thread_id</code>. 会话id
      */
-    public final TableField<WecomGroupInfoRecord, String> THREAD_ID = createField(DSL.name("thread_id"), SQLDataType.VARCHAR(64).nullable(false), this, "会话id");
+    public final TableField<WecomGroupInfoRecord, String> THREAD_ID = createField(DSL.name("thread_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "会话id");
 
     /**
      * The column <code>wecom_group_info.scene</code>. exclusive_ai_assistant：专属AI助理群

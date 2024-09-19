@@ -131,6 +131,7 @@ public class WecomGroupInfoRepo implements BaseRepo {
                 .and(WECOM_GROUP_INFO.SPACE_CODE.eq(op.getSpaceCode()))
                 .and(WECOM_GROUP_INFO.SCENE.eq(op.getScene()))
                 .and(WECOM_GROUP_INFO.CUID.eq(op.getUserId()))
+                .and(WECOM_GROUP_INFO.STATUS.eq(StatusEnum.ok.getCode()))
                 .fetchOne();
 
         return Objects.isNull(groupInfoRecord) ? null : groupInfoRecord.into(WecomGroupInfoDB.class);
@@ -141,6 +142,7 @@ public class WecomGroupInfoRepo implements BaseRepo {
                 .where(WECOM_GROUP_INFO.TENANT_ID.eq(op.getTenantId()))
                 .and(WECOM_GROUP_INFO.SCENE.eq(op.getScene()))
                 .and(WECOM_GROUP_INFO.GROUP_ID.eq(op.getGroupId()))
+                .and(WECOM_GROUP_INFO.STATUS.eq(StatusEnum.ok.getCode()))
                 .fetchOne();
 
         return Objects.isNull(groupInfoRecord) ? null : groupInfoRecord.into(WecomGroupInfoDB.class);

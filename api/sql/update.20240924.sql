@@ -12,4 +12,4 @@ set openapi_key = 'PPR47yWyKXIxRFLRRiB8XrhgrXOA78BL'
 where tenant_id = 'TENT-d815410c-f9db-459e-b4ab-67a52d8e63ce';
 
 ALTER TABLE `wecom_group_info`
-    ADD COLUMN `thread_id` varchar(64) NOT NULL COMMENT '会话id' AFTER `chat_id`;
+    ADD COLUMN `thread_id` varchar(64) NOT NULL DEFAULT '' COMMENT '会话id' AFTER `chat_id`;

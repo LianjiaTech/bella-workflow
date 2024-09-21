@@ -14,7 +14,7 @@ public class CodeNodeTest {
 
     @BeforeAll
     public static void initOpenAPIContext() {
-        Configs.API_BASE = "https://example.com/v1/";
+        Configs.OPEN_API_BASE = "https://example.com/v1/";
     }
 
     @Test

@@ -178,7 +178,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     private void appendBuiltinVariables(WorkflowContext context) {
         // append callbackUrl
         if(isCallback()) {
-            String url = String.format("%s/workflow/callback/%s/%s/%s/%s/%s ",
+            String url = String.format("%s/workflow/callback/%s/%s/%s/%s/%s",
                     Configs.API_BASE,
                     context.getTenantId(),
                     context.getWorkflowId(),
@@ -281,7 +281,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
             }
 
             public String getApiBaseUrl() {
-                return StringUtils.isEmpty(apiBaseUrl) ? Configs.API_BASE : apiBaseUrl;
+                return StringUtils.isEmpty(apiBaseUrl) ? Configs.OPEN_API_BASE : apiBaseUrl;
             }
         }
 

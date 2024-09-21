@@ -31,7 +31,7 @@ public class OpenAiUtils {
                 .addInterceptor(new AuthenticationInterceptor(token))
                 .readTimeout(readTimeout, unit).build();
 
-        Retrofit retrofit = OpenAiService.defaultRetrofit(curClient, mapper, Configs.API_BASE);
+        Retrofit retrofit = OpenAiService.defaultRetrofit(curClient, mapper, Configs.OPEN_API_BASE);
         OpenAiApi openAiApi = retrofit.create(OpenAiApi.class);
 
         ExecutorService executorService = client.dispatcher().executorService();

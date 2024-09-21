@@ -66,7 +66,7 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
 
     private List<KnowledgeRetrievalResult> invokeFileRetrieve(String query, List<String> datasetIds, Integer topK, Float scoreThreshold) {
         Map<String, String> headers = Collections.singletonMap("Authorization", "Bearer " + BellaContext.getApiKey());
-        String fileRetrieveUrl = Configs.API_BASE + FILES_RETRIEVE;
+        String fileRetrieveUrl = Configs.OPEN_API_BASE + FILES_RETRIEVE;
 
         Map<String, String> params = new HashMap<>();
         params.put("file_ids", datasetIds.stream().map(String::valueOf).collect(Collectors.joining(",")));

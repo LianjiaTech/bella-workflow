@@ -13,7 +13,7 @@ public class ThreadTest {
 
     @BeforeAll
     public static void createThreadGiveNull() {
-        Configs.API_BASE = "https://example.com/v1/";
+        Configs.OPEN_API_BASE = "https://example.com/v1/";
     }
 
     public void retrieveThreadGiveNull() {

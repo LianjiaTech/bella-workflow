@@ -31,9 +31,9 @@ public class CodeExecutor {
 
     private static final String X_API_KEY = "bella-workflow-sandbox";
 
-    private static final String CODE_SANDBOX_URL = Configs.API_BASE + "sandbox/run";
+    private static final String CODE_SANDBOX_URL = Configs.OPEN_API_BASE + "sandbox/run";
 
-    private static final String DEPENDENCIES_SANDBOX_URL = Configs.API_BASE + "sandbox/dependencies";
+    private static final String DEPENDENCIES_SANDBOX_URL = Configs.OPEN_API_BASE + "sandbox/dependencies";
 
     private static final Map<String, String> CODE_LANGUAGE_TO_RUNNING_LANGUAGE = ImmutableMap.of(
             CodeLanguage.javascript.name(), "nodejs",

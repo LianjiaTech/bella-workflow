@@ -28,7 +28,7 @@ public class WorkflowCustomApi {
 
     @PostMapping("/capi/**")
     public Object run(HttpServletRequest req, @RequestBody WorkflowCApiRun op1) {
-        String host = req.getHeader("Host");
+        String host = (String) req.getAttribute("Host");
         String path = (String) req.getAttribute("path");
         if(!StringUtils.hasText(host) || !StringUtils.hasText(path)) {
             return BellaResponse.builder()

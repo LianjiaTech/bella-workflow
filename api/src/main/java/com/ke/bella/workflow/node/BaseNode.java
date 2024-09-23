@@ -65,6 +65,17 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
 
     protected abstract NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback);
 
+    @SuppressWarnings("rawtypes")
+    protected NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback, Map notifyData) {
+        NodeRunResult r = context.getState().getNodeState(getNodeId());
+        return NodeRunResult.builder()
+                .inputs(r.getInputs())
+                .processData(r.getProcessData())
+                .outputs(notifyData)
+                .status(NodeRunResult.Status.succeeded)
+                .build();
+    }
+
     protected void afterExecute(WorkflowContext context) {
         // no-op
     }
@@ -144,13 +155,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     public NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback) {
         NodeRunResult result = null;
         try {
-            NodeRunResult r = context.getState().getNodeState(getNodeId());
-            result = NodeRunResult.builder()
-                    .inputs(r.getInputs())
-                    .processData(r.getProcessData())
-                    .outputs(context.getState().getNotifyData(getNodeId()))
-                    .status(NodeRunResult.Status.succeeded)
-                    .build();
+            result = resume(context, callback, context.getState().getNotifyData(getNodeId()));
             context.putNodeRunResult(this, result);
             if(result.getStatus() == NodeRunResult.Status.succeeded) {
                 List<String> handles = data.getSourceHandles();

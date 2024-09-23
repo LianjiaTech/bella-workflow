@@ -151,6 +151,23 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    protected NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback, Map notifyData) {
+        NodeRunResult r = context.getState().getNodeState(getNodeId());
+
+        Map outputs = new LinkedHashMap<>();
+        outputs.put("status_code", 200);
+        outputs.put("body", notifyData);
+
+        return NodeRunResult.builder()
+                .inputs(r.getInputs())
+                .processData(r.getProcessData())
+                .outputs(notifyData)
+                .status(NodeRunResult.Status.succeeded)
+                .build();
+    }
+
     @Override
     public void validate(WorkflowContext ctx) {
         if(ctx.getFlashMode() > 0 && data.isCallback()) {

@@ -24,7 +24,11 @@ public class CustomApiFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
-        String host = request.getHeader("Host");
+        String host = request.getHeader("X-BELLA-WORKFLOW-HOST");
+        if(StringUtils.isEmpty(host)) {
+            host = request.getHeader("Host");
+        }
+        request.setAttribute("Host", host);
         request.setAttribute("path", request.getRequestURI());
         if(StringUtils.hasText(host) && hosts != null && !hosts.isEmpty() && !hosts.contains(host)) {
             request.getRequestDispatcher("/capi").forward(request, servletResponse);

@@ -19,14 +19,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import lombok.extern.slf4j.Slf4j;
 
-@RestControllerAdvice
+@RestControllerAdvice(assignableTypes = { DifyController.class, DifyResponseAdvice.class })
 @Slf4j
 public class DifyResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        Class<?> clazz = returnType.getContainingClass();
-        return clazz.getName().startsWith("com.ke.bella.workflow.api.DifyController");
+        // 已通过@RestControllerAdvice的assignableTypes属性声明，此处无意义
+        return true;
     }
 
     @Override

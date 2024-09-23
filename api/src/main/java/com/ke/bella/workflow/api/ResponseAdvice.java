@@ -21,16 +21,14 @@ import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-@RestControllerAdvice
+@RestControllerAdvice(assignableTypes = { WorkflowController.class, TriggerController.class, WorkflowCustomApi.class, ResponseAdvice.class })
 @Slf4j
 public class ResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-        Class<?> clazz = returnType.getContainingClass();
-        return clazz.getName().startsWith("com.ke.bella.workflow.api.WorkflowController")
-                || clazz.getName().startsWith("com.ke.bella.workflow.api.TriggerController")
-                || clazz.getName().startsWith("com.ke.bella.workflow.api.WorkflowCustomApi");
+        // 已通过@RestControllerAdvice的assignableTypes属性声明，此处无意义
+        return true;
     }
 
     @SuppressWarnings("rawtypes")

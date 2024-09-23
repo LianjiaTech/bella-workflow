@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Component
-@Order(Integer.MIN_VALUE)
+@Order(Integer.MIN_VALUE + 1)
 public class CustomApiFilter implements Filter {
     @Value("#{'${bella.workflow.hosts}'.split(',')}")
     private Set<String> hosts;

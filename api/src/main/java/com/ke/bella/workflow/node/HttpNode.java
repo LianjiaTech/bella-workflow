@@ -163,7 +163,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
         return NodeRunResult.builder()
                 .inputs(r.getInputs())
                 .processData(r.getProcessData())
-                .outputs(notifyData)
+                .outputs(outputs)
                 .status(NodeRunResult.Status.succeeded)
                 .build();
     }

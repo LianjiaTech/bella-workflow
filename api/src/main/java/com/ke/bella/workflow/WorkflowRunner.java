@@ -16,9 +16,16 @@ import lombok.extern.slf4j.Slf4j;
 public class WorkflowRunner {
 
     public void run(WorkflowContext context, IWorkflowCallback callback) {
-        context.start();
-        callback.onWorkflowRunStarted(context);
-        run0(context, callback);
+        try {
+            context.start();
+            callback.onWorkflowRunStarted(context);
+            context.validate();
+            run0(context, callback);
+        } catch (Throwable e) {
+            LOGGER.info(e.getMessage(), e);
+            context.getState().setStatus(WorkflowRunStatus.failed);
+            callback.onWorkflowRunFailed(context, e.toString(), e);
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -42,8 +49,6 @@ public class WorkflowRunner {
     @SuppressWarnings("rawtypes")
     private void run0(WorkflowContext context, IWorkflowCallback callback) {
         try {
-            context.validate();
-
             final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
             List<CompletableFuture> fs = new ArrayList<>();
             while (!context.isFinish()) {

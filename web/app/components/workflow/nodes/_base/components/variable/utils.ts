@@ -31,7 +31,7 @@ import type { PromptItem } from '@/models/debug'
 import { VAR_REGEX } from '@/config'
 
 export const isSystemVar = (valueSelector: ValueSelector) => {
-  return valueSelector[0] === 'sys' || valueSelector[1] === 'sys'
+  return valueSelector[0] === 'sys'
 }
 
 export const isENV = (valueSelector: ValueSelector) => {

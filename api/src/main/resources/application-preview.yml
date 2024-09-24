@@ -53,7 +53,7 @@ logging:
     executableSql: INFO
     org:
       springframework: INFO
-      jooq: INFO
+      jooq: DEBUG
 bella:
   workflow:
     hosts: example.com

@@ -198,7 +198,7 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
           onHide={hideSingleRun}
           forms={[
             {
-              inputs: varInputs,
+              inputs: varInputs.filter((item) => { return item.value_selector && item.value_selector[0] !== id }),
               values: inputVarValues,
               onChange: setInputVarValues,
             },

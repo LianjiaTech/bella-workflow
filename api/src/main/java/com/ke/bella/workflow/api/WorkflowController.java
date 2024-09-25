@@ -85,6 +85,7 @@ public class WorkflowController {
         WorkflowSync sync = WorkflowSync.builder()
                 .graph(wf.getGraph())
                 .title(wf.getTitle())
+                .mode(wf.getMode())
                 .desc(wf.getDesc())
                 .build();
         return ws.newWorkflow(sync);

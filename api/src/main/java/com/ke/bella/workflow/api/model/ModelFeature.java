@@ -31,9 +31,13 @@ public enum ModelFeature {
         if(agentThought) {
             features.add(AGENT_THOUGHT.value);
         }
-        if(vision) {
-            features.add(VISION.value);
-        }
+        /**
+         * 暂时都不支持vision
+         * if(vision) {
+         *             features.add(VISION.value);
+         *         }
+         */
+
         if(streamToolCall) {
             features.add(STREAM_TOOL_CALL.value);
         }

@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.api.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,11 +19,13 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ParameterRule {
     private String name;
+    @JsonProperty("use_template")
     private String useTemplate;
     private I18nObject label;
     private String type;
     private I18nObject help;
     private boolean required;
+    @JsonProperty("default")
     private Object defaultValue;
     private Double min;
     private Double max;
@@ -65,12 +68,12 @@ public class ParameterRule {
     static {
         PARAMETER_RULE_TEMPLATE.put(ParameterName.TEMPERATURE, new ParameterRule(
                 "temperature",
-                null,
-                new I18nObject("Temperature", "温度"),
+                "temperature",
+                new I18nObject("温度", "Temperature"),
                 ParameterType.FLOAT.getValue(),
                 new I18nObject(
-                        "Controls randomness. Lower temperature results in less random completions. As the temperature approaches zero, the model will become deterministic and repetitive. Higher temperature results in more random completions.",
-                        "温度控制随机性。较低的温度会导致较少的随机完成。随着温度接近零，模型将变得确定性和重复性。较高的温度会导致更多的随机完成。"
+                        "温度控制随机性。较低的温度会导致较少的随机完成。随着温度接近零，模型将变得确定性和重复性。较高的温度会导致更多的随机完成。",
+                        "Controls randomness. Lower temperature results in less random completions. As the temperature approaches zero, the model will become deterministic and repetitive. Higher temperature results in more random completions."
                 ),
                 false,
                 0.0,
@@ -82,12 +85,12 @@ public class ParameterRule {
 
         PARAMETER_RULE_TEMPLATE.put(ParameterName.TOP_P, new ParameterRule(
                 "top_p",
-                null,
+                "top_p",
                 new I18nObject("Top P", "Top P"),
                 ParameterType.FLOAT.getValue(),
                 new I18nObject(
-                        "Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered.",
-                        "通过核心采样控制多样性：0.5表示考虑了一半的所有可能性加权选项。"
+                        "通过核心采样控制多样性：0.5表示考虑了一半的所有可能性加权选项。",
+                        "Controls diversity via nucleus sampling: 0.5 means half of all likelihood-weighted options are considered."
                 ),
                 false,
                 1.0,
@@ -99,12 +102,12 @@ public class ParameterRule {
 
         PARAMETER_RULE_TEMPLATE.put(ParameterName.PRESENCE_PENALTY, new ParameterRule(
                 "presence_penalty",
-                null,
-                new I18nObject("Presence Penalty", "存在惩罚"),
+                "presence_penalty",
+                new I18nObject("存在惩罚", "Presence Penalty"),
                 ParameterType.FLOAT.getValue(),
                 new I18nObject(
-                        "Applies a penalty to the log-probability of tokens already in the text.",
-                        "对文本中已有的标记的对数概率施加惩罚。"
+                        "对文本中已有的标记的对数概率施加惩罚。",
+                        "Applies a penalty to the log-probability of tokens already in the text."
                 ),
                 false,
                 0.0,
@@ -116,12 +119,12 @@ public class ParameterRule {
 
         PARAMETER_RULE_TEMPLATE.put(ParameterName.FREQUENCY_PENALTY, new ParameterRule(
                 "frequency_penalty",
-                null,
-                new I18nObject("Frequency Penalty", "频率惩罚"),
+                "frequency_penalty",
+                new I18nObject("频率惩罚", "Frequency Penalty"),
                 ParameterType.FLOAT.getValue(),
                 new I18nObject(
-                        "Applies a penalty to the log-probability of tokens that appear in the text.",
-                        "对文本中出现的标记的对数概率施加惩罚。"
+                        "对文本中出现的标记的对数概率施加惩罚。",
+                        "Applies a penalty to the log-probability of tokens that appear in the text."
                 ),
                 false,
                 0.0,
@@ -133,12 +136,12 @@ public class ParameterRule {
 
         PARAMETER_RULE_TEMPLATE.put(ParameterName.MAX_TOKENS, new ParameterRule(
                 "max_tokens",
-                null,
-                new I18nObject("Max Tokens", "最大标记"),
+                "max_tokens",
+                new I18nObject("最大标记", "Max Tokens"),
                 ParameterType.INT.getValue(),
                 new I18nObject(
-                        "Specifies the upper limit on the length of generated results. If the generated results are truncated, you can increase this parameter.",
-                        "指定生成结果长度的上限。如果生成结果截断，可以调大该参数。"
+                        "指定生成结果长度的上限。如果生成结果截断，可以调大该参数。",
+                        "Specifies the upper limit on the length of generated results. If the generated results are truncated, you can increase this parameter."
                 ),
                 false,
                 64,
@@ -150,12 +153,12 @@ public class ParameterRule {
 
         PARAMETER_RULE_TEMPLATE.put(ParameterName.RESPONSE_FORMAT, new ParameterRule(
                 "response_format",
-                null,
-                new I18nObject("Response Format", "回复格式"),
+                "response_format",
+                new I18nObject("回复格式", "Response Format"),
                 ParameterType.STRING.getValue(),
                 new I18nObject(
-                        "Set a response format, ensure the output from llm is a valid code block as possible, such as JSON, XML, etc.",
-                        "设置一个返回格式，确保llm的输出尽可能是有效的代码块，如JSON"
+                        "设置一个返回格式，确保llm的输出尽可能是有效的代码块，如JSON",
+                        "Set a response format, ensure the output from llm is a valid code block as possible, such as JSON, XML, etc."
                 ),
                 false,
                 Optional.empty(),
@@ -167,12 +170,12 @@ public class ParameterRule {
 
         PARAMETER_RULE_TEMPLATE.put(ParameterName.JSON_SCHEMA_RESPONSE_FORMAT, new ParameterRule(
                 "response_format",
-                null,
-                new I18nObject("Response Format", "回复格式"),
+                "response_format",
+                new I18nObject("回复格式", "Response Format"),
                 ParameterType.STRING.getValue(),
                 new I18nObject(
-                        "Set a response format, ensure the output from llm is a valid code block as possible, such as JSON, XML, etc.",
-                        "设置一个返回格式，确保llm的输出尽可能是有效的代码块，如JSON"
+                        "设置一个返回格式，确保llm的输出尽可能是有效的代码块，如JSON",
+                        "Set a response format, ensure the output from llm is a valid code block as possible, such as JSON, XML, etc."
                 ),
                 false,
                 Optional.empty(),
@@ -184,12 +187,12 @@ public class ParameterRule {
 
         PARAMETER_RULE_TEMPLATE.put(ParameterName.JSON_SCHEMA, new ParameterRule(
                 "json_schema",
-                null,
-                new I18nObject("JSON Schema", "JSON Schema"),
+                "json_schema",
+                new I18nObject("JSON结构", "JSON Schema"),
                 ParameterType.TEXT.getValue(),
                 new I18nObject(
-                        "Set a response json schema will ensure LLM to adhere it.",
-                        "设置返回的json schema，llm将按照它返回"
+                        "设置返回的json schema，llm将按照它返回",
+                        "Set a response json schema will ensure LLM to adhere it."
                 ),
                 false,
                 null,
@@ -203,12 +206,12 @@ public class ParameterRule {
     private static ParameterRule maxTokenRule(int maxToken) {
        return new ParameterRule(
                 "max_tokens",
-                null,
-                new I18nObject("Max Tokens", "最大标记"),
+                "max_tokens",
+                new I18nObject("最大标记", "Max Tokens"),
                 ParameterType.INT.getValue(),
                 new I18nObject(
-                        "Specifies the upper limit on the length of generated results. If the generated results are truncated, you can increase this parameter.",
-                        "指定生成结果长度的上限。如果生成结果截断，可以调大该参数。"
+                        "指定生成结果长度的上限。如果生成结果截断，可以调大该参数。",
+                        "Specifies the upper limit on the length of generated results. If the generated results are truncated, you can increase this parameter."
                 ),
                 false,
                 64,

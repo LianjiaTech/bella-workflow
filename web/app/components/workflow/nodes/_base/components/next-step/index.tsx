@@ -98,8 +98,8 @@ const NextStep = ({
           )
         }
         {
-          nodeWithMultiOutput && outgoers.length && (
-            outgoers.map((outgoer) => {
+          !branches?.length && !nodeWithBranches && nodeWithMultiOutput && outgoers.length > 0 && (
+            outgoers?.map((outgoer) => {
               return <div
                 key={outgoer.id}
                 className='mb-3 last-of-type:mb-0'

@@ -146,6 +146,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                             .type(meta.getNodeType())
                             .title(context.getNode(nodeId).getMeta().getTitle())
                             .createdAt(System.currentTimeMillis())
+                            .iterationId(context.getGraph().getStartNode().getIterationId())
                             .build())
                     .build();
         }
@@ -222,6 +223,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                             .createdAt(System.currentTimeMillis())
                             .finishedAt(System.currentTimeMillis())
                             .elapsedTime(context.getState().getNodeState(nodeId).getElapsedTime() / 1000d)
+                            .iterationId(context.getGraph().getStartNode().getIterationId())
                             .build())
                     .build();
         }
@@ -395,6 +397,8 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         private String text;
         private Object metadata;
         private Integer index;
+        @JsonProperty("iteration_id")
+        private String iterationId;
     }
 
 }

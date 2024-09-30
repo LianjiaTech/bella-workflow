@@ -112,6 +112,7 @@ export type NodeStartedResponse = {
     inputs: any
     created_at: number
     extras?: any
+    iteration_id?: string
   }
 }
 
@@ -137,6 +138,7 @@ export type NodeFinishedResponse = {
       currency: string
     }
     created_at: number
+    iteration_id?: string
   }
 }
 

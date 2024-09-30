@@ -249,15 +249,17 @@ export const useWorkflowRun = () => {
             setEdges,
             transform,
           } = store.getState()
-          if (isInIteration) {
+          if (data.iteration_id) {
             setWorkflowRunningData(produce(workflowRunningData!, (draft) => {
               const tracing = draft.tracing!
-              const iterations = tracing[tracing.length - 1]
-              const currIteration = iterations.details![iterations.details!.length - 1]
-              currIteration.push({
-                ...data,
-                status: NodeRunningStatus.Running,
-              } as any)
+              const iterations = tracing.find(value => value.node_id === data.iteration_id)
+              if (iterations!.details!.length > 0) {
+                const currIteration = iterations!.details![iterations!.details!.length - 1]
+                currIteration.push({
+                  ...data,
+                  status: NodeRunningStatus.Running,
+                } as any)
+              }
             }))
           }
           else {
@@ -309,18 +311,20 @@ export const useWorkflowRun = () => {
             getNodes,
             setNodes,
           } = store.getState()
-          if (isInIteration) {
+          if (data.iteration_id) {
             setWorkflowRunningData(produce(workflowRunningData!, (draft) => {
               const tracing = draft.tracing!
-              const iterations = tracing[tracing.length - 1]
-              const currIteration = iterations.details![iterations.details!.length - 1]
-              const nodeInfo = currIteration[currIteration.length - 1]
+              const iterations = tracing.find(value => value.node_id === data.iteration_id)
+              if (iterations!.details!.length > 0) {
+                const currIteration = iterations!.details![iterations!.details!.length - 1]
+                const nodeInfo = currIteration[currIteration.length - 1]
 
-              currIteration[currIteration.length - 1] = {
-                ...nodeInfo,
-                ...data,
-                status: NodeRunningStatus.Succeeded,
-              } as any
+                currIteration[currIteration.length - 1] = {
+                  ...nodeInfo,
+                  ...data,
+                  status: NodeRunningStatus.Succeeded,
+                } as any
+              }
             }))
           }
           else {
@@ -418,7 +422,7 @@ export const useWorkflowRun = () => {
           } = store.getState()
 
           setWorkflowRunningData(produce(workflowRunningData!, (draft) => {
-            const iteration = draft.tracing![draft.tracing!.length - 1]
+            const iteration = draft.tracing!.find(node => node.node_id === data.node_id)!
             if (iteration.details!.length >= iterationLength)
               return
 
@@ -449,9 +453,9 @@ export const useWorkflowRun = () => {
           } = store.getState()
           const nodes = getNodes()
           setWorkflowRunningData(produce(workflowRunningData!, (draft) => {
-            const tracing = draft.tracing!
-            tracing[tracing.length - 1] = {
-              ...tracing[tracing.length - 1],
+            const currentIndex = draft.tracing!.findIndex(node => node.node_id === data.node_id)!
+            draft.tracing![currentIndex] = {
+              ...draft.tracing![currentIndex],
               ...data,
               status: NodeRunningStatus.Succeeded,
             } as any

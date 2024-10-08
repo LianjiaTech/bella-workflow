@@ -32,7 +32,19 @@ public class WorkflowRunner {
     public void runNode(WorkflowContext context, IWorkflowCallback callback, String nodeId) {
         BaseNode node = context.getNode(nodeId);
         try {
-            node.run(context, callback);
+            if(context.isResume(node.getNodeId())) {
+                node.resume(context, callback);
+            } else {
+                node.run(context, callback);
+            }
+
+            if(context.isSuspended()) {
+                context.getState().setStatus(WorkflowRunStatus.suspended);
+                callback.onWorkflowRunSuspended(context);
+            } else {
+                context.getState().setStatus(WorkflowRunStatus.succeeded);
+                callback.onWorkflowRunSucceeded(context);
+            }
         } catch (Exception e) {
             LOGGER.info("node run failed, e: {}", Throwables.getStackTraceAsString(e));
             // single node does not require processing, swallow the exception
@@ -43,7 +55,11 @@ public class WorkflowRunner {
         context.getState().setStatus(WorkflowRunStatus.running);
         context.getState().putNextNodes(nodeIds);
         callback.onWorkflowRunResumed(context);
-        run0(context, callback);
+        if(context.getTriggerFrom().equals("DEBUG_NODE")) {
+            runNode(context, callback, nodeIds.get(0));
+        } else {
+            run0(context, callback);
+        }
     }
 
     @SuppressWarnings("rawtypes")

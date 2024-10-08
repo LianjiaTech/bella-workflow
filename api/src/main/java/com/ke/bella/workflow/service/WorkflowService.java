@@ -185,6 +185,7 @@ public class WorkflowService {
                 .tenantId(wr.getTenantId())
                 .workflowId(wr.getWorkflowId())
                 .runId(wr.getWorkflowRunId())
+                .ctime(wr.getCtime())
                 .graph(graph)
                 .state(new WorkflowRunState())
                 .userInputs(inputs)

@@ -195,9 +195,9 @@ public class WorkflowController {
                 .build();
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
         if(mode == ResponseMode.blocking) {
-            SingleNodeRunBlockingCallback callback = new SingleNodeRunBlockingCallback();
+            SingleNodeRunBlockingCallback callback = new SingleNodeRunBlockingCallback(ws, MAX_TIMEOUT);
             ws.runNode(wr, op.nodeId, op.inputs, callback);
-            return callback.getWorkflowNodeRunResult(MAX_TIMEOUT);
+            return callback.getWorkflowNodeRunResult();
 
         } else {
             // create SseEmitter with timeout 300s

@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.db.repo;
 
-import static com.ke.bella.workflow.db.Tables.*;
+import static com.ke.bella.workflow.db.Tables.WORKFLOW_AGGREGATE;
+import static com.ke.bella.workflow.db.Tables.WORKFLOW_AS_API;
 import static com.ke.bella.workflow.db.tables.Tenant.TENANT;
 import static com.ke.bella.workflow.db.tables.Workflow.WORKFLOW;
 import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.WORKFLOW_NODE_RUN;
@@ -91,6 +92,7 @@ public class WorkflowRepo implements BaseRepo {
                 .where(WORKFLOW_RUN.TENANT_ID.eq(wf.getTenantId())
                         .and(WORKFLOW_RUN.WORKFLOW_ID.eq(wf.getWorkflowId()))
                         .and(WORKFLOW_RUN.WORKFLOW_VERSION.eq(wf.getVersion()))
+                        .and(WORKFLOW_RUN.TRIGGER_FROM.ne("DEBUG_NODE"))
                         .and(WORKFLOW_RUN.STATUS.eq("succeeded"))
                         .and(WORKFLOW_RUN.CTIME.ge(wf.getMtime())))
                 .limit(1)

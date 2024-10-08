@@ -326,7 +326,7 @@ public class DifyController {
                 .build();
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
 
-        DifySingleNodeRunBlockingCallback callback = new DifySingleNodeRunBlockingCallback();
+        DifySingleNodeRunBlockingCallback callback = new DifySingleNodeRunBlockingCallback(ws, 300000L);
         ws.runNode(wr, nodeId, op.inputs, callback);
         return callback.getWorkflowNodeRunResult();
     }

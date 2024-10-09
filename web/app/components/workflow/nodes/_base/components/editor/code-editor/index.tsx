@@ -3,6 +3,7 @@ import type { FC } from 'react'
 import Editor, { loader } from '@monaco-editor/react'
 import React, { useEffect, useRef, useState } from 'react'
 import Base from '../base'
+import { registerGroovyLanguageForMonaco } from './groovy-language-definition-for-monaco'
 import cn from '@/utils/classnames'
 import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
 
@@ -33,6 +34,7 @@ const languageMap = {
   [CodeLanguage.javascript]: 'javascript',
   [CodeLanguage.python3]: 'python',
   [CodeLanguage.json]: 'json',
+  [CodeLanguage.groovy]: 'groovy',
 }
 
 const DEFAULT_THEME = {
@@ -82,6 +84,10 @@ const CodeEditor: FC<Props> = ({
     setTimeout(() => {
       resizeEditorToContent()
     }, 10)
+  }
+
+  const handleEditorWillMount = (monaco: any) => {
+    registerGroovyLanguageForMonaco(monaco.languages)
   }
 
   const handleEditorDidMount = (editor: any, monaco: any) => {
@@ -167,6 +173,7 @@ const CodeEditor: FC<Props> = ({
         }}
         isShowVariable
         onMount={handleEditorDidMount}
+        beforeMount={handleEditorWillMount}
       />
       {!outPutValue && <div className='pointer-events-none absolute left-[36px] top-0 leading-[18px] text-[13px] font-normal text-gray-300'>{placeholder}</div>}
     </>

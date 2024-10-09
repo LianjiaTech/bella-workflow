@@ -19,12 +19,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.RandomUtils;
 
 import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.service.Configs;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class TaskExecutor {
     static ThreadFactory tf = new NamedThreadFactory("bella-worker-", true);
+    static NamedThreadFactory tf2 = new NamedThreadFactory("bella-sandbox-", true, true);
     static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1000, tf);
 
     public static void schedule(Runnable r, long delayMills) {
@@ -41,8 +43,8 @@ public class TaskExecutor {
     }
 
     public static <T> T invoke(Callable<T> task, long timeout) throws Exception {
-        NamedThreadFactory tf = new NamedThreadFactory("bella-sandbox-", false);
-        ExecutorService es = Executors.newSingleThreadExecutor(tf);
+        timeout = Math.min(Math.max(timeout, 1), Configs.MAX_EXE_TIME);
+        ExecutorService es = Executors.newSingleThreadExecutor(tf2);
         try {
             Future<T> futrure = es.submit(task);
             try {
@@ -56,7 +58,7 @@ public class TaskExecutor {
 
         } finally {
             es.shutdownNow();
-            tf.stop();
+            tf2.stop();
         }
     }
 

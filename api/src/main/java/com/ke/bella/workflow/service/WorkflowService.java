@@ -180,17 +180,20 @@ public class WorkflowService {
         Node node = meta.getGraph().getNodes().stream().filter(n -> StringUtils.equals(n.getId(), nodeId)).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("节点不存在: " + nodeId));
         WorkflowGraph graph = new WorkflowGraph(meta, node.getParentId());
-
+        WorkflowRunState state = new WorkflowRunState();
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())
                 .workflowId(wr.getWorkflowId())
                 .runId(wr.getWorkflowRunId())
                 .ctime(wr.getCtime())
                 .graph(graph)
-                .state(new WorkflowRunState())
+                .state(state)
                 .userInputs(inputs)
                 .triggerFrom(wr.getTriggerFrom())
                 .build();
+        state.putVariable("sys", "tenant_id", wr.getTenantId());
+        state.putVariable("sys", "workflow_id", wr.getWorkflowId());
+        state.putVariable("sys", "run_id", wr.getWorkflowRunId());
         new WorkflowRunner().runNode(context, new WorkflowRunCallback(this, callback), nodeId);
     }
 

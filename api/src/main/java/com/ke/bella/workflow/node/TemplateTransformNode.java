@@ -41,7 +41,7 @@ public class TemplateTransformNode extends BaseNode<TemplateTransformNode.Data> 
             data.getVariables()
                     .forEach(v -> inputs.put(v.getVariable(),
                             context.getState().getVariableValue(v.getValueSelector())));
-            Map codeResult = CodeExecutor.execute(CodeExecutor.CodeLanguage.jinja2, data.getTemplate(), inputs, null);
+            Map codeResult = (Map) CodeExecutor.execute(CodeExecutor.CodeLanguage.jinja2, data.getTemplate(), inputs, null);
 
             String text = codeResult.get("result").toString();
             Assert.isTrue(text.length() <= MAX_TEMPLATE_TRANSFORM_OUTPUT_LENGTH, "Output length exceeds");

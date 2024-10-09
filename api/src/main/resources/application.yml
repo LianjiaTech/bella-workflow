@@ -60,3 +60,7 @@ datasource:
 bella:
   apiBase: ${BELLA_API_BASE:https://example.com/v1/}
   openApiBase: ${BELLA_OPEN_API_BASE:https://example.com/v1/}
+  workflow:
+    sandbox:
+        groovy: false
+    

@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
+import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -43,18 +44,29 @@ public class CodeExecutor {
     private static final Map<String, TemplateTransformer> transformers = ImmutableMap.of(
             CodeLanguage.python3.name(), new Python3TemplateTransformer(),
             CodeLanguage.jinja2.name(), new Jinja2TemplateTransformer(),
-            CodeLanguage.javascript.name(), new NodeJsTemplateTransformer());
+            CodeLanguage.javascript.name(), new NodeJsTemplateTransformer(),
+            CodeLanguage.groovy.name(), new GroovyTemplateTransformer());
 
-    public static Map<String, Object> execute(CodeLanguage language, String code, Map<String, Object> inputs, List<CodeDependency> dependencies) {
+    public static Object execute(CodeLanguage language, String code, Map<String, Object> inputs, List<CodeDependency> dependencies) {
         TemplateTransformer transformer = Optional.ofNullable(transformers.get(language.name()))
                 .orElseThrow(() -> new IllegalArgumentException("unsupported code language"));
 
-        TemplateTransformer.RunParams runner = transformer.transformRunParams(code, inputs, dependencies);
+        if(language == CodeLanguage.groovy) {
+            Object result = GroovySandbox.execute(code, inputs);
+            if(result instanceof Map) {
+                return result;
+            } else if(result instanceof NodeRunResult) {
+                return result;
+            } else {
+                throw new IllegalArgumentException("返回值类型必须是Map");
+            }
+        } else {
+            TemplateTransformer.RunParams runner = transformer.transformRunParams(code, inputs, dependencies);
+            String resp = executeCode(language, runner.getRunnerScript(), runner.getPreloadScript(),
+                    CollectionUtils.isEmpty(runner.getPackages()) ? null : runner.getPackages());
 
-        String resp = executeCode(language, runner.getRunnerScript(), runner.getPreloadScript(),
-                CollectionUtils.isEmpty(runner.getPackages()) ? null : runner.getPackages());
-
-        return transformer.transformResponse(resp);
+            return transformer.transformResponse(resp);
+        }
     }
 
     public static Map<String, Object> getDefaultConfig(CodeLanguage language) {
@@ -136,6 +148,7 @@ public class CodeExecutor {
         @Builder
         @lombok.Data
         public static class DependenciesResult {
+            @Builder.Default
             private List<CodeDependency> dependencies = new ArrayList<>();
         }
 
@@ -148,7 +161,8 @@ public class CodeExecutor {
     public enum CodeLanguage {
         python3,
         jinja2,
-        javascript;
+        javascript,
+        groovy;
 
         public static CodeLanguage of(String code) {
             return Stream.of(CodeLanguage.values())

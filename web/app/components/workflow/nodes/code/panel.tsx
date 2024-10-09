@@ -28,6 +28,10 @@ const codeLanguages = [
     label: 'JavaScript',
     value: CodeLanguage.javascript,
   },
+  {
+    label: 'Groovy',
+    value: CodeLanguage.groovy,
+  },
 ]
 const Panel: FC<NodePanelProps<CodeNodeType>> = ({
   id,

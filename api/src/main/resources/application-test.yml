@@ -67,6 +67,8 @@ bella:
     trigger:
         callback-path: /v1/workflow/trigger/callback
     run-path: /v1/workflow/run
+    sandbox:
+      groovy: true
   knowledge-file:
     search: http://example.com/api/v1/knowledge/searchNew/forWorkflow
 

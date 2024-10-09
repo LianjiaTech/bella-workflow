@@ -30,6 +30,7 @@ public interface IWorkflowCallback {
         public interface ObjectType {
             String MESSAGE = "message";
             String DELTA_CONTENT = "message.delta";
+            String LOG = "log";
         }
     }
 

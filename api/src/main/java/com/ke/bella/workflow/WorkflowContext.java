@@ -42,6 +42,7 @@ public class WorkflowContext {
     private boolean stateful;
     @Builder.Default
     private long nodeTimeout = 300;
+    private WorkflowSys sys;
 
     public Map userInputs() {
         return this.userInputs;

@@ -11,6 +11,7 @@ import java.util.concurrent.locks.LockSupport;
 import com.google.common.base.Throwables;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.node.BaseNode;
+import com.ke.bella.workflow.utils.Utils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,6 +35,13 @@ public class WorkflowRunner {
     public void runNode(WorkflowContext context, IWorkflowCallback callback, String nodeId) {
         BaseNode node = context.getNode(nodeId);
         try {
+
+            WorkflowSys sys = WorkflowSys.builder()
+                    .context(context)
+                    .callback(callback)
+                    .build();
+            context.setSys(sys);
+
             if(context.isResume(node.getNodeId())) {
                 node.resume(context, callback);
             } else {
@@ -68,6 +76,12 @@ public class WorkflowRunner {
     private void run0(WorkflowContext context, IWorkflowCallback callback) {
         CompletableFuture all = null;
         try {
+            WorkflowSys sys = WorkflowSys.builder()
+                    .context(context)
+                    .callback(callback)
+                    .build();
+            context.setSys(sys);
+
             final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
             List<CompletableFuture> fs = new ArrayList<>();
             while (!context.isFinish()) {
@@ -116,6 +130,7 @@ public class WorkflowRunner {
             }
         } catch (Throwable e) {
             LOGGER.info(e.getMessage(), e);
+            e = Utils.getRootCause(e);
             context.getState().setStatus(WorkflowRunStatus.failed);
             callback.onWorkflowRunFailed(context, e.toString(), e);
         }

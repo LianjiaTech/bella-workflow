@@ -21,6 +21,7 @@ import com.ke.bella.workflow.service.Configs;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,8 +47,11 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     }
 
     protected WorkflowSchema.Node meta;
+    @Getter
     protected String nodeRunId;
     protected T data;
+    @Getter
+    protected ResumeData resumeData;
 
     protected BaseNode(WorkflowSchema.Node meta, T data) {
         this(meta, UUID.randomUUID().toString(), data);
@@ -96,6 +100,10 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         return data.isWaitCallback();
     }
 
+    public boolean isResuming() {
+        return resumeData != null;
+    }
+
     @Override
     public NodeRunResult run(WorkflowContext context, IWorkflowCallback callback) {
         Long startTime = System.nanoTime();
@@ -124,7 +132,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
             } else if(result.getStatus() == NodeRunResult.Status.failed) {
                 callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
-                throw new IllegalStateException(result.getError().getMessage());
+                throw new IllegalStateException(result.getError().getMessage(), result.getError());
             } else if(result.getStatus() == NodeRunResult.Status.waiting) {
                 if(context.isFlashMode()) {
                     throw new IllegalArgumentException("极速模式下不支持节点挂起，请调整请求里的flashMode参数");
@@ -155,6 +163,10 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     public NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback) {
         NodeRunResult result = null;
         try {
+            this.resumeData = ResumeData.builder()
+                    .notifyData(context.getState().getNotifyData(getNodeId()))
+                    .lastState(context.getState().getNodeState(getNodeId()))
+                    .build();
             result = resume(context, callback, context.getState().getNotifyData(getNodeId()));
             context.putNodeRunResult(this, result);
             if(result.getStatus() == NodeRunResult.Status.succeeded) {
@@ -171,6 +183,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
             }
         } finally {
             afterExecute(context);
+            this.resumeData = null;
             LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
         }
         return result;
@@ -183,13 +196,20 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     private void appendBuiltinVariables(WorkflowContext context) {
         // append callbackUrl
         if(isCallback()) {
-            String url = String.format("%s/workflow/callback/%s/%s/%s/%s/%s",
-                    Configs.API_BASE,
+            String url = getCallbackUrl(
                     context.getTenantId(),
                     context.getWorkflowId(),
-                    context.getRunId(), getNodeId(), nodeRunId);
+                    context.getRunId());
             context.getState().putVariable(getNodeId(), "callbackUrl", url);
         }
+    }
+
+    public String getCallbackUrl(String tenantId, String workflowId, String runId) {
+        return String.format("%s/workflow/callback/%s/%s/%s/%s/%s",
+                Configs.API_BASE,
+                tenantId,
+                workflowId,
+                runId, getNodeId(), nodeRunId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -302,4 +322,14 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         }
     }
 
+    @lombok.Getter
+    @lombok.Setter
+    @lombok.Builder
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
+    public static class ResumeData {
+        NodeRunResult lastState;
+        @SuppressWarnings("rawtypes")
+        Map notifyData;
+    }
 }

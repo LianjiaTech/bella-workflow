@@ -40,6 +40,8 @@ public class WorkflowContext {
     private LocalDateTime ctime;
     private int flashMode;
     private boolean stateful;
+    @Builder.Default
+    private long nodeTimeout = 300;
 
     public Map userInputs() {
         return this.userInputs;

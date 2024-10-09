@@ -1,16 +1,24 @@
 package com.ke.bella.workflow;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.ke.bella.workflow.db.BellaContext;
 import org.apache.commons.lang3.RandomUtils;
+
+import com.ke.bella.workflow.db.BellaContext;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,6 +38,26 @@ public class TaskExecutor {
 
     public static CompletableFuture<Void> submit(Runnable r) {
         return CompletableFuture.runAsync(new Task(r), executor);
+    }
+
+    public static <T> T invoke(Callable<T> task, long timeout) throws Exception {
+        NamedThreadFactory tf = new NamedThreadFactory("bella-sandbox-", false);
+        ExecutorService es = Executors.newSingleThreadExecutor(tf);
+        try {
+            Future<T> futrure = es.submit(task);
+            try {
+                return futrure.get(timeout, TimeUnit.SECONDS);
+            } catch (TimeoutException e) {
+                futrure.cancel(true);
+                throw e;
+            } catch (Exception e) {
+                throw e;
+            }
+
+        } finally {
+            es.shutdownNow();
+            tf.stop();
+        }
     }
 
     public static class Task implements Runnable {
@@ -62,16 +90,23 @@ public class TaskExecutor {
         private final String prefix;
         private final AtomicInteger threadNumber = new AtomicInteger(1);
         private final boolean isDaemon;
+        private final boolean trackThreads;
         private final UncaughtExceptionHandler handler;
+        private final List<Thread> threads = Collections.synchronizedList(new ArrayList<>());
 
         public NamedThreadFactory(String prefix, boolean isDaemon) {
-            this(prefix, isDaemon, null);
+            this(prefix, isDaemon, null, false);
         }
 
-        public NamedThreadFactory(String prefix, boolean isDaemon, UncaughtExceptionHandler handler) {
+        public NamedThreadFactory(String prefix, boolean isDaemon, boolean trackThreads) {
+            this(prefix, isDaemon, null, trackThreads);
+        }
+
+        public NamedThreadFactory(String prefix, boolean isDaemon, UncaughtExceptionHandler handler, boolean trackThreads) {
             this.prefix = prefix;
             this.isDaemon = isDaemon;
             this.handler = handler;
+            this.trackThreads = trackThreads;
         }
 
         @Override
@@ -81,7 +116,21 @@ public class TaskExecutor {
             if(this.handler != null) {
                 t.setUncaughtExceptionHandler(handler);
             }
+            if(trackThreads) {
+                threads.add(t);
+            }
             return t;
+        }
+
+        @SuppressWarnings("deprecation")
+        public void stop() {
+            for (Thread thread : threads) {
+                try {
+                    thread.stop();
+                } catch (UnsupportedOperationException e) {
+                    thread.interrupt();
+                }
+            }
         }
     }
 }

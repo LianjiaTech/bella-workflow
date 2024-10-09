@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
 
 import com.google.common.base.Throwables;
@@ -64,6 +66,7 @@ public class WorkflowRunner {
 
     @SuppressWarnings("rawtypes")
     private void run0(WorkflowContext context, IWorkflowCallback callback) {
+        CompletableFuture all = null;
         try {
             final List<Throwable> exceptions = Collections.synchronizedList(new ArrayList<>());
             List<CompletableFuture> fs = new ArrayList<>();
@@ -90,7 +93,8 @@ public class WorkflowRunner {
                 }
             }
 
-            CompletableFuture.allOf(fs.toArray(new CompletableFuture[0])).join();
+            all = CompletableFuture.allOf(fs.toArray(new CompletableFuture[0]));
+            all.get(context.getNodeTimeout(), TimeUnit.SECONDS);
 
             if(!exceptions.isEmpty()) {
                 throw exceptions.get(0);
@@ -102,6 +106,13 @@ public class WorkflowRunner {
             } else {
                 context.getState().setStatus(WorkflowRunStatus.succeeded);
                 callback.onWorkflowRunSucceeded(context);
+            }
+        } catch (TimeoutException te) {
+            LOGGER.info(te.getMessage(), te);
+            context.getState().setStatus(WorkflowRunStatus.failed);
+            callback.onWorkflowRunFailed(context, "节点执行超时", te);
+            if(all != null) {
+                all.cancel(true);
             }
         } catch (Throwable e) {
             LOGGER.info(e.getMessage(), e);

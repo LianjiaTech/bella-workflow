@@ -6,7 +6,9 @@ import java.io.StringWriter;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassNode;
@@ -14,6 +16,7 @@ import org.codehaus.groovy.ast.expr.ArgumentListExpression;
 import org.codehaus.groovy.ast.expr.BooleanExpression;
 import org.codehaus.groovy.ast.expr.ClassExpression;
 import org.codehaus.groovy.ast.expr.ConstantExpression;
+import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.MethodCallExpression;
 import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.ast.stmt.BreakStatement;
@@ -54,11 +57,14 @@ import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 
 public class GroovySandbox {
-
+    private static final Set<String> METHOD_CALL_BLACKLIST = new HashSet<>();
     private static final SecureASTCustomizer secure = new SecureASTCustomizer();
     private static final CompilerConfiguration config = new CompilerConfiguration();
     private static final GroovyClassLoader loader = new GroovyClassLoader(GroovySandbox.class.getClassLoader(), config);
     static {
+        METHOD_CALL_BLACKLIST.addAll(Arrays.asList(
+                "java.lang.String#execute",
+                "java.lang.Object#execute"));
         secure.setMethodDefinitionAllowed(false);
         secure.setPackageAllowed(false);
         secure.setIndirectImportCheckEnabled(true);
@@ -86,7 +92,11 @@ public class GroovySandbox {
                 ProcessBuilder.class));
         secure.addExpressionCheckers(expr -> {
             if(expr instanceof MethodCallExpression) {
-                // TODO
+                MethodCallExpression methodCall = (MethodCallExpression) expr;
+                Expression objexpr = methodCall.getObjectExpression();
+                String className = objexpr.getType().getName();
+                String methodName = methodCall.getMethodAsString();
+                return !METHOD_CALL_BLACKLIST.contains(className + '#' + methodName);
             }
             return true;
         });
@@ -175,8 +185,8 @@ public class GroovySandbox {
             } else if(statement instanceof CaseStatement) {
                 CaseStatement caseStatement = (CaseStatement) statement;
                 addInterruptChecks(caseStatement.getCode());
-            } else if (statement instanceof TryCatchStatement) {
-                TryCatchStatement tryCatchStatement = (TryCatchStatement)statement;
+            } else if(statement instanceof TryCatchStatement) {
+                TryCatchStatement tryCatchStatement = (TryCatchStatement) statement;
                 addInterruptChecks(tryCatchStatement.getTryStatement());
                 tryCatchStatement.getCatchStatements().forEach(this::addInterruptChecks);
                 addInterruptChecks(tryCatchStatement.getFinallyStatement());
@@ -203,9 +213,9 @@ public class GroovySandbox {
         private Statement createInterruptCheckStatement() {
             return new IfStatement(
                     new BooleanExpression(
-                                    new MethodCallExpression(
-                                            new ClassExpression(new ClassNode(WorkflowSys.class)),
-                                            new ConstantExpression("isInterrupted"),
+                            new MethodCallExpression(
+                                    new ClassExpression(new ClassNode(WorkflowSys.class)),
+                                    new ConstantExpression("isInterrupted"),
                                     ArgumentListExpression.EMPTY_ARGUMENTS)),
                     new BreakStatement(),
                     EmptyStatement.INSTANCE);

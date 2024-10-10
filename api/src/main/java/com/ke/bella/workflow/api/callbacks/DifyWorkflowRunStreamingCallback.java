@@ -109,6 +109,20 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                         .build())
                 .build();
         SseHelper.sendEvent(emitter, event);
+
+        if(context.isStateful() && "advanced-chat".equals(context.getWorkflowMode())) {
+            DifyEvent errorEvent = DifyEvent.builder()
+                    .workflowRunId(context.getRunId())
+                    .threadId(context.getThreadId())
+                    .workflowId(context.getWorkflowId())
+                    .taskId(context.getRunId())
+                    .event("error")
+                    .status(400)
+                    .message(error)
+                    .build();
+            SseHelper.sendEvent(emitter, errorEvent);
+        }
+
         emitter.complete();
     }
 
@@ -359,6 +373,8 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         private String id;
         @JsonProperty("thread_id")
         private String threadId;
+        private String message;
+        private Integer status;
 
         @JsonProperty("conversation_id")
         public String getConversationId() {

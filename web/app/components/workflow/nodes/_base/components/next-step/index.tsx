@@ -31,6 +31,11 @@ const NextStep = ({
   const edges = useEdges()
   const outgoers = getOutgoers(selectedNode as Node, store.getState().getNodes(), edges)
   const connectedEdges = getConnectedEdges([selectedNode] as Node[], edges).filter(edge => edge.source === selectedNode!.id)
+  let linesNumber = branches.map((branch: Branch) => {
+    const connected = connectedEdges?.filter(edge => edge.sourceHandle === branch.id)
+    return connected?.length > 1 ? connected?.length : 1
+  }).reduce((sum, num) => sum + num, 0)
+  linesNumber = nodeWithBranches ? linesNumber : (nodeWithMultiOutput && outgoers?.length > 1) ? outgoers.length : 1
 
   return (
     <div className='flex py-1'>
@@ -40,7 +45,7 @@ const NextStep = ({
           toolIcon={toolIcon}
         />
       </div>
-      <Line linesNumber={nodeWithBranches ? branches.length : nodeWithMultiOutput ? outgoers.length : 1} />
+      <Line linesNumber={linesNumber} />
       <div className='grow'>
         {
           !nodeWithMultiOutput && !nodeWithBranches && !!outgoers.length && (
@@ -63,26 +68,26 @@ const NextStep = ({
         {
           !!branches?.length && nodeWithBranches && (
             branches.map((branch: Branch) => {
-              const connected = connectedEdges.find(edge => edge.sourceHandle === branch.id)
-              const target = outgoers.find(outgoer => outgoer.id === connected?.target)
-
+              const connected = connectedEdges.filter(edge => edge.sourceHandle === branch.id)
+              const targets = connected.map(conn => outgoers.find(outgoer => outgoer.id === conn?.target))
               return (
                 <div
                   key={branch.id}
                   className='mb-3 last-of-type:mb-0'
                 >
                   {
-                    connected && (
+                    !!connected?.length && targets.map(target => (
                       <Item
+                        key={target!.id}
                         data={target!.data!}
                         nodeId={target!.id}
                         sourceHandle={branch.id}
                         branchName={branch.name}
                       />
-                    )
+                    ))
                   }
                   {
-                    !connected && (
+                    !connected?.length && (
                       <Add
                         key={branch.id}
                         nodeId={selectedNode!.id}

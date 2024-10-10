@@ -18,6 +18,7 @@ import org.codehaus.groovy.ast.expr.ClassExpression;
 import org.codehaus.groovy.ast.expr.ConstantExpression;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.MethodCallExpression;
+import org.codehaus.groovy.ast.expr.PropertyExpression;
 import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.ast.stmt.BreakStatement;
 import org.codehaus.groovy.ast.stmt.CaseStatement;
@@ -57,29 +58,47 @@ import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 
 public class GroovySandbox {
+    private static final Set<String> PROPERTY_BLACKLIST = new HashSet<>();
     private static final Set<String> METHOD_CALL_BLACKLIST = new HashSet<>();
     private static final SecureASTCustomizer secure = new SecureASTCustomizer();
     private static final CompilerConfiguration config = new CompilerConfiguration();
     private static final GroovyClassLoader loader = new GroovyClassLoader(GroovySandbox.class.getClassLoader(), config);
     static {
+        PROPERTY_BLACKLIST.addAll(Arrays.asList(
+                "class"));
         METHOD_CALL_BLACKLIST.addAll(Arrays.asList(
                 "java.lang.String#execute",
-                "java.lang.Object#execute"));
+                "java.lang.Object#execute",
+                "java.lang.Object#getClass",
+                "java.lang.Object#wait",
+                "java.lang.Object#notify",
+                "java.lang.Object#notifyAll",
+                "java.lang.Object#invoke",
+                "java.lang.Object#exec"));
         secure.setMethodDefinitionAllowed(false);
         secure.setPackageAllowed(false);
         secure.setIndirectImportCheckEnabled(true);
         secure.setImportsBlacklist(Arrays.asList("java.lang.SecurityManager",
                 "java.lang.Runtime",
                 "java.lang.ClassLoader",
-                "java.lang.ProcessBuilder"));
+                "java.lang.ProcessBuilder",
+                "groovy.lang.Binding",
+                "groovy.lang.GroovyClassLoader",
+                "groovy.lang.GroovyCodeSource",
+                "groovy.lang.GroovyShell",
+                "groovy.lang.Script",
+                "groovy.util.Eval",
+                "groovy.util.GroovyScriptEngine"));
         secure.setStarImportsBlacklist(Arrays.asList("java.io.*",
                 "java.nio.*",
                 "java.net.*",
-                "java.lang.reflect",
+                "java.lang.reflect.*",
+                "java.lang.invoke.*",
                 "java.security.*",
                 "java.util.concurrent.*",
                 "javax.naming.*",
                 "javax.management.*",
+                "javax.script.*",
                 "java.sql.*",
                 "groovy.io.*"));
         secure.setReceiversClassesBlackList(Arrays.asList(Thread.class,
@@ -94,6 +113,12 @@ public class GroovySandbox {
             if(expr instanceof MethodCallExpression) {
                 MethodCallExpression methodCall = (MethodCallExpression) expr;
                 Expression objexpr = methodCall.getObjectExpression();
+                if(objexpr instanceof PropertyExpression) {
+                    String prop = ((PropertyExpression) objexpr).getPropertyAsString();
+                    if(PROPERTY_BLACKLIST.contains(prop)) {
+                        return false;
+                    }
+                }
                 String className = objexpr.getType().getName();
                 String methodName = methodCall.getMethodAsString();
                 return !METHOD_CALL_BLACKLIST.contains(className + '#' + methodName);

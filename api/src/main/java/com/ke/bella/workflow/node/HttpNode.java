@@ -222,8 +222,10 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
 
         Response response = exclusiveClient.newCall(request).execute();
         int statusCode = response.code();
+        ResponseHelper helper = handleResponseBody(request, response);
         return resultBuilder
                 .status(statusCode >= 200 && statusCode <= 299 ? NodeRunResult.Status.waiting : NodeRunResult.Status.failed)
+                .error(statusCode >= 200 && statusCode <= 299 ? null : new IllegalStateException(helper.getBody().toString()))
                 .build();
     }
 

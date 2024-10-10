@@ -127,18 +127,21 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 }
             }
 
-            context.putNodeRunResult(this, result);
-            if(result.getStatus() == NodeRunResult.Status.succeeded) {
-                callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
-            } else if(result.getStatus() == NodeRunResult.Status.failed) {
-                callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
-                throw new IllegalStateException(result.getError().getMessage(), result.getError());
-            } else if(result.getStatus() == NodeRunResult.Status.waiting) {
-                if(context.isFlashMode()) {
-                    throw new IllegalArgumentException("极速模式下不支持节点挂起，请调整请求里的flashMode参数");
+            synchronized(context) {
+                context.putNodeRunResult(this, result);
+                if(result.getStatus() == NodeRunResult.Status.succeeded) {
+                    callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
+                } else if(result.getStatus() == NodeRunResult.Status.failed) {
+                    callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
+                    throw new IllegalStateException(result.getError().getMessage(), result.getError());
+                } else if(result.getStatus() == NodeRunResult.Status.waiting) {
+                    if(context.isFlashMode()) {
+                        throw new IllegalArgumentException("极速模式下不支持节点挂起，请调整请求里的flashMode参数");
+                    }
+                    callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
                 }
-                callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
             }
+
         } finally {
             afterExecute(context);
             LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
@@ -168,19 +171,26 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                     .lastState(context.getState().getNodeState(getNodeId()))
                     .build();
             result = resume(context, callback, context.getState().getNotifyData(getNodeId()));
-            context.putNodeRunResult(this, result);
+
             if(result.getStatus() == NodeRunResult.Status.succeeded) {
                 List<String> handles = data.getSourceHandles();
                 if(handles.size() == 1) {
                     result.setActivatedSourceHandles(handles);
                 }
-                callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
-            } else if(result.getStatus() == NodeRunResult.Status.failed) {
-                callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
-                throw new IllegalStateException(result.getError().getMessage());
-            } else if(result.getStatus() == NodeRunResult.Status.waiting) {
-                callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
             }
+
+            synchronized(context) {
+                context.putNodeRunResult(this, result);
+                if(result.getStatus() == NodeRunResult.Status.succeeded) {
+                    callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
+                } else if(result.getStatus() == NodeRunResult.Status.failed) {
+                    callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
+                    throw new IllegalStateException(result.getError().getMessage());
+                } else if(result.getStatus() == NodeRunResult.Status.waiting) {
+                    callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
+                }
+            }
+
         } finally {
             afterExecute(context);
             this.resumeData = null;

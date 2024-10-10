@@ -88,19 +88,21 @@ public class WorkflowRunner {
                 List<BaseNode> nodes = context.getNextNodes();
                 if(!nodes.isEmpty()) {
                     for (BaseNode node : nodes) {
-                        CompletableFuture future = null;
-                        if(context.isResume(node.getNodeId())) {
-                            future = TaskExecutor.submit(() -> node.resume(context, callback)).exceptionally(e -> {
-                                exceptions.add(e);
-                                return null;
-                            });
-                        } else {
-                            future = TaskExecutor.submit(() -> node.run(context, callback)).exceptionally(e -> {
-                                exceptions.add(e);
-                                return null;
-                            });
+                        synchronized(context) {
+                            CompletableFuture future = null;
+                            if(context.isResume(node.getNodeId())) {
+                                future = TaskExecutor.submit(() -> node.resume(context, callback)).exceptionally(e -> {
+                                    exceptions.add(e);
+                                    return null;
+                                });
+                            } else {
+                                future = TaskExecutor.submit(() -> node.run(context, callback)).exceptionally(e -> {
+                                    exceptions.add(e);
+                                    return null;
+                                });
+                            }
+                            fs.add(future);
                         }
-                        fs.add(future);
                     }
                 } else {
                     LockSupport.parkNanos(1000000); // 1ms

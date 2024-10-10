@@ -26,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TaskExecutor {
     static ThreadFactory tf = new NamedThreadFactory("bella-worker-", true);
-    static NamedThreadFactory tf2 = new NamedThreadFactory("bella-sandbox-", true, true);
     static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1000, tf);
 
     public static void schedule(Runnable r, long delayMills) {
@@ -44,6 +43,8 @@ public class TaskExecutor {
 
     public static <T> T invoke(Callable<T> task, long timeout) throws Exception {
         timeout = Math.min(Math.max(timeout, 1), Configs.MAX_EXE_TIME);
+        long id = Thread.currentThread().getId();
+        NamedThreadFactory tf2 = new NamedThreadFactory("bella-sandbox-" + id + "-", true, true);
         ExecutorService es = Executors.newSingleThreadExecutor(tf2);
         try {
             Future<T> futrure = es.submit(task);

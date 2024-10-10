@@ -13,18 +13,22 @@ import java.util.Set;
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.expr.ArgumentListExpression;
+import org.codehaus.groovy.ast.expr.BinaryExpression;
 import org.codehaus.groovy.ast.expr.BooleanExpression;
 import org.codehaus.groovy.ast.expr.ClassExpression;
+import org.codehaus.groovy.ast.expr.ClosureExpression;
 import org.codehaus.groovy.ast.expr.ConstantExpression;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.MethodCallExpression;
 import org.codehaus.groovy.ast.expr.PropertyExpression;
+import org.codehaus.groovy.ast.expr.VariableExpression;
 import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.ast.stmt.BreakStatement;
 import org.codehaus.groovy.ast.stmt.CaseStatement;
 import org.codehaus.groovy.ast.stmt.CatchStatement;
 import org.codehaus.groovy.ast.stmt.DoWhileStatement;
 import org.codehaus.groovy.ast.stmt.EmptyStatement;
+import org.codehaus.groovy.ast.stmt.ExpressionStatement;
 import org.codehaus.groovy.ast.stmt.ForStatement;
 import org.codehaus.groovy.ast.stmt.IfStatement;
 import org.codehaus.groovy.ast.stmt.Statement;
@@ -146,7 +150,6 @@ public class GroovySandbox {
                     return new GroovyCodeSource(code, key, GroovyShell.DEFAULT_CODE_BASE);
                 }
             });
-
             Binding binding = new Binding(inputs);
             Script s = InvokerHelper.createScript(loader.parseClass(gcs, true), binding);
             return s.run();
@@ -221,6 +224,22 @@ public class GroovySandbox {
             } else if(statement instanceof SynchronizedStatement) {
                 SynchronizedStatement synchronizedStatement = (SynchronizedStatement) statement;
                 addInterruptChecks(synchronizedStatement.getCode());
+            } else if (statement instanceof ExpressionStatement) {
+                ExpressionStatement expressionStatement = (ExpressionStatement)statement;
+                Expression expression = expressionStatement.getExpression();
+                addInterruptChecks(expression);
+            }
+        }
+
+        private void addInterruptChecks(Expression expression) {
+            if(expression instanceof ClosureExpression) {
+                addInterruptChecks(((ClosureExpression) expression).getCode());
+            } else if(expression instanceof VariableExpression) {
+                expression = ((VariableExpression) expression).getInitialExpression();
+                addInterruptChecks(expression);
+            } else if(expression instanceof BinaryExpression) {
+                addInterruptChecks(((BinaryExpression) expression).getLeftExpression());
+                addInterruptChecks(((BinaryExpression) expression).getRightExpression());
             }
         }
 

@@ -244,6 +244,10 @@ const translation = {
         new_msg: '创建新消息',
         new_msg_tip: '将节点输出作为新消息',
       },
+      callback: {
+        title: '等待回调',
+        tip: '节点执行后工作流挂起，等待回调后继续执行',
+      },
 
     },
     start: {

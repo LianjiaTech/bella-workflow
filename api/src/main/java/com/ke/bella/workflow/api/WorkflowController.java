@@ -30,6 +30,7 @@ import com.ke.bella.workflow.api.callbacks.SingleNodeRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunStreamingCallback;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
@@ -84,6 +85,7 @@ public class WorkflowController {
         WorkflowSync sync = WorkflowSync.builder()
                 .graph(wf.getGraph())
                 .title(wf.getTitle())
+                .mode(wf.getMode())
                 .desc(wf.getDesc())
                 .build();
         return ws.newWorkflow(sync);
@@ -193,9 +195,9 @@ public class WorkflowController {
                 .build();
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
         if(mode == ResponseMode.blocking) {
-            SingleNodeRunBlockingCallback callback = new SingleNodeRunBlockingCallback();
+            SingleNodeRunBlockingCallback callback = new SingleNodeRunBlockingCallback(ws, MAX_TIMEOUT);
             ws.runNode(wr, op.nodeId, op.inputs, callback);
-            return callback.getWorkflowNodeRunResult(MAX_TIMEOUT);
+            return callback.getWorkflowNodeRunResult();
 
         } else {
             // create SseEmitter with timeout 300s
@@ -209,7 +211,7 @@ public class WorkflowController {
     public TenantDB createTenant(@RequestBody TenantCreate op) {
         Assert.hasText(op.tenantName, "tenantName不能为空");
 
-        return ws.createTenant(op.tenantName, op.parentTenantId);
+        return ws.createTenant(op.tenantName, op.parentTenantId, op.getOpenapiKey());
     }
 
     @PostMapping("/workflow/run/page")
@@ -236,6 +238,11 @@ public class WorkflowController {
             @PathVariable String nodeId,
             @PathVariable String nodeRunId,
             @RequestBody Map inputs) {
+        BellaContext.setOperator(Operator.builder()
+                .tenantId(tenantId)
+                .userId(0L)
+                .userName("callback")
+                .build());
 
         WorkflowRunDB wr = ws.getWorkflowRun(workflowRunId);
         Assert.notNull(wr, String.format("找不到对应的工作流运行实例", workflowRunId));

@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row16;
+import org.jooq.Row17;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -90,6 +90,11 @@ public class WecomGroupInfo extends TableImpl<WecomGroupInfoRecord> {
      * The column <code>wecom_group_info.chat_id</code>. 会话Id-群Id-机器人指定群发消息
      */
     public final TableField<WecomGroupInfoRecord, String> CHAT_ID = createField(DSL.name("chat_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "会话Id-群Id-机器人指定群发消息");
+
+    /**
+     * The column <code>wecom_group_info.thread_id</code>. 会话id
+     */
+    public final TableField<WecomGroupInfoRecord, String> THREAD_ID = createField(DSL.name("thread_id"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "会话id");
 
     /**
      * The column <code>wecom_group_info.scene</code>. exclusive_ai_assistant：专属AI助理群
@@ -216,11 +221,11 @@ public class WecomGroupInfo extends TableImpl<WecomGroupInfoRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row16 type methods
+    // Row17 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row16<Long, String, String, String, String, String, String, String, String, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> fieldsRow() {
-        return (Row16) super.fieldsRow();
+    public Row17<Long, String, String, String, String, String, String, String, String, String, Long, String, Long, String, Integer, LocalDateTime, LocalDateTime> fieldsRow() {
+        return (Row17) super.fieldsRow();
     }
 }

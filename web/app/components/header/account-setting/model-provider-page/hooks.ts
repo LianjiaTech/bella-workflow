@@ -129,10 +129,10 @@ export const useDefaultModel = (type: ModelTypeEnum) => {
       model: 'c4ai-command-r-plus',
       model_type: 'llm',
       provider: {
-        provider: 'openai',
+        provider: '贝壳',
         label: {
-          zh_Hans: 'OpenAI',
-          en_US: 'OpenAI',
+          zh_Hans: '贝壳',
+          en_US: 'ke',
         },
         icon_small: {
           zh_Hans:

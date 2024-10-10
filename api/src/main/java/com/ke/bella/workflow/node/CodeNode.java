@@ -10,6 +10,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
@@ -41,27 +42,57 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
     protected WorkflowRunState.NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback) {
         data.validate();
 
-        Map<String, Object> variables = new HashMap<>();
+        Map<String, Object> inputs = new HashMap<>();
         for (WorkflowSchema.Variable variable : data.getVariables()) {
-            variables.put(variable.getVariable(), Variables.getValue(context.getState().getVariablePool(), variable.getValueSelector()));
+            inputs.put(variable.getVariable(), Variables.getValue(context.getState().getVariablePool(), variable.getValueSelector()));
+        }
+
+        return execute0(context, inputs);
+    }
+
+    @SuppressWarnings("unchecked")
+    private NodeRunResult execute0(WorkflowContext context, Map<String, Object> inputs) {
+        Map<String, Object> bindings = new HashMap<>(inputs);
+        CodeLanguage language = CodeLanguage.of(data.getCodeLanguage());
+        if(language == CodeLanguage.groovy) {
+            bindings.put("sys", context.getSys());
+            bindings.put("self", this);
         }
 
         try {
-            Map<String, Object> executeResult = CodeExecutor.execute(CodeLanguage.of(data.getCodeLanguage()), data.getCode(), variables,
-                    data.getDependencies());
-
-            Map<String, Object> result = transformResult(executeResult, data.getOutputs(), "", 1);
-
-            return NodeRunResult.builder()
-                    .status(NodeRunResult.Status.succeeded)
-                    .inputs(variables)
-                    .outputs(result).build();
+            Object obj = TaskExecutor.invoke(() -> CodeExecutor.execute(language,
+                    data.getCode(),
+                    bindings,
+                    data.getDependencies()),
+                    context.getNodeTimeout() - 1);
+            if(obj instanceof Map) {
+                Map<String, Object> result = transformResult((Map<String, Object>) obj, data.getOutputs(), "", 1);
+                return NodeRunResult.builder()
+                        .status(NodeRunResult.Status.succeeded)
+                        .inputs(inputs)
+                        .outputs(result).build();
+            } else if(obj instanceof NodeRunResult) {
+                ((NodeRunResult) obj).setInputs(inputs);
+                return (NodeRunResult) obj;
+            } else {
+                throw new IllegalArgumentException("代码返回结果类型不是Map");
+            }
         } catch (Exception e) {
             return NodeRunResult.builder()
                     .status(NodeRunResult.Status.failed)
-                    .inputs(variables)
+                    .inputs(inputs)
                     .error(e).build();
         }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    protected NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback, Map notifyData) {
+        CodeLanguage language = CodeLanguage.of(data.getCodeLanguage());
+        if(language == CodeLanguage.groovy) {
+            return execute0(context, this.getResumeData().getLastState().getInputs());
+        }
+        return super.resume(context, callback, notifyData);
 
     }
 
@@ -215,7 +246,7 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
     }
 
     private Object checkString(Object value, String variable) {
-        if(!(value instanceof String)) {
+        if(value != null && !(value instanceof String)) {
             throw new IllegalArgumentException("Variable " + variable + " is not a string.");
         }
         return value;

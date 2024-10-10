@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -76,6 +77,20 @@ public class HttpUtils {
         if(queryParams != null) {
             for (Map.Entry<String, String> entry : queryParams.entrySet()) {
                 urlBuilder.addQueryParameter(entry.getKey(), entry.getValue());
+            }
+        }
+        String finalUrl = urlBuilder.build().toString();
+        return executeRequest(headers, finalUrl, null, typeReference, "GET");
+    }
+
+    public static <T> T getWithMultiQuery(Map<String, String> headers, String url, Map<String, List<String>> queryParams,
+            TypeReference<T> typeReference) {
+        HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(url)).newBuilder();
+        if(queryParams != null) {
+            for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
+                entry.getValue().forEach(
+                        value -> urlBuilder.addQueryParameter(entry.getKey(), value)
+                );
             }
         }
         String finalUrl = urlBuilder.build().toString();

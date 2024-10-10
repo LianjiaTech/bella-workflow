@@ -123,8 +123,12 @@ public class WorkflowService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public TenantDB createTenant(String tenantName, String parentTenantId) {
-        return repo.addTenant(tenantName, parentTenantId);
+    public TenantDB createTenant(String tenantName, String parentTenantId, String openapiKey) {
+        return repo.addTenant(tenantName, parentTenantId, openapiKey);
+    }
+
+    public TenantDB getTenant(String tenantId) {
+        return repo.getTenant(tenantId);
     }
 
     public List<TenantDB> listTenants(List<String> tenantIds) {
@@ -144,6 +148,9 @@ public class WorkflowService {
         state.putVariable("sys", "message_id", IDGenerator.newMessageId());
         state.putVariable("sys", "thread_id", op.getThreadId());
         state.putVariable("sys", "metadata", op.getMetadata());
+        state.putVariable("sys", "tenant_id", wr.getTenantId());
+        state.putVariable("sys", "workflow_id", wr.getWorkflowId());
+        state.putVariable("sys", "run_id", wr.getWorkflowRunId());
 
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())
@@ -173,16 +180,20 @@ public class WorkflowService {
         Node node = meta.getGraph().getNodes().stream().filter(n -> StringUtils.equals(n.getId(), nodeId)).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("节点不存在: " + nodeId));
         WorkflowGraph graph = new WorkflowGraph(meta, node.getParentId());
-
+        WorkflowRunState state = new WorkflowRunState();
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())
                 .workflowId(wr.getWorkflowId())
                 .runId(wr.getWorkflowRunId())
+                .ctime(wr.getCtime())
                 .graph(graph)
-                .state(new WorkflowRunState())
+                .state(state)
                 .userInputs(inputs)
                 .triggerFrom(wr.getTriggerFrom())
                 .build();
+        state.putVariable("sys", "tenant_id", wr.getTenantId());
+        state.putVariable("sys", "workflow_id", wr.getWorkflowId());
+        state.putVariable("sys", "run_id", wr.getWorkflowRunId());
         new WorkflowRunner().runNode(context, new WorkflowRunCallback(this, callback), nodeId);
     }
 
@@ -366,7 +377,7 @@ public class WorkflowService {
         });
 
         // 简化同步操作，等所有节点都回来再继续执行
-        if(!ids.isEmpty() && ids.size() != nodeids.size()) {
+        if(ids.isEmpty() || ids.size() != nodeids.size()) {
             return false;
         }
 
@@ -422,6 +433,9 @@ public class WorkflowService {
         state.putVariable("sys", "query", wr.getQuery());
         state.putVariable("sys", "files", JsonUtils.fromJson(wr.getFiles(), List.class));
         state.putVariable("sys", "metadata", JsonUtils.fromJson(wr.getMetadata(), Map.class));
+        state.putVariable("sys", "tenant_id", wr.getTenantId());
+        state.putVariable("sys", "workflow_id", wr.getWorkflowId());
+        state.putVariable("sys", "run_id", wr.getWorkflowRunId());
         return state;
     }
 

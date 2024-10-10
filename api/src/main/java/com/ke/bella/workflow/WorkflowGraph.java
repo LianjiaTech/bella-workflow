@@ -77,6 +77,10 @@ public class WorkflowGraph {
         return new HashSet<>(graph.nodes());
     }
 
+    public Set<String> successors(String nodeId) {
+        return graph.successors(nodeId);
+    }
+
     private MutableNetwork<String, Edge> buildGraph(WorkflowSchema meta, Map<String, Node> nodes) {
         MutableNetwork<String, WorkflowSchema.Edge> graph = NetworkBuilder
                 .directed()
@@ -146,7 +150,7 @@ public class WorkflowGraph {
             }
 
             Integer handleSize = (Integer) node(nodeId).getData().get("source_handles_size");
-            if(handleSize != null && handleSize.intValue() != outEdges(nodeId).size()) {
+            if(handleSize != null && handleSize.intValue() != sourceHandlesEdgeSize(nodeId)) {
                 throw new IllegalArgumentException("工作流不连通，节点的后续边不全： " + nodeId);
             }
         }
@@ -159,5 +163,9 @@ public class WorkflowGraph {
                 }
             }
         }
+    }
+
+    private long sourceHandlesEdgeSize(String nodeId) {
+        return outEdges(nodeId).stream().map(Edge::getSourceHandle).distinct().count();
     }
 }

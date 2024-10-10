@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,6 +14,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
+import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowSchema.Edge;
 import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.node.NodeType;
@@ -39,9 +40,17 @@ public class WorkflowContext {
     private LocalDateTime ctime;
     private int flashMode;
     private boolean stateful;
+    @Builder.Default
+    private long nodeTimeout = 300;
+    private WorkflowSys sys;
 
     public Map userInputs() {
         return this.userInputs;
+    }
+
+    public void start() {
+        this.state.putNextNode(graph.getStartNode().getId());
+        this.state.setStatus(WorkflowRunStatus.running);
     }
 
     public void validate() {
@@ -97,29 +106,18 @@ public class WorkflowContext {
     }
 
     public synchronized List<BaseNode> getNextNodes() {
-        if(state.isEmpty()) {
-            return Arrays.asList(BaseNode.from(graph.getStartNode()));
-        } else {
-            if(!state.waitingNodeIds().isEmpty()) {
-                return Collections.emptyList();
-            }
+        List<String> ids = state.takeNextNodes();
 
-            // 找出所有未执行节点
-            Set<String> ids = graph.nodeIds();
-            ids.removeAll(state.completedNodeIds());
+        // 只有当所有依赖节点都ready的时候才可以执行
+        List<WorkflowSchema.Node> nodes = ids.stream()
+                .map(graph::node)
+                .collect(Collectors.toList());
 
-            // 把所有执行不到的node标记为跳过
-            List<String> deadNodeIds = skipDeadNodes(ids);
-            ids.removeAll(deadNodeIds);
+        return BaseNode.from(nodes);
+    }
 
-            // 只有当所有依赖节点都ready的时候才可以执行
-            List<WorkflowSchema.Node> nodes = ids.stream()
-                    .filter(this::canNodeActive)
-                    .map(graph::node)
-                    .collect(Collectors.toList());
-
-            return BaseNode.from(nodes);
-        }
+    public synchronized boolean isFinish() {
+        return state.isFinish();
     }
 
     private List<String> skipDeadNodes(Set<String> ids) {
@@ -160,6 +158,21 @@ public class WorkflowContext {
         }
 
         this.state.putNodeState(node.getNodeId(), result);
+
+        if(result.status != NodeRunResult.Status.skipped) {
+            this.putWorkflowRunResult(result);
+        }
+
+        Set<String> mayDeadIds = new HashSet<>();
+        Set<String> successors = this.graph.successors(node.getNodeId());
+        for (String n : successors) {
+            if(canNodeActive(n)) {
+                state.putNextNode(n);
+            } else {
+                mayDeadIds.add(n);
+            }
+        }
+        skipDeadNodes(mayDeadIds);
     }
 
     public void putWorkflowRunResult(NodeRunResult result) {

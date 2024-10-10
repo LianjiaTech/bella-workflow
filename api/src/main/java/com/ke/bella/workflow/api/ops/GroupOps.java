@@ -29,6 +29,9 @@ public class GroupOps {
         @ApiModelProperty(value = "空间编码，默认：personal，.......")
         private String spaceCode = "";
 
+        @ApiModelProperty(value = "会话id")
+        private String threadId = "";
+
         @ApiModelProperty(value = "exclusive_ai_assistant：专属AI助理群.......")
         private String scene = "";
     }
@@ -52,6 +55,9 @@ public class GroupOps {
 
         @ApiModelProperty(value = "会话Id-群Id-机器人指定群发消息")
         private String chatId = "";
+
+        @ApiModelProperty(value = "会话id")
+        private String threadId = "";
 
         @ApiModelProperty(value = "空间编码，默认：personal，.......")
         private String spaceCode = "";
@@ -94,6 +100,30 @@ public class GroupOps {
 
         @ApiModelProperty(value = "每页数量", required = true)
         private int pageSize = 20;
+    }
+
+    @Getter
+    @Setter
+    @Data
+    public static class GroupQueryByGroupOp extends Operator {
+
+        @ApiModelProperty(value = "群ID")
+        private String groupId = "";
+
+        @ApiModelProperty(value = "exclusive_ai_assistant：专属AI助理群.......")
+        private String scene = "";
+    }
+
+    @Getter
+    @Setter
+    @Data
+    public static class GroupQueryByUserOp extends Operator {
+
+        @ApiModelProperty(value = "空间编码，默认：personal，.......")
+        private String spaceCode = "";
+
+        @ApiModelProperty(value = "exclusive_ai_assistant：专属AI助理群.......")
+        private String scene = "";
     }
 
     @Getter

@@ -130,6 +130,17 @@ const Panel: FC<NodePanelProps<StartNodeType>> = ({
                   </div>
                 }
               />
+              <VarItem
+                readonly
+                payload={{
+                  variable: 'sys.run_id',
+                } as any}
+                rightContent={
+                  <div className='text-xs font-normal text-gray-500'>
+                    String
+                  </div>
+                }
+              />
             </div>
 
           </>

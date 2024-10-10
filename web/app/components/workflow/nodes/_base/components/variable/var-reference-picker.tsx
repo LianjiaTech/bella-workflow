@@ -6,7 +6,6 @@ import {
   RiArrowDownSLine,
   RiCloseLine,
 } from '@remixicon/react'
-import produce from 'immer'
 import { useStoreApi } from 'reactflow'
 import VarReferencePopup from './var-reference-popup'
 import { getNodeInfoById, isENV, isSystemVar } from './utils'
@@ -109,6 +108,7 @@ const VarReferencePicker: FC<Props> = ({
       beforeNodes: availableNodes,
       isChatMode,
       filterVar,
+      currentNode: node,
     })
 
     return vars
@@ -183,16 +183,7 @@ const VarReferencePicker: FC<Props> = ({
 
   const handleVarReferenceChange = useCallback((value: ValueSelector, varInfo: Var) => {
     // sys var not passed to backend
-    const newValue = produce(value, (draft) => {
-      if (draft[1] && draft[1].startsWith('sys')) {
-        draft.shift()
-        const paths = draft[0].split('.')
-        paths.forEach((p, i) => {
-          draft[i] = p
-        })
-      }
-    })
-    onChange(newValue, varKindType, varInfo)
+    onChange(value, varKindType, varInfo)
     setOpen(false)
   }, [onChange, varKindType])
 

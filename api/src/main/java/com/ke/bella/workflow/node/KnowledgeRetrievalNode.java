@@ -66,7 +66,7 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
 
     private List<KnowledgeRetrievalResult> invokeFileRetrieve(String query, List<String> datasetIds, Integer topK, Float scoreThreshold) {
         Map<String, String> headers = Collections.singletonMap("Authorization", "Bearer " + BellaContext.getApiKey());
-        String fileRetrieveUrl = Configs.API_BASE + FILES_RETRIEVE;
+        String fileRetrieveUrl = Configs.OPEN_API_BASE + FILES_RETRIEVE;
 
         Map<String, String> params = new HashMap<>();
         params.put("file_ids", datasetIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
@@ -100,8 +100,11 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
     public static class Data extends BaseNodeData {
         @JsonAlias("query_variable_selector")
         private List<String> queryVariableSelector;
+
         @JsonAlias("dataset_ids")
         private List<String> datasetIds;
+
+        @Builder.Default
         @JsonAlias("multiple_retrieval_config")
         private MultipleRetrievalConfig multipleRetrievalConfig = new MultipleRetrievalConfig();
     }
@@ -112,10 +115,13 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
     @AllArgsConstructor
     @Builder
     public static class MultipleRetrievalConfig {
+        @Builder.Default
         @JsonAlias("top_k")
-        private Integer topK;
+        private int topK = 5;
+
+        @Builder.Default
         @JsonAlias("score_threshold")
-        private Float scoreThreshold;
+        private float scoreThreshold = 0.8f;
     }
 
     @Getter

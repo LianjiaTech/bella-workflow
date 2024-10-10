@@ -21,6 +21,7 @@ import com.ke.bella.workflow.service.Configs;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,8 +47,11 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     }
 
     protected WorkflowSchema.Node meta;
+    @Getter
     protected String nodeRunId;
     protected T data;
+    @Getter
+    protected ResumeData resumeData;
 
     protected BaseNode(WorkflowSchema.Node meta, T data) {
         this(meta, UUID.randomUUID().toString(), data);
@@ -64,6 +68,17 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     }
 
     protected abstract NodeRunResult execute(WorkflowContext context, IWorkflowCallback callback);
+
+    @SuppressWarnings("rawtypes")
+    protected NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback, Map notifyData) {
+        NodeRunResult r = context.getState().getNodeState(getNodeId());
+        return NodeRunResult.builder()
+                .inputs(r.getInputs())
+                .processData(r.getProcessData())
+                .outputs(notifyData)
+                .status(NodeRunResult.Status.succeeded)
+                .build();
+    }
 
     protected void afterExecute(WorkflowContext context) {
         // no-op
@@ -82,7 +97,11 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     }
 
     protected boolean isCallback() {
-        return false;
+        return data.isWaitCallback();
+    }
+
+    public boolean isResuming() {
+        return resumeData != null;
     }
 
     @Override
@@ -100,18 +119,29 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         NodeRunResult result = execute(context, callback);
         try {
             result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);
-            context.putNodeRunResult(this, result);
+
             if(result.getStatus() == NodeRunResult.Status.succeeded) {
-                callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
-            } else if(result.getStatus() == NodeRunResult.Status.failed) {
-                callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
-                throw new IllegalStateException(result.getError().getMessage());
-            } else if(result.getStatus() == NodeRunResult.Status.waiting) {
-                if(context.isFlashMode()) {
-                    throw new IllegalArgumentException("极速模式下不支持节点挂起，请调整请求里的flashMode参数");
+                List<String> handles = data.getSourceHandles();
+                if(handles.size() == 1) {
+                    result.setActivatedSourceHandles(handles);
                 }
-                callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
             }
+
+            synchronized(context) {
+                context.putNodeRunResult(this, result);
+                if(result.getStatus() == NodeRunResult.Status.succeeded) {
+                    callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
+                } else if(result.getStatus() == NodeRunResult.Status.failed) {
+                    callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
+                    throw new IllegalStateException(result.getError().getMessage(), result.getError());
+                } else if(result.getStatus() == NodeRunResult.Status.waiting) {
+                    if(context.isFlashMode()) {
+                        throw new IllegalArgumentException("极速模式下不支持节点挂起，请调整请求里的flashMode参数");
+                    }
+                    callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
+                }
+            }
+
         } finally {
             afterExecute(context);
             LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
@@ -134,13 +164,39 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     }
 
     public NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback) {
-        NodeRunResult r = context.getState().getNodeState(getNodeId());
-        return NodeRunResult.builder()
-                .inputs(r.getInputs())
-                .processData(r.getProcessData())
-                .outputs(context.getState().getNotifyData(getNodeId()))
-                .status(NodeRunResult.Status.succeeded)
-                .build();
+        NodeRunResult result = null;
+        try {
+            this.resumeData = ResumeData.builder()
+                    .notifyData(context.getState().getNotifyData(getNodeId()))
+                    .lastState(context.getState().getNodeState(getNodeId()))
+                    .build();
+            result = resume(context, callback, context.getState().getNotifyData(getNodeId()));
+
+            if(result.getStatus() == NodeRunResult.Status.succeeded) {
+                List<String> handles = data.getSourceHandles();
+                if(handles.size() == 1) {
+                    result.setActivatedSourceHandles(handles);
+                }
+            }
+
+            synchronized(context) {
+                context.putNodeRunResult(this, result);
+                if(result.getStatus() == NodeRunResult.Status.succeeded) {
+                    callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
+                } else if(result.getStatus() == NodeRunResult.Status.failed) {
+                    callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
+                    throw new IllegalStateException(result.getError().getMessage());
+                } else if(result.getStatus() == NodeRunResult.Status.waiting) {
+                    callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
+                }
+            }
+
+        } finally {
+            afterExecute(context);
+            this.resumeData = null;
+            LOGGER.debug("[{}]-{}-node execution result: {}", context.getRunId(), meta.getId(), result);
+        }
+        return result;
     }
 
     public void validate(WorkflowContext ctx) {
@@ -150,13 +206,20 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     private void appendBuiltinVariables(WorkflowContext context) {
         // append callbackUrl
         if(isCallback()) {
-            String url = String.format("%s/workflow/callback/%s/%s/%s/%s/%s ",
-                    Configs.API_BASE,
+            String url = getCallbackUrl(
                     context.getTenantId(),
                     context.getWorkflowId(),
-                    context.getRunId(), getNodeId(), nodeRunId);
+                    context.getRunId());
             context.getState().putVariable(getNodeId(), "callbackUrl", url);
         }
+    }
+
+    public String getCallbackUrl(String tenantId, String workflowId, String runId) {
+        return String.format("%s/workflow/callback/%s/%s/%s/%s/%s",
+                Configs.API_BASE,
+                tenantId,
+                workflowId,
+                runId, getNodeId(), nodeRunId);
     }
 
     @SuppressWarnings("rawtypes")
@@ -230,6 +293,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         private boolean generateDeltaContent = false;
         private boolean generateNewMessage = false;
         private String messageRoleName;
+        private boolean waitCallback = false;
 
         public List<String> getSourceHandles() {
             return Arrays.asList("source");
@@ -252,7 +316,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
             }
 
             public String getApiBaseUrl() {
-                return StringUtils.isEmpty(apiBaseUrl) ? Configs.API_BASE : apiBaseUrl;
+                return StringUtils.isEmpty(apiBaseUrl) ? Configs.OPEN_API_BASE : apiBaseUrl;
             }
         }
 
@@ -268,4 +332,14 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         }
     }
 
+    @lombok.Getter
+    @lombok.Setter
+    @lombok.Builder
+    @lombok.NoArgsConstructor
+    @lombok.AllArgsConstructor
+    public static class ResumeData {
+        NodeRunResult lastState;
+        @SuppressWarnings("rawtypes")
+        Map notifyData;
+    }
 }

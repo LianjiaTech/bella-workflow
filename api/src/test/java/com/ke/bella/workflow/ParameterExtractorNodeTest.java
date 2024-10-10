@@ -17,7 +17,7 @@ public class ParameterExtractorNodeTest {
 
     @BeforeAll
     public static void initBellaContext() {
-        Configs.API_BASE = "https://example.com/v1/";
+        Configs.OPEN_API_BASE = "https://example.com/v1/";
         BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
         BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
     }

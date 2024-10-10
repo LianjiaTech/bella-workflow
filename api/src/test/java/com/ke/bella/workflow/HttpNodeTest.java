@@ -79,7 +79,7 @@ public class HttpNodeTest {
     @Test
     public void testResponseOverLimit() throws IOException {
         Request request = new Request.Builder()
-                .url("http://example.com/bclever/bella/ali-qwen15-72b-chathome-v2-chat-20240807/healthCheck")
+                .url("http://example.com/bclever/bella/ali-qwen15-72b-chathome-v2-chat-20241009/healthCheck")
                 .method("GET", null)
                 .build();
         Response resp = client.newCall(request).execute();

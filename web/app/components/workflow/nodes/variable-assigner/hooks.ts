@@ -144,6 +144,7 @@ export const useGetAvailableVars = () => {
         isChatMode,
         hideEnv,
         filterVar,
+        currentNode,
       })
         .map(node => ({
           ...node,
@@ -157,6 +158,7 @@ export const useGetAvailableVars = () => {
       beforeNodes: uniqBy(availableNodes, 'id').filter(node => node.id !== nodeId),
       isChatMode,
       filterVar,
+      currentNode,
     })
   }, [nodes, getBeforeNodesInSameBranchIncludeParent, getNodeAvailableVars, isChatMode])
 

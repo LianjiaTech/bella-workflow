@@ -31,7 +31,7 @@ import type { PromptItem } from '@/models/debug'
 import { VAR_REGEX } from '@/config'
 
 export const isSystemVar = (valueSelector: ValueSelector) => {
-  return valueSelector[0] === 'sys' || valueSelector[1] === 'sys'
+  return valueSelector[0] === 'sys'
 }
 
 export const isENV = (valueSelector: ValueSelector) => {
@@ -136,6 +136,10 @@ const formatItem = (
       res.vars.push({
         variable: 'sys.metadata',
         type: VarType.object,
+      })
+      res.vars.push({
+        variable: 'sys.run_id',
+        type: VarType.string,
       })
       break
     }
@@ -468,6 +472,7 @@ export const toNodeAvailableVars = ({
   isChatMode,
   environmentVariables,
   filterVar,
+  currentNode,
 }: {
   parentNode?: Node | null
   t?: any
@@ -477,6 +482,7 @@ export const toNodeAvailableVars = ({
   // env
   environmentVariables?: EnvironmentVariable[]
   filterVar: (payload: Var, selector: ValueSelector) => boolean
+  currentNode?: Node
 }): NodeOutPutVar[] => {
   const beforeNodesOutputVars = toNodeOutputVars(
     beforeNodes,
@@ -511,6 +517,21 @@ export const toNodeAvailableVars = ({
     }
     beforeNodesOutputVars.unshift(iterationVar)
   }
+
+  if (currentNode && currentNode.data.waitCallback) {
+    const callbackVars = {
+      nodeId: currentNode.id,
+      title: t('SELF'),
+      vars: [
+        {
+          variable: 'callbackUrl',
+          type: VarType.string,
+        },
+      ],
+    }
+    beforeNodesOutputVars.unshift(callbackVars)
+  }
+
   return beforeNodesOutputVars
 }
 

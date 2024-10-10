@@ -27,9 +27,11 @@ const useConfig = (id: string, payload: CodeNodeType) => {
       (async () => {
         const { config: javaScriptConfig } = await fetchNodeDefault(appId, BlockEnum.Code, { code_language: CodeLanguage.javascript }) as any
         const { config: pythonConfig, available_dependencies: pythonDependencies } = await fetchNodeDefault(appId, BlockEnum.Code, { code_language: CodeLanguage.python3 }) as any
+        const { config: groovyConfig } = await fetchNodeDefault(appId, BlockEnum.Code, { code_language: CodeLanguage.groovy }) as any
         setAllLanguageDefault({
           [CodeLanguage.javascript]: javaScriptConfig as CodeNodeType,
           [CodeLanguage.python3]: pythonConfig as CodeNodeType,
+          [CodeLanguage.groovy]: groovyConfig as CodeNodeType,
         } as any)
         setAllLanguageDependencies({
           [CodeLanguage.python3]: pythonDependencies as CodeDependency[],

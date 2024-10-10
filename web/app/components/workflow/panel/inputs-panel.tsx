@@ -106,6 +106,9 @@ const InputsPanel = ({ onRun }: Props) => {
           error[key] = true
         }
       }
+      else if (type === InputVarType.number) {
+        inputs[key] = Number(value)
+      }
       else {
         inputs[key] = value
       }

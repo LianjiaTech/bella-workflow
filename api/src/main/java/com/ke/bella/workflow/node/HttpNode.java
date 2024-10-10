@@ -151,6 +151,23 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    protected NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback, Map notifyData) {
+        NodeRunResult r = context.getState().getNodeState(getNodeId());
+
+        Map outputs = new LinkedHashMap<>();
+        outputs.put("status_code", 200);
+        outputs.put("body", notifyData);
+
+        return NodeRunResult.builder()
+                .inputs(r.getInputs())
+                .processData(r.getProcessData())
+                .outputs(outputs)
+                .status(NodeRunResult.Status.succeeded)
+                .build();
+    }
+
     @Override
     public void validate(WorkflowContext ctx) {
         if(ctx.getFlashMode() > 0 && data.isCallback()) {
@@ -205,8 +222,10 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
 
         Response response = exclusiveClient.newCall(request).execute();
         int statusCode = response.code();
+        ResponseHelper helper = handleResponseBody(request, response);
         return resultBuilder
                 .status(statusCode >= 200 && statusCode <= 299 ? NodeRunResult.Status.waiting : NodeRunResult.Status.failed)
+                .error(statusCode >= 200 && statusCode <= 299 ? null : new IllegalStateException(helper.getBody().toString()))
                 .build();
     }
 
@@ -507,7 +526,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
         }
 
         boolean isCallback() {
-            return "callback".equalsIgnoreCase(mode);
+            return isWaitCallback() || "callback".equalsIgnoreCase(mode);
         }
 
         boolean isBlocking() {

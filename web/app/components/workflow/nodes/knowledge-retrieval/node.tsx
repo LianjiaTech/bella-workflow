@@ -21,7 +21,7 @@ const Node: FC<NodeProps<KnowledgeRetrievalNodeType>> = ({
         //  avoid old data overwrite new data
         if (currUpdateTime < updateTime.current)
           return
-        setSelectedDatasets(dataSetsWithDetail)
+        setSelectedDatasets(dataSetsWithDetail || [])
       }
       else {
         setSelectedDatasets([])

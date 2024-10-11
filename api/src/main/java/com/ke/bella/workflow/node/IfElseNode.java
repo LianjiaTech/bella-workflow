@@ -15,6 +15,7 @@ import org.springframework.util.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
@@ -96,7 +97,7 @@ public class IfElseNode extends BaseNode<IfElseNode.Data> {
 
         for (Data.Condition condition : conditions) {
             Object actualValue = context.getState().getVariableValue(condition.getVariableSelector());
-            Object expectedValue = condition.getValue();
+            Object expectedValue = Variables.format(condition.getValue(), context.getState().getVariablePool());
 
             Map<String, Object> inputCondition = new LinkedHashMap<>();
             inputCondition.put("actual_value", actualValue);

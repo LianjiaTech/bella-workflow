@@ -1,7 +1,6 @@
 package com.ke.bella.workflow.db.repo;
 
-import static com.ke.bella.workflow.db.Tables.WORKFLOW_AGGREGATE;
-import static com.ke.bella.workflow.db.Tables.WORKFLOW_AS_API;
+import static com.ke.bella.workflow.db.Tables.*;
 import static com.ke.bella.workflow.db.tables.Tenant.TENANT;
 import static com.ke.bella.workflow.db.tables.Workflow.WORKFLOW;
 import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.WORKFLOW_NODE_RUN;
@@ -296,24 +295,31 @@ public class WorkflowRepo implements BaseRepo {
         rec.setWorkflowVersion(wf.getVersion());
         rec.setWorkflowRunId(runId);
         rec.setWorkflowRunShardingKey(shardKey);
+        rec.setFlashMode(op.isFlashMode() ? op.getFlashMode() : 0);
         if(op.getTriggerId() != null) {
             rec.setWorkflowSchedulingId(op.getTriggerId());
-        }
-        if(op.getQuery() != null) {
-            rec.setQuery(op.getQuery());
-        }
-        if(op.getFiles() != null) {
-            rec.setFiles(JsonUtils.toJson(op.getFiles()));
         }
         if(op.getThreadId() != null) {
             rec.setThreadId(op.getThreadId());
         }
 
-        if(op.getMetadata() != null) {
-            rec.setMetadata(JsonUtils.toJson(op.getMetadata()));
+        if(!op.isFlashMode() || op.getFlashMode() < 2) {
+            if(op.getQuery() != null) {
+                rec.setQuery(op.getQuery());
+            }
+            if(op.getFiles() != null) {
+                rec.setFiles(JsonUtils.toJson(op.getFiles()));
+            }
+
+            if(op.getMetadata() != null) {
+                rec.setMetadata(JsonUtils.toJson(op.getMetadata()));
+            }
+
+            rec.setInputs(JsonUtils.toJson(op.getInputs()));
+        } else {
+            rec.setMetadata("{}");
+            rec.setInputs("{}");
         }
-        rec.setFlashMode(op.isFlashMode() ? op.getFlashMode() : 0);
-        rec.setInputs(JsonUtils.toJson(op.getInputs()));
         rec.setOutputs("");
         rec.setError("");
         rec.setTriggerFrom(op.getTriggerFrom());
@@ -341,9 +347,33 @@ public class WorkflowRepo implements BaseRepo {
         return rec.into(WorkflowRunDB.class);
     }
 
-    public void updateWorkflowRun(WorkflowRunDB wr) {
+    public void updateWorkflowRunCallbackStatus(WorkflowRunDB wr) {
         WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
-        rec.from(wr);
+        rec.setCallbackStatus(wr.getCallbackStatus());
+        fillUpdatorInfo(rec);
+
+        String shardKey = shardingKeyByWorkflowRunId(wr.getWorkflowRunId());
+        db(shardKey).update(WORKFLOW_RUN)
+                .set(rec)
+                .where(WORKFLOW_RUN.WORKFLOW_RUN_ID.eq(wr.getWorkflowRunId()))
+                .execute();
+    }
+
+    public void updateWorkflowRunResult(WorkflowRunDB wr) {
+        WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
+        rec.setStatus(wr.getStatus());
+        if(wr.getOutputs() != null) {
+            rec.setOutputs(wr.getOutputs());
+        }
+        if(wr.getError() != null) {
+            rec.setError(wr.getError());
+        }
+        if(wr.getElapsedTime() != null) {
+            rec.setElapsedTime(wr.getElapsedTime());
+        }
+        if(!StringUtils.isEmpty(wr.getThreadId())) {
+            rec.setThreadId(wr.getThreadId());
+        }
         fillUpdatorInfo(rec);
 
         String shardKey = shardingKeyByWorkflowRunId(wr.getWorkflowRunId());

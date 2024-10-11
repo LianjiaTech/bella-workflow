@@ -229,11 +229,13 @@ public class WorkflowService {
         wr.setWorkflowRunId(context.getRunId());
         wr.setStatus(status);
         wr.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
-        if(outputs != null) {
+        if(outputs != null && context.getFlashMode() < 3) {
             wr.setOutputs(JsonUtils.toJson(outputs));
+        } else {
+            wr.setOutputs("");
         }
 
-        repo.updateWorkflowRun(wr);
+        repo.updateWorkflowRunResult(wr);
     }
 
     public void updateWorkflowRun(WorkflowContext context, String status, String error) {
@@ -246,14 +248,14 @@ public class WorkflowService {
         wr.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
         wr.setThreadId(context.getThreadId());
 
-        repo.updateWorkflowRun(wr);
+        repo.updateWorkflowRunResult(wr);
     }
 
     public void markWorkflowRunCallbacked(String workflowRunId) {
         WorkflowRunDB wr = new WorkflowRunDB();
         wr.setWorkflowRunId(workflowRunId);
         wr.setCallbackStatus(1);
-        repo.updateWorkflowRun(wr);
+        repo.updateWorkflowRunCallbackStatus(wr);
     }
 
     public void createWorkflowNodeRun(WorkflowContext context, String nodeId, String nodeRunId, String status) {

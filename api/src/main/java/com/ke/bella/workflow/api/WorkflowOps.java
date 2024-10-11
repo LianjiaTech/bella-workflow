@@ -154,14 +154,13 @@ public class WorkflowOps {
         int spanLev;
 
         @Builder.Default
-        int flashMode = 1;
+        int flashMode = 2;
 
         /** chatfow模式下的选项，当为true时，持久化thread及对应的msg到assistants-api */
         boolean stateful;
 
         public boolean isFlashMode() {
-            return (!ResponseMode.callback.name().equals(responseMode))
-                    && (flashMode > 0)
+            return (flashMode > 0)
                     && (!TriggerFrom.DEBUG.name().equals(triggerFrom));
         }
     }

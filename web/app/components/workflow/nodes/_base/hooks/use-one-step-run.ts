@@ -351,6 +351,7 @@ const useOneStepRun = <T>({
         }),
         required: item.required !== false,
         options: originalVar.options,
+        value_selector: item.value_selector,
       }
     })
 

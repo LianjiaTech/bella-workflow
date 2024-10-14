@@ -41,6 +41,11 @@ public class HttpUtils {
         logging.setLevel(Level.BASIC);
     }
 
+    public static OkHttpClient.Builder clientBuilder() {
+        return new OkHttpClient.Builder()
+                .addInterceptor(logging);
+    }
+
     public static int postJson(String url, Object data) {
         String json = JsonUtils.toJson(data);
         Request request = new Request.Builder()

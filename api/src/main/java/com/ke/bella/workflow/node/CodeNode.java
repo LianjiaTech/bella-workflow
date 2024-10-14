@@ -10,13 +10,13 @@ import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ke.bella.workflow.IWorkflowCallback;
-import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
+import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.code.CodeExecutor;
 import com.ke.bella.workflow.service.code.CodeExecutor.CodeDependency;
 import com.ke.bella.workflow.service.code.CodeExecutor.CodeLanguage;
@@ -57,14 +57,14 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
         if(language == CodeLanguage.groovy) {
             bindings.put("sys", context.getSys());
             bindings.put("self", this);
+            bindings.put("out", getOut());
         }
 
         try {
-            Object obj = TaskExecutor.invoke(() -> CodeExecutor.execute(language,
+            Object obj = CodeExecutor.execute(language,
                     data.getCode(),
                     bindings,
-                    data.getDependencies()),
-                    context.getNodeTimeout() - 1);
+                    data.getDependencies(), context.getNodeTimeout() - 1, Configs.MAX_EXE_MEMORY_ALLOC);
             if(obj instanceof Map) {
                 Map<String, Object> result = transformResult((Map<String, Object>) obj, data.getOutputs(), "", 1);
                 return NodeRunResult.builder()
@@ -108,6 +108,9 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
                 String outputName = entry.getKey();
                 Object outputValue = entry.getValue();
                 String newPrefix = prefix.isEmpty() ? outputName : prefix + "." + outputName;
+                if(outputValue == null) {
+                    continue;
+                }
 
                 if(outputValue instanceof Map) {
                     transformResult((Map<String, Object>) outputValue, null, newPrefix, depth + 1);

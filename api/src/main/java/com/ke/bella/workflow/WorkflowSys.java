@@ -1,5 +1,6 @@
 package com.ke.bella.workflow;
 
+import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -9,7 +10,9 @@ import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.node.BaseNode;
+import com.ke.bella.workflow.service.code.Requests;
 import com.ke.bella.workflow.utils.OpenAiUtils;
+import com.ke.bella.workflow.utils.Utils;
 import com.theokanning.openai.completion.chat.ChatCompletionChunk;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.service.OpenAiService;
@@ -23,6 +26,8 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
 
     transient WorkflowContext context;
     transient IWorkflowCallback callback;
+    transient PrintStream out;
+    transient Requests http;
 
     @Override
     public Object get(Object key) {
@@ -34,6 +39,13 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
         Object old = get(key);
         context.getState().putVariable("sys", key, value);
         return old;
+    }
+
+    public Requests http() {
+        if(http == null) {
+            http = new Requests();
+        }
+        return http;
     }
 
     public Object getVariable(String nodeId, String key) {
@@ -64,7 +76,7 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
     }
 
     public void sleep(long timeout) throws InterruptedException {
-        TimeUnit.MICROSECONDS.sleep(Math.max(timeout, 1));
+        TimeUnit.MILLISECONDS.sleep(Math.max(timeout, 1));
     }
 
     private String flowKey(String key) {
@@ -104,5 +116,9 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
 
     public static boolean isInterrupted() {
         return Thread.currentThread().isInterrupted();
+    }
+
+    public static long getMemoryUsage() {
+        return Utils.getThreadAllocatedBytes(Thread.currentThread().getId());
     }
 }

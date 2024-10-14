@@ -17,6 +17,7 @@ import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.WorkflowSchema.Variable;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
+import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.code.CodeExecutor;
 import com.ke.bella.workflow.utils.JsonUtils;
 
@@ -41,7 +42,8 @@ public class TemplateTransformNode extends BaseNode<TemplateTransformNode.Data> 
             data.getVariables()
                     .forEach(v -> inputs.put(v.getVariable(),
                             context.getState().getVariableValue(v.getValueSelector())));
-            Map codeResult = (Map) CodeExecutor.execute(CodeExecutor.CodeLanguage.jinja2, data.getTemplate(), inputs, null);
+            Map codeResult = (Map) CodeExecutor.execute(CodeExecutor.CodeLanguage.jinja2, data.getTemplate(), inputs, null,
+                    context.getNodeTimeout() - 1, Configs.MAX_EXE_MEMORY_ALLOC);
 
             String text = codeResult.get("result").toString();
             Assert.isTrue(text.length() <= MAX_TEMPLATE_TRANSFORM_OUTPUT_LENGTH, "Output length exceeds");

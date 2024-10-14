@@ -14,6 +14,10 @@ public class Configs {
 
     public static boolean GROOVY_SANDBOX_ENABLE = false;
 
+    public static boolean isThreadAllocatedMemorySupported = false;
+
+    public static long MAX_EXE_MEMORY_ALLOC = 100 * 1024 * 1024; // 100MB
+
     @Value("${bella.apiBase}")
     public void setApiBase(String apiBase) {
         API_BASE = apiBase;

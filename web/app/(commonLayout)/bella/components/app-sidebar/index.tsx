@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import AppInfo from './app-info'
+import AppInfo from '@/app/components/app-sidebar/app-info'
 import NavLink from '@/app/components/app-sidebar/navLink'
 import type { NavIcon } from '@/app/components/app-sidebar/navLink'
 import AppBasic from '@/app/components/app-sidebar/basic'

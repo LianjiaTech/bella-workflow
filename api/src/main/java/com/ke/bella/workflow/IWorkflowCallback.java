@@ -1,6 +1,8 @@
 
 package com.ke.bella.workflow;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,6 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 public interface IWorkflowCallback {
-
     @Getter
     @Setter
     @SuperBuilder
@@ -31,6 +32,12 @@ public interface IWorkflowCallback {
             String MESSAGE = "message";
             String DELTA_CONTENT = "message.delta";
             String LOG = "log";
+        }
+
+        public static ProgressData log(String log) {
+            return ProgressData.builder().object(ObjectType.LOG)
+                    .data(log)
+                    .build();
         }
     }
 

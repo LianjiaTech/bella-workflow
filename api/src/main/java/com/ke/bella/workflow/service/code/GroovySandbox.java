@@ -50,6 +50,7 @@ import org.codehaus.groovy.syntax.SyntaxException;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 
+import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSys;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
@@ -137,7 +138,7 @@ public class GroovySandbox {
         config.addCompilationCustomizers(new ASTTransformationCustomizer(new InterruptCheckTransformation()));
     }
 
-    public static Object execute(String code, Map<String, Object> inputs) {
+    public static Object execute(String code, Map<String, Object> inputs, long timeout, long maxMemoryBytes) {
         try {
             if(!Configs.GROOVY_SANDBOX_ENABLE) {
                 throw new IllegalArgumentException("沙箱环境暂时不支持groovy");
@@ -152,7 +153,8 @@ public class GroovySandbox {
             });
             Binding binding = new Binding(inputs);
             Script s = InvokerHelper.createScript(loader.parseClass(gcs, true), binding);
-            return s.run();
+            return TaskExecutor.invoke(s::run, timeout, maxMemoryBytes);
+            // return s.run();
         } catch (MultipleCompilationErrorsException e1) {
             throw new IllegalArgumentException(compileMessage(e1));
         } catch (Exception e) {

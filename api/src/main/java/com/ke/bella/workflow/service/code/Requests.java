@@ -41,6 +41,10 @@ public class Requests {
         okhttp3.Response res;
         String text;
 
+        public int code() {
+            return res.code();
+        }
+
         public String text() throws IOException {
             readBody();
             return text;

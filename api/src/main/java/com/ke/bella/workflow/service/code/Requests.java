@@ -97,7 +97,6 @@ public class Requests {
         Object json = options.get("json");
         Map<String, String> headers = (Map<String, String>) options.get("headers");
         Map<String, String> cookies = (Map<String, String>) options.get("cookies");
-        Map<String, Object> files = (Map<String, Object>) options.get("files");
         Object timeout = options.get("timeout");
         boolean allowRedirects = (boolean) options.getOrDefault("allow_redirects", true);
         Map<String, String> proxies = (Map<String, String>) options.get("proxies");
@@ -134,7 +133,7 @@ public class Requests {
         }
 
         // Build request body
-        RequestBody requestBody = buildRequestBody(method, data, json, files);
+        RequestBody requestBody = buildRequestBody(method, data, json);
         requestBuilder.method(method, requestBody);
 
         OkHttpClient.Builder clientBuilder = HttpUtils.clientBuilder();
@@ -190,7 +189,7 @@ public class Requests {
     }
 
     @SuppressWarnings("unchecked")
-    private static RequestBody buildRequestBody(String method, Object data, Object json, Map<String, Object> files) throws IOException {
+    private static RequestBody buildRequestBody(String method, Object data, Object json) {
         if(HttpMethod.permitsRequestBody(method)) {
             if(json != null) {
                 String jsonBody = JsonUtils.toJson(json);

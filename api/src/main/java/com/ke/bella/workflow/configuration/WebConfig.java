@@ -1,12 +1,13 @@
 package com.ke.bella.workflow.configuration;
 
-import com.ke.bella.workflow.api.ApikeyInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.ke.bella.workflow.api.ApikeyInterceptor;
+import com.ke.bella.workflow.api.BellaContextInterceptor;
 import com.ke.bella.workflow.api.DifyRequestInterceptor;
 
 @Configuration
@@ -15,6 +16,8 @@ public class WebConfig implements WebMvcConfigurer {
     private DifyRequestInterceptor difyRequestInterceptor;
     @Autowired
     private ApikeyInterceptor apikeyInterceptor;
+    @Autowired
+    private BellaContextInterceptor bellaContextInterceptor;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -34,6 +37,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(difyRequestInterceptor)
                 .addPathPatterns("/console/api/**")
                 .order(200);
+        registry.addInterceptor(bellaContextInterceptor)
+                .addPathPatterns("/**");
     }
 
 }

@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.service.code;
 
 import java.io.IOException;
+import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -15,8 +16,14 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import org.apache.commons.lang3.RandomStringUtils;
+
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.node.HttpNode;
+import com.ke.bella.workflow.node.HttpNode.Data;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
+import com.ke.bella.workflow.utils.KeIAM;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -101,6 +108,7 @@ public class Requests {
         Object json = options.get("json");
         Map<String, String> headers = (Map<String, String>) options.get("headers");
         Map<String, String> cookies = (Map<String, String>) options.get("cookies");
+        Map<String, String> auth = (Map<String, String>) options.get("auth");
         Object timeout = options.get("timeout");
         boolean allowRedirects = (boolean) options.getOrDefault("allow_redirects", true);
         Map<String, String> proxies = (Map<String, String>) options.get("proxies");
@@ -134,6 +142,14 @@ public class Requests {
                 cookieHeader.append(entry.getKey()).append("=").append(entry.getValue());
             }
             requestBuilder.addHeader("Cookie", cookieHeader.toString());
+        }
+
+        // Add Auth header
+        if(auth != null) {
+            HttpNode.Data.Authorization.Config authConfig = JsonUtils.convertValue(auth, HttpNode.Data.Authorization.Config.class);
+            if(authConfig != null) {
+                requestBuilder.addHeader(authConfig.header(), authValue(authConfig, urlBuilder.build().url(), method));
+            }
         }
 
         // Build request body
@@ -190,6 +206,20 @@ public class Requests {
         OkHttpClient client = clientBuilder.build();
         okhttp3.Response res = client.newCall(requestBuilder.build()).execute();
         return Response.builder().res(res).build();
+    }
+
+    public static String authValue(Data.Authorization.Config config, URL url, String method) {
+        String apiKey = "";
+        String authType = config.getType();
+        if("bella".equals(authType)) {
+            apiKey = BellaContext.getApiKey();
+        } else if("ke-IAM".equalsIgnoreCase(authType)) {
+            apiKey = KeIAM.generateAuthorization(config.getApiKey(), config.getSecret(),
+                    RandomStringUtils.randomNumeric(9), method.toUpperCase(), url.getPath(), url.getHost(), url.getQuery());
+        } else {
+            apiKey = config.getApiKey();
+        }
+        return config.prefix() + apiKey;
     }
 
     @SuppressWarnings("unchecked")

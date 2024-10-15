@@ -52,6 +52,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation;
 
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSys;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.Utils;
@@ -113,7 +114,8 @@ public class GroovySandbox {
                 ClassLoader.class,
                 Runtime.class,
                 SecurityManager.class,
-                ProcessBuilder.class));
+                ProcessBuilder.class,
+                BellaContext.class));
         secure.addExpressionCheckers(expr -> {
             if(expr instanceof MethodCallExpression) {
                 MethodCallExpression methodCall = (MethodCallExpression) expr;

@@ -41,7 +41,7 @@ public class TaskExecutor {
     public static <T> T invoke(Callable<T> task, long timeout, long maxMemoryBytes) throws Exception {
         timeout = Math.min(Math.max(timeout, 1), Configs.MAX_EXE_TIME) * 1000L; // ms
 
-        FutureTask<T> futureTask = new FutureTask<>(task);
+        FutureTask<T> futureTask = new FutureTask<>(new CallableTask<>(task));
         Thread thread = new Thread(futureTask);
         thread.setDaemon(true);
         thread.setName("bella-sandbox-" + Thread.currentThread().getId());
@@ -98,6 +98,32 @@ public class TaskExecutor {
             BellaContext.replace(context);
             try {
                 r.run();
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+                if(!(e instanceof RuntimeException)) {
+                    e = new RuntimeException(e);
+                }
+                throw (RuntimeException) e;
+            } finally {
+                BellaContext.clearAll();
+            }
+        }
+    }
+
+    public static class CallableTask<T> implements Callable<T> {
+        Callable<T> r;
+        Map<String, Object> context;
+
+        public CallableTask(Callable<T> r) {
+            this.r = r;
+            this.context = BellaContext.snapshot();
+        }
+
+        @Override
+        public T call() throws Exception {
+            BellaContext.replace(context);
+            try {
+                return r.call();
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
                 if(!(e instanceof RuntimeException)) {

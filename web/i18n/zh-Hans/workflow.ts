@@ -80,6 +80,16 @@ const translation = {
     overwriteAndImport: '覆盖并导入',
     importFailure: '导入失败',
     importSuccess: '导入成功',
+    historyVersion: '历史已发布版本',
+    version: {
+      notify: {
+        cancel: '已经取消默认版本的设置',
+      },
+      restore: '覆盖草稿',
+      cancel: '取消默认',
+      default: '设为默认',
+      current: '(当前)',
+    },
   },
   env: {
     envPanelTitle: '环境变量',

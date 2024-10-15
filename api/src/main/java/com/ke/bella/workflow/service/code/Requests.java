@@ -5,6 +5,7 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +26,8 @@ import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.KeIAM;
 
+import io.reactivex.BackpressureStrategy;
+import io.reactivex.Flowable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,6 +39,9 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import okhttp3.internal.http.HttpMethod;
+import okhttp3.internal.sse.RealEventSource;
+import okhttp3.sse.EventSource;
+import okhttp3.sse.EventSourceListener;
 
 public class Requests {
 
@@ -69,38 +75,38 @@ public class Requests {
         }
     }
 
-    public Response post(Map<String, Object> options) throws IOException {
+    public Object post(Map<String, Object> options) throws IOException {
         options.put(METHOD, "POST");
         return request(options);
     }
 
-    public Response get(Map<String, Object> options) throws IOException {
+    public Object get(Map<String, Object> options) throws IOException {
         options.put(METHOD, "GET");
         return request(options);
     }
 
-    public Response put(Map<String, Object> options) throws IOException {
+    public Object put(Map<String, Object> options) throws IOException {
         options.put(METHOD, "PUT");
         return request(options);
     }
 
-    public Response head(Map<String, Object> options) throws IOException {
+    public Object head(Map<String, Object> options) throws IOException {
         options.put(METHOD, "HEAD");
         return request(options);
     }
 
-    public Response delete(Map<String, Object> options) throws IOException {
+    public Object delete(Map<String, Object> options) throws IOException {
         options.put(METHOD, "DELETE");
         return request(options);
     }
 
-    public Response option(Map<String, Object> options) throws IOException {
+    public Object option(Map<String, Object> options) throws IOException {
         options.put(METHOD, "OPTION");
         return request(options);
     }
 
     @SuppressWarnings("unchecked")
-    public Response request(Map<String, Object> options) throws IOException {
+    public Object request(Map<String, Object> options) throws IOException {
         String method = (String) options.getOrDefault(METHOD, "GET");
         String url = (String) options.get("url");
         Map<String, Object> params = (Map<String, Object>) options.get("params");
@@ -114,6 +120,7 @@ public class Requests {
         Map<String, String> proxies = (Map<String, String>) options.get("proxies");
         Object verify = options.get("verify");
         Object cert = options.get("cert");
+        boolean stream = (boolean) options.getOrDefault("stream", false);
 
         // Build URL with query parameters
         HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
@@ -204,8 +211,12 @@ public class Requests {
         }
 
         OkHttpClient client = clientBuilder.build();
-        okhttp3.Response res = client.newCall(requestBuilder.build()).execute();
-        return Response.builder().res(res).build();
+        if(stream) {
+            return streamRequest(client, requestBuilder.build());
+        } else {
+            okhttp3.Response res = client.newCall(requestBuilder.build()).execute();
+            return Response.builder().res(res).build();
+        }
     }
 
     public static String authValue(Data.Authorization.Config config, URL url, String method) {
@@ -220,6 +231,33 @@ public class Requests {
             apiKey = config.getApiKey();
         }
         return config.prefix() + apiKey;
+    }
+
+    private Iterable<Object> streamRequest(OkHttpClient client, Request request) {
+        return Flowable.create(emitter -> {
+            RealEventSource eventSource = new RealEventSource(request, new EventSourceListener() {
+                @Override
+                public void onEvent(EventSource eventSource, String id, String type, String rawdata) {
+                    Map<String, String> data2 = new LinkedHashMap<>();
+                    data2.put("id", id);
+                    data2.put("type", type);
+                    data2.put("data", rawdata);
+
+                    emitter.onNext(data2);
+                }
+
+                @Override
+                public void onClosed(EventSource eventSource) {
+                    emitter.onComplete();
+                }
+
+                @Override
+                public void onFailure(EventSource eventSource, Throwable t, okhttp3.Response response) {
+                    emitter.onError(t);
+                }
+            });
+            eventSource.connect(client);
+        }, BackpressureStrategy.BUFFER).blockingIterable();
     }
 
     @SuppressWarnings("unchecked")

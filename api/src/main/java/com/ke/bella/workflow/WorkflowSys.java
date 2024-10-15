@@ -11,6 +11,7 @@ import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.service.code.Requests;
+import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.ke.bella.workflow.utils.Utils;
 import com.theokanning.openai.completion.chat.ChatCompletionChunk;
@@ -112,6 +113,10 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
         } else {
             return service.createChatCompletion(request);
         }
+    }
+
+    public Object fromJson(String json) {
+        return JsonUtils.fromJson(json, Object.class);
     }
 
     public static boolean isInterrupted() {

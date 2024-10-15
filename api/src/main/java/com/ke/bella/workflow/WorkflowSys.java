@@ -2,6 +2,7 @@ package com.ke.bella.workflow;
 
 import java.io.PrintStream;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -105,7 +106,17 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
         callback.onWorkflowNodeRunProgress(context, self.getNodeId(), self.getNodeRunId(), progress);
     }
 
-    public Object chat(ChatCompletionRequest request) {
+    @SuppressWarnings("rawtypes")
+    public Object chat(Object req) {
+        ChatCompletionRequest request = null;
+        if(req instanceof ChatCompletionRequest) {
+            request = (ChatCompletionRequest) req;
+        } else if(req instanceof Map) {
+            request = JsonUtils.convertValue((Map) req, ChatCompletionRequest.class);
+        } else {
+            throw new IllegalArgumentException("arg's type should be ChatCompletionRequest or map.");
+        }
+
         OpenAiService service = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey(), 30, TimeUnit.SECONDS);
         if(request.getStream() != null && request.getStream().booleanValue()) {
             Flowable<ChatCompletionChunk> rs = service.streamChatCompletion(request);

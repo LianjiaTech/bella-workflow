@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import javax.annotation.Resource;
 import static com.ke.bella.workflow.db.tables.Instance.INSTANCE;
+import static org.springframework.transaction.annotation.Isolation.SERIALIZABLE;
 
 import com.ke.bella.workflow.db.tables.records.InstanceRecord;
 import org.jooq.DSLContext;
@@ -15,7 +16,7 @@ public class InstanceRepo {
     @Resource
     private DSLContext db;
 
-    @Transactional
+    @Transactional(isolation = SERIALIZABLE)
     public Long register(String ip, int port) {
         InstanceRecord rec = db.selectFrom(INSTANCE)
                 .where(INSTANCE.IP.eq(ip).and(INSTANCE.PORT.eq(port))).fetchOne();

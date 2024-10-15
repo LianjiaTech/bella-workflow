@@ -211,7 +211,9 @@ public class WorkflowService {
 
     public WorkflowRunDB newWorkflowRun(WorkflowDB wf, WorkflowRun op) {
         final WorkflowRunDB wr = repo.addWorkflowRun(wf, op);
-        TaskExecutor.submit(() -> counter.increase(wr));
+        if(wr.getId() != null) {
+            TaskExecutor.submit(() -> counter.increase(wr));
+        }
 
         LOGGER.info("{} {} created new workflow run.", wf.getWorkflowId(), wr.getWorkflowRunId());
         return wr;

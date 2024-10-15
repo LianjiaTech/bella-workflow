@@ -15,6 +15,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.jetbrains.annotations.Nullable;
 import org.jooq.DSLContext;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectSeekStep1;
@@ -340,10 +341,13 @@ public class WorkflowRepo implements BaseRepo {
 
         fillCreatorInfo(rec);
 
-        db(shardKey).insertInto(WORKFLOW_RUN)
-                .set(rec)
-                .execute();
-
+        if(!op.isFlashMode() || op.getFlashMode() < 10) {
+            WorkflowRunRecord rec2 = db(shardKey).insertInto(WORKFLOW_RUN)
+                    .set(rec)
+                    .returning(WORKFLOW_RUN.ID)
+                    .fetchOne();
+            rec.setId(rec2.getId());
+        }
         return rec.into(WorkflowRunDB.class);
     }
 

@@ -27,6 +27,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
     private String        graph;
     private Long          version;
     private Long          latestPublishVersion;
+    private Long          defaultPublishVersion;
     private Integer       status;
     private Long          cuid;
     private String        cuName;
@@ -47,6 +48,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         this.graph = value.graph;
         this.version = value.version;
         this.latestPublishVersion = value.latestPublishVersion;
+        this.defaultPublishVersion = value.defaultPublishVersion;
         this.status = value.status;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
@@ -66,6 +68,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         String        graph,
         Long          version,
         Long          latestPublishVersion,
+        Long          defaultPublishVersion,
         Integer       status,
         Long          cuid,
         String        cuName,
@@ -83,6 +86,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         this.graph = graph;
         this.version = version;
         this.latestPublishVersion = latestPublishVersion;
+        this.defaultPublishVersion = defaultPublishVersion;
         this.status = status;
         this.cuid = cuid;
         this.cuName = cuName;
@@ -219,6 +223,20 @@ public class WorkflowAggregateDB implements Operator, Serializable {
     }
 
     /**
+     * Getter for <code>workflow_aggregate.default_publish_version</code>. 默认生效版本号 -1 使用最新 
+     */
+    public Long getDefaultPublishVersion() {
+        return this.defaultPublishVersion;
+    }
+
+    /**
+     * Setter for <code>workflow_aggregate.default_publish_version</code>. 默认生效版本号 -1 使用最新 
+     */
+    public void setDefaultPublishVersion(Long defaultPublishVersion) {
+        this.defaultPublishVersion = defaultPublishVersion;
+    }
+
+    /**
      * Getter for <code>workflow_aggregate.status</code>. 状态（0:正常, -1:已删除）
      */
     public Integer getStatus() {
@@ -329,6 +347,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         sb.append(", ").append(graph);
         sb.append(", ").append(version);
         sb.append(", ").append(latestPublishVersion);
+        sb.append(", ").append(defaultPublishVersion);
         sb.append(", ").append(status);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);

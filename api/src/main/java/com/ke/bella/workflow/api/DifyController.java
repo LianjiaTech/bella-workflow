@@ -475,6 +475,48 @@ public class DifyController {
                 .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class)).build();
     }
 
+    @GetMapping("/{workflowId}/workflow-versions")
+    public Page<DifyWorkflowVersion> listWorkflowVersions(@PathVariable(value = "workflowId") String workflowId,
+            @RequestParam(value = "last_id", defaultValue = "1") int lastId,
+            @RequestParam(value = "limit", defaultValue = "100") int limit) {
+        initContext();
+        Assert.isTrue(limit > 0, "limit必须大于0");
+        Assert.isTrue(limit <= 100, "limit必须小于100");
+        WorkflowPage page = WorkflowPage.builder().page(lastId).pageSize(limit).workflowId(workflowId).build();
+        Page<WorkflowDB> workflowDbPage = ws.pagePublicWorkflows(page);
+        List<DifyWorkflowVersion> list = workflowDbPage.getData().stream().map(DifyController::transfer).collect(Collectors.toList());
+        Page<DifyWorkflowVersion> result = new Page<>();
+        result.setPage(page.getPage());
+        result.pageSize(page.getPageSize());
+        result.total(workflowDbPage.getTotal());
+        result.setData(list);
+        return result;
+    }
+
+    @GetMapping("/{workflowId}/workflow-versions/default")
+    public Object getDefaultWorkflowVersion(@PathVariable(value = "workflowId") String workflowId) {
+        initContext();
+        Assert.hasText(workflowId, "workflowId不能为空");
+        return ws.getWorkflowAggregate(workflowId);
+    }
+
+    @PostMapping("/{workflowId}/workflow-versions/activate")
+    public Object activateWorkflowVersions(@PathVariable(value = "workflowId") String workflowId,
+            @RequestBody WorkflowOp op) {
+        initContext();
+        Assert.hasText(workflowId, "workflowId不能为空");
+        ws.activateDefaultVersions(op);
+        return ws.getWorkflowAggregate(workflowId);
+    }
+
+    @PostMapping("/{workflowId}/workflow-versions/deactivate")
+    public Object deactivateWorkflowVersions(@PathVariable(value = "workflowId") String workflowId,
+            @RequestBody WorkflowOp op) {
+        initContext();
+        ws.deactivateDefaultVersions(op);
+        return ws.getWorkflowAggregate(workflowId);
+    }
+
     @RequestMapping(path = { "/{workflowId}/workflow-runs", "/{workflowId}/advanced-chat/workflow-runs" })
     public Page<DifyRunHistory> pageWorkflowRuns(@PathVariable String workflowId,
             @RequestParam(value = "last_id", required = false) String lastId,
@@ -616,6 +658,25 @@ public class DifyController {
                 .created_by_role("account")
                 .created_by_account(Account.builder().id(String.valueOf(nodeRunDB.getCuid())).name(nodeRunDB.getCuName()).email("").build())
                 .finished_at(nodeRunDB.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                .build();
+    }
+
+    private static DifyWorkflowVersion transfer(WorkflowDB db) {
+        return DifyWorkflowVersion.builder()
+                .id(db.getId())
+                .tenantId(db.getTenantId())
+                .workflowId(db.getWorkflowId())
+                .title(db.getTitle())
+                .mode(db.getMode())
+                .desc(db.getDesc())
+                .version(db.getVersion())
+                .cuid(db.getCuid())
+                .cuName(db.getCuName())
+                .ctime(db.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                .muid(db.getMuid())
+                .muName(db.getMuName())
+                .mtime(db.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                .graph(JsonUtils.fromJson(db.getGraph(), WorkflowSchema.class).getGraph())
                 .build();
     }
 
@@ -792,4 +853,27 @@ public class DifyController {
         @Builder.Default
         boolean stateful = true;
     }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DifyWorkflowVersion {
+        private Long id;
+        private String tenantId;
+        private String workflowId;
+        private String title;
+        private String mode;
+        private String desc;
+        private Long version;
+        private Long cuid;
+        private String cuName;
+        private Long ctime;
+        private Long muid;
+        private String muName;
+        private Long mtime;
+        private WorkflowSchema.Graph graph;
+    }
+
 }

@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row16;
+import org.jooq.Row17;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -95,6 +95,11 @@ public class WorkflowAggregate extends TableImpl<WorkflowAggregateRecord> {
      * The column <code>workflow_aggregate.latest_publish_version</code>. 工作流最新发布版本，0: draft, &gt;0 正式版时间戳
      */
     public final TableField<WorkflowAggregateRecord, Long> LATEST_PUBLISH_VERSION = createField(DSL.name("latest_publish_version"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "工作流最新发布版本，0: draft, >0 正式版时间戳");
+
+    /**
+     * The column <code>workflow_aggregate.default_publish_version</code>. 默认生效版本号 -1 使用最新 
+     */
+    public final TableField<WorkflowAggregateRecord, Long> DEFAULT_PUBLISH_VERSION = createField(DSL.name("default_publish_version"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("-1", SQLDataType.BIGINT)), this, "默认生效版本号 -1 使用最新 ");
 
     /**
      * The column <code>workflow_aggregate.status</code>. 状态（0:正常, -1:已删除）
@@ -216,11 +221,11 @@ public class WorkflowAggregate extends TableImpl<WorkflowAggregateRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row16 type methods
+    // Row17 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row16<Long, String, String, String, String, String, String, Long, Long, Integer, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row16) super.fieldsRow();
+    public Row17<Long, String, String, String, String, String, String, Long, Long, Long, Integer, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
+        return (Row17) super.fieldsRow();
     }
 }

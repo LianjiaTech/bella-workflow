@@ -315,6 +315,28 @@ export type WorkflowRunningData = {
   tracing?: NodeTracing[]
 }
 
+export type HistoryWorkflowVersion = {
+  id: number
+  tenantId: string
+  workflowId: string
+  title: string
+  mode: string
+  desc: string
+  defaultPublishVersion: number
+  graph: {
+    nodes: Node[]
+    edges: Edge[]
+    viewport: Viewport
+  }
+  version: number
+  cuid: number
+  cuName: string
+  ctime: string
+  muid: number
+  muName: string
+  mtime: string
+}
+
 export type HistoryWorkflowData = {
   id: string
   sequence_number: number

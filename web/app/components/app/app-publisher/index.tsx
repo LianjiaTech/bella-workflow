@@ -17,6 +17,8 @@ import {
 import EmbeddedModal from '@/app/components/app/overview/embedded'
 import { useStore as useAppStore } from '@/app/components/app/store'
 import { useGetLanguage } from '@/context/i18n'
+import SuggestedAction from '@/app/components/app/app-publisher/suggested-action'
+import FileText from '@/app/components/base/icons/src/vender/line/files/FileText'
 import type { InputVar } from '@/app/components/workflow/types'
 
 export type AppPublisherProps = {
@@ -35,6 +37,7 @@ export type AppPublisherProps = {
   toolPublished?: boolean
   inputs?: InputVar[]
   onRefreshData?: () => void
+  onVersionHistory?: () => void
 }
 
 const AppPublisher = ({
@@ -51,6 +54,7 @@ const AppPublisher = ({
   toolPublished,
   inputs,
   onRefreshData,
+  onVersionHistory,
 }: AppPublisherProps) => {
   const { t } = useTranslation()
   const [published, setPublished] = useState(false)
@@ -173,6 +177,10 @@ const AppPublisher = ({
                 </Button>
               )
             }
+          </div>
+          <div className="p-4 pt-3 border-t-[0.5px] border-t-black/5">
+            <SuggestedAction icon={<FileText className="w-4 h-4"/>} onClick={onVersionHistory}
+            >{t('workflow.common.historyVersion')}</SuggestedAction>
           </div>
           {/* <div className='p-4 pt-3 border-t-[0.5px] border-t-black/5'>
             <SuggestedAction disabled={!publishedAt} link={appURL} icon={<PlayCircle />}>{t('workflow.common.runApp')}</SuggestedAction>

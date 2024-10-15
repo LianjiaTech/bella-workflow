@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.db.repo;
 
-import static com.ke.bella.workflow.db.Tables.*;
+import static com.ke.bella.workflow.db.Tables.WORKFLOW_AGGREGATE;
+import static com.ke.bella.workflow.db.Tables.WORKFLOW_AS_API;
 import static com.ke.bella.workflow.db.tables.Tenant.TENANT;
 import static com.ke.bella.workflow.db.tables.Workflow.WORKFLOW;
 import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.WORKFLOW_NODE_RUN;
@@ -15,7 +16,6 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import org.jetbrains.annotations.Nullable;
 import org.jooq.DSLContext;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectSeekStep1;
@@ -104,9 +104,36 @@ public class WorkflowRepo implements BaseRepo {
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
                 .and(version == null ? WORKFLOW.VERSION.greaterThan(0l) : WORKFLOW.VERSION.eq(version)) // 正式版
-                .orderBy(WORKFLOW.VERSION.desc())   // 最新版
+                .orderBy(WORKFLOW.ID.desc())   // 最新版
                 .limit(1)
                 .fetchOneInto(WorkflowDB.class);
+    }
+
+    public Page<WorkflowDB> pagePublishedWorkflows(WorkflowPage op) {
+        SelectSeekStep1<WorkflowRecord, Long> sql = db.selectFrom(WORKFLOW)
+                .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW.WORKFLOW_ID.eq(op.getWorkflowId()))
+                .and(WORKFLOW.VERSION.greaterThan(0L))
+                .orderBy(WORKFLOW.ID.desc());
+        return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowDB.class);
+    }
+
+    public void updateDefaultVersion(WorkflowDB wf, Long version) {
+        WorkflowAggregateRecord rec = WORKFLOW_AGGREGATE.newRecord();
+        rec.setDefaultPublishVersion(version);
+        fillUpdatorInfo(rec);
+        int num = db.update(WORKFLOW_AGGREGATE).set(rec)
+                .where(WORKFLOW_AGGREGATE.TENANT_ID.eq(wf.getTenantId()))
+                .and(WORKFLOW_AGGREGATE.WORKFLOW_ID.eq(wf.getWorkflowId()))
+                .execute();
+        Assert.isTrue(num == 1, "工作流聚合实体配置更新失败，请检查工作流聚合实体是否存在");
+    }
+
+    public WorkflowAggregateDB queryWorkflowAggregate(String workflowId) {
+        return db.selectFrom(WORKFLOW_AGGREGATE)
+                .where(WORKFLOW_AGGREGATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW_AGGREGATE.WORKFLOW_ID.eq(workflowId))
+                .fetchOneInto(WorkflowAggregateDB.class);
     }
 
     public WorkflowDB queryWorkflow(String workflowId, Long version) {

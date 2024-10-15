@@ -25,6 +25,7 @@ import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
@@ -96,6 +97,10 @@ public class WorkflowService {
     }
 
     public WorkflowDB getPublishedWorkflow(String workflowId, Long version) {
+        if(version == null) {
+            WorkflowAggregateDB wfg = repo.queryWorkflowAggregate(workflowId);
+            version = wfg.getDefaultPublishVersion() > 0 ? wfg.getDefaultPublishVersion() : null;
+        }
         return repo.queryPublishedWorkflow(workflowId, version);
     }
 
@@ -445,6 +450,24 @@ public class WorkflowService {
 
     public Page<WorkflowDB> pageWorkflows(WorkflowPage op) {
         return repo.pageWorkflows(op);
+    }
+
+    public Page<WorkflowDB> pagePublicWorkflows(WorkflowPage op) {
+        return repo.pagePublishedWorkflows(op);
+    }
+
+    public void activateDefaultVersions(WorkflowOps.WorkflowOp op) {
+        WorkflowDB wf = getPublishedWorkflow(op.getWorkflowId(), op.getVersion());
+        repo.updateDefaultVersion(wf, wf.getVersion());
+    }
+
+    public void deactivateDefaultVersions(WorkflowOps.WorkflowOp op) {
+        WorkflowDB wf = getDraftWorkflow(op.getWorkflowId());
+        repo.updateDefaultVersion(wf, -1L);
+    }
+
+    public WorkflowAggregateDB getWorkflowAggregate(String workflowId) {
+        return repo.queryWorkflowAggregate(workflowId);
     }
 
     public Page<WorkflowAggregateDB> pageWorkflowAggregate(WorkflowPage op) {

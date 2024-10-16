@@ -30,8 +30,7 @@ import {
   ClockPlaySlim,
 } from '@/app/components/base/icons/src/vender/line/time'
 import {
-  activateWorkflowVersion, deactivateWorkflowVersion,
-  fetcChatRunHistory, fetchDefaultWorkflowVersion,
+  activateWorkflowVersion, deactivateWorkflowVersion, fetchDefaultWorkflowVersion,
   fetchWorkflowVersionHistory,
 } from '@/service/workflow'
 import Loading from '@/app/components/base/loading'
@@ -49,7 +48,7 @@ const ViewWorkflowVersionHistory = ({
   const { t } = useTranslation()
   const isChatMode = useIsChatMode()
   const { notify } = useContext(ToastContext)
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
   const { formatTimeFromNow } = useWorkflow()
   const workflowStore = useWorkflowStore()
   const { appDetail, setCurrentLogItem, setShowMessageLogModal } = useAppStore(useShallow(state => ({
@@ -59,10 +58,9 @@ const ViewWorkflowVersionHistory = ({
   })))
   const historyWorkflowVersion = useStore(s => s.historyWorkflowVersion)
   const { handleBackupDraft } = useWorkflowRun()
-  const { data: runList, isLoading: runListLoading } = useSWR((appDetail && !isChatMode && open) ? `/apps/${appDetail.id}/workflow-versions` : null, fetchWorkflowVersionHistory)
-  const { data: chatList, isLoading: chatListLoading } = useSWR((appDetail && isChatMode && open) ? `/apps/${appDetail.id}/advanced-chat/workflow-runs` : null, fetcChatRunHistory)
+  const { data: runList, isLoading: runListLoading } = useSWR((appDetail && open) ? `/apps/${appDetail.id}/workflow-versions` : null, fetchWorkflowVersionHistory)
   const reactflowStore = useStoreApi()
-  const isLoading = isChatMode ? chatListLoading : runListLoading
+  const isLoading = runListLoading
   const { store, getHistoryLabel } = useWorkflowHistory()
   const [isHoverVersion, setHoverVersion] = useState(0)
   const [defaultVersion, setDefaultVersion] = useState<HistoryWorkflowVersion>()

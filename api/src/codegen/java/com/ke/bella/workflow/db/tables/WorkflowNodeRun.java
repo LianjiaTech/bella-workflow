@@ -114,7 +114,8 @@ public class WorkflowNodeRun extends TableImpl<WorkflowNodeRunRecord> {
     /**
      * The column <code>workflow_node_run.notify_data</code>.
      */
-    public final TableField<WorkflowNodeRunRecord, String> NOTIFY_DATA = createField(DSL.name("notify_data"), SQLDataType.CLOB, this, "");
+    public final TableField<WorkflowNodeRunRecord, String> NOTIFY_DATA = createField(DSL.name("notify_data"), SQLDataType.CLOB.nullable(false), this,
+            "");
 
     /**
      * The column <code>workflow_node_run.actived_target_handles</code>.

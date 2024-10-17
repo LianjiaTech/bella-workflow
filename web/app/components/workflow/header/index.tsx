@@ -267,7 +267,7 @@ const Header: FC = () => {
       {
         versionHistory && (
           <div className='flex items-center'>
-            <ViewWorkflowVersionHistory withText />
+            <ViewWorkflowVersionHistory withText handleGoBackToEdit={handleGoBackToEdit} />
             <div className='mx-2 w-[1px] h-3.5 bg-gray-200'></div>
             <Button
               variant='primary'

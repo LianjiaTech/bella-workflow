@@ -11,7 +11,6 @@ import {
   RiCloseLine,
 } from '@remixicon/react'
 import {
-  useIsChatMode,
   useWorkflow, useWorkflowHistory,
   useWorkflowRun,
 } from '../hooks'
@@ -41,12 +40,13 @@ import {
 
 type ViewHistoryProps = {
   withText?: boolean
+  handleGoBackToEdit: () => void
 }
 const ViewWorkflowVersionHistory = ({
   withText,
+  handleGoBackToEdit,
 }: ViewHistoryProps) => {
   const { t } = useTranslation()
-  const isChatMode = useIsChatMode()
   const { notify } = useContext(ToastContext)
   const [open, setOpen] = useState(true)
   const { formatTimeFromNow } = useWorkflow()
@@ -87,11 +87,12 @@ const ViewWorkflowVersionHistory = ({
     handleSetState(workflow)
     workflowStore.setState({ backupDraft: undefined })
     handleBackupDraft()
+    handleGoBackToEdit()
     notify({
       type: 'success',
       message: `已经将版本${workflow.id}还原到草稿`,
     })
-  }, [handleSetState, handleBackupDraft])
+  }, [handleSetState, workflowStore, handleBackupDraft, handleGoBackToEdit, notify])
 
   const handleSetDefaultVersion = useCallback(async (workflow: HistoryWorkflowVersion) => {
     try {
@@ -266,8 +267,9 @@ const ViewWorkflowVersionHistory = ({
                                 isHoverVersion === item.version && (
                                   <div
                                     className="flex items-center text-xs text-gray-500 leading-[18px] px-3 h-6 rounded-lg border-[0.5px] border-gray-200 bg-white shadow-xs text-[13px] font-medium text-primary-600 cursor-pointer !bg-primary-50"
-                                    onClick={() => {
+                                    onClick={(e) => {
                                       handleRestore(item)
+                                      e.stopPropagation()
                                     }}
                                   >
                                     {t('workflow.common.version.restore')}
@@ -278,8 +280,9 @@ const ViewWorkflowVersionHistory = ({
                                 isHoverVersion === item.version && item.version !== defaultVersion?.defaultPublishVersion && (
                                   <div
                                     className="flex items-center text-xs text-gray-500 leading-[18px] px-3 h-6 rounded-lg border-[0.5px] border-gray-200 bg-white shadow-xs text-[13px] font-medium text-green-600 cursor-pointer !bg-green-50"
-                                    onClick={() => {
+                                    onClick={(e) => {
                                       handleSetDefaultVersion(item)
+                                      e.stopPropagation()
                                     }}
                                   >
                                     {t('workflow.common.version.default')}
@@ -290,8 +293,9 @@ const ViewWorkflowVersionHistory = ({
                                 item.version === defaultVersion?.defaultPublishVersion && (
                                   <div
                                     className="flex items-center text-xs text-gray-500 leading-[18px] px-3 h-6 rounded-lg border-[0.5px] border-gray-200 bg-white shadow-xs text-[13px] font-medium text-red-600 cursor-pointer !bg-red-50"
-                                    onClick={() => {
+                                    onClick={(e) => {
                                       handleCancelDefaultVersion(item)
+                                      e.stopPropagation()
                                     }}
                                   >
                                     {t('workflow.common.version.cancel')}

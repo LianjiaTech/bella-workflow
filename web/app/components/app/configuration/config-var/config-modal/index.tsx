@@ -143,8 +143,8 @@ const ConfigModal: FC<IConfigModalProps> = ({
     //   return
     // }
 
-    if (tempPayload.type === 'json')
-      tempPayload.label = tempPayload.variable
+    // if (tempPayload.type === 'json')
+    //   tempPayload.label = tempPayload.variable
 
     const isError = handleCheckError([tempPayload])
     if (isError)

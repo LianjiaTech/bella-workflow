@@ -14,6 +14,7 @@ import {
   Parallel,
   ParameterExtractor,
   QuestionClassifier,
+  Rag,
   TemplatingTransform,
   VariableX,
 } from '@/app/components/base/icons/src/vender/workflow'
@@ -48,6 +49,7 @@ const getIcon = (type: BlockEnum, className: string) => {
     [BlockEnum.Iteration]: <Iteration className={className} />,
     [BlockEnum.ParameterExtractor]: <ParameterExtractor className={className} />,
     [BlockEnum.Parallel]: <Parallel className={className} />,
+    [BlockEnum.Rag]: <Rag className={className} />,
   }[type]
 }
 const ICON_CONTAINER_BG_COLOR_MAP: Record<string, string> = {
@@ -60,6 +62,7 @@ const ICON_CONTAINER_BG_COLOR_MAP: Record<string, string> = {
   [BlockEnum.HttpRequest]: 'bg-[#875BF7]',
   [BlockEnum.Answer]: 'bg-[#F79009]',
   [BlockEnum.KnowledgeRetrieval]: 'bg-[#16B364]',
+  [BlockEnum.Rag]: 'bg-[#008B8B]',
   [BlockEnum.QuestionClassifier]: 'bg-[#16B364]',
   [BlockEnum.TemplateTransform]: 'bg-[#2E90FA]',
   [BlockEnum.VariableAssigner]: 'bg-[#2E90FA]',

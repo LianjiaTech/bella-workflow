@@ -1,0 +1,177 @@
+{
+  "graph": {
+    "edges": [
+      {
+        "data": {
+          "sourceType": "start",
+          "targetType": "rag",
+          "inIteration": false
+        },
+        "id": "1728362163623-source-1728362199362-target",
+        "source": "1728362163623",
+        "sourceHandle": "source",
+        "target": "1728362199362",
+        "targetHandle": "target",
+        "type": "custom",
+        "key": "1728362163623/source-1728362199362/target",
+        "zIndex": 0
+      },
+      {
+        "data": {
+          "sourceType": "rag",
+          "targetType": "end",
+          "inIteration": false
+        },
+        "id": "1728362199362-source-1728362201072-target",
+        "source": "1728362199362",
+        "sourceHandle": "source",
+        "target": "1728362201072",
+        "targetHandle": "target",
+        "type": "custom",
+        "key": "1728362199362/source-1728362201072/target",
+        "zIndex": 0
+      }
+    ],
+    "nodes": [
+      {
+        "data": {
+          "variables": [
+            {
+              "variable": "query",
+              "label": "query",
+              "type": "text-input",
+              "max_length": 48,
+              "required": true,
+              "isRoot": true,
+              "options": [],
+              "varType": "object",
+              "children": []
+            }
+          ],
+          "type": "start",
+          "title": "开始",
+          "selected": false
+        },
+        "dragging": false,
+        "height": 90,
+        "id": "1728362163623",
+        "position": {
+          "x": 100,
+          "y": 100
+        },
+        "positionAbsolute": {
+          "x": 100,
+          "y": 100
+        },
+        "selected": false,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244,
+        "nodeType": "start",
+        "title": "开始",
+        "inIteration": false,
+        "iterationStart": false
+      },
+      {
+        "data": {
+          "type": "rag",
+          "title": "检索增强生成",
+          "desc": "",
+          "query_variable_selector": [
+            "1728362163623",
+            "query"
+          ],
+          "dataset_ids": [
+            "F883728319034834944"
+          ],
+          "retrieval_mode": "multiple",
+          "selected": true,
+          "generation_config": {
+            "model": {
+              "provider": "Azure",
+              "name": "gpt-4o",
+              "mode": "chat",
+              "completion_params": {}
+            }
+          },
+          "multiple_retrieval_config": {
+            "top_k": 2,
+            "reranking_mode": "reranking_model",
+            "weights": {
+              "weight_type": "customized",
+              "vector_setting": {
+                "vector_weight": 1
+              },
+              "keyword_setting": {
+                "keyword_weight": 0
+              }
+            }
+          }
+        },
+        "dragging": false,
+        "height": 92,
+        "id": "1728362199362",
+        "position": {
+          "x": 401,
+          "y": 100
+        },
+        "positionAbsolute": {
+          "x": 401,
+          "y": 100
+        },
+        "selected": true,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244,
+        "nodeType": "rag",
+        "title": "检索增强生成",
+        "inIteration": false,
+        "iterationStart": false
+      },
+      {
+        "data": {
+          "type": "end",
+          "title": "结束",
+          "desc": "",
+          "outputs": [
+            {
+              "variable": "contents",
+              "value_selector": [
+                "1728362199362",
+                "contents"
+              ]
+            }
+          ],
+          "selected": false
+        },
+        "dragging": false,
+        "height": 90,
+        "id": "1728362201072",
+        "position": {
+          "x": 708,
+          "y": 100
+        },
+        "positionAbsolute": {
+          "x": 708,
+          "y": 100
+        },
+        "selected": false,
+        "sourcePosition": "right",
+        "targetPosition": "left",
+        "type": "custom",
+        "width": 244,
+        "nodeType": "end",
+        "title": "结束",
+        "inIteration": false,
+        "iterationStart": false
+      }
+    ],
+    "viewport": {
+      "x": 62,
+      "y": 42,
+      "zoom": 1.0
+    }
+  }
+}

@@ -59,6 +59,7 @@ const translation = {
   inconsistentEmbeddingModelTip: '当所选知识库配置的 Embedding 模型不一致时，需要配置 Rerank 模型。',
   retrievalSettings: '召回设置',
   rerankSettings: 'Rerank 设置',
+  generationSettings: '生成模型设置',
   weightedScore: {
     title: '权重设置',
     description: '通过调整分配的权重，重新排序策略确定是优先进行语义匹配还是关键字匹配。',

@@ -30,6 +30,8 @@ import IterationNode from './iteration/node'
 import IterationPanel from './iteration/panel'
 import ParallelNode from './parallel/node'
 import ParallelPanel from './parallel/panel'
+import RagNode from './rag/node'
+import RagPanel from './rag/panel'
 
 export const NodeComponentMap: Record<string, ComponentType<any>> = {
   [BlockEnum.Start]: StartNode,
@@ -48,6 +50,7 @@ export const NodeComponentMap: Record<string, ComponentType<any>> = {
   [BlockEnum.ParameterExtractor]: ParameterExtractorNode,
   [BlockEnum.Iteration]: IterationNode,
   [BlockEnum.Parallel]: ParallelNode,
+  [BlockEnum.Rag]: RagNode,
 }
 
 export const PanelComponentMap: Record<string, ComponentType<any>> = {
@@ -67,6 +70,7 @@ export const PanelComponentMap: Record<string, ComponentType<any>> = {
   [BlockEnum.ParameterExtractor]: ParameterExtractorPanel,
   [BlockEnum.Iteration]: IterationPanel,
   [BlockEnum.Parallel]: ParallelPanel,
+  [BlockEnum.Rag]: RagPanel,
 }
 
 export const CUSTOM_NODE_TYPE = 'custom'

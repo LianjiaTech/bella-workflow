@@ -179,6 +179,7 @@ const translation = {
     'answer': '直接回复',
     'llm': 'LLM',
     'knowledge-retrieval': '知识检索',
+    'rag': '检索增强生成',
     'question-classifier': '问题分类器',
     'if-else': '条件分支',
     'code': '代码执行',
@@ -197,6 +198,7 @@ const translation = {
     'answer': '定义一个聊天对话的回复内容',
     'llm': '调用大语言模型回答问题或者对自然语言进行处理',
     'knowledge-retrieval': '允许你从知识库中查询与用户问题相关的文本内容',
+    'rag': '允许你从知识库中查询与用户问题相关的文本内容，并将其与生成模型结合，以生成更准确和详细的回答',
     'question-classifier': '定义用户问题的分类条件，LLM 能够根据分类描述定义对话的进展方式',
     'if-else': '允许你根据 if/else 条件将 workflow 拆分成两个分支',
     'code': '执行一段 Python 或 NodeJS 代码实现自定义逻辑',
@@ -330,6 +332,34 @@ const translation = {
         icon: '分段图标',
         url: '分段链接',
         metadata: '其他元数据',
+      },
+    },
+    rag: {
+      queryVariable: '查询变量',
+      knowledge: '知识库',
+      advancedSetting: '高级设置',
+      instruction: '指令',
+      generationModel: '生成式模型',
+      outputVars: {
+        contents: {
+          info: '生成的内容',
+          type: '消息类型，通常为text，可能的类型有text、image_url、image_file等类型，结构参考OpenAI',
+          text: {
+            info: '作为消息一部分的文本内容(当type为text时)',
+            value: '构成文本的数据',
+            annotations: '检索增强结果的元信息，结构参考OpenAI',
+          },
+          image_url: {
+            info: '在消息内容中引用图像url(当type为image_url时)',
+            url: '图像的url',
+            detail: '指定图像的详细程度。',
+          },
+          image_file: {
+            info: '在消息内容中引用File Api格式的图像，参考File API(当type为image_file时)',
+            file_id: '消息内容中图片的 File ID。',
+            detail: '指定图像的详细程度。',
+          },
+        },
       },
     },
     http: {

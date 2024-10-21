@@ -16,10 +16,10 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 
@@ -48,7 +48,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         register(NodeType.PARAMETER_EXTRACTOR.name, ParameterExtractorNode.class);
         register(NodeType.CODE.name, CodeNode.class);
         register(NodeType.PARALLEL.name, ParallelNode.class);
-
+        register(NodeType.RAG.name, RagNode.class);
     }
 
     protected WorkflowSchema.Node meta;

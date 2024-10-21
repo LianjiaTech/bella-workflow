@@ -1,6 +1,5 @@
 package com.ke.bella.workflow;
 
-import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -28,8 +27,9 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
 
     transient WorkflowContext context;
     transient IWorkflowCallback callback;
-    transient PrintStream out;
-    transient Requests http;
+
+    @Builder.Default
+    transient Requests http = new Requests();
 
     @Override
     public Object get(Object key) {

@@ -158,7 +158,7 @@ export const registerGroovyLanguageForMonaco = (languages) => {
       common: [
         // delimiters and operators
         [/[()[\]]/, '@brackets'],
-        [/[<>](?!@symbols)/, '@brackets'],
+        // [/[<>](?!@symbols)/, '@brackets'],
         [
           /@symbols/,
           {

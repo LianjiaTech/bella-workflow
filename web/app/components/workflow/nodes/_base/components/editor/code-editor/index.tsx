@@ -2,8 +2,10 @@
 import type { FC } from 'react'
 import Editor, { loader } from '@monaco-editor/react'
 import React, { useEffect, useRef, useState } from 'react'
+import { registerCompletion } from 'monacopilot'
 import Base from '../base'
 import { registerGroovyLanguageForMonaco } from './groovy-language-definition-for-monaco'
+import { post } from '@/service/base'
 import cn from '@/utils/classnames'
 import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
 
@@ -28,6 +30,14 @@ export type Props = {
   onMount?: (editor: any, monaco: any) => void
   noWrapper?: boolean
   isExpand?: boolean
+}
+
+const fetchCompletion = async (params: any) => {
+  const res = await post('/capi/copilot/code/complete', {
+    body: { inputs: { body: params.body.completionMetadata }, flashMode: 10, responseMode: 'blocking' },
+  })
+  console.log('fetchCompletion', res.outputs)
+  return res.outputs
 }
 
 const languageMap = {
@@ -122,6 +132,12 @@ const CodeEditor: FC<Props> = ({
     })
 
     monaco.editor.setTheme('default-theme') // Fix: sometimes not load the default theme
+
+    registerCompletion(monaco, editor, {
+      endpoint: '/capi/copilot/code/complete',
+      language: languageMap[language] || 'javascript',
+      requestHandler: fetchCompletion,
+    })
 
     onMount?.(editor, monaco)
     setIsMounted(true)

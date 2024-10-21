@@ -170,7 +170,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData pdata) {
-        if(ProgressData.ObjectType.DELTA_CONTENT.equals(pdata.getObject())) {
+        if(ProgressData.ObjectType.DELTA_CONTENT.equals(pdata.getObject()) && pdata.getData() instanceof Delta) {
             DifyEvent event = DifyEvent.builder()
                     .id(((Delta) pdata.getData()).getMessageId())
                     .workflowRunId(context.getRunId())

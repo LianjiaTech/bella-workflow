@@ -26,6 +26,7 @@ export enum BlockEnum {
   ParameterExtractor = 'parameter-extractor',
   Iteration = 'iteration',
   Parallel = 'parallel',
+  Rag = 'rag',
 }
 
 export type Branch = {

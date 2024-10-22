@@ -382,6 +382,7 @@ public class DifyController {
                 .query(op.query)
                 .files(op.files)
                 .stateful(op.isStateful())
+                .flashMode(op.flashMode)
                 .build();
 
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
@@ -852,6 +853,9 @@ public class DifyController {
 
         @Builder.Default
         boolean stateful = true;
+
+        @Builder.Default
+        int flashMode = 0;
     }
 
     @Getter

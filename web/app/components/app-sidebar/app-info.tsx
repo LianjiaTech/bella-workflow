@@ -434,7 +434,7 @@ const AppInfo = ({ expand }: IAppInfoProps) => {
         {showImportDSLModal && (
           <UpdateDSLModal
             onCancel={() => setShowImportDSLModal(false)}
-            onBackup={onExport}
+            onBackup={() => onExport()}
           />
         )}
         {secretEnvList.length > 0 && (

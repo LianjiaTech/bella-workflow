@@ -5,13 +5,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -452,7 +456,6 @@ public class DifyController {
                 .id(e.getWorkflowRunId())
                 .version(String.valueOf(e.getWorkflowVersion()))
                 .conversation_id(String.valueOf(e.getThreadId()))
-                .message_id(String.valueOf(e.getWorkflowVersion()))
                 .status(e.getStatus())
                 .created_by_account(Account.builder().id(String.valueOf(e.getCuid())).name(e.getCuName()).email("").build())
                 .created_at(e.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
@@ -519,7 +522,7 @@ public class DifyController {
     }
 
     @RequestMapping(path = { "/{workflowId}/workflow-runs", "/{workflowId}/advanced-chat/workflow-runs" })
-    public Page<DifyRunHistory> pageWorkflowRuns(@PathVariable String workflowId,
+    public Page<DifyRunHistory> pageWorkflowRuns(HttpServletRequest request, @PathVariable String workflowId,
             @RequestParam(value = "last_id", required = false) String lastId,
             @RequestParam(value = "limit", defaultValue = "100") int limit) {
         initContext();
@@ -529,7 +532,24 @@ public class DifyController {
         Page<WorkflowRunDB> workflowRunsDbPage = ws.listWorkflowRun(page);
         List<WorkflowRunDB> workflowRunsDb = workflowRunsDbPage.getData();
         AtomicInteger counter = new AtomicInteger(1);
-        List<DifyRunHistory> list = workflowRunsDb.stream()
+        List<WorkflowRunDB> workflows = null;
+        // 如果thread_id之前已出现，则将此WorkflowRun从List中剔除
+
+        // 获取请求路径，如果是advanced chat，则需要去重
+        if(request.getRequestURI().contains("advanced-chat")) {
+            workflows = new ArrayList<>();
+            Set<String> threadIds = new HashSet<>();
+            for (WorkflowRunDB workflowRunDB : workflowRunsDb) {
+                if(!threadIds.contains(workflowRunDB.getThreadId())) {
+                    threadIds.add(workflowRunDB.getThreadId());
+                    workflows.add(workflowRunDB);
+                }
+            }
+        } else {
+            workflows = workflowRunsDb;
+        }
+
+        List<DifyRunHistory> list = workflows.stream()
                 .map(DifyController::transfer)
                 .peek(result -> result.setSequence_number(counter.getAndIncrement()))
                 .sorted(Comparator.comparing(DifyRunHistory::getFinished_at).reversed())
@@ -549,8 +569,7 @@ public class DifyController {
         OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
 
         List<Message> messages = openAiService.listMessages(threadId, new MessageListSearchParameters()).getData();
-        // messages按照createAt排序，从低到高
-        messages.sort(Comparator.comparing(Message::getCreatedAt));
+        Collections.reverse(messages);
         List<List<Message>> groupedMessages = new ArrayList<>();
         List<Message> currentGroup = null;
 

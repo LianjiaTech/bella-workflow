@@ -1,6 +1,6 @@
 package com.ke.bella.workflow.node;
 
-import static okhttp3.internal.Util.*;
+import static okhttp3.internal.Util.EMPTY_REQUEST;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,7 +22,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.ke.bella.workflow.utils.OpenAiUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.StringUtils;
 
@@ -42,6 +41,7 @@ import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.KeIAM;
+import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.service.OpenAiService;
 
 import lombok.AllArgsConstructor;
@@ -219,14 +219,20 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
 
     private NodeRunResult requestWithCallback(WorkflowContext context, Request request, NodeRunResultBuilder resultBuilder,
             IWorkflowCallback callback) throws IOException {
-
-        Response response = exclusiveClient.newCall(request).execute();
-        int statusCode = response.code();
-        ResponseHelper helper = handleResponseBody(request, response);
-        return resultBuilder
-                .status(statusCode >= 200 && statusCode <= 299 ? NodeRunResult.Status.waiting : NodeRunResult.Status.failed)
-                .error(statusCode >= 200 && statusCode <= 299 ? null : new IllegalStateException(helper.getBody().toString()))
-                .build();
+        Response response = null;
+        try {
+            response = exclusiveClient.newCall(request).execute();
+            int statusCode = response.code();
+            ResponseHelper helper = handleResponseBody(request, response);
+            return resultBuilder
+                    .status(statusCode >= 200 && statusCode <= 299 ? NodeRunResult.Status.waiting : NodeRunResult.Status.failed)
+                    .error(statusCode >= 200 && statusCode <= 299 ? null : new IllegalStateException(helper.getBody().toString()))
+                    .build();
+        } finally {
+            if(response != null) {
+                response.close();
+            }
+        }
     }
 
     @SuppressWarnings("unchecked")

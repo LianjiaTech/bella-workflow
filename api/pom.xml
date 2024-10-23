@@ -26,6 +26,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.lianjia.infrastructure</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.lianjia.hawk</groupId>
       <artifactId>hawk-spring-boot-starter</artifactId>
     </dependency>

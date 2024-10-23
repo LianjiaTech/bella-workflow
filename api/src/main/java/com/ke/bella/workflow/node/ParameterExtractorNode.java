@@ -437,7 +437,7 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
     }
 
     private Object transformNumber(Object value) {
-        if(value instanceof Integer || value instanceof Double) {
+        if(value instanceof Number) {
             return value;
         } else if(value instanceof String) {
             String strValue = (String) value;

@@ -230,7 +230,7 @@ public class RagNode extends BaseNode<RagNode.Data> {
                 .score(scoreThreshold)
                 .topK(topK).build();
 
-        BellaRagParams.GenerateParam generateParam = BellaRagParams.GenerateParam.generateParam(model.getCompletionParams(), instruction);
+        BellaRagParams.GenerateParam generateParam = BellaRagParams.GenerateParam.generateParam(model.getCompletionParams(), model, instruction);
 
         BellaRagParams params = BellaRagParams.builder()
                 .query(query)
@@ -328,12 +328,13 @@ public class RagNode extends BaseNode<RagNode.Data> {
         public static class GenerateParam extends ChatCompletionRequest {
             private String instructions;
 
-            public static GenerateParam generateParam(Map<String, Object> completionParams, String instructions) {
+            public static GenerateParam generateParam(Map<String, Object> completionParams, Model model, String instructions) {
                 BellaRagParams.GenerateParam generateParam = Optional.ofNullable(JsonUtils.fromJson(
                         JsonUtils.toJson(completionParams),
                         new TypeReference<BellaRagParams.GenerateParam>() {
                         })).orElse(new GenerateParam());
 
+                generateParam.setModel(model.getName());
                 generateParam.setInstructions(instructions);
 
                 return generateParam;

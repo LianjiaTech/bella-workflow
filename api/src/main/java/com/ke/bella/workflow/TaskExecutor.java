@@ -79,7 +79,7 @@ public class TaskExecutor {
         } catch (Exception e) {
             throw e;
         } finally {
-            NamedThreadFactory.stop(thread);
+            thread.interrupt();
         }
         return result;
     }
@@ -160,15 +160,6 @@ public class TaskExecutor {
                 t.setUncaughtExceptionHandler(handler);
             }
             return t;
-        }
-
-        @SuppressWarnings("deprecation")
-        public static void stop(Thread thread) {
-            try {
-                thread.stop();
-            } catch (UnsupportedOperationException e) {
-                thread.interrupt();
-            }
         }
     }
 }

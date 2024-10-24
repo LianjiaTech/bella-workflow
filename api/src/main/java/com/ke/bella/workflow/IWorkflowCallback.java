@@ -18,7 +18,6 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 public interface IWorkflowCallback {
-
     @Getter
     @Setter
     @SuperBuilder
@@ -31,6 +30,17 @@ public interface IWorkflowCallback {
             String MESSAGE = "message";
             String DELTA_CONTENT = "message.delta";
             String LOG = "log";
+        }
+
+        public interface EventType {
+            String MESSAGE_DELTA = "message.delta";
+            String MESSAGE_COMPLETED = "message.completed";
+        }
+
+        public static ProgressData log(String log) {
+            return ProgressData.builder().object(ObjectType.LOG)
+                    .data(log)
+                    .build();
         }
     }
 

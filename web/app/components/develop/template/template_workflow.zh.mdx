@@ -63,8 +63,12 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
       - `metadata` (object) Optional
         随路数据，在工作流中可以通过sys.metadata引用，长度不超过4096
       - `flashMode` (int) Optional
-        极速模式，设置大于0的值时，工作流执行将不再保存node执行的过程数据，响应时间会更快。默认值为1。
-        <i>callback模式下无效</i>
+        极速模式，设置大于0的值时开启，开启后将不对执行过程持久化，响应时间会更快。默认值为2。  
+        - A. 当`flashMode`为1时，工作流执行将不再保存node执行的过程数据。
+        - B. 当`flashMode`为2时，A. + 工作流将不再保存输入的query、inputs、files、metadata入参。
+        - C. 当`flashMode`为3时，B. + 工作流将不再保存输出的outputs数据。
+        - D. 当`flashMode`为10时，工作流将不再保存所有数据。   
+        <i>限制：与挂起不兼容，当工作流存在挂起逻辑时无效</i>
 
     ### Response
     当 `responseMode` 为 `blocking` 时，返回 CompletionResponse object。

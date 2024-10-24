@@ -130,6 +130,7 @@ export const registerGroovyLanguageForMonaco = (languages) => {
         { include: '@comments' },
         { include: '@numbers' },
         { include: 'common' },
+        [/"""/, { token: 'string.delimiter', next: '@herestring' }],
         [/[;,.]/, 'delimiter'],
         [/[(){}[\]]/, '@brackets'],
         [
@@ -157,7 +158,7 @@ export const registerGroovyLanguageForMonaco = (languages) => {
       common: [
         // delimiters and operators
         [/[()[\]]/, '@brackets'],
-        [/[<>](?!@symbols)/, '@brackets'],
+        // [/[<>](?!@symbols)/, '@brackets'],
         [
           /@symbols/,
           {
@@ -179,8 +180,23 @@ export const registerGroovyLanguageForMonaco = (languages) => {
         // strings
         [/"([^"\\]|\\.)*$/, 'string.invalid'],
         [/'([^'\\]|\\.)*$/, 'string.invalid'],
+        [/"""/, { token: 'string.delimiter', next: '@herestring' }],
         [/"/, 'string', '@string_double'],
         [/'/, 'string', '@string_single'],
+      ],
+      herestring: [
+        [
+          /"""/,
+          {
+            cases: {
+              '$1==$S2': { token: 'string.delimiter', next: '@pop' },
+              '@default': 'string',
+            },
+          },
+        ],
+        [/\$\{/, { token: 'delimiter.bracket', next: '@bracketCounting' }],
+        [/[^"'$]+/, 'string'],
+        [/"""/, 'string', '@pop'],
       ],
       whitespace: [[/\s+/, 'white']],
       comments: [

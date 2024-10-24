@@ -25,6 +25,7 @@ import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
@@ -96,6 +97,10 @@ public class WorkflowService {
     }
 
     public WorkflowDB getPublishedWorkflow(String workflowId, Long version) {
+        if(version == null) {
+            WorkflowAggregateDB wfg = repo.queryWorkflowAggregate(workflowId);
+            version = wfg.getDefaultPublishVersion() > 0 ? wfg.getDefaultPublishVersion() : null;
+        }
         return repo.queryPublishedWorkflow(workflowId, version);
     }
 
@@ -211,7 +216,9 @@ public class WorkflowService {
 
     public WorkflowRunDB newWorkflowRun(WorkflowDB wf, WorkflowRun op) {
         final WorkflowRunDB wr = repo.addWorkflowRun(wf, op);
-        TaskExecutor.submit(() -> counter.increase(wr));
+        if(wr.getId() != null) {
+            TaskExecutor.submit(() -> counter.increase(wr));
+        }
 
         LOGGER.info("{} {} created new workflow run.", wf.getWorkflowId(), wr.getWorkflowRunId());
         return wr;
@@ -229,11 +236,13 @@ public class WorkflowService {
         wr.setWorkflowRunId(context.getRunId());
         wr.setStatus(status);
         wr.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
-        if(outputs != null) {
+        if(outputs != null && context.getFlashMode() < 3) {
             wr.setOutputs(JsonUtils.toJson(outputs));
+        } else {
+            wr.setOutputs("");
         }
 
-        repo.updateWorkflowRun(wr);
+        repo.updateWorkflowRunResult(wr);
     }
 
     public void updateWorkflowRun(WorkflowContext context, String status, String error) {
@@ -246,14 +255,14 @@ public class WorkflowService {
         wr.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
         wr.setThreadId(context.getThreadId());
 
-        repo.updateWorkflowRun(wr);
+        repo.updateWorkflowRunResult(wr);
     }
 
     public void markWorkflowRunCallbacked(String workflowRunId) {
         WorkflowRunDB wr = new WorkflowRunDB();
         wr.setWorkflowRunId(workflowRunId);
         wr.setCallbackStatus(1);
-        repo.updateWorkflowRun(wr);
+        repo.updateWorkflowRunCallbackStatus(wr);
     }
 
     public void createWorkflowNodeRun(WorkflowContext context, String nodeId, String nodeRunId, String status) {
@@ -441,6 +450,24 @@ public class WorkflowService {
 
     public Page<WorkflowDB> pageWorkflows(WorkflowPage op) {
         return repo.pageWorkflows(op);
+    }
+
+    public Page<WorkflowDB> pagePublicWorkflows(WorkflowPage op) {
+        return repo.pagePublishedWorkflows(op);
+    }
+
+    public void activateDefaultVersions(WorkflowOps.WorkflowOp op) {
+        WorkflowDB wf = getPublishedWorkflow(op.getWorkflowId(), op.getVersion());
+        repo.updateDefaultVersion(wf, wf.getVersion());
+    }
+
+    public void deactivateDefaultVersions(WorkflowOps.WorkflowOp op) {
+        WorkflowDB wf = getDraftWorkflow(op.getWorkflowId());
+        repo.updateDefaultVersion(wf, -1L);
+    }
+
+    public WorkflowAggregateDB getWorkflowAggregate(String workflowId) {
+        return repo.queryWorkflowAggregate(workflowId);
     }
 
     public Page<WorkflowAggregateDB> pageWorkflowAggregate(WorkflowPage op) {

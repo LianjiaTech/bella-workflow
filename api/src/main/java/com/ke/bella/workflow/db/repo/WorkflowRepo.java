@@ -104,9 +104,36 @@ public class WorkflowRepo implements BaseRepo {
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
                 .and(version == null ? WORKFLOW.VERSION.greaterThan(0l) : WORKFLOW.VERSION.eq(version)) // 正式版
-                .orderBy(WORKFLOW.VERSION.desc())   // 最新版
+                .orderBy(WORKFLOW.ID.desc())   // 最新版
                 .limit(1)
                 .fetchOneInto(WorkflowDB.class);
+    }
+
+    public Page<WorkflowDB> pagePublishedWorkflows(WorkflowPage op) {
+        SelectSeekStep1<WorkflowRecord, Long> sql = db.selectFrom(WORKFLOW)
+                .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW.WORKFLOW_ID.eq(op.getWorkflowId()))
+                .and(WORKFLOW.VERSION.greaterThan(0L))
+                .orderBy(WORKFLOW.ID.desc());
+        return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowDB.class);
+    }
+
+    public void updateDefaultVersion(WorkflowDB wf, Long version) {
+        WorkflowAggregateRecord rec = WORKFLOW_AGGREGATE.newRecord();
+        rec.setDefaultPublishVersion(version);
+        fillUpdatorInfo(rec);
+        int num = db.update(WORKFLOW_AGGREGATE).set(rec)
+                .where(WORKFLOW_AGGREGATE.TENANT_ID.eq(wf.getTenantId()))
+                .and(WORKFLOW_AGGREGATE.WORKFLOW_ID.eq(wf.getWorkflowId()))
+                .execute();
+        Assert.isTrue(num == 1, "工作流聚合实体配置更新失败，请检查工作流聚合实体是否存在");
+    }
+
+    public WorkflowAggregateDB queryWorkflowAggregate(String workflowId) {
+        return db.selectFrom(WORKFLOW_AGGREGATE)
+                .where(WORKFLOW_AGGREGATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW_AGGREGATE.WORKFLOW_ID.eq(workflowId))
+                .fetchOneInto(WorkflowAggregateDB.class);
     }
 
     public WorkflowDB queryWorkflow(String workflowId, Long version) {
@@ -296,24 +323,31 @@ public class WorkflowRepo implements BaseRepo {
         rec.setWorkflowVersion(wf.getVersion());
         rec.setWorkflowRunId(runId);
         rec.setWorkflowRunShardingKey(shardKey);
+        rec.setFlashMode(op.isFlashMode() ? op.getFlashMode() : 0);
         if(op.getTriggerId() != null) {
             rec.setWorkflowSchedulingId(op.getTriggerId());
-        }
-        if(op.getQuery() != null) {
-            rec.setQuery(op.getQuery());
-        }
-        if(op.getFiles() != null) {
-            rec.setFiles(JsonUtils.toJson(op.getFiles()));
         }
         if(op.getThreadId() != null) {
             rec.setThreadId(op.getThreadId());
         }
 
-        if(op.getMetadata() != null) {
-            rec.setMetadata(JsonUtils.toJson(op.getMetadata()));
+        if(!op.isFlashMode() || op.getFlashMode() < 2) {
+            if(op.getQuery() != null) {
+                rec.setQuery(op.getQuery());
+            }
+            if(op.getFiles() != null) {
+                rec.setFiles(JsonUtils.toJson(op.getFiles()));
+            }
+
+            if(op.getMetadata() != null) {
+                rec.setMetadata(JsonUtils.toJson(op.getMetadata()));
+            }
+
+            rec.setInputs(JsonUtils.toJson(op.getInputs()));
+        } else {
+            rec.setMetadata("{}");
+            rec.setInputs("{}");
         }
-        rec.setFlashMode(op.isFlashMode() ? op.getFlashMode() : 0);
-        rec.setInputs(JsonUtils.toJson(op.getInputs()));
         rec.setOutputs("");
         rec.setError("");
         rec.setTriggerFrom(op.getTriggerFrom());
@@ -334,16 +368,43 @@ public class WorkflowRepo implements BaseRepo {
 
         fillCreatorInfo(rec);
 
-        db(shardKey).insertInto(WORKFLOW_RUN)
-                .set(rec)
-                .execute();
-
+        if(!op.isFlashMode() || op.getFlashMode() < 10) {
+            WorkflowRunRecord rec2 = db(shardKey).insertInto(WORKFLOW_RUN)
+                    .set(rec)
+                    .returning(WORKFLOW_RUN.ID)
+                    .fetchOne();
+            rec.setId(rec2.getId());
+        }
         return rec.into(WorkflowRunDB.class);
     }
 
-    public void updateWorkflowRun(WorkflowRunDB wr) {
+    public void updateWorkflowRunCallbackStatus(WorkflowRunDB wr) {
         WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
-        rec.from(wr);
+        rec.setCallbackStatus(wr.getCallbackStatus());
+        fillUpdatorInfo(rec);
+
+        String shardKey = shardingKeyByWorkflowRunId(wr.getWorkflowRunId());
+        db(shardKey).update(WORKFLOW_RUN)
+                .set(rec)
+                .where(WORKFLOW_RUN.WORKFLOW_RUN_ID.eq(wr.getWorkflowRunId()))
+                .execute();
+    }
+
+    public void updateWorkflowRunResult(WorkflowRunDB wr) {
+        WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
+        rec.setStatus(wr.getStatus());
+        if(wr.getOutputs() != null) {
+            rec.setOutputs(wr.getOutputs());
+        }
+        if(wr.getError() != null) {
+            rec.setError(wr.getError());
+        }
+        if(wr.getElapsedTime() != null) {
+            rec.setElapsedTime(wr.getElapsedTime());
+        }
+        if(!StringUtils.isEmpty(wr.getThreadId())) {
+            rec.setThreadId(wr.getThreadId());
+        }
         fillUpdatorInfo(rec);
 
         String shardKey = shardingKeyByWorkflowRunId(wr.getWorkflowRunId());

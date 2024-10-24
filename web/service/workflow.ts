@@ -7,8 +7,9 @@ import type {
   NodesDefaultConfigsResponse,
   WorkflowRunHistoryResponse,
   WorkflowTriggerDetail,
+  WorkflowVersionHistoryResponse,
 } from '@/types/workflow'
-import type { BlockEnum } from '@/app/components/workflow/types'
+import type { BlockEnum, HistoryWorkflowVersion } from '@/app/components/workflow/types'
 
 export const fetchWorkflowDraft = (url: string) => {
   return get(url, {}, { silent: true }) as Promise<FetchWorkflowDraftResponse>
@@ -24,6 +25,22 @@ export const fetchNodesDefaultConfigs: Fetcher<NodesDefaultConfigsResponse, stri
 
 export const fetchWorkflowRunHistory: Fetcher<WorkflowRunHistoryResponse, string> = (url) => {
   return get<WorkflowRunHistoryResponse>(url)
+}
+
+export const fetchWorkflowVersionHistory: Fetcher<WorkflowVersionHistoryResponse, string> = (url) => {
+  return get<WorkflowVersionHistoryResponse>(url)
+}
+
+export const activateWorkflowVersion: Fetcher<HistoryWorkflowVersion, { workflowId: string; version: number }> = ({ workflowId, version }) => {
+  return post<HistoryWorkflowVersion>(`apps/${workflowId}/workflow-versions/activate`, { body: { workflowId, version } })
+}
+
+export const deactivateWorkflowVersion: Fetcher<HistoryWorkflowVersion, { workflowId: string }> = ({ workflowId }) => {
+  return post<HistoryWorkflowVersion>(`apps/${workflowId}/workflow-versions/deactivate`, { body: { workflowId } })
+}
+
+export const fetchDefaultWorkflowVersion: Fetcher<HistoryWorkflowVersion, string> = (url) => {
+  return get<HistoryWorkflowVersion>(url)
 }
 
 export const fetcChatRunHistory: Fetcher<ChatRunHistoryResponse, string> = (url) => {

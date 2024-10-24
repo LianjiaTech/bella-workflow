@@ -14,6 +14,7 @@ import type {
   Edge,
   EnvironmentVariable,
   HistoryWorkflowData,
+  HistoryWorkflowVersion,
   Node,
   RunFile,
   ToolWithProvider,
@@ -35,6 +36,10 @@ type Shape = {
   setWorkflowRunningData: (workflowData: PreviewRunningData) => void
   historyWorkflowData?: HistoryWorkflowData
   setHistoryWorkflowData: (historyWorkflowData?: HistoryWorkflowData) => void
+  historyWorkflowVersion?: HistoryWorkflowVersion
+  setHistoryWorkflowVersion: (historyWorkflowVersion?: HistoryWorkflowVersion) => void
+  isVersionHistory: boolean
+  setVersionHistory: (versionHistory: boolean) => void
   showRunHistory: boolean
   setShowRunHistory: (showRunHistory: boolean) => void
   showFeaturesPanel: boolean
@@ -155,6 +160,10 @@ export const createWorkflowStore = () => {
     setWorkflowRunningData: workflowRunningData => set(() => ({ workflowRunningData })),
     historyWorkflowData: undefined,
     setHistoryWorkflowData: historyWorkflowData => set(() => ({ historyWorkflowData })),
+    historyWorkflowVersion: undefined,
+    setHistoryWorkflowVersion: historyWorkflowVersion => set(() => ({ historyWorkflowVersion })),
+    isVersionHistory: false,
+    setVersionHistory: isVersionHistory => set(() => ({ isVersionHistory })),
     showRunHistory: false,
     setShowRunHistory: showRunHistory => set(() => ({ showRunHistory })),
     showFeaturesPanel: false,

@@ -26,6 +26,7 @@ export enum BlockEnum {
   ParameterExtractor = 'parameter-extractor',
   Iteration = 'iteration',
   Parallel = 'parallel',
+  Rag = 'rag',
 }
 
 export type Branch = {
@@ -313,6 +314,28 @@ export type WorkflowRunningData = {
     total_steps?: number
   }
   tracing?: NodeTracing[]
+}
+
+export type HistoryWorkflowVersion = {
+  id: number
+  tenantId: string
+  workflowId: string
+  title: string
+  mode: string
+  desc: string
+  defaultPublishVersion: number
+  graph: {
+    nodes: Node[]
+    edges: Edge[]
+    viewport: Viewport
+  }
+  version: number
+  cuid: number
+  cuName: string
+  ctime: string
+  muid: number
+  muName: string
+  mtime: string
 }
 
 export type HistoryWorkflowData = {

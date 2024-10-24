@@ -3,7 +3,7 @@ import type {
   BlockEnum,
   Edge,
   EnvironmentVariable,
-  Node,
+  HistoryWorkflowVersion, Node,
 } from '@/app/components/workflow/types'
 
 export type NodeTracing = {
@@ -232,6 +232,14 @@ export type WorkflowRunHistory = {
 }
 export type WorkflowRunHistoryResponse = {
   data: WorkflowRunHistory[]
+}
+
+export type WorkflowVersionHistoryResponse = {
+  data: HistoryWorkflowVersion[]
+  limit: number
+  page: number
+  has_more: boolean
+  total: number
 }
 
 export type ChatRunHistoryResponse = {

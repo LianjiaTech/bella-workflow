@@ -18,9 +18,9 @@ import {
 } from '../types'
 import type { StartNodeType } from '../nodes/start/types'
 import {
-  useChecklistBeforePublish,
+  useChecklistBeforePublish, useNodesInteractions,
   useNodesReadOnly,
-  useNodesSyncDraft,
+  useNodesSyncDraft, useWorkflowInteractions,
   useWorkflowMode,
   useWorkflowRun,
 } from '../hooks'
@@ -36,6 +36,8 @@ import { useStore as useAppStore } from '@/app/components/app/store'
 import { publishWorkflow } from '@/service/workflow'
 import { ArrowNarrowLeft } from '@/app/components/base/icons/src/vender/line/arrows'
 import { useFeatures } from '@/app/components/base/features/hooks'
+import ViewWorkflowVersionHistory from '@/app/components/workflow/header/view-workflow-version-history'
+import WorkflowVersionTitle from '@/app/components/workflow/header/workflow-version-title'
 
 const Header: FC = () => {
   const { t } = useTranslation()
@@ -81,7 +83,15 @@ const Header: FC = () => {
     normal,
     restoring,
     viewHistory,
+    versionHistory,
   } = useWorkflowMode()
+
+  const {
+    handleNodesCancelSelected,
+  } = useNodesInteractions()
+  const {
+    handleCancelDebugAndPreviewPanel,
+  } = useWorkflowInteractions()
 
   const handleShowFeatures = useCallback(() => {
     const {
@@ -138,12 +148,19 @@ const Header: FC = () => {
 
   const handleGoBackToEdit = useCallback(() => {
     handleLoadBackupDraft()
-    workflowStore.setState({ historyWorkflowData: undefined })
+    workflowStore.setState({ historyWorkflowData: undefined, historyWorkflowVersion: undefined, isVersionHistory: false })
   }, [workflowStore, handleLoadBackupDraft])
 
   const handleToolConfigureUpdate = useCallback(() => {
     workflowStore.setState({ toolPublished: true })
   }, [workflowStore])
+
+  const onVersionHistory = useCallback(() => {
+    handleBackupDraft()
+    handleNodesCancelSelected()
+    handleCancelDebugAndPreviewPanel()
+    workflowStore.setState({ isVersionHistory: true })
+  }, [workflowStore, handleCancelDebugAndPreviewPanel, handleBackupDraft, handleNodesCancelSelected])
 
   return (
     <div
@@ -166,6 +183,9 @@ const Header: FC = () => {
         }
         {
           restoring && <RestoringTitle />
+        }
+        {
+          versionHistory && <WorkflowVersionTitle />
         }
       </div>
       {
@@ -199,6 +219,7 @@ const Header: FC = () => {
                 onRestore: onStartRestoring,
                 onToggle: onPublisherToggle,
                 crossAxisOffset: 4,
+                onVersionHistory,
               }}
             />
           </div>
@@ -239,6 +260,22 @@ const Header: FC = () => {
               variant='primary'
             >
               {t('workflow.common.restore')}
+            </Button>
+          </div>
+        )
+      }
+      {
+        versionHistory && (
+          <div className='flex items-center'>
+            <ViewWorkflowVersionHistory withText handleGoBackToEdit={handleGoBackToEdit} />
+            <div className='mx-2 w-[1px] h-3.5 bg-gray-200'></div>
+            <Button
+              variant='primary'
+              className='mr-2'
+              onClick={handleGoBackToEdit}
+            >
+              <ArrowNarrowLeft className='w-4 h-4 mr-1' />
+              {t('workflow.common.goBackToEdit')}
             </Button>
           </div>
         )

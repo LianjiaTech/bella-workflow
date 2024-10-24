@@ -47,12 +47,13 @@ public class CodeExecutor {
             CodeLanguage.javascript.name(), new NodeJsTemplateTransformer(),
             CodeLanguage.groovy.name(), new GroovyTemplateTransformer());
 
-    public static Object execute(CodeLanguage language, String code, Map<String, Object> inputs, List<CodeDependency> dependencies) {
+    public static Object execute(CodeLanguage language, String code, Map<String, Object> inputs, List<CodeDependency> dependencies, long timeout,
+            long maxMemoryBytes) {
         TemplateTransformer transformer = Optional.ofNullable(transformers.get(language.name()))
                 .orElseThrow(() -> new IllegalArgumentException("unsupported code language"));
 
         if(language == CodeLanguage.groovy) {
-            Object result = GroovySandbox.execute(code, inputs);
+            Object result = GroovySandbox.execute(code, inputs, timeout, maxMemoryBytes);
             if(result instanceof Map) {
                 return result;
             } else if(result instanceof NodeRunResult) {

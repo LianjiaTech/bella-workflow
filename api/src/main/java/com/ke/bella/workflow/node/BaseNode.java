@@ -1,5 +1,8 @@
 package com.ke.bella.workflow.node;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,6 +16,7 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
@@ -20,6 +24,7 @@ import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,7 +48,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         register(NodeType.PARAMETER_EXTRACTOR.name, ParameterExtractorNode.class);
         register(NodeType.CODE.name, CodeNode.class);
         register(NodeType.PARALLEL.name, ParallelNode.class);
-
+        register(NodeType.RAG.name, RagNode.class);
     }
 
     protected WorkflowSchema.Node meta;
@@ -52,6 +57,9 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     protected T data;
     @Getter
     protected ResumeData resumeData;
+
+    @Getter
+    private PrintStream out;
 
     protected BaseNode(WorkflowSchema.Node meta, T data) {
         this(meta, UUID.randomUUID().toString(), data);
@@ -107,6 +115,8 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     @Override
     public NodeRunResult run(WorkflowContext context, IWorkflowCallback callback) {
         Long startTime = System.nanoTime();
+
+        setOut(context, callback);
 
         appendBuiltinVariables(context);
 
@@ -166,6 +176,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     public NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback) {
         NodeRunResult result = null;
         try {
+            setOut(context, callback);
             this.resumeData = ResumeData.builder()
                     .notifyData(context.getState().getNotifyData(getNodeId()))
                     .lastState(context.getState().getNodeState(getNodeId()))
@@ -220,6 +231,13 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 tenantId,
                 workflowId,
                 runId, getNodeId(), nodeRunId);
+    }
+
+    private void setOut(WorkflowContext context, IWorkflowCallback callback) {
+        this.out = new PrintStream(ProgressOutStream.builder()
+                .self(this)
+                .context(context)
+                .callback(callback).build(), true);
     }
 
     @SuppressWarnings("rawtypes")
@@ -341,5 +359,33 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         NodeRunResult lastState;
         @SuppressWarnings("rawtypes")
         Map notifyData;
+    }
+
+    @Builder
+    public static class ProgressOutStream extends OutputStream {
+        @Builder.Default
+        StringBuilder sb = new StringBuilder();
+        WorkflowContext context;
+        IWorkflowCallback callback;
+        BaseNode<?> self;
+
+        @Override
+        public void write(int b) throws IOException {
+            sb.append((char) b);
+        }
+
+        @Override
+        public void write(byte[] b, int off, int len) throws IOException {
+            sb.append(new String(b, off, len));
+        }
+
+        @Override
+        public void flush() throws IOException {
+            String text = sb.toString();
+            if(StringUtils.hasText(text) && text.endsWith("\n")) {
+                callback.onWorkflowNodeRunProgress(context, self.getNodeId(), self.nodeRunId, ProgressData.log(text));
+                sb.delete(0, sb.length());
+            }
+        }
     }
 }

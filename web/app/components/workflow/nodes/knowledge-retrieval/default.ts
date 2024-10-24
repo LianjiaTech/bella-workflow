@@ -10,7 +10,7 @@ const nodeDefault: NodeDefault<KnowledgeRetrievalNodeType> = {
   defaultValue: {
     query_variable_selector: [],
     dataset_ids: [],
-    retrieval_mode: RETRIEVE_TYPE.oneWay,
+    retrieval_mode: RETRIEVE_TYPE.multiWay,
   },
   getAvailablePrevNodes(isChatMode: boolean) {
     const nodes = isChatMode

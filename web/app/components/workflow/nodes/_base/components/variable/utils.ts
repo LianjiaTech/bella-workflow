@@ -22,13 +22,14 @@ import {
   KNOWLEDGE_RETRIEVAL_OUTPUT_STRUCT,
   LLM_OUTPUT_STRUCT,
   PARAMETER_EXTRACTOR_COMMON_STRUCT,
-  QUESTION_CLASSIFIER_OUTPUT_STRUCT,
+  QUESTION_CLASSIFIER_OUTPUT_STRUCT, RAG_OUTPUT_STRUCT,
   SUPPORT_OUTPUT_VARS_NODE,
   TEMPLATE_TRANSFORM_OUTPUT_STRUCT,
   TOOL_OUTPUT_STRUCT,
 } from '@/app/components/workflow/constants'
 import type { PromptItem } from '@/models/debug'
 import { VAR_REGEX } from '@/config'
+import type { RagNodeType } from '@/app/components/workflow/nodes/rag/types'
 
 export const isSystemVar = (valueSelector: ValueSelector) => {
   return valueSelector[0] === 'sys'
@@ -151,6 +152,11 @@ const formatItem = (
 
     case BlockEnum.KnowledgeRetrieval: {
       res.vars = KNOWLEDGE_RETRIEVAL_OUTPUT_STRUCT
+      break
+    }
+
+    case BlockEnum.Rag: {
+      res.vars = RAG_OUTPUT_STRUCT
       break
     }
 
@@ -603,6 +609,10 @@ export const getNodeUsedVars = (node: Node): ValueSelector[] => {
       res = [(data as KnowledgeRetrievalNodeType).query_variable_selector]
       break
     }
+    case BlockEnum.Rag: {
+      res = [(data as RagNodeType).query_variable_selector]
+      break
+    }
     case BlockEnum.IfElse: {
       res = (data as IfElseNodeType).conditions?.map((c) => {
         return c.variable_selector
@@ -682,6 +692,10 @@ export const getNodeUsedVarPassToServerKey = (node: Node, valueSelector: ValueSe
       break
     }
     case BlockEnum.KnowledgeRetrieval: {
+      res = 'query'
+      break
+    }
+    case BlockEnum.Rag: {
       res = 'query'
       break
     }
@@ -799,6 +813,12 @@ export const updateNodeVars = (oldNode: Node, oldVarSelector: ValueSelector, new
       }
       case BlockEnum.KnowledgeRetrieval: {
         const payload = data as KnowledgeRetrievalNodeType
+        if (payload.query_variable_selector.join('.') === oldVarSelector.join('.'))
+          payload.query_variable_selector = newVarSelector
+        break
+      }
+      case BlockEnum.Rag: {
+        const payload = data as RagNodeType
         if (payload.query_variable_selector.join('.') === oldVarSelector.join('.'))
           payload.query_variable_selector = newVarSelector
         break
@@ -965,6 +985,11 @@ export const getNodeOutputVars = (node: Node, isChatMode: boolean): ValueSelecto
 
     case BlockEnum.KnowledgeRetrieval: {
       varsToValueSelectorList(KNOWLEDGE_RETRIEVAL_OUTPUT_STRUCT, [id], res)
+      break
+    }
+
+    case BlockEnum.Rag: {
+      varsToValueSelectorList(RAG_OUTPUT_STRUCT, [id], res)
       break
     }
 

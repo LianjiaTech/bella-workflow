@@ -1,6 +1,7 @@
 package com.ke.bella.workflow;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -9,7 +10,10 @@ import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.node.BaseNode;
+import com.ke.bella.workflow.service.code.Requests;
+import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
+import com.ke.bella.workflow.utils.Utils;
 import com.theokanning.openai.completion.chat.ChatCompletionChunk;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.service.OpenAiService;
@@ -24,6 +28,9 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
     transient WorkflowContext context;
     transient IWorkflowCallback callback;
 
+    @Builder.Default
+    transient Requests http = new Requests();
+
     @Override
     public Object get(Object key) {
         return context.getState().getVariable("sys", key.toString());
@@ -34,6 +41,13 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
         Object old = get(key);
         context.getState().putVariable("sys", key, value);
         return old;
+    }
+
+    public Requests http() {
+        if(http == null) {
+            http = new Requests();
+        }
+        return http;
     }
 
     public Object getVariable(String nodeId, String key) {
@@ -64,7 +78,7 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
     }
 
     public void sleep(long timeout) throws InterruptedException {
-        TimeUnit.MICROSECONDS.sleep(Math.max(timeout, 1));
+        TimeUnit.MILLISECONDS.sleep(Math.max(timeout, 1));
     }
 
     private String flowKey(String key) {
@@ -92,7 +106,17 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
         callback.onWorkflowNodeRunProgress(context, self.getNodeId(), self.getNodeRunId(), progress);
     }
 
-    public Object chat(ChatCompletionRequest request) {
+    @SuppressWarnings("rawtypes")
+    public Object chat(Object req) {
+        ChatCompletionRequest request = null;
+        if(req instanceof ChatCompletionRequest) {
+            request = (ChatCompletionRequest) req;
+        } else if(req instanceof Map) {
+            request = JsonUtils.convertValue((Map) req, ChatCompletionRequest.class);
+        } else {
+            throw new IllegalArgumentException("arg's type should be ChatCompletionRequest or map.");
+        }
+
         OpenAiService service = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey(), 30, TimeUnit.SECONDS);
         if(request.getStream() != null && request.getStream().booleanValue()) {
             Flowable<ChatCompletionChunk> rs = service.streamChatCompletion(request);
@@ -102,7 +126,15 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
         }
     }
 
+    public Object fromJson(String json) {
+        return JsonUtils.fromJson(json, Object.class);
+    }
+
     public static boolean isInterrupted() {
         return Thread.currentThread().isInterrupted();
+    }
+
+    public static long getMemoryUsage() {
+        return Utils.getThreadAllocatedBytes(Thread.currentThread().getId());
     }
 }

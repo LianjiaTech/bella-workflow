@@ -1,12 +1,12 @@
 package com.ke.bella.workflow.node;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data> {
-    private static final String FILES_RETRIEVE = "/files/retrieve";
+    private static final String FILES_RETRIEVE = "api/rag/retrieval";
 
     public KnowledgeRetrievalNode(WorkflowSchema.Node meta) {
         super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
@@ -68,17 +68,14 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         Map<String, String> headers = Collections.singletonMap("Authorization", "Bearer " + BellaContext.getApiKey());
         String fileRetrieveUrl = Configs.OPEN_API_BASE + FILES_RETRIEVE;
 
-        Map<String, String> params = new HashMap<>();
-        params.put("file_ids", datasetIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
-        params.put("query", query);
-        if(topK != null) {
-            params.put("top_k", String.valueOf(topK));
-        }
-        if(scoreThreshold != null) {
-            params.put("score", String.valueOf(scoreThreshold));
-        }
+        KnowledgeRetrievalRequest request = new KnowledgeRetrievalRequest();
+        request.setFileIds(datasetIds);
+        request.setQuery(query);
+        request.setTopK(topK);
+        request.setScore(scoreThreshold);
+        request.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
 
-        BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postFrom(headers, fileRetrieveUrl, params,
+        BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postJson(headers, fileRetrieveUrl, JsonUtils.toJson(request),
                 new TypeReference<BellaFileRetrieveResult>() {
                 });
         if(Objects.isNull(bellaFileRetrieveResult) || StringUtils.hasText(bellaFileRetrieveResult.getErrno())) {
@@ -155,6 +152,21 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
             @JsonAlias("file_tag")
             private String fileTag;
         }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class KnowledgeRetrievalRequest {
+        @JsonProperty("file_ids")
+        private List<String> fileIds;
+        private String query;
+        @JsonProperty("top_k")
+        private Integer topK;
+        private Float score;
+        private String user;
     }
 
     @Getter

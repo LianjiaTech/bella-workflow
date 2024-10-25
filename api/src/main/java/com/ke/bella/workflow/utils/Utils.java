@@ -33,4 +33,13 @@ public class Utils {
 
         return bytes;
     }
+
+    public static long getThreadCpuTimeMills(long threadId) {
+        ThreadMXBean threadMxBean = ManagementFactory.getThreadMXBean();
+        try {
+            return threadMxBean.getThreadCpuTime(threadId) / 1000000L;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
 }

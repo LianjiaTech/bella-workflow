@@ -58,6 +58,16 @@ public class TaskExecutor {
                         throw new IllegalArgumentException(msg);
                     }
 
+                    // 运行超过10s的话采样 cpu 时间
+                    if(elapsed > 10 * 1000) {
+                        long cpuTime = Utils.getThreadCpuTimeMills(thread.getId());
+                        long rate = cpuTime * 100 / elapsed;
+                        if(rate > Configs.MAX_CPU_TIME_RATE) {
+                            String msg = String.format("CPU使用率超出限制, 当前累计使用CPU率：%d%%, 限制：%d%%", rate, Configs.MAX_CPU_TIME_RATE);
+                            throw new IllegalArgumentException(msg);
+                        }
+                    }
+
                     if(futureTask.isDone()) {
                         result = futureTask.get();
                         break;
@@ -68,7 +78,6 @@ public class TaskExecutor {
                     if(elapsed >= timeout) {
                         throw new TimeoutException();
                     }
-
                 }
             } else {
                 result = futureTask.get(timeout, TimeUnit.MILLISECONDS);

@@ -18,6 +18,8 @@ public class Configs {
 
     public static long MAX_EXE_MEMORY_ALLOC = 100 * 1024 * 1024; // 100MB
 
+    public static long MAX_CPU_TIME_RATE = 85;
+
     @Value("${bella.apiBase}")
     public void setApiBase(String apiBase) {
         API_BASE = apiBase;

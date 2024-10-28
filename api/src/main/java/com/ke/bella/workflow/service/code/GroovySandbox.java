@@ -63,6 +63,9 @@ import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
 
+@interface GroovyScript {
+}
+
 public class GroovySandbox {
     private static final Set<String> PROPERTY_BLACKLIST = new HashSet<>();
     private static final Set<String> METHOD_CALL_BLACKLIST = new HashSet<>();
@@ -137,7 +140,7 @@ public class GroovySandbox {
         config.addCompilationCustomizers(new ImportCustomizer()
                 .addImports("com.ke.bella.workflow.WorkflowRunState.NodeRunResult")
                 .addStarImports("com.theokanning.openai.completion.chat."));
-        config.addCompilationCustomizers(new ASTTransformationCustomizer(new InterruptCheckTransformation()));
+        config.addCompilationCustomizers(new ASTTransformationCustomizer(GroovyScript.class, InterruptCheckTransformation.class.getName()));
     }
 
     public static Object execute(String code, Map<String, Object> inputs, long timeout, long maxMemoryBytes) {
@@ -156,7 +159,6 @@ public class GroovySandbox {
             Binding binding = new Binding(inputs);
             Script s = InvokerHelper.createScript(loader.parseClass(gcs, true), binding);
             return TaskExecutor.invoke(s::run, timeout, maxMemoryBytes);
-            // return s.run();
         } catch (MultipleCompilationErrorsException e1) {
             throw new IllegalArgumentException(compileMessage(e1));
         } catch (Exception e) {

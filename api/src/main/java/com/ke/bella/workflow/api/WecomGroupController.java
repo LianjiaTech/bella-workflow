@@ -59,7 +59,6 @@ public class WecomGroupController {
     @PostMapping("/page")
     public Page<WecomGroupInfoDB> pageGroupInfo(@RequestBody GroupOps.GroupQueryOp op) {
         Assert.hasText(op.tenantId, "tenantId不能为空");
-        Assert.hasText(op.getSpaceCode(), "spaceCode不能为空");
         Assert.notNull(op.getUserId(), "userId 不能为空");
         Assert.hasText(op.getUserName(), "userName 不能为空");
 

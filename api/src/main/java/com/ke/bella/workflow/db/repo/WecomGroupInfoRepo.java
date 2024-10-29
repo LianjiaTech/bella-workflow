@@ -114,7 +114,7 @@ public class WecomGroupInfoRepo implements BaseRepo {
     public Page<WecomGroupInfoDB> pageGroupInfo(GroupOps.GroupQueryOp op) {
         SelectSeekStep1<WecomGroupInfoRecord, LocalDateTime> sql = db.selectFrom(WECOM_GROUP_INFO)
                 .where(WECOM_GROUP_INFO.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
-                .and(WECOM_GROUP_INFO.SPACE_CODE.eq(op.getSpaceCode()))
+                .and(StringUtils.isEmpty(op.getSpaceCode()) ? DSL.noCondition() : WECOM_GROUP_INFO.SPACE_CODE.eq(op.getSpaceCode()))
                 .and(CollectionUtils.isEmpty(op.getGroupCodes()) ? DSL.noCondition() : WECOM_GROUP_INFO.GROUP_CODE.in(op.getGroupCodes()))
                 .and(StringUtils.isEmpty(op.getGroupName()) ? DSL.noCondition() : WECOM_GROUP_INFO.GROUP_NAME.like("%" + op.getGroupName() + "%"))
                 .and(StringUtils.isEmpty(op.getGroupAlias()) ? DSL.noCondition() : WECOM_GROUP_INFO.GROUP_ALIAS.like("%" + op.getGroupAlias() + "%"))

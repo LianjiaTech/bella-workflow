@@ -21,6 +21,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
     private Long          id;
     private String        tenantId;
     private String        workflowId;
+    private String        spaceCode;
     private String        title;
     private String        mode;
     private String        desc;
@@ -42,6 +43,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         this.id = value.id;
         this.tenantId = value.tenantId;
         this.workflowId = value.workflowId;
+        this.spaceCode = value.spaceCode;
         this.title = value.title;
         this.mode = value.mode;
         this.desc = value.desc;
@@ -62,6 +64,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         Long          id,
         String        tenantId,
         String        workflowId,
+        String        spaceCode,
         String        title,
         String        mode,
         String        desc,
@@ -80,6 +83,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         this.id = id;
         this.tenantId = tenantId;
         this.workflowId = workflowId;
+        this.spaceCode = spaceCode;
         this.title = title;
         this.mode = mode;
         this.desc = desc;
@@ -136,6 +140,20 @@ public class WorkflowAggregateDB implements Operator, Serializable {
      */
     public void setWorkflowId(String workflowId) {
         this.workflowId = workflowId;
+    }
+
+    /**
+     * Getter for <code>workflow_aggregate.space_code</code>.
+     */
+    public String getSpaceCode() {
+        return this.spaceCode;
+    }
+
+    /**
+     * Setter for <code>workflow_aggregate.space_code</code>.
+     */
+    public void setSpaceCode(String spaceCode) {
+        this.spaceCode = spaceCode;
     }
 
     /**
@@ -341,6 +359,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         sb.append(id);
         sb.append(", ").append(tenantId);
         sb.append(", ").append(workflowId);
+        sb.append(", ").append(spaceCode);
         sb.append(", ").append(title);
         sb.append(", ").append(mode);
         sb.append(", ").append(desc);

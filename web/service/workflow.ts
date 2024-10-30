@@ -3,6 +3,8 @@ import { get, post } from './base'
 import type { CommonResponse } from '@/models/common'
 import type {
   ChatRunHistoryResponse,
+  CustomApiDetail,
+  CustomApiListResponse,
   FetchWorkflowDraftResponse,
   NodesDefaultConfigsResponse,
   WorkflowRunHistoryResponse,
@@ -87,4 +89,12 @@ export const activateTrigger: Fetcher<WorkflowTriggerDetail, { workflowId: strin
 
 export const deactivateTrigger: Fetcher<WorkflowTriggerDetail, { workflowId: string; triggerId: string; triggerType: string }> = ({ workflowId, triggerId, triggerType }) => {
   return post<WorkflowTriggerDetail>(`apps/${workflowId}/trigger/deactivate`, { body: { triggerId, triggerType } })
+}
+
+export const fetchWorkflowCustomApis: Fetcher<CustomApiListResponse, { workflowId: string }> = ({ workflowId }) => {
+  return get<CustomApiListResponse>(`apps/${workflowId}/custom-apis`)
+}
+
+export const createCustomApi: Fetcher<CustomApiDetail, { workflowId: string; host: string; path: string }> = ({ workflowId, host, path }) => {
+  return post<CustomApiDetail>(`apps/${workflowId}/customApi/create`, { body: { host, path } })
 }

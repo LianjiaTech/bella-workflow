@@ -7,28 +7,28 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.ke.bella.workflow.api.model.DifyModelResponse;
-import com.ke.bella.workflow.api.model.ModelInfoService;
-import com.ke.bella.workflow.db.BellaContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.ke.bella.workflow.api.WorkflowOps.DomainAdd;
+import com.ke.bella.workflow.api.model.DifyModelResponse;
+import com.ke.bella.workflow.api.model.ModelInfoService;
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.db.tables.pojos.DomainDB;
 import com.ke.bella.workflow.service.DataSourceService;
 import com.ke.bella.workflow.tool.ApiTool;
 import com.ke.bella.workflow.tool.BellaToolService;
 import com.ke.bella.workflow.tool.BellaToolService.ToolCollect;
-import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenapiUtil;
 
 import lombok.AllArgsConstructor;
@@ -51,6 +51,21 @@ public class DifyWorkspacesController {
 
     @Autowired
     DataSourceService ds;
+
+    @GetMapping("/domain/list")
+    public List<DomainDB> listDomains(@RequestParam(required = false) String prefix) {
+        dc.initContext();
+        return ds.listDomains(prefix);
+    }
+
+    @PostMapping("/domain/add")
+    public BellaResponse<?> addDomain(@RequestBody DomainAdd domainOp) {
+        dc.initContext();
+        DomainDB data = ds.addDomain(domainOp);
+        return BellaResponse.builder()
+                .data(data)
+                .build();
+    }
 
     @GetMapping("/current/models/model-types/{model_type}")
     public DifyModelResponse llmModel(@PathVariable("model_type") String modelType) {

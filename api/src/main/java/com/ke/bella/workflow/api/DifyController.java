@@ -44,6 +44,7 @@ import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerType;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
@@ -55,6 +56,7 @@ import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
@@ -424,6 +426,8 @@ public class DifyController {
     @PostMapping("/{workflowId}/trigger/create")
     public Object createWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowTrigger trigger) {
         initContext();
+        WorkflowDB wd = ws.getPublishedWorkflow(workflowId, null);
+        Assert.notNull(wd, "工作流需要先发布，才可以创建触发器");
 
         return ts.createWorkflowTrigger(workflowId, trigger);
     }
@@ -449,6 +453,24 @@ public class DifyController {
 
         ts.deactivateWorkflowTrigger(trigger.getTriggerId(), trigger.getTriggerType());
         return trigger;
+    }
+
+    @GetMapping("/{workflowId}/custom-apis")
+    public Object listCustomApis(@PathVariable String workflowId) {
+        initContext();
+
+        List<WorkflowAsApiDB> triggers = ws.listCustomApis(workflowId);
+        return ImmutableMap.of("data", triggers);
+    }
+
+    @PostMapping("/{workflowId}/customApi/create")
+    public Object createCustomApi(@PathVariable String workflowId, @RequestBody WorkflowAsApiPublish op) {
+        initContext();
+        WorkflowDB wd = ws.getPublishedWorkflow(workflowId, null);
+        Assert.notNull(wd, "工作流需要先发布，才可以创建自定义 API");
+
+        op.setWorkflowId(workflowId);
+        return ws.publishAsApi(op);
     }
 
     private static DifyRunHistory transfer(WorkflowRunDB e) {

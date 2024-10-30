@@ -4,6 +4,7 @@
 package com.ke.bella.workflow.db;
 
 
+import com.ke.bella.workflow.db.tables.Domain;
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.KafkaDatasource;
 import com.ke.bella.workflow.db.tables.Tenant;
@@ -18,6 +19,7 @@ import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.WorkflowScheduling;
 import com.ke.bella.workflow.db.tables.WorkflowWebotTrigger;
+import com.ke.bella.workflow.db.tables.records.DomainRecord;
 import com.ke.bella.workflow.db.tables.records.InstanceRecord;
 import com.ke.bella.workflow.db.tables.records.KafkaDatasourceRecord;
 import com.ke.bella.workflow.db.tables.records.TenantRecord;
@@ -50,6 +52,7 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
+    public static final UniqueKey<DomainRecord> KEY_DOMAIN_PRIMARY = Internal.createUniqueKey(Domain.DOMAIN, DSL.name("KEY_domain_PRIMARY"), new TableField[] { Domain.DOMAIN.ID }, true);
     public static final UniqueKey<InstanceRecord> KEY_INSTANCE_PRIMARY = Internal.createUniqueKey(Instance.INSTANCE, DSL.name("KEY_instance_PRIMARY"), new TableField[] { Instance.INSTANCE.ID }, true);
     public static final UniqueKey<KafkaDatasourceRecord> KEY_KAFKA_DATASOURCE_IDX_ID = Internal.createUniqueKey(KafkaDatasource.KAFKA_DATASOURCE, DSL.name("KEY_kafka_datasource_idx_id"), new TableField[] { KafkaDatasource.KAFKA_DATASOURCE.DATASOURCE_ID }, true);
     public static final UniqueKey<KafkaDatasourceRecord> KEY_KAFKA_DATASOURCE_PRIMARY = Internal.createUniqueKey(KafkaDatasource.KAFKA_DATASOURCE, DSL.name("KEY_kafka_datasource_PRIMARY"), new TableField[] { KafkaDatasource.KAFKA_DATASOURCE.ID }, true);

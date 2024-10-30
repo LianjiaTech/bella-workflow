@@ -1,12 +1,21 @@
 package com.ke.bella.workflow.service;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
+import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.api.DataSourceOps.KafkaDataSourceAdd;
 import com.ke.bella.workflow.api.DataSourceOps.KafkaDataSourceRm;
+import com.ke.bella.workflow.api.WorkflowOps.DomainAdd;
 import com.ke.bella.workflow.db.repo.DataSourceRepo;
+import com.ke.bella.workflow.db.tables.pojos.DomainDB;
 import com.ke.bella.workflow.db.tables.pojos.KafkaDatasourceDB;
 
 @Component
@@ -14,6 +23,16 @@ public class DataSourceService {
 
     @Resource
     DataSourceRepo repo;
+
+    AtomicReference<Set<String>> customDomains = new AtomicReference<>(new HashSet<>());
+
+    @PostConstruct
+    public void init() {
+        TaskExecutor.schedule(this::refreshCustomDomains, 1000);
+
+        // try refresh domains every 60s.
+        TaskExecutor.scheduleAtFixedRate(this::refreshCustomDomains, 120);
+    }
 
     public KafkaDatasourceDB createKafkaDs(KafkaDataSourceAdd op) {
         return repo.addKafkaDs(op);
@@ -28,6 +47,23 @@ public class DataSourceService {
             return repo.listTenantAllActiveKafkaDs();
         }
         return null;
+    }
+
+    public List<DomainDB> listDomains(String prefix) {
+        return repo.listDomains(prefix);
+    }
+
+    public DomainDB addDomain(DomainAdd domainOp) {
+        return repo.addDomain(domainOp);
+    }
+
+    public boolean isCustomDomain(String host) {
+        return customDomains.get().contains(host);
+    }
+
+    private void refreshCustomDomains() {
+        List<String> domains = repo.listAllCustomDomains();
+        customDomains.set(new HashSet<>(domains));
     }
 
 }

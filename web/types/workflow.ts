@@ -269,3 +269,20 @@ export type Datasource = {
   name: string
   config: object
 }
+
+export type CustomApiDetail = {
+  id: number
+  host: string
+  path: string
+  operationId: string
+  status: number
+}
+
+export type CustomApiListResponse = {
+  data: CustomApiDetail[]
+}
+
+export type CustomDomain = {
+  domain: string
+  desc: string
+}

@@ -400,4 +400,17 @@ public class WorkflowOps {
         String inputs;
         String inputKey;
     }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DomainAdd extends Operator {
+        String domain;
+        String desc;
+
+        @Builder.Default
+        int custom = 1;
+    }
 }

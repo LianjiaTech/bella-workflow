@@ -28,6 +28,7 @@ public class RequestAdvice extends RequestBodyAdviceAdapter {
                 oper.setUserId(oldOperator.getUserId());
                 oper.setUserName(oldOperator.getUserName());
                 oper.setTenantId(oldOperator.getTenantId());
+                oper.setSpaceCode(oldOperator.getSpaceCode());
             });
             BellaContext.setOperator(oper);
         }

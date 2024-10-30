@@ -1,5 +1,7 @@
 package com.ke.bella.workflow.api;
 
+import org.springframework.util.StringUtils;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,4 +15,9 @@ public class Operator {
     protected Long userId;
     protected String userName;
     protected String tenantId;
+    protected String spaceCode;
+
+    public String getSpaceCode() {
+        return StringUtils.isEmpty(spaceCode) ? userId.toString() : spaceCode;
+    }
 }

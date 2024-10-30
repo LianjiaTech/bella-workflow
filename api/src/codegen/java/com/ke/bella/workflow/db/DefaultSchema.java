@@ -4,6 +4,7 @@
 package com.ke.bella.workflow.db;
 
 
+import com.ke.bella.workflow.db.tables.Domain;
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.KafkaDatasource;
 import com.ke.bella.workflow.db.tables.Tenant;
@@ -39,6 +40,11 @@ public class DefaultSchema extends SchemaImpl {
      * The reference instance of <code>DEFAULT_SCHEMA</code>
      */
     public static final DefaultSchema DEFAULT_SCHEMA = new DefaultSchema();
+
+    /**
+     * The table <code>domain</code>.
+     */
+    public final Domain DOMAIN = Domain.DOMAIN;
 
     /**
      * The table <code>instance</code>.
@@ -126,6 +132,7 @@ public class DefaultSchema extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.<Table<?>>asList(
+            Domain.DOMAIN,
             Instance.INSTANCE,
             KafkaDatasource.KAFKA_DATASOURCE,
             Tenant.TENANT,

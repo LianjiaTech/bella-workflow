@@ -584,6 +584,13 @@ public class WorkflowRepo implements BaseRepo {
         return rec.into(WorkflowAsApiDB.class);
     }
 
+    public List<WorkflowAsApiDB> listCustomApis(String workflowId) {
+        return db.selectFrom(WORKFLOW_AS_API)
+                .where(WORKFLOW_AS_API.TENANT_ID.eq(BellaContext.getOperator().getTenantId())
+                        .and(WORKFLOW_AS_API.WORKFLOW_ID.eq(workflowId)))
+                .fetchInto(WorkflowAsApiDB.class);
+    }
+
     @SuppressWarnings("serial")
     @Data
     @AllArgsConstructor

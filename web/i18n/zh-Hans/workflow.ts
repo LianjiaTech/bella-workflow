@@ -555,6 +555,31 @@ const translation = {
   tracing: {
     stopBy: '由{{user}}终止',
   },
+  customApi: {
+    title: '自定义 API',
+    desc: '自定义 API 允许你将工作流暴露为自定义的域名和路径，以便外部系统调用，不再需要 tenantId 和 workflowId',
+    add: '新增自定义 API',
+    host: '域名',
+    hostPlaceholder: '请输入域名 host',
+    path: '路径',
+    pathPlaceholder: '请输入路径 path',
+    startFromBlank: '创建自定义 API',
+    table: {
+      header: {
+        id: 'ID',
+        host: '域名 host',
+        path: '路径 path',
+        actions: '操作',
+        status: '状态',
+        operationId: '操作 ID',
+      },
+      empty: {
+        element: {
+          content: '当前不存在自定义 API',
+        },
+      },
+    },
+  },
   trigger: {
     title: '触发器',
     desc: '触发器允许您在特定事件发生时运行工作流',

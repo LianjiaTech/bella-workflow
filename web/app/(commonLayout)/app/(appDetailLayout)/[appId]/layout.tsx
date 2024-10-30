@@ -6,6 +6,8 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   RiTerminalBoxFill,
   RiTerminalBoxLine,
+  RiTerminalFill,
+  RiTerminalLine,
   RiTerminalWindowFill,
   RiTerminalWindowLine,
   RiTimerFlashFill,
@@ -76,6 +78,12 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         }]
         : []
       ),
+      {
+        name: t('common.appMenus.customApi'),
+        href: `/app/${appId}/customApi`,
+        icon: RiTerminalLine,
+        selectedIcon: RiTerminalFill,
+      },
       /* ...(isCurrentWorkspaceEditor
         ? [{
           name: mode !== 'workflow'

@@ -60,6 +60,7 @@ public class WorkflowSchedulingTest extends AbstractTest {
         WorkflowOps.WorkflowSchedulingPage page = WorkflowOps.WorkflowSchedulingPage.builder()
                 .tenantId("04633c4f-8638-43a3-a02e-af23c29f821f")
                 .triggerId(wfs.getData().getTriggerId())
+                .userId(userIdL)
                 .build();
         MvcResult pageResult = mockMvc.perform(post("/v1/workflow/trigger/scheduling/page")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -75,6 +76,7 @@ public class WorkflowSchedulingTest extends AbstractTest {
         WorkflowOps.WorkflowSchedulingOp wlsOp = WorkflowOps.WorkflowSchedulingOp.builder()
                 .tenantId("04633c4f-8638-43a3-a02e-af23c29f821f")
                 .triggerId(wfs.getData().getTriggerId())
+                .userId(userIdL)
                 .build();
         MvcResult stopResult = mockMvc.perform(post("/v1/workflow/trigger/scheduling/stop")
                 .contentType(MediaType.APPLICATION_JSON)

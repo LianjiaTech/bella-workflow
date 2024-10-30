@@ -4,6 +4,7 @@
 package com.ke.bella.workflow.db;
 
 
+import com.ke.bella.workflow.db.tables.Domain;
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.KafkaDatasource;
 import com.ke.bella.workflow.db.tables.Tenant;
@@ -25,6 +26,11 @@ import com.ke.bella.workflow.db.tables.WorkflowWebotTrigger;
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Tables {
+
+    /**
+     * The table <code>domain</code>.
+     */
+    public static final Domain DOMAIN = Domain.DOMAIN;
 
     /**
      * The table <code>instance</code>.

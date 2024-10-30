@@ -487,6 +487,10 @@ public class WorkflowService {
         return repo.queryCustomApi(hash);
     }
 
+    public List<WorkflowAsApiDB> listCustomApis(String workflowId) {
+        return repo.listCustomApis(workflowId);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public WorkflowAsApiDB publishAsApi(WorkflowAsApiPublish op) {
         WorkflowDB wf = null;

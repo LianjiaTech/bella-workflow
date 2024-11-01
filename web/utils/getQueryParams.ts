@@ -8,19 +8,20 @@ export const getQueryParams = (param: string): string | null => {
   return urlParams.get(param)
 }
 
-export const setUserInfo = (ucid: string, userName: string, tenantId: string) => {
+export const setUserInfo = (ucid: string, userName: string, tenantId: string, spaceCode: string) => {
   globalThis.sessionStorage.setItem('currentTenantId', tenantId)
-  if (userName !== '' && ucid !== '' && tenantId !== '') {
+  if (userName !== '' && ucid !== '' && tenantId !== '' && spaceCode !== '') {
     const userInfo: any = {
       ucid,
       userName,
       tenantId,
+      spaceCode,
     }
     globalThis.localStorage?.setItem(tenantId, JSON.stringify(userInfo))
   }
 }
 
-export const getUserInfo = (): { userName: string; ucid: string; tenantId: string } => {
+export const getUserInfo = (): { userName: string; ucid: string; tenantId: string ; spaceCode: string } => {
   const tenantId: string = globalThis.sessionStorage.getItem('currentTenantId')
   const userInfoStr: string = globalThis.localStorage?.getItem(tenantId)
   return userInfoStr != null
@@ -29,5 +30,6 @@ export const getUserInfo = (): { userName: string; ucid: string; tenantId: strin
       userName: '',
       ucid: '',
       tenantId: '',
+      spaceCode: '',
     }
 }

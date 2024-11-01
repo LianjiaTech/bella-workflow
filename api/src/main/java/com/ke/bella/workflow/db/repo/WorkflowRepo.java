@@ -175,6 +175,7 @@ public class WorkflowRepo implements BaseRepo {
         if(workflowDb.getVersion() > 0L) {
             rec.setLatestPublishVersion(workflowDb.getVersion());
         }
+        rec.setSpaceCode(BellaContext.getOperator().getSpaceCode());
         db.insertInto(WORKFLOW_AGGREGATE).set(rec).execute();
 
         return rec.into(WorkflowAggregateDB.class);
@@ -553,8 +554,7 @@ public class WorkflowRepo implements BaseRepo {
     public Page<WorkflowAggregateDB> pageWorkflowAggregate(WorkflowPage op) {
         SelectSeekStep2<WorkflowAggregateRecord, Integer, LocalDateTime> sql = db.selectFrom(WORKFLOW_AGGREGATE)
                 .where(WORKFLOW_AGGREGATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
-                .and(Objects.isNull(BellaContext.getOperator().getUserId()) ? DSL.noCondition()
-                        : WORKFLOW_AGGREGATE.CUID.eq(BellaContext.getOperator().getUserId()))
+                .and(WORKFLOW_AGGREGATE.SPACE_CODE.eq(op.getSpaceCode()))
                 .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition()
                         : WORKFLOW_AGGREGATE.TITLE.like("%" + DSL.escape(op.getName(), '\\') + "%"))
                 .and(StringUtils.isEmpty(op.getWorkflowId()) ? DSL.noCondition() : WORKFLOW_AGGREGATE.WORKFLOW_ID.eq(op.getWorkflowId()))

@@ -7,6 +7,8 @@ import java.util.Map;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 
 import lombok.AllArgsConstructor;
@@ -19,13 +21,9 @@ public class BellaToolService {
 
     private static final String SUCCESS_ERROR_NO = "0";
 
-    private static final String BELLA_TOOL_HOST = "http://example.com";
-
     private static final String GET_TOOL_PATH = "/getToolsByToolName";
 
-    private static final String GET_TOOL_COLLECT_PATH = "/getToolCollectByPage";
-
-    private static final String BELLA_NAMESPACE = "bella";
+    private static final String GET_TOOL_COLLECT_PATH = "/v1/api/market/collection/searchByPage";
 
     /**
      * fixme :
@@ -35,17 +33,19 @@ public class BellaToolService {
      */
     public static List<BellaTool> getTool(String toolName) {
         ImmutableMap<String, String> param = ImmutableMap.of("toolName", toolName);
-        return get(BELLA_TOOL_HOST + GET_TOOL_PATH, param, new TypeReference<BellaToolMarketResp<List<BellaTool>>>() {
+        return get(Configs.BELLA_TOOL_API_BASE + GET_TOOL_PATH, param, new TypeReference<BellaToolMarketResp<List<BellaTool>>>() {
         });
     }
 
     public static BellaToolMarketPage<ToolCollect> listToolCollects(Integer pageNo, Integer pageSize) {
         Map<String, String> params = new HashMap<>();
-        params.put("namespaceName", BELLA_NAMESPACE);
         params.put("pageNo", String.valueOf(pageNo));
         params.put("pageSize", String.valueOf(pageSize));
+		// 枚举值3表示查询空间可见(public以及该空间下)的工具....
+        params.put("toolType", "3");
+        params.put("spaceCode", BellaContext.getOperator().getSpaceCode());
 
-        String toolListUrl = BELLA_TOOL_HOST + GET_TOOL_COLLECT_PATH;
+        String toolListUrl = Configs.BELLA_TOOL_API_BASE + GET_TOOL_COLLECT_PATH;
         return get(
                 toolListUrl, params, new TypeReference<BellaToolMarketResp<BellaToolMarketPage<ToolCollect>>>() {
                 });

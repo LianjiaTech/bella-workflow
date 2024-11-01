@@ -9,14 +9,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import com.ke.bella.workflow.db.BellaContext;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
 import com.ke.bella.workflow.api.DatasetOps;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -33,8 +32,7 @@ public class DatasetService {
     private static final String BELLA_WORKFLOW_TENANT_ID = "bella-workflow";
     private static final String X_BELLA_OPERATOR_ID = "X-BELLA-OPERATOR-ID";
     private static final String X_BELLA_OPERATOR_NAME = "X-BELLA-OPERATOR-NAME";
-    @Value("${bella.knowledge-file.search}")
-    private String bellaKnowledgeFileSearchUrl;
+    private static final String KNOWLEDGE_FILE_SEARCH_PATH = "/api/v1/knowledge/searchNew/forWorkflow";
 
     private static Dataset transfer(BellaResp.Page.KnowledgeFile bellaFile) {
         return Dataset.builder()
@@ -63,9 +61,11 @@ public class DatasetService {
                 .pageNo(op.getPage())
                 .pageSize(op.getLimit())
                 .fileIds(op.getIds())
+                .spaceCode(BellaContext.getOperator().getSpaceCode())
                 .build();
-        BellaResp bellaResp = HttpUtils.postJson(header, bellaKnowledgeFileSearchUrl, JsonUtils.toJson(searchReq), new TypeReference<BellaResp>() {
-        });
+        BellaResp bellaResp = HttpUtils.postJson(header, Configs.BORE_API_BASE + KNOWLEDGE_FILE_SEARCH_PATH, JsonUtils.toJson(searchReq),
+                new TypeReference<BellaResp>() {
+                });
         if(!"0".equals(bellaResp.getErrno())) {
             throw new IllegalStateException("Failed to get dataset list from Bella Knowledge Repository");
         }
@@ -115,6 +115,7 @@ public class DatasetService {
         private List<String> fileIds;
         @Builder.Default
         private String sort = "ALL";
+        private String spaceCode;
     }
 
     @Data

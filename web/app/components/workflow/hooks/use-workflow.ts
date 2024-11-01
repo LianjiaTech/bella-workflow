@@ -22,7 +22,7 @@ import {
 } from '../utils'
 import type {
   Edge,
-  Node,
+  Node, Role,
   ValueSelector,
 } from '../types'
 import {
@@ -47,6 +47,7 @@ import { useStore as useAppStore } from '@/app/components/app/store'
 import {
   fetchNodesDefaultConfigs,
   fetchPublishedWorkflow,
+  fetchSpaceRole,
   fetchWorkflowDraft,
   syncWorkflowDraft,
 } from '@/service/workflow'
@@ -58,6 +59,8 @@ import {
 } from '@/service/tools'
 import I18n from '@/context/i18n'
 import { CollectionType } from '@/app/components/tools/types'
+import { getUserInfo } from '@/utils/getQueryParams'
+import type { App } from '@/types/app'
 
 export const useIsChatMode = () => {
   const appDetail = useAppStore(s => s.appDetail)
@@ -471,6 +474,10 @@ export const useWorkflowInit = () => {
   const handleGetInitialWorkflowData = useCallback(async () => {
     try {
       const res = await fetchWorkflowDraft(`/apps/${appDetail.id}/workflows/draft`)
+      const role = await fetchSpaceRole().catch(() => {
+        console.log('fetch space role error')
+        return undefined
+      })
       setData(res)
       workflowStore.setState({
         envSecrets: (res.environment_variables || []).filter(env => env.value_type === 'secret').reduce((acc, env) => {
@@ -478,6 +485,7 @@ export const useWorkflowInit = () => {
           return acc
         }, {} as Record<string, string>),
         environmentVariables: res.environment_variables?.map(env => env.value_type === 'secret' ? { ...env, value: '[__HIDDEN__]' } : env) || [],
+        role,
       })
       setSyncWorkflowDraftHash(res.hash)
       setIsLoading(false)
@@ -551,16 +559,24 @@ export const useWorkflowInit = () => {
   }
 }
 
+const hasEditPermission = (ucid: string, appDetail?: App, role?: Role) => {
+  if (!role || !appDetail)
+    return true
+  return ['owner', 'admin'].includes(role.roleCode) || appDetail.cuid.toString() === ucid
+}
+
 export const useWorkflowReadOnly = () => {
   const workflowStore = useWorkflowStore()
   const workflowRunningData = useStore(s => s.workflowRunningData)
-
+  const role = useStore(s => s.role)
+  const appDetail = useAppStore(s => s.appDetail)
+  const { ucid } = getUserInfo()
   const getWorkflowReadOnly = useCallback(() => {
-    return workflowStore.getState().workflowRunningData?.result.status === WorkflowRunningStatus.Running
-  }, [workflowStore])
+    return workflowStore.getState().workflowRunningData?.result.status === WorkflowRunningStatus.Running || !hasEditPermission(ucid, appDetail, role)
+  }, [appDetail, role, ucid, workflowStore])
 
   return {
-    workflowReadOnly: workflowRunningData?.result.status === WorkflowRunningStatus.Running,
+    workflowReadOnly: workflowRunningData?.result.status === WorkflowRunningStatus.Running || (role && !['owner', 'admin'].includes(role.roleCode)) || !hasEditPermission(ucid, appDetail, role),
     getWorkflowReadOnly,
   }
 }
@@ -571,7 +587,9 @@ export const useNodesReadOnly = () => {
   const historyWorkflowVersion = useStore(s => s.historyWorkflowVersion)
   const isVersionHistory = useStore(s => s.isVersionHistory)
   const isRestoring = useStore(s => s.isRestoring)
-
+  const appDetail = useAppStore(s => s.appDetail)
+  const { ucid } = getUserInfo()
+  const role = useStore(s => s.role)
   const getNodesReadOnly = useCallback(() => {
     const {
       workflowRunningData,
@@ -580,11 +598,11 @@ export const useNodesReadOnly = () => {
       historyWorkflowVersion,
     } = workflowStore.getState()
 
-    return workflowRunningData?.result.status === WorkflowRunningStatus.Running || historyWorkflowData || isRestoring || historyWorkflowVersion || isVersionHistory
-  }, [workflowStore])
+    return workflowRunningData?.result.status === WorkflowRunningStatus.Running || historyWorkflowData || isRestoring || historyWorkflowVersion || isVersionHistory || !hasEditPermission(ucid, appDetail, role)
+  }, [appDetail, isVersionHistory, role, ucid, workflowStore])
 
   return {
-    nodesReadOnly: !!(workflowRunningData?.result.status === WorkflowRunningStatus.Running || historyWorkflowData || isRestoring || historyWorkflowVersion || isVersionHistory),
+    nodesReadOnly: !!(workflowRunningData?.result.status === WorkflowRunningStatus.Running || historyWorkflowData || isRestoring || historyWorkflowVersion || isVersionHistory || !hasEditPermission(ucid, appDetail, role)),
     getNodesReadOnly,
   }
 }

@@ -3,6 +3,7 @@ package com.ke.bella.workflow.api;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ke.bella.workflow.api.DifyController.DifyWorkflowRun;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.service.WorkflowService;
+import com.ke.bella.workflow.space.BellaSpaceService;
 
 @RestController
 @RequestMapping("/console/api")
@@ -31,5 +33,10 @@ public class DifyConsoleController {
         op1.setTenantId(capi.getTenantId());
         op1.setWorkflowId(capi.getWorkflowId());
         return dc.workflowRun(capi.getWorkflowId(), op1);
-	}
+    }
+
+    @GetMapping("/space/role")
+    public BellaSpaceService.SpaceRole getSpaceRole() {
+        return dc.getSpaceRole();
+    }
 }

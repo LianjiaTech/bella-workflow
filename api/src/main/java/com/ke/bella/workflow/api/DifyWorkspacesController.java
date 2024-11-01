@@ -101,7 +101,8 @@ public class DifyWorkspacesController {
         int pageSize = 1000;
         int totalPages = 1;
         while (pageNo <= totalPages) {
-            BellaToolService.BellaToolMarketPage<ToolCollect> page = BellaToolService.listToolCollects(pageNo, pageSize);
+            BellaToolService.BellaToolMarketPage<ToolCollect> page = BellaToolService.listToolCollects(
+                    pageNo, pageSize);
             if(CollectionUtils.isEmpty(page.getList())) {
                 break;
             }

@@ -49,7 +49,8 @@ public class WorkflowTriggerService {
     WorkflowClient wfc;
 
     public WorkflowSchedulingDB createSchedulingTrigger(WorkflowScheduling op) {
-        return repo.insertWorkflowScheduling(op);
+        WorkflowSchedulingDB workflowSchedulingDB = repo.insertWorkflowScheduling(op);
+        return repo.selectWorkflowScheduling(workflowSchedulingDB.getTenantId(), workflowSchedulingDB.getTriggerId());
     }
 
     public void refreshTriggerNextTime(WorkflowSchedulingDB trigger) {
@@ -130,7 +131,8 @@ public class WorkflowTriggerService {
 
     public WorkflowKafkaTriggerDB createKafkaTrigger(KafkaTriggerCreate op) {
         KafkaEventConsumers.validate(op.getExpression());
-        return repo.addKafkaTrigger(op);
+        WorkflowKafkaTriggerDB wlkDb = repo.addKafkaTrigger(op);
+        return repo.queryKafkaTrigger(wlkDb.getTriggerId());
     }
 
     public void activeKafkaTrigger(String triggerId) {
@@ -210,6 +212,7 @@ public class WorkflowTriggerService {
         return res;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public WorkflowTrigger createWorkflowTrigger(String workflowId, WorkflowTrigger trigger) {
         TriggerType type = TriggerType.valueOf(trigger.getTriggerType());
         if(type == TriggerType.KFKA) {

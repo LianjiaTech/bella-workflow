@@ -14,7 +14,8 @@ const AppDetail: FC<IAppDetail> = ({ children }) => {
   const userName = searchParams.get('userName') || ''
   const ucid = searchParams.get('ucid') || ''
   const tenantId = searchParams.get('tenantId') || 'test'
-  setUserInfo(ucid, userName, tenantId)
+  const spaceCode = searchParams.get('spaceCode') || ucid
+  setUserInfo(ucid, userName, tenantId, spaceCode)
   const router = useRouter()
   const { isCurrentWorkspaceDatasetOperator } = useAppContext()
 

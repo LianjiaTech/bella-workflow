@@ -13,7 +13,8 @@ const AppDetail: FC<IAppDetail> = ({ children }) => {
   const userName = searchParams.get('userName') || ''
   const ucid = searchParams.get('ucid') || ''
   const tenantId = searchParams.get('tenantId') || 'TENT-d815410c-f9db-459e-b4ab-67a52d8e63ce'
-  setUserInfo(ucid, userName, tenantId)
+  const spaceCode = searchParams.get('spaceCode') || ucid
+  setUserInfo(ucid, userName, tenantId, spaceCode)
   return (
     <>
       {children}

@@ -16,6 +16,7 @@ import type {
   HistoryWorkflowData,
   HistoryWorkflowVersion,
   Node,
+  Role,
   RunFile,
   ToolWithProvider,
   WorkflowRunningData,
@@ -40,6 +41,8 @@ type Shape = {
   setHistoryWorkflowVersion: (historyWorkflowVersion?: HistoryWorkflowVersion) => void
   isVersionHistory: boolean
   setVersionHistory: (versionHistory: boolean) => void
+  role?: Role
+  setRole: (role: Role) => void
   showRunHistory: boolean
   setShowRunHistory: (showRunHistory: boolean) => void
   showFeaturesPanel: boolean
@@ -164,6 +167,8 @@ export const createWorkflowStore = () => {
     setHistoryWorkflowVersion: historyWorkflowVersion => set(() => ({ historyWorkflowVersion })),
     isVersionHistory: false,
     setVersionHistory: isVersionHistory => set(() => ({ isVersionHistory })),
+    role: undefined,
+    setRole: role => set(() => ({ role })),
     showRunHistory: false,
     setShowRunHistory: showRunHistory => set(() => ({ showRunHistory })),
     showFeaturesPanel: false,

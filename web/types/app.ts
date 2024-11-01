@@ -333,6 +333,8 @@ export type App = {
   /** api site url */
   api_base_url: string
   tags: Tag[]
+  space_code: string
+  cuid: number
 }
 
 /**

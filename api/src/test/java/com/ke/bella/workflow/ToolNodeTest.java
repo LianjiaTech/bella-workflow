@@ -6,15 +6,19 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.ke.bella.workflow.WorkflowCallbackAdaptor;
-import com.ke.bella.workflow.WorkflowContext;
-import com.ke.bella.workflow.WorkflowRunner;
+import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.completion.chat.ChatCompletionResult;
 
 public class ToolNodeTest {
+
+    @BeforeAll
+    public static void initOpenAPIContext() {
+        Configs.BELLA_TOOL_API_BASE = "http://example.com";
+    }
 
     @Test
     public void testGet() throws IOException, InterruptedException {

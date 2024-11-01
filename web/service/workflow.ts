@@ -11,7 +11,7 @@ import type {
   WorkflowTriggerDetail,
   WorkflowVersionHistoryResponse,
 } from '@/types/workflow'
-import type { BlockEnum, HistoryWorkflowVersion } from '@/app/components/workflow/types'
+import type { BlockEnum, HistoryWorkflowVersion, Role } from '@/app/components/workflow/types'
 
 export const fetchWorkflowDraft = (url: string) => {
   return get(url, {}, { silent: true }) as Promise<FetchWorkflowDraftResponse>
@@ -43,6 +43,10 @@ export const deactivateWorkflowVersion: Fetcher<HistoryWorkflowVersion, { workfl
 
 export const fetchDefaultWorkflowVersion: Fetcher<HistoryWorkflowVersion, string> = (url) => {
   return get<HistoryWorkflowVersion>(url)
+}
+
+export const fetchSpaceRole = () => {
+  return get<Role>('/space/role', {}, {})
 }
 
 export const fetcChatRunHistory: Fetcher<ChatRunHistoryResponse, string> = (url) => {

@@ -22,16 +22,16 @@ public class BellaCustomController {
     @Autowired
     WorkflowService ws;
 
-    @GetMapping
+    @GetMapping("/workflows")
     public Page<WorkflowAggregateDB> pageWorkflowCustom(WorkflowOps.WorkflowPage op) {
         return ws.pageWorkflowAggregate(op);
     }
 
-	@PostMapping("/delete")
-	public void delete(@RequestBody WorkflowOps.WorkflowOp op) {
-		Assert.hasText(op.tenantId, "tenantId不能为空");
-		Assert.hasText(op.workflowId, "workflowId不能为空");
+    @PostMapping("/delete")
+    public void delete(@RequestBody WorkflowOps.WorkflowOp op) {
+        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.workflowId, "workflowId不能为空");
 
-		ws.deleteWorkflowAggregate(op.workflowId);
-	}
+        ws.deleteWorkflowAggregate(op.workflowId);
+    }
 }

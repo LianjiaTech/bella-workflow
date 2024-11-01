@@ -56,6 +56,7 @@ import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
@@ -65,6 +66,7 @@ import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.service.WorkflowTriggerService;
+import com.ke.bella.workflow.space.BellaSpaceService;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.assistants.message.Message;
@@ -90,6 +92,9 @@ public class DifyController {
 
     @Autowired
     WorkflowTriggerService ts;
+
+    @Autowired
+    BellaSpaceService ss;
 
     private void initContext(Operator op) {
         if(op != null && contextOperatorInvalid()) {
@@ -133,6 +138,7 @@ public class DifyController {
                 .description(wf.getDesc())
                 .mode(wf.getMode())
                 .api_base_url(Configs.API_BASE)
+                .cuid(wf.getCuid())
                 .build()));
 
         Page<DifyApp> ret = new Page<>();
@@ -156,6 +162,7 @@ public class DifyController {
                 .build();
         WorkflowDB wf = ws.newWorkflow(sync);
         app.setId(wf.getWorkflowId());
+        app.setCuid(wf.getCuid());
         return app;
     }
 
@@ -214,6 +221,8 @@ public class DifyController {
         Object[] deleted_tools = new Object[0];
         @Builder.Default
         Object[] tags = new Object[0];
+        String space_code;
+        Long cuid;
 
         @Data
         @NoArgsConstructor
@@ -239,7 +248,7 @@ public class DifyController {
     @GetMapping("/{workflowId}")
     public DifyApp getDifyApp(@PathVariable String workflowId) {
         initContext();
-        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
+        WorkflowAggregateDB wf = ws.getWorkflowAggregate(workflowId);
         return DifyApp.builder()
                 .tenantId(wf.getTenantId())
                 .id(workflowId)
@@ -247,6 +256,8 @@ public class DifyController {
                 .description(wf.getDesc())
                 .mode(wf.getMode())
                 .api_base_url(Configs.API_BASE)
+                .cuid(wf.getCuid())
+                .space_code(wf.getSpaceCode())
                 .build();
     }
 
@@ -268,6 +279,7 @@ public class DifyController {
                 .name(wf.getTitle())
                 .description(wf.getDesc())
                 .mode(wf.getMode())
+                .cuid(wf.getCuid())
                 .api_base_url(Configs.API_BASE)
                 .build();
     }
@@ -667,6 +679,11 @@ public class DifyController {
         return BaseNode.defaultConfigs();
     }
 
+    public BellaSpaceService.SpaceRole getSpaceRole() {
+		initContext();
+        return ss.userSpaceRoles();
+    }
+
     private static List<DifyNodeExecution.DifyNodeRun> transfer(List<WorkflowNodeRunDB> nodeRunDBs) {
         AtomicInteger index = new AtomicInteger(1);
         AtomicReference<String> lastNodeId = new AtomicReference<>(null);
@@ -720,6 +737,14 @@ public class DifyController {
                 .mtime(db.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
                 .graph(JsonUtils.fromJson(db.getGraph(), WorkflowSchema.class).getGraph())
                 .build();
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @SuperBuilder(toBuilder = true)
+    public static class DifyRole {
+        private String code;
     }
 
     @AllArgsConstructor

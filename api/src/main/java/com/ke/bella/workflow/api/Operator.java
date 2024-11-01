@@ -18,6 +18,6 @@ public class Operator {
     protected String spaceCode;
 
     public String getSpaceCode() {
-        return StringUtils.isEmpty(spaceCode) ? userId.toString() : spaceCode;
+        return StringUtils.isEmpty(spaceCode) ? String.valueOf(userId) : spaceCode;
     }
 }

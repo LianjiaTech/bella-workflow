@@ -312,10 +312,11 @@ const baseFetch = <T>(
 
   const urlPrefix = isPublicAPI ? PUBLIC_API_PREFIX : API_PREFIX
   let urlWithPrefix = `${urlPrefix}${url.startsWith('/') ? url : `/${url}`}`
-  const { userName, ucid, tenantId } = getUserInfo()
+  const { userName, ucid, tenantId, spaceCode } = getUserInfo()
   options.headers.set('X-BELLA-OPERATOR-NAME', encodeURI(userName))
   options.headers.set('X-BELLA-OPERATOR-ID', ucid)
   options.headers.set('X-BELLA-TENANT-ID', tenantId)
+  options.headers.set('X-BELLA-OPERATOR-SPACE', spaceCode)
   const { method, params, body } = options
   // handle query
   if (method === 'GET' && params) {

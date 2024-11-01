@@ -338,6 +338,12 @@ export type HistoryWorkflowVersion = {
   mtime: string
 }
 
+export type Role = {
+  roleCode: string
+  spaceCode: string
+  spaceName: string
+}
+
 export type HistoryWorkflowData = {
   id: string
   sequence_number: number

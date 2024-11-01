@@ -352,6 +352,13 @@ const baseFetch = <T>(
             const bodyJson = res.json()
             switch (res.status) {
               case 401: {
+                console.log('response status is 401')
+                let redirectUrl = res.headers.get('X-Redirect-Login') || res.headers.get('x-redirect-login')
+                if (redirectUrl) {
+                  redirectUrl += encodeURIComponent(globalThis.location.href)
+                  globalThis.location.href = redirectUrl
+                  break
+                }
                 if (isPublicAPI) {
                   return bodyJson.then((data: ResponseError) => {
                     if (!silent)

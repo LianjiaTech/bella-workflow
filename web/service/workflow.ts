@@ -6,7 +6,7 @@ import type {
   CustomApiDetail,
   CustomApiListResponse,
   FetchWorkflowDraftResponse,
-  NodesDefaultConfigsResponse,
+  NodesDefaultConfigsResponse, UserInfoResponse,
   WorkflowRunHistoryResponse,
   WorkflowTriggerDetail,
   WorkflowVersionHistoryResponse,
@@ -101,4 +101,8 @@ export const fetchWorkflowCustomApis: Fetcher<CustomApiListResponse, { workflowI
 
 export const createCustomApi: Fetcher<CustomApiDetail, { workflowId: string; host: string; path: string }> = ({ workflowId, host, path }) => {
   return post<CustomApiDetail>(`apps/${workflowId}/customApi/create`, { body: { host, path } })
+}
+
+export const fetchUserInfo: Fetcher<UserInfoResponse> = () => {
+  return get<UserInfoResponse>('/userInfo')
 }

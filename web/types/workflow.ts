@@ -286,3 +286,11 @@ export type CustomDomain = {
   domain: string
   desc: string
 }
+
+export type UserInfoResponse = {
+  userId: number
+  userName: string
+  email: string
+  tenantId: string
+  spaceCode: string
+}

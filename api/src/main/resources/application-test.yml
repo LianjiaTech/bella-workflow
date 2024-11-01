@@ -71,6 +71,20 @@ bella:
       groovy: true
   knowledge-file:
     search: http://example.com/api/v1/knowledge/searchNew/forWorkflow
+  cas:
+    server-url-prefix: https://example.com/
+    server-login-url: https://example.com/login
+    client-host: http://example.com
+    #client-host: http://example.com
+    client-index-url: http://example.com/
 
 openapi:
   host: http://example.com
+
+spring:
+  redis:
+    host: redis.example.com
+    port: 10373
+    password: bella123
+#    host: localhost
+#    port: 6379

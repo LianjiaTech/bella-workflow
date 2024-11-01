@@ -1,9 +1,13 @@
-package com.ke.bella.workflow.api;
+package com.ke.bella.workflow.api.interceptor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.api.BellaResponse;
+import com.ke.bella.workflow.api.TriggerController;
+import com.ke.bella.workflow.api.WorkflowController;
+import com.ke.bella.workflow.api.WorkflowCustomApi;
+import org.apache.http.auth.AuthenticationException;
 import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -17,11 +21,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.utils.JsonUtils;
+
 import lombok.extern.slf4j.Slf4j;
 
-@RestControllerAdvice(assignableTypes = { DifyController.class, DifyResponseAdvice.class })
+@RestControllerAdvice(assignableTypes = { WorkflowController.class, TriggerController.class, WorkflowCustomApi.class, ResponseAdvice.class })
 @Slf4j
-public class DifyResponseAdvice implements ResponseBodyAdvice<Object> {
+public class ResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
@@ -35,15 +42,21 @@ public class DifyResponseAdvice implements ResponseBodyAdvice<Object> {
             Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         try {
             response.getHeaders().add("Cache-Control", "no-cache");
-            if(body instanceof DifyController.DifyResponse) {
-                response.setStatusCode(HttpStatus.valueOf(((DifyController.DifyResponse) body).getCode()));
+            if(body instanceof BellaResponse) {
+                response.setStatusCode(HttpStatus.valueOf(((BellaResponse) body).getCode()));
                 return body;
             }
 
-            if(body instanceof BellaResponse) {
-                response.setStatusCode(HttpStatus.valueOf(((BellaResponse) body).getCode()));
+            BellaResponse<Object> resp = new BellaResponse<>();
+            resp.setCode(200);
+            resp.setTimestamp(System.currentTimeMillis());
+            resp.setData(body);
+
+            if(body instanceof String) {
+                return JsonUtils.toJson(resp);
             }
-            return body;
+
+            return resp;
         } finally {
             BellaContext.clearAll();
         }
@@ -62,6 +75,10 @@ public class DifyResponseAdvice implements ResponseBodyAdvice<Object> {
 
         if(e instanceof DataIntegrityViolationException) {
             msg = "非法的数据";
+        }
+
+        if(e instanceof AuthenticationException) {
+            code = 401;
         }
 
         if(code == 500) {

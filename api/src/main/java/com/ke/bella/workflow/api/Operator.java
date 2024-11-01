@@ -14,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 public class Operator {
     protected Long userId;
     protected String userName;
+    protected String email;
     protected String tenantId;
     protected String spaceCode;
 

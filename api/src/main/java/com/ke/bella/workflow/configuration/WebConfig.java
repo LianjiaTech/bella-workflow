@@ -1,5 +1,8 @@
 package com.ke.bella.workflow.configuration;
 
+import com.ke.bella.workflow.api.interceptor.ApikeyInterceptor;
+import com.ke.bella.workflow.api.interceptor.ConcurrentStartInterceptor;
+import com.ke.bella.workflow.api.interceptor.DifyRequestInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -7,9 +10,6 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.ke.bella.workflow.api.ApikeyInterceptor;
-import com.ke.bella.workflow.api.ConcurrentStartInterceptor;
-import com.ke.bella.workflow.api.DifyRequestInterceptor;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -33,7 +33,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(apikeyInterceptor)
-                .addPathPatterns("/**")
+                .addPathPatterns("/v1/**")
+                .addPathPatterns("/capi/**")
                 .order(50);
         registry.addInterceptor(difyRequestInterceptor)
                 .addPathPatterns("/console/api/**")

@@ -52,7 +52,7 @@ public class DifyRequestInterceptor extends HandlerInterceptorAdapter {
                     .tenantId(tenantId)
                     .spaceCode(spaceCode)
                     .build());
-        } else {
+        } else if(BellaContext.getApiKey() == null){
             com.ke.bella.openapi.Operator operator = ConsoleContext.getOperator();
             if(operator == null) {
                 throw new AuthenticationException("认证失败");

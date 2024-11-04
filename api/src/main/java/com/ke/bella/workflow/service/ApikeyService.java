@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Maps;
+import com.ke.bella.openapi.BellaResponse;
 import com.ke.bella.openapi.apikey.ApikeyInfo;
 import com.ke.bella.workflow.utils.HttpUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +33,8 @@ public class ApikeyService {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaders.AUTHORIZATION, "Bearer " + apikey);
         String url = "/v1/apikey/whoami";
-        return HttpUtils.get(headers, openapiHost + url, Maps.newHashMap(), new TypeReference<ApikeyInfo>() {});
+        BellaResponse<ApikeyInfo> bellaResp = HttpUtils.get(headers, openapiHost + url, null, new TypeReference<BellaResponse<ApikeyInfo>>(){});
+        return bellaResp == null ? null : bellaResp.getData();
     }
 
     public boolean isValid(String apikey) {

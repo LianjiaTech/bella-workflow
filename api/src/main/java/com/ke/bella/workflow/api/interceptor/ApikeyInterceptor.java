@@ -1,10 +1,6 @@
 package com.ke.bella.workflow.api.interceptor;
 
-import static com.ke.bella.workflow.api.interceptor.ConcurrentStartInterceptor.ASYNC_REQUEST_MARKER;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.ApikeyService;
 import org.apache.http.auth.AuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +9,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.ke.bella.workflow.db.BellaContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import static com.ke.bella.workflow.api.interceptor.ConcurrentStartInterceptor.ASYNC_REQUEST_MARKER;
 
 @Component
 public class ApikeyInterceptor extends HandlerInterceptorAdapter {
@@ -34,11 +33,10 @@ public class ApikeyInterceptor extends HandlerInterceptorAdapter {
                 return true;
             }
         }
-//        if(profile.contains("junit")) {
-//            return true;
-//        }
-//        throw new AuthenticationException("invalid api key");
-        return true;
+        if(profile.contains("junit")) {
+            return true;
+        }
+        throw new AuthenticationException("invalid api key");
     }
 
     @Override

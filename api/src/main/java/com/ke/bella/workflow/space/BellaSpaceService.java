@@ -29,6 +29,7 @@ public class BellaSpaceService {
 
         Map<String, String> params = new HashMap<>();
         params.put("memberUid", String.valueOf(BellaContext.getOperator().getUserId()));
+        params.put("spaceCode", String.valueOf(BellaContext.getOperator().getSpaceCode()));
         BellaSpaceListResp<SpaceRole> resp = HttpUtils.get(header, openapiHost + USER_SPACES_ROLES,
                 params,
                 new TypeReference<BellaSpaceListResp<SpaceRole>>() {

@@ -559,8 +559,10 @@ export const useWorkflowInit = () => {
   }
 }
 
-const hasEditPermission = (ucid: string, appDetail?: App, role?: Role) => {
-  if (!role || !appDetail)
+export const hasEditPermission = (ucid: string, appDetail?: App, role?: Role) => {
+  if (!role)
+    return false
+  if (!appDetail)
     return true
   return ['owner', 'admin'].includes(role.roleCode) || appDetail.cuid.toString() === ucid
 }
@@ -576,7 +578,7 @@ export const useWorkflowReadOnly = () => {
   }, [appDetail, role, ucid, workflowStore])
 
   return {
-    workflowReadOnly: workflowRunningData?.result.status === WorkflowRunningStatus.Running || (role && !['owner', 'admin'].includes(role.roleCode)) || !hasEditPermission(ucid, appDetail, role),
+    workflowReadOnly: workflowRunningData?.result.status === WorkflowRunningStatus.Running || !hasEditPermission(ucid, appDetail, role),
     getWorkflowReadOnly,
   }
 }

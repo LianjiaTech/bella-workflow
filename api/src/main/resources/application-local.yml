@@ -76,8 +76,9 @@ bella:
   cas:
     server-url-prefix: https://example.com/
     server-login-url: https://example.com/login
-    client-host: http://example.com
-    client-index-url: http://example.com/
+    client-host: http://localhost:8080
+    #client-host: http://example.com
+    client-index-url: http://localhost:3000
 
 openapi:
   host: http://example.com

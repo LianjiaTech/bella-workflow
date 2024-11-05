@@ -15,6 +15,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
@@ -36,6 +37,9 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @Slf4j
 public class KafkaEventConsumers {
+
+    @Value("${spring.profiles.active}")
+    String profile;
 
     @Autowired
     DataSourceRepo ds;
@@ -104,7 +108,7 @@ public class KafkaEventConsumers {
 
     void addConsumer(String server, String topic) {
         String key = serverKey(server, topic);
-        ConsumerFactory<String, String> consumerFactory = createConsumerFactory(server, "bella-workflow");
+        ConsumerFactory<String, String> consumerFactory = createConsumerFactory(server, "bella-workflow-" + profile);
 
         ContainerProperties containerProps = new ContainerProperties(topic);
         containerProps.setMessageListener(new EventListener(key));

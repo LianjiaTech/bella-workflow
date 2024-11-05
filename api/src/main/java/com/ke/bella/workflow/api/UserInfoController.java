@@ -8,8 +8,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/console/api/userInfo")
 public class UserInfoController {
+    private static final Operator EMPTY = Operator.builder().userId(1L)
+            .userName("ai-arch")
+            .tenantId("")
+            .email("ai-arch@example.com").build();
     @GetMapping
     public Operator getUserInfo() {
-        return BellaContext.getOperator();
+        Operator operator = BellaContext.getOperator();
+        return operator == null ? EMPTY : operator;
     }
 }

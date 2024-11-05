@@ -1,42 +1,9 @@
 package com.ke.bella.workflow.api;
 
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.TaskExecutor;
@@ -69,10 +36,10 @@ import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.space.BellaSpaceService;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
+import com.ke.bella.workflow.utils.DifyUtils;
 import com.theokanning.openai.assistants.message.Message;
 import com.theokanning.openai.assistants.message.MessageListSearchParameters;
 import com.theokanning.openai.service.OpenAiService;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -81,6 +48,34 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import javax.servlet.http.HttpServletRequest;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/console/api/apps")
@@ -153,7 +148,7 @@ public class DifyController {
     public DifyApp createApp(@RequestBody DifyApp app) {
         initContext();
 
-        WorkflowSchema schema = getDefaultWorkflowSchema();
+        WorkflowSchema schema = DifyUtils.getDefaultWorkflowSchema();
         WorkflowSync sync = WorkflowSync.builder()
                 .title(app.getName())
                 .desc(app.getDescription())
@@ -172,7 +167,7 @@ public class DifyController {
         Assert.hasText(workflowId, "workflowId不能为空");
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         if(Objects.isNull(wf)) {
-            return getDefaultWorkflowSchema();
+            return DifyUtils.getDefaultWorkflowSchema();
         }
         return JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
     }
@@ -291,7 +286,7 @@ public class DifyController {
         Assert.hasText(workflowId, "workflowId不能为空");
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         WorkflowSync sync = WorkflowSync.builder()
-                .graph(Objects.nonNull(schema) ? JsonUtils.toJson(schema) : JsonUtils.toJson(getDefaultWorkflowSchema()))
+                .graph(Objects.nonNull(schema) ? JsonUtils.toJson(schema) : JsonUtils.toJson(DifyUtils.getDefaultWorkflowSchema()))
                 .workflowId(workflowId)
                 .build();
         if(Objects.isNull(wf)) {
@@ -353,7 +348,7 @@ public class DifyController {
         Assert.hasText(workflowId, "workflowId不能为空");
         WorkflowDB wf = ws.getPublishedWorkflow(workflowId, null);
         if(Objects.isNull(wf)) {
-            return getDefaultWorkflowSchema();
+            return DifyUtils.getDefaultWorkflowSchema();
         }
         return JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
     }
@@ -485,34 +480,6 @@ public class DifyController {
         return ws.publishAsApi(op);
     }
 
-    private static DifyRunHistory transfer(WorkflowRunDB e) {
-        return DifyRunHistory.builder()
-                .id(e.getWorkflowRunId())
-                .version(String.valueOf(e.getWorkflowVersion()))
-                .conversation_id(String.valueOf(e.getThreadId()))
-                .status(e.getStatus())
-                .created_by_account(Account.builder().id(String.valueOf(e.getCuid())).name(e.getCuName()).email("").build())
-                .created_at(e.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .finished_at(e.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .elapsed_time(e.getElapsedTime() / 1000d)
-                .build();
-    }
-
-    private static DifyRunHistoryDetails transfer(WorkflowRunDB wr, WorkflowDB wf) {
-        WorkflowSchema workflowSchema = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
-        return DifyRunHistoryDetails.builder()
-                .id(wr.getWorkflowRunId())
-                .version(wr.getWorkflowVersion() == 0 ? "draft" : String.valueOf(wr.getWorkflowVersion()))
-                .status(wr.getStatus())
-                .created_by_account(
-                        Account.builder().id(String.valueOf(wr.getCuid())).name(wr.getCuName()).email("").build())
-                .created_at(wr.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .finished_at(wr.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .elapsed_time(wr.getElapsedTime() / 1000d)
-                .graph(workflowSchema.getGraph())
-                .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class)).build();
-    }
-
     @GetMapping("/{workflowId}/workflow-versions")
     public Page<DifyWorkflowVersion> listWorkflowVersions(@PathVariable(value = "workflowId") String workflowId,
             @RequestParam(value = "last_id", defaultValue = "1") int lastId,
@@ -522,7 +489,7 @@ public class DifyController {
         Assert.isTrue(limit <= 100, "limit必须小于100");
         WorkflowPage page = WorkflowPage.builder().page(lastId).pageSize(limit).workflowId(workflowId).build();
         Page<WorkflowDB> workflowDbPage = ws.pagePublicWorkflows(page);
-        List<DifyWorkflowVersion> list = workflowDbPage.getData().stream().map(DifyController::transfer).collect(Collectors.toList());
+        List<DifyWorkflowVersion> list = workflowDbPage.getData().stream().map(DifyUtils::transfer).collect(Collectors.toList());
         Page<DifyWorkflowVersion> result = new Page<>();
         result.setPage(page.getPage());
         result.pageSize(page.getPageSize());
@@ -584,7 +551,7 @@ public class DifyController {
         }
 
         List<DifyRunHistory> list = workflows.stream()
-                .map(DifyController::transfer)
+                .map(DifyUtils::transfer)
                 .peek(result -> result.setSequence_number(counter.getAndIncrement()))
                 .sorted(Comparator.comparing(DifyRunHistory::getFinished_at).reversed())
                 .collect(Collectors.toList());
@@ -654,7 +621,7 @@ public class DifyController {
         initContext();
         WorkflowRunDB wr = ws.getWorkflowRun(workflowRunId);
         WorkflowDB wf = ws.getWorkflow(workflowId, wr.getWorkflowVersion());
-        return transfer(wr, wf);
+        return DifyUtils.transfer(wr, wf);
     }
 
     @RequestMapping("/{workflowId}/workflow-runs/{workflowRunId}/node-executions")
@@ -662,7 +629,7 @@ public class DifyController {
             @PathVariable String workflowRunId) {
         initContext();
         List<WorkflowNodeRunDB> nodeRuns = ws.getNodeRuns(workflowRunId);
-        return DifyNodeExecution.builder().data(transfer(nodeRuns)).build();
+        return DifyNodeExecution.builder().data(DifyUtils.transfer(nodeRuns)).build();
     }
 
     @GetMapping("/{workflowId}/workflows/default-workflow-block-configs/{blockType}")
@@ -682,61 +649,6 @@ public class DifyController {
     public BellaSpaceService.SpaceRole getSpaceRole() {
 		initContext();
         return ss.userSpaceRoles();
-    }
-
-    private static List<DifyNodeExecution.DifyNodeRun> transfer(List<WorkflowNodeRunDB> nodeRunDBs) {
-        AtomicInteger index = new AtomicInteger(1);
-        AtomicReference<String> lastNodeId = new AtomicReference<>(null);
-        List<DifyNodeExecution.DifyNodeRun> collect = nodeRunDBs.stream()
-                .sorted(Comparator.comparing(WorkflowNodeRunDB::getCtime))
-                .map(nodeRunDB -> {
-                    DifyNodeExecution.DifyNodeRun nodeRun = createDifyNodeRun(nodeRunDB, index.getAndIncrement(), lastNodeId.get());
-                    lastNodeId.set(nodeRunDB.getNodeId());
-                    return nodeRun;
-                })
-                .collect(Collectors.toList());
-        Collections.reverse(collect);
-        return collect;
-    }
-
-    private static DifyNodeExecution.DifyNodeRun createDifyNodeRun(WorkflowNodeRunDB nodeRunDB, int index, String predecessorNodeId) {
-        return DifyNodeExecution.DifyNodeRun.builder()
-                .id(nodeRunDB.getNodeRunId())
-                .index(index)
-                .predecessor_node_id(predecessorNodeId)
-                .node_id(nodeRunDB.getNodeId())
-                .node_type(nodeRunDB.getNodeType())
-                .title(nodeRunDB.getTitle())
-                .inputs(JsonUtils.fromJson(nodeRunDB.getInputs(), Map.class))
-                .process_data(JsonUtils.fromJson(nodeRunDB.getProcessData(), Map.class))
-                .outputs(JsonUtils.fromJson(nodeRunDB.getOutputs(), Map.class))
-                .status(nodeRunDB.getStatus())
-                .error(nodeRunDB.getError())
-                .elapsed_time(nodeRunDB.getElapsedTime() / 1000d)
-                .created_at(nodeRunDB.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .created_by_role("account")
-                .created_by_account(Account.builder().id(String.valueOf(nodeRunDB.getCuid())).name(nodeRunDB.getCuName()).email("").build())
-                .finished_at(nodeRunDB.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .build();
-    }
-
-    private static DifyWorkflowVersion transfer(WorkflowDB db) {
-        return DifyWorkflowVersion.builder()
-                .id(db.getId())
-                .tenantId(db.getTenantId())
-                .workflowId(db.getWorkflowId())
-                .title(db.getTitle())
-                .mode(db.getMode())
-                .desc(db.getDesc())
-                .version(db.getVersion())
-                .cuid(db.getCuid())
-                .cuName(db.getCuName())
-                .ctime(db.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .muid(db.getMuid())
-                .muName(db.getMuName())
-                .mtime(db.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .graph(JsonUtils.fromJson(db.getGraph(), WorkflowSchema.class).getGraph())
-                .build();
     }
 
     @AllArgsConstructor
@@ -854,44 +766,6 @@ public class DifyController {
         private Long createdAt;
         @JsonProperty("updated_at")
         private Long updatedAt;
-    }
-
-    private WorkflowSchema getDefaultWorkflowSchema() {
-        WorkflowSchema.Graph graph = new WorkflowSchema.Graph();
-        Map<String, Object> maps = Maps.newHashMap();
-        maps.put("type", NodeType.START.name);
-        maps.put("title", "开始");
-        maps.put("variables", Lists.newArrayList());
-        maps.put("selected", true);
-
-        graph.setNodes(Lists.newArrayList(WorkflowSchema.Node.builder()
-                .id(System.currentTimeMillis() + "")
-                .data(maps)
-                .width(244)
-                .height(54)
-                .position(WorkflowSchema.Position.builder()
-                        .x(100)
-                        .y(100)
-                        .build())
-                .positionAbsolute(WorkflowSchema.Position.builder()
-                        .x(100)
-                        .y(100)
-                        .build())
-                .targetPosition("left")
-                .sourcePosition("right")
-                .type("custom")
-                .build()));
-        graph.setViewport(WorkflowSchema.Viewport.builder()
-                .zoom(1.0)
-                .x(80)
-                .y(126)
-                .build());
-        graph.setEdges(Lists.newArrayList());
-
-        WorkflowSchema schema = new WorkflowSchema();
-
-        schema.setGraph(graph);
-        return schema;
     }
 
     @Getter

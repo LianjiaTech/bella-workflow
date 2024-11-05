@@ -299,7 +299,7 @@
                     </pojoClass>
                   </table>
                   <table>
-                    <expression>tenant|workflow.*|wecom.*|kafka.*|domain</expression>
+                    <expression>tenant|workflow.*|wecom.*|.*_datasource|domain</expression>
                     <daoClass>
                       <transform>PASCAL</transform>
                       <expression>$0_D_B_Dao</expression>

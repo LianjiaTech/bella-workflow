@@ -20,7 +20,7 @@ public class Configs {
 
     public static boolean isThreadAllocatedMemorySupported = false;
 
-    public static long MAX_EXE_MEMORY_ALLOC = 100 * 1024 * 1024; // 100MB
+    public static long MAX_EXE_MEMORY_ALLOC = 500 * 1024 * 1024; // 500MB
 
     public static long MAX_CPU_TIME_RATE = 85;
 

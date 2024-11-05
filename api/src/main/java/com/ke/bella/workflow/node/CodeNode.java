@@ -55,7 +55,7 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
         Map<String, Object> bindings = new HashMap<>(inputs);
         CodeLanguage language = CodeLanguage.of(data.getCodeLanguage());
         if(language == CodeLanguage.groovy) {
-            bindings.put("sys", context.getSys());
+            bindings.put("sys", context.getSys().with(this));
             bindings.put("self", this);
             bindings.put("out", getOut());
         }

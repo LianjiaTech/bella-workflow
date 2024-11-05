@@ -7,6 +7,7 @@ package com.ke.bella.workflow.db;
 import com.ke.bella.workflow.db.tables.Domain;
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.KafkaDatasource;
+import com.ke.bella.workflow.db.tables.RdbDatasource;
 import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.WecomGroupInfo;
 import com.ke.bella.workflow.db.tables.WecomGroupMember;
@@ -55,6 +56,11 @@ public class DefaultSchema extends SchemaImpl {
      * The table <code>kafka_datasource</code>.
      */
     public final KafkaDatasource KAFKA_DATASOURCE = KafkaDatasource.KAFKA_DATASOURCE;
+
+    /**
+     * The table <code>rdb_datasource</code>.
+     */
+    public final RdbDatasource RDB_DATASOURCE = RdbDatasource.RDB_DATASOURCE;
 
     /**
      * The table <code>tenant</code>.
@@ -135,6 +141,7 @@ public class DefaultSchema extends SchemaImpl {
             Domain.DOMAIN,
             Instance.INSTANCE,
             KafkaDatasource.KAFKA_DATASOURCE,
+            RdbDatasource.RDB_DATASOURCE,
             Tenant.TENANT,
             WecomGroupInfo.WECOM_GROUP_INFO,
             WecomGroupMember.WECOM_GROUP_MEMBER,

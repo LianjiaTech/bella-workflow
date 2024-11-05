@@ -76,8 +76,8 @@ public class IDGenerator {
         return "TRG-" + type + "-" + UUID.randomUUID().toString();
     }
 
-    public static String newDataSourceId() {
-        return "DS-" + UUID.randomUUID().toString();
+    public static String newDataSourceId(String type) {
+        return "DS-" + type + "-" + UUID.randomUUID().toString();
     }
 
 	public static String newWecomGroupCode() {

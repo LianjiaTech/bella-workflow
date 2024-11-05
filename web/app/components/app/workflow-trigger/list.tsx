@@ -17,9 +17,10 @@ type ILogs = {
   logs?: WorkflowTriggersResponse
   appDetail?: App
   onRefresh: () => void
+  disabled: boolean
 }
 
-const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh }) => {
+const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh, disabled }) => {
   const { t } = useTranslation()
   const { notify } = useContext(ToastContext)
   const media = useBreakpoints()
@@ -68,7 +69,7 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh }) => {
               <td>{t.status}</td>
               <td>
                 <div className="flex items-center gap-2">
-                  <Button variant="secondary" size="small" onClick={() => { toggleTrigger(t.triggerId, t.triggerType, t.status) }}>
+                  <Button disabled={disabled} variant="secondary" size="small" onClick={() => { toggleTrigger(t.triggerId, t.triggerType, t.status) }}>
                     {t.status === 'active' ? <RiShutDownLine className="h-4 w-4" /> : <RiRestartLine className="h-4 w-4" />}
                   </Button>
                 </div>

@@ -15,6 +15,7 @@ import CreateTriggerModal from '@/app/components/app/create-workflow-trigger-mod
 
 export type ILogsProps = {
   appDetail: App
+  disabled: boolean
 }
 
 export type QueryParam = {
@@ -44,7 +45,7 @@ const EmptyElement: FC<{ appUrl: string }> = ({ appUrl }) => {
   </div>
 }
 
-const Triggers: FC<ILogsProps> = ({ appDetail }) => {
+const Triggers: FC<ILogsProps> = ({ appDetail, disabled }) => {
   const { t } = useTranslation()
   const [showNewTriggerModal, setShowNewTriggerModal] = useState(false)
   const [queryParams, setQueryParams] = useState<QueryParam>({ triggerType: 'SCHD' })
@@ -77,13 +78,13 @@ const Triggers: FC<ILogsProps> = ({ appDetail }) => {
       <div className='flex flex-col py-4 flex-1'>
         <div className='flex flex-row justify-between'>
           <Filter queryParams={queryParams} setQueryParams={setQueryParams} />
-          <Button variant='primary' onClick={addTrigger}>{t('workflow.trigger.add')}</Button>
+          <Button disabled={disabled} variant='primary' onClick={addTrigger}>{t('workflow.trigger.add')}</Button>
         </div>
         {/* workflow log */}
         {workflowLogs === undefined
           ? <Loading type='app' />
           : total > 0
-            ? <List logs={workflowLogs} appDetail={appDetail} onRefresh={mutate} />
+            ? <List disabled={disabled} logs={workflowLogs} appDetail={appDetail} onRefresh={mutate} />
             : <EmptyElement appUrl={`${appDetail.site.app_base_url}/${getWebAppType(appDetail.mode)}/${appDetail.site.access_token}`} />
         }
       </div>

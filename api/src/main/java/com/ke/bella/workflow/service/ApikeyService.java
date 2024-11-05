@@ -19,8 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class ApikeyService {
-    @Value("${openapi.host}")
-    private String openapiHost;
     private Cache<String, Boolean> cache = CacheBuilder.newBuilder()
             .expireAfterAccess(10, TimeUnit.MINUTES)
             .maximumSize(10000)
@@ -32,8 +30,8 @@ public class ApikeyService {
         }
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaders.AUTHORIZATION, "Bearer " + apikey);
-        String url = "/v1/apikey/whoami";
-        BellaResponse<ApikeyInfo> bellaResp = HttpUtils.get(headers, openapiHost + url, null, new TypeReference<BellaResponse<ApikeyInfo>>(){});
+        String url = "apikey/whoami";
+        BellaResponse<ApikeyInfo> bellaResp = HttpUtils.get(headers, Configs.OPEN_API_BASE + url, null, new TypeReference<BellaResponse<ApikeyInfo>>(){});
         return bellaResp == null ? null : bellaResp.getData();
     }
 

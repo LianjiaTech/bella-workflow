@@ -38,6 +38,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .order(50);
         registry.addInterceptor(difyRequestInterceptor)
                 .addPathPatterns("/console/api/**")
+                .addPathPatterns("/v1/**")
                 .order(200);
         registry.addInterceptor(concurrentStartInterceptor)
                 .order(Ordered.LOWEST_PRECEDENCE);

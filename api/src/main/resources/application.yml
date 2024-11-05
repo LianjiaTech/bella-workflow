@@ -67,7 +67,7 @@ bella:
         groovy: false
   login:
     # 本地环境去掉 bella.login.type 即可关闭登录的身份校验
-    type: cas
+    # type: cas
   session:
     cookie-name: bella_workflow_sessionId
     max-inactive-interval: 60

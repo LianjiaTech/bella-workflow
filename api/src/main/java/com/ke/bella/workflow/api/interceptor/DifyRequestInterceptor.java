@@ -53,15 +53,17 @@ public class DifyRequestInterceptor extends HandlerInterceptorAdapter {
                     .spaceCode(spaceCode)
                     .build());
         } else if(BellaContext.getApiKey() == null){
-            com.ke.bella.openapi.Operator operator = ConsoleContext.getOperator();
-            if(operator == null) {
-                throw new AuthenticationException("认证失败");
+            com.ke.bella.openapi.Operator operator = ConsoleContext.getOperatorIgnoreNull();
+//            if(operator == null) {
+//                throw new AuthenticationException("认证失败");
+//            }
+            if(operator != null) {
+                BellaContext.setOperator(Operator.builder()
+                        .userId(operator.getUserId())
+                        .userName(operator.getUserName())
+                        .email(operator.getEmail())
+                        .build());
             }
-            BellaContext.setOperator(Operator.builder()
-                    .userId(operator.getUserId())
-                    .userName(operator.getUserName())
-                    .email(operator.getEmail())
-                    .build());
         }
         return true;
     }

@@ -1,6 +1,10 @@
 package com.ke.bella.workflow.api;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,7 +29,25 @@ public class DataSourceOps {
     @SuperBuilder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class KafkaDataSourceRm extends Operator {
-        String datasourceID;
+    public static class DataSourceOp extends Operator {
+        String datasourceId;
     }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RdbDataSourceAdd extends Operator {
+        String host;
+        int port;
+        String db;
+        String user;
+        String password;
+        String dbType;
+
+        @Builder.Default
+        Map<String, String> params = new HashMap<>();
+    }
+
 }

@@ -156,7 +156,7 @@
   resolved "https://registry.npmmirror.com/@babel/compat-data/-/compat-data-7.25.2.tgz"
   integrity sha512-bYcppcpKBvX4znYaPEeFau03bp89ShqNMLs+rmdptMw+heSZh9+z84d2YG+K7cYLbWwzdjtDoW/uqZmPjulClQ==
 
-"@babel/core@^7.0.0", "@babel/core@^7.0.0-0", "@babel/core@^7.11.6", "@babel/core@^7.12.3", "@babel/core@^7.23.9", "@babel/core@^7.8.0":
+"@babel/core@^7.11.6", "@babel/core@^7.12.3", "@babel/core@^7.23.9":
   version "7.25.2"
   resolved "https://registry.npmmirror.com/@babel/core/-/core-7.25.2.tgz"
   integrity sha512-BBt3opiCOxUr9euZ5/ro/Xv8/V7yJ5bjYMqG/C1YAo8MIKAnumZalCN+msbci3Pigy4lIQfPUpfMM27HMGaYEA==
@@ -437,6 +437,13 @@
   resolved "https://registry.npmmirror.com/@dagrejs/graphlib/-/graphlib-2.2.2.tgz"
   integrity sha512-CbyGpCDKsiTg/wuk79S7Muoj8mghDGAESWGxcSyhHX5jD35vYMBZochYVFzlHxynpE9unpu6O+4ZuhrLxASsOg==
 
+"@emnapi/runtime@^1.1.1":
+  version "1.3.1"
+  resolved "https://registry.npmmirror.com/@emnapi/runtime/-/runtime-1.3.1.tgz#0fcaa575afc31f455fd33534c19381cfce6c6f60"
+  integrity sha512-kEBmG8KyqtxJZv+ygbEim+KCGtIq1fC22Ms3S4ziXmYKm8uyoLX0MHONVKwp+9opg390VaKRNt4a7A9NwmpNhw==
+  dependencies:
+    tslib "^2.4.0"
+
 "@emoji-mart/data@^1.1.2":
   version "1.2.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@emoji-mart/data/-/data-1.2.1.tgz"
@@ -459,15 +466,15 @@
   resolved "https://registry.npmmirror.com/@emotion/memoize/-/memoize-0.8.1.tgz"
   integrity sha512-W2P2c/VRW1/1tLox0mVUalvnWXxavmv/Oum2aPsRcoDJuob75FC3Y8FbpfLwUegRcxINtGUMPq0tFCvYNTBXNA==
 
-"@emotion/unitless@^0.7.5":
-  version "0.7.5"
-  resolved "https://registry.npmmirror.com/@emotion/unitless/-/unitless-0.7.5.tgz"
-  integrity sha512-OWORNpfjMsSSUBVrRBVGECkhWcULOAJz9ZW8uK9qgxD+87M7jHRcvh/A96XXNhXTLmKcoYSQtBEX7lHMO7YRwg==
-
 "@emotion/unitless@0.8.1":
   version "0.8.1"
   resolved "https://registry.npmmirror.com/@emotion/unitless/-/unitless-0.8.1.tgz"
   integrity sha512-KOEGMu6dmJZtpadb476IsZBclKvILjopjUii3V+7MnXIQCYh8W3NgNcgwo21n9LXZX6EDIKvqfjYxXebDwxKmQ==
+
+"@emotion/unitless@^0.7.5":
+  version "0.7.5"
+  resolved "https://registry.npmmirror.com/@emotion/unitless/-/unitless-0.7.5.tgz"
+  integrity sha512-OWORNpfjMsSSUBVrRBVGECkhWcULOAJz9ZW8uK9qgxD+87M7jHRcvh/A96XXNhXTLmKcoYSQtBEX7lHMO7YRwg==
 
 "@eslint-community/eslint-utils@^4.1.2", "@eslint-community/eslint-utils@^4.2.0", "@eslint-community/eslint-utils@^4.4.0":
   version "4.4.0"
@@ -513,6 +520,13 @@
   dependencies:
     "@floating-ui/utils" "^0.2.4"
 
+"@floating-ui/dom@1.1.1":
+  version "1.1.1"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/@floating-ui/dom/-/dom-1.1.1.tgz"
+  integrity sha1-Zqp0fhWJSRCGm/kUT8VPx9bp+XU=
+  dependencies:
+    "@floating-ui/core" "^1.1.0"
+
 "@floating-ui/dom@^1.0.0":
   version "1.6.7"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@floating-ui/dom/-/dom-1.6.7.tgz"
@@ -520,13 +534,6 @@
   dependencies:
     "@floating-ui/core" "^1.6.0"
     "@floating-ui/utils" "^0.2.4"
-
-"@floating-ui/dom@1.1.1":
-  version "1.1.1"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/@floating-ui/dom/-/dom-1.1.1.tgz"
-  integrity sha1-Zqp0fhWJSRCGm/kUT8VPx9bp+XU=
-  dependencies:
-    "@floating-ui/core" "^1.1.0"
 
 "@floating-ui/react-dom@^2.0.2":
   version "2.1.1"
@@ -605,10 +612,111 @@
   optionalDependencies:
     "@img/sharp-libvips-darwin-arm64" "1.0.2"
 
+"@img/sharp-darwin-x64@0.33.4":
+  version "0.33.4"
+  resolved "https://registry.npmmirror.com/@img/sharp-darwin-x64/-/sharp-darwin-x64-0.33.4.tgz#f77be2d7c3609d3e77cd337b199a772e07b87bd2"
+  integrity sha512-0l7yRObwtTi82Z6ebVI2PnHT8EB2NxBgpK2MiKJZJ7cz32R4lxd001ecMhzzsZig3Yv9oclvqqdV93jo9hy+Dw==
+  optionalDependencies:
+    "@img/sharp-libvips-darwin-x64" "1.0.2"
+
 "@img/sharp-libvips-darwin-arm64@1.0.2":
   version "1.0.2"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@img/sharp-libvips-darwin-arm64/-/sharp-libvips-darwin-arm64-1.0.2.tgz"
   integrity sha1-tp9J/svpVyN4Z1dpsYlBByGw+lM=
+
+"@img/sharp-libvips-darwin-x64@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/@img/sharp-libvips-darwin-x64/-/sharp-libvips-darwin-x64-1.0.2.tgz#5665da7360d8e5ed7bee314491c8fe736b6a3c39"
+  integrity sha512-Ofw+7oaWa0HiiMiKWqqaZbaYV3/UGL2wAPeLuJTx+9cXpCRdvQhCLG0IH8YGwM0yGWGLpsF4Su9vM1o6aer+Fw==
+
+"@img/sharp-libvips-linux-arm64@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/@img/sharp-libvips-linux-arm64/-/sharp-libvips-linux-arm64-1.0.2.tgz#8a05e5e9e9b760ff46561e32f19bd5e035fa881c"
+  integrity sha512-x7kCt3N00ofFmmkkdshwj3vGPCnmiDh7Gwnd4nUwZln2YjqPxV1NlTyZOvoDWdKQVDL911487HOueBvrpflagw==
+
+"@img/sharp-libvips-linux-arm@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/@img/sharp-libvips-linux-arm/-/sharp-libvips-linux-arm-1.0.2.tgz#0fd33b9bf3221948ce0ca7a5a725942626577a03"
+  integrity sha512-iLWCvrKgeFoglQxdEwzu1eQV04o8YeYGFXtfWU26Zr2wWT3q3MTzC+QTCO3ZQfWd3doKHT4Pm2kRmLbupT+sZw==
+
+"@img/sharp-libvips-linux-s390x@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/@img/sharp-libvips-linux-s390x/-/sharp-libvips-linux-s390x-1.0.2.tgz#4b89150ec91b256ee2cbb5bb125321bf029a4770"
+  integrity sha512-cmhQ1J4qVhfmS6szYW7RT+gLJq9dH2i4maq+qyXayUSn9/3iY2ZeWpbAgSpSVbV2E1JUL2Gg7pwnYQ1h8rQIog==
+
+"@img/sharp-libvips-linux-x64@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/@img/sharp-libvips-linux-x64/-/sharp-libvips-linux-x64-1.0.2.tgz#947ccc22ca5bc8c8cfe921b39a5fdaebc5e39f3f"
+  integrity sha512-E441q4Qdb+7yuyiADVi5J+44x8ctlrqn8XgkDTwr4qPJzWkaHwD489iZ4nGDgcuya4iMN3ULV6NwbhRZJ9Z7SQ==
+
+"@img/sharp-libvips-linuxmusl-arm64@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/@img/sharp-libvips-linuxmusl-arm64/-/sharp-libvips-linuxmusl-arm64-1.0.2.tgz#821d58ce774f0f8bed065b69913a62f65d512f2f"
+  integrity sha512-3CAkndNpYUrlDqkCM5qhksfE+qSIREVpyoeHIU6jd48SJZViAmznoQQLAv4hVXF7xyUB9zf+G++e2v1ABjCbEQ==
+
+"@img/sharp-libvips-linuxmusl-x64@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npmmirror.com/@img/sharp-libvips-linuxmusl-x64/-/sharp-libvips-linuxmusl-x64-1.0.2.tgz#4309474bd8b728a61af0b3b4fad0c476b5f3ccbe"
+  integrity sha512-VI94Q6khIHqHWNOh6LLdm9s2Ry4zdjWJwH56WoiJU7NTeDwyApdZZ8c+SADC8OH98KWNQXnE01UdJ9CSfZvwZw==
+
+"@img/sharp-linux-arm64@0.33.4":
+  version "0.33.4"
+  resolved "https://registry.npmmirror.com/@img/sharp-linux-arm64/-/sharp-linux-arm64-0.33.4.tgz#bd390113e256487041411b988ded13a26cfc5f95"
+  integrity sha512-2800clwVg1ZQtxwSoTlHvtm9ObgAax7V6MTAB/hDT945Tfyy3hVkmiHpeLPCKYqYR1Gcmv1uDZ3a4OFwkdBL7Q==
+  optionalDependencies:
+    "@img/sharp-libvips-linux-arm64" "1.0.2"
+
+"@img/sharp-linux-arm@0.33.4":
+  version "0.33.4"
+  resolved "https://registry.npmmirror.com/@img/sharp-linux-arm/-/sharp-linux-arm-0.33.4.tgz#14ecc81f38f75fb4cd7571bc83311746d6745fca"
+  integrity sha512-RUgBD1c0+gCYZGCCe6mMdTiOFS0Zc/XrN0fYd6hISIKcDUbAW5NtSQW9g/powkrXYm6Vzwd6y+fqmExDuCdHNQ==
+  optionalDependencies:
+    "@img/sharp-libvips-linux-arm" "1.0.2"
+
+"@img/sharp-linux-s390x@0.33.4":
+  version "0.33.4"
+  resolved "https://registry.npmmirror.com/@img/sharp-linux-s390x/-/sharp-linux-s390x-0.33.4.tgz#119e8081e2c6741b5ac908fe02244e4c559e525f"
+  integrity sha512-h3RAL3siQoyzSoH36tUeS0PDmb5wINKGYzcLB5C6DIiAn2F3udeFAum+gj8IbA/82+8RGCTn7XW8WTFnqag4tQ==
+  optionalDependencies:
+    "@img/sharp-libvips-linux-s390x" "1.0.2"
+
+"@img/sharp-linux-x64@0.33.4":
+  version "0.33.4"
+  resolved "https://registry.npmmirror.com/@img/sharp-linux-x64/-/sharp-linux-x64-0.33.4.tgz#21d4c137b8da9a313b069ff5c920ded709f853d7"
+  integrity sha512-GoR++s0XW9DGVi8SUGQ/U4AeIzLdNjHka6jidVwapQ/JebGVQIpi52OdyxCNVRE++n1FCLzjDovJNozif7w/Aw==
+  optionalDependencies:
+    "@img/sharp-libvips-linux-x64" "1.0.2"
+
+"@img/sharp-linuxmusl-arm64@0.33.4":
+  version "0.33.4"
+  resolved "https://registry.npmmirror.com/@img/sharp-linuxmusl-arm64/-/sharp-linuxmusl-arm64-0.33.4.tgz#f3fde68fd67b85a32da6f1155818c3b58b8e7ae0"
+  integrity sha512-nhr1yC3BlVrKDTl6cO12gTpXMl4ITBUZieehFvMntlCXFzH2bvKG76tBL2Y/OqhupZt81pR7R+Q5YhJxW0rGgQ==
+  optionalDependencies:
+    "@img/sharp-libvips-linuxmusl-arm64" "1.0.2"
+
+"@img/sharp-linuxmusl-x64@0.33.4":
+  version "0.33.4"
+  resolved "https://registry.npmmirror.com/@img/sharp-linuxmusl-x64/-/sharp-linuxmusl-x64-0.33.4.tgz#44373724aecd7b69900e0578228144e181db7892"
+  integrity sha512-uCPTku0zwqDmZEOi4ILyGdmW76tH7dm8kKlOIV1XC5cLyJ71ENAAqarOHQh0RLfpIpbV5KOpXzdU6XkJtS0daw==
+  optionalDependencies:
+    "@img/sharp-libvips-linuxmusl-x64" "1.0.2"
+
+"@img/sharp-wasm32@0.33.4":
+  version "0.33.4"
+  resolved "https://registry.npmmirror.com/@img/sharp-wasm32/-/sharp-wasm32-0.33.4.tgz#88e3f18d7e7cd8cfe1af98e9963db4d7b6491435"
+  integrity sha512-Bmmauh4sXUsUqkleQahpdNXKvo+wa1V9KhT2pDA4VJGKwnKMJXiSTGphn0gnJrlooda0QxCtXc6RX1XAU6hMnQ==
+  dependencies:
+    "@emnapi/runtime" "^1.1.1"
+
+"@img/sharp-win32-ia32@0.33.4":
+  version "0.33.4"
+  resolved "https://registry.npmmirror.com/@img/sharp-win32-ia32/-/sharp-win32-ia32-0.33.4.tgz#b1c772dd2952e983980b1eb85808fa8129484d46"
+  integrity sha512-99SJ91XzUhYHbx7uhK3+9Lf7+LjwMGQZMDlO/E/YVJ7Nc3lyDFZPGhjwiYdctoH2BOzW9+TnfqcaMKt0jHLdqw==
+
+"@img/sharp-win32-x64@0.33.4":
+  version "0.33.4"
+  resolved "https://registry.npmmirror.com/@img/sharp-win32-x64/-/sharp-win32-x64-0.33.4.tgz#106f911134035b4157ec92a0c154a6b6f88fa4c1"
+  integrity sha512-3QLocdTRVIrFNye5YocZl+KKpYKP+fksi1QhmOArgx7GyhIbQp/WrJRu176jm8IxromS7RIkzMiMINVdBtC8Aw==
 
 "@isaacs/cliui@^8.0.2":
   version "8.0.2"
@@ -849,26 +957,10 @@
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@jridgewell/set-array/-/set-array-1.2.1.tgz"
   integrity sha1-VY+2Ry7RakyFC4iVMOazZDjEkoA=
 
-"@jridgewell/source-map@^0.3.3":
-  version "0.3.6"
-  resolved "https://registry.npmmirror.com/@jridgewell/source-map/-/source-map-0.3.6.tgz"
-  integrity sha512-1ZJTZebgqllO79ue2bm3rIGud/bOe0pP5BjSRCRxxYkEZS8STV7zN84UBbiYu7jy+eCKSnVIUgoWWE/tt+shMQ==
-  dependencies:
-    "@jridgewell/gen-mapping" "^0.3.5"
-    "@jridgewell/trace-mapping" "^0.3.25"
-
 "@jridgewell/sourcemap-codec@^1.4.10", "@jridgewell/sourcemap-codec@^1.4.14":
   version "1.4.15"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.4.15.tgz"
   integrity sha1-18bmdVx4VnqVHgSrUu8P0m3lnzI=
-
-"@jridgewell/trace-mapping@^0.3.12", "@jridgewell/trace-mapping@^0.3.18", "@jridgewell/trace-mapping@^0.3.20", "@jridgewell/trace-mapping@^0.3.24", "@jridgewell/trace-mapping@^0.3.25":
-  version "0.3.25"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/@jridgewell/trace-mapping/-/trace-mapping-0.3.25.tgz"
-  integrity sha1-FfGQ6YiV8/wjJ27hS8drZ1wuUPA=
-  dependencies:
-    "@jridgewell/resolve-uri" "^3.1.0"
-    "@jridgewell/sourcemap-codec" "^1.4.14"
 
 "@jridgewell/trace-mapping@0.3.9":
   version "0.3.9"
@@ -877,6 +969,14 @@
   dependencies:
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
+
+"@jridgewell/trace-mapping@^0.3.12", "@jridgewell/trace-mapping@^0.3.18", "@jridgewell/trace-mapping@^0.3.24", "@jridgewell/trace-mapping@^0.3.25":
+  version "0.3.25"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/@jridgewell/trace-mapping/-/trace-mapping-0.3.25.tgz"
+  integrity sha1-FfGQ6YiV8/wjJ27hS8drZ1wuUPA=
+  dependencies:
+    "@jridgewell/resolve-uri" "^3.1.0"
+    "@jridgewell/sourcemap-codec" "^1.4.14"
 
 "@lexical/clipboard@0.16.1":
   version "0.16.1"
@@ -1079,7 +1179,7 @@
     "@lexical/offset" "0.16.1"
     lexical "0.16.1"
 
-"@mdx-js/loader@^2.3.0", "@mdx-js/loader@>=0.15.0":
+"@mdx-js/loader@^2.3.0":
   version "2.3.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@mdx-js/loader/-/loader-2.3.0.tgz"
   integrity sha1-VqawfrACe2QH6VOpfFK9hhlgEWE=
@@ -1110,7 +1210,7 @@
     unist-util-visit "^4.0.0"
     vfile "^5.0.0"
 
-"@mdx-js/react@^2.3.0", "@mdx-js/react@>=0.15.0":
+"@mdx-js/react@^2.3.0":
   version "2.3.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@mdx-js/react/-/react-2.3.0.tgz"
   integrity sha1-Qgi9bXDw0IMd7yjvKMJhSbAxgLM=
@@ -1156,6 +1256,46 @@
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@next/swc-darwin-arm64/-/swc-darwin-arm64-14.2.4.tgz"
   integrity sha1-2p8Ew0o9XwuEAe10V2hCDkpgQDY=
 
+"@next/swc-darwin-x64@14.2.4":
+  version "14.2.4"
+  resolved "https://registry.npmmirror.com/@next/swc-darwin-x64/-/swc-darwin-x64-14.2.4.tgz#46dedb29ec5503bf171a72a3ecb8aac6e738e9d6"
+  integrity sha512-QVadW73sWIO6E2VroyUjuAxhWLZWEpiFqHdZdoQ/AMpN9YWGuHV8t2rChr0ahy+irKX5mlDU7OY68k3n4tAZTg==
+
+"@next/swc-linux-arm64-gnu@14.2.4":
+  version "14.2.4"
+  resolved "https://registry.npmmirror.com/@next/swc-linux-arm64-gnu/-/swc-linux-arm64-gnu-14.2.4.tgz#c9697ab9eb422bd1d7ffd0eb0779cc2aefa9d4a1"
+  integrity sha512-KT6GUrb3oyCfcfJ+WliXuJnD6pCpZiosx2X3k66HLR+DMoilRb76LpWPGb4tZprawTtcnyrv75ElD6VncVamUQ==
+
+"@next/swc-linux-arm64-musl@14.2.4":
+  version "14.2.4"
+  resolved "https://registry.npmmirror.com/@next/swc-linux-arm64-musl/-/swc-linux-arm64-musl-14.2.4.tgz#cbbceb2008571c743b5a310a488d2e166d200a75"
+  integrity sha512-Alv8/XGSs/ytwQcbCHwze1HmiIkIVhDHYLjczSVrf0Wi2MvKn/blt7+S6FJitj3yTlMwMxII1gIJ9WepI4aZ/A==
+
+"@next/swc-linux-x64-gnu@14.2.4":
+  version "14.2.4"
+  resolved "https://registry.npmmirror.com/@next/swc-linux-x64-gnu/-/swc-linux-x64-gnu-14.2.4.tgz#d79184223f857bacffb92f643cb2943a43632568"
+  integrity sha512-ze0ShQDBPCqxLImzw4sCdfnB3lRmN3qGMB2GWDRlq5Wqy4G36pxtNOo2usu/Nm9+V2Rh/QQnrRc2l94kYFXO6Q==
+
+"@next/swc-linux-x64-musl@14.2.4":
+  version "14.2.4"
+  resolved "https://registry.npmmirror.com/@next/swc-linux-x64-musl/-/swc-linux-x64-musl-14.2.4.tgz#6b6c3e5ac02ca5e63394d280ec8ee607491902df"
+  integrity sha512-8dwC0UJoc6fC7PX70csdaznVMNr16hQrTDAMPvLPloazlcaWfdPogq+UpZX6Drqb1OBlwowz8iG7WR0Tzk/diQ==
+
+"@next/swc-win32-arm64-msvc@14.2.4":
+  version "14.2.4"
+  resolved "https://registry.npmmirror.com/@next/swc-win32-arm64-msvc/-/swc-win32-arm64-msvc-14.2.4.tgz#dbad3906e870dba84c5883d9d4c4838472e0697f"
+  integrity sha512-jxyg67NbEWkDyvM+O8UDbPAyYRZqGLQDTPwvrBBeOSyVWW/jFQkQKQ70JDqDSYg1ZDdl+E3nkbFbq8xM8E9x8A==
+
+"@next/swc-win32-ia32-msvc@14.2.4":
+  version "14.2.4"
+  resolved "https://registry.npmmirror.com/@next/swc-win32-ia32-msvc/-/swc-win32-ia32-msvc-14.2.4.tgz#6074529b91ba49132922ce89a2e16d25d2ec235d"
+  integrity sha512-twrmN753hjXRdcrZmZttb/m5xaCBFa48Dt3FbeEItpJArxriYDunWxJn+QFXdJ3hPkm4u7CKxncVvnmgQMY1ag==
+
+"@next/swc-win32-x64-msvc@14.2.4":
+  version "14.2.4"
+  resolved "https://registry.npmmirror.com/@next/swc-win32-x64-msvc/-/swc-win32-x64-msvc-14.2.4.tgz#e65a1c6539a671f97bb86d5183d6e3a1733c29c7"
+  integrity sha512-tkLrjBzqFTP8DVrAAQmZelEahfR9OxWpFR++vAI9FBhCiIxtwHwBHC23SBHCTURBtwB4kc/x44imVOnkKGNVGg==
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz"
@@ -1164,7 +1304,7 @@
     "@nodelib/fs.stat" "2.0.5"
     run-parallel "^1.1.9"
 
-"@nodelib/fs.stat@^2.0.2", "@nodelib/fs.stat@2.0.5":
+"@nodelib/fs.stat@2.0.5", "@nodelib/fs.stat@^2.0.2":
   version "2.0.5"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@nodelib/fs.stat/-/fs.stat-2.0.5.tgz"
   integrity sha1-W9Jir5Tp0lvR5xsF3u1Eh2oiLos=
@@ -1431,7 +1571,7 @@
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@sentry/types/-/types-7.118.0.tgz"
   integrity sha1-yjqwaRL2C8KnzPLS5cz0OYWFGu8=
 
-"@sentry/utils@^7.54.0", "@sentry/utils@7.118.0":
+"@sentry/utils@7.118.0", "@sentry/utils@^7.54.0":
   version "7.118.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@sentry/utils/-/utils-7.118.0.tgz"
   integrity sha1-v8YIJv49XSrnM47GrB8GwgvrF54=
@@ -1497,7 +1637,7 @@
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@tanstack/virtual-core/-/virtual-core-3.8.1.tgz"
   integrity sha1-UDSIV4kM3+jmx4TeO7AoyqoJf14=
 
-"@testing-library/dom@^10.0.0", "@testing-library/dom@^10.3.2":
+"@testing-library/dom@^10.3.2":
   version "10.4.0"
   resolved "https://registry.npmmirror.com/@testing-library/dom/-/dom-10.4.0.tgz"
   integrity sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==
@@ -1829,22 +1969,6 @@
   dependencies:
     "@types/ms" "*"
 
-"@types/eslint-scope@^3.7.3":
-  version "3.7.7"
-  resolved "https://registry.npmmirror.com/@types/eslint-scope/-/eslint-scope-3.7.7.tgz"
-  integrity sha512-MzMFlSLBqNF2gcHWO0G1vP/YQyfvrxZ0bF+u7mzUdZ1/xK4A4sru+nraZz5i3iEIk1l1uyicaDVTB4QbbEkAYg==
-  dependencies:
-    "@types/eslint" "*"
-    "@types/estree" "*"
-
-"@types/eslint@*":
-  version "8.56.10"
-  resolved "https://registry.npmmirror.com/@types/eslint/-/eslint-8.56.10.tgz"
-  integrity sha512-Shavhk87gCtY2fhXDctcfS3e6FdxWkCx1iUZ9eEUbh7rTqlZT0/IzOkCOVt0fCjcFuZ9FPYfuezTBImfHCDBGQ==
-  dependencies:
-    "@types/estree" "*"
-    "@types/json-schema" "*"
-
 "@types/estree-jsx@^1.0.0":
   version "1.0.5"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@types/estree-jsx/-/estree-jsx-1.0.5.tgz"
@@ -1852,7 +1976,7 @@
   dependencies:
     "@types/estree" "*"
 
-"@types/estree@*", "@types/estree@^1.0.0", "@types/estree@^1.0.5":
+"@types/estree@*", "@types/estree@^1.0.0":
   version "1.0.5"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@types/estree/-/estree-1.0.5.tgz"
   integrity sha1-ps4+VW4A/ZiV3Yct0XKtDUvWh/Q=
@@ -1917,7 +2041,7 @@
     "@types/tough-cookie" "*"
     parse5 "^7.0.0"
 
-"@types/json-schema@*", "@types/json-schema@^7.0.8", "@types/json-schema@^7.0.9":
+"@types/json-schema@^7.0.9":
   version "7.0.15"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@types/json-schema/-/json-schema-7.0.15.tgz"
   integrity sha1-WWoXRyM2lNUPatinhp/Lb1bPWEE=
@@ -1998,7 +2122,7 @@
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@types/qs/-/qs-6.9.15.tgz"
   integrity sha1-rd6KBg7JwwWoLeG6vBBW5zvWTc4=
 
-"@types/react-dom@^18.0.0", "@types/react-dom@~18.2.0":
+"@types/react-dom@~18.2.0":
   version "18.2.25"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@types/react-dom/-/react-dom-18.2.25.tgz"
   integrity sha1-KUajAIH1PnyNWF6xOCdyRcrtxSE=
@@ -2034,7 +2158,7 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@^18.0.0", "@types/react@>=16", "@types/react@>=16.8", "@types/react@~18.2.0":
+"@types/react@*", "@types/react@>=16", "@types/react@~18.2.0":
   version "18.2.79"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@types/react/-/react-18.2.79.tgz"
   integrity sha1-xA77TyVXEfVU1HtEn3ltHHdW2GU=
@@ -2052,7 +2176,7 @@
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@types/semver/-/semver-7.5.8.tgz"
   integrity sha1-gmioxXo+Sr0lwWXs02I323lIpV4=
 
-"@types/sortablejs@^1.15.1", "@types/sortablejs@1":
+"@types/sortablejs@^1.15.1":
   version "1.15.8"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@types/sortablejs/-/sortablejs-1.15.8.tgz"
   integrity sha1-Ee1VUHYEbgCGml74XR52UeembvY=
@@ -2094,7 +2218,7 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@typescript-eslint/eslint-plugin@^5.0.0", "@typescript-eslint/eslint-plugin@^5.0.0 || ^6.0.0 || ^7.0.0", "@typescript-eslint/eslint-plugin@^5.53.0":
+"@typescript-eslint/eslint-plugin@^5.53.0":
   version "5.62.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@typescript-eslint/eslint-plugin/-/eslint-plugin-5.62.0.tgz"
   integrity sha1-ru8DKNFyueN9m6ttvBO4ftiJd9s=
@@ -2110,7 +2234,7 @@
     semver "^7.3.7"
     tsutils "^3.21.0"
 
-"@typescript-eslint/parser@^5.0.0", "@typescript-eslint/parser@^5.4.2 || ^6.0.0 || 7.0.0 - 7.2.0", "@typescript-eslint/parser@^5.53.0":
+"@typescript-eslint/parser@^5.4.2 || ^6.0.0 || 7.0.0 - 7.2.0", "@typescript-eslint/parser@^5.53.0":
   version "5.62.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@typescript-eslint/parser/-/parser-5.62.0.tgz"
   integrity sha1-G2PQgthJovyuilaSSPvi7huKVsc=
@@ -2156,7 +2280,7 @@
     semver "^7.3.7"
     tsutils "^3.21.0"
 
-"@typescript-eslint/utils@^5.10.0", "@typescript-eslint/utils@^5.53.0", "@typescript-eslint/utils@5.62.0":
+"@typescript-eslint/utils@5.62.0", "@typescript-eslint/utils@^5.10.0", "@typescript-eslint/utils@^5.53.0":
   version "5.62.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@typescript-eslint/utils/-/utils-5.62.0.tgz"
   integrity sha1-FB6AnHFjbkp12qOfrtL7X0sQ34Y=
@@ -2207,137 +2331,6 @@
   resolved "http://example.com/artifactory/api/npm/npm-virtual/@vue/shared/-/shared-3.4.31.tgz"
   integrity sha1-r5mB9X3vLD8IDBS/IZMU/A3ICKA=
 
-"@webassemblyjs/ast@^1.12.1", "@webassemblyjs/ast@1.12.1":
-  version "1.12.1"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/ast/-/ast-1.12.1.tgz"
-  integrity sha512-EKfMUOPRRUTy5UII4qJDGPpqfwjOmZ5jeGFwid9mnoqIFK+e0vqoi1qH56JpmZSzEL53jKnNzScdmftJyG5xWg==
-  dependencies:
-    "@webassemblyjs/helper-numbers" "1.11.6"
-    "@webassemblyjs/helper-wasm-bytecode" "1.11.6"
-
-"@webassemblyjs/floating-point-hex-parser@1.11.6":
-  version "1.11.6"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/floating-point-hex-parser/-/floating-point-hex-parser-1.11.6.tgz"
-  integrity sha512-ejAj9hfRJ2XMsNHk/v6Fu2dGS+i4UaXBXGemOfQ/JfQ6mdQg/WXtwleQRLLS4OvfDhv8rYnVwH27YJLMyYsxhw==
-
-"@webassemblyjs/helper-api-error@1.11.6":
-  version "1.11.6"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/helper-api-error/-/helper-api-error-1.11.6.tgz"
-  integrity sha512-o0YkoP4pVu4rN8aTJgAyj9hC2Sv5UlkzCHhxqWj8butaLvnpdc2jOwh4ewE6CX0txSfLn/UYaV/pheS2Txg//Q==
-
-"@webassemblyjs/helper-buffer@1.12.1":
-  version "1.12.1"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/helper-buffer/-/helper-buffer-1.12.1.tgz"
-  integrity sha512-nzJwQw99DNDKr9BVCOZcLuJJUlqkJh+kVzVl6Fmq/tI5ZtEyWT1KZMyOXltXLZJmDtvLCDgwsyrkohEtopTXCw==
-
-"@webassemblyjs/helper-numbers@1.11.6":
-  version "1.11.6"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/helper-numbers/-/helper-numbers-1.11.6.tgz"
-  integrity sha512-vUIhZ8LZoIWHBohiEObxVm6hwP034jwmc9kuq5GdHZH0wiLVLIPcMCdpJzG4C11cHoQ25TFIQj9kaVADVX7N3g==
-  dependencies:
-    "@webassemblyjs/floating-point-hex-parser" "1.11.6"
-    "@webassemblyjs/helper-api-error" "1.11.6"
-    "@xtuc/long" "4.2.2"
-
-"@webassemblyjs/helper-wasm-bytecode@1.11.6":
-  version "1.11.6"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/helper-wasm-bytecode/-/helper-wasm-bytecode-1.11.6.tgz"
-  integrity sha512-sFFHKwcmBprO9e7Icf0+gddyWYDViL8bpPjJJl0WHxCdETktXdmtWLGVzoHbqUcY4Be1LkNfwTmXOJUFZYSJdA==
-
-"@webassemblyjs/helper-wasm-section@1.12.1":
-  version "1.12.1"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/helper-wasm-section/-/helper-wasm-section-1.12.1.tgz"
-  integrity sha512-Jif4vfB6FJlUlSbgEMHUyk1j234GTNG9dBJ4XJdOySoj518Xj0oGsNi59cUQF4RRMS9ouBUxDDdyBVfPTypa5g==
-  dependencies:
-    "@webassemblyjs/ast" "1.12.1"
-    "@webassemblyjs/helper-buffer" "1.12.1"
-    "@webassemblyjs/helper-wasm-bytecode" "1.11.6"
-    "@webassemblyjs/wasm-gen" "1.12.1"
-
-"@webassemblyjs/ieee754@1.11.6":
-  version "1.11.6"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/ieee754/-/ieee754-1.11.6.tgz"
-  integrity sha512-LM4p2csPNvbij6U1f19v6WR56QZ8JcHg3QIJTlSwzFcmx6WSORicYj6I63f9yU1kEUtrpG+kjkiIAkevHpDXrg==
-  dependencies:
-    "@xtuc/ieee754" "^1.2.0"
-
-"@webassemblyjs/leb128@1.11.6":
-  version "1.11.6"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/leb128/-/leb128-1.11.6.tgz"
-  integrity sha512-m7a0FhE67DQXgouf1tbN5XQcdWoNgaAuoULHIfGFIEVKA6tu/edls6XnIlkmS6FrXAquJRPni3ZZKjw6FSPjPQ==
-  dependencies:
-    "@xtuc/long" "4.2.2"
-
-"@webassemblyjs/utf8@1.11.6":
-  version "1.11.6"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/utf8/-/utf8-1.11.6.tgz"
-  integrity sha512-vtXf2wTQ3+up9Zsg8sa2yWiQpzSsMyXj0qViVP6xKGCUT8p8YJ6HqI7l5eCnWx1T/FYdsv07HQs2wTFbbof/RA==
-
-"@webassemblyjs/wasm-edit@^1.12.1":
-  version "1.12.1"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/wasm-edit/-/wasm-edit-1.12.1.tgz"
-  integrity sha512-1DuwbVvADvS5mGnXbE+c9NfA8QRcZ6iKquqjjmR10k6o+zzsRVesil54DKexiowcFCPdr/Q0qaMgB01+SQ1u6g==
-  dependencies:
-    "@webassemblyjs/ast" "1.12.1"
-    "@webassemblyjs/helper-buffer" "1.12.1"
-    "@webassemblyjs/helper-wasm-bytecode" "1.11.6"
-    "@webassemblyjs/helper-wasm-section" "1.12.1"
-    "@webassemblyjs/wasm-gen" "1.12.1"
-    "@webassemblyjs/wasm-opt" "1.12.1"
-    "@webassemblyjs/wasm-parser" "1.12.1"
-    "@webassemblyjs/wast-printer" "1.12.1"
-
-"@webassemblyjs/wasm-gen@1.12.1":
-  version "1.12.1"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/wasm-gen/-/wasm-gen-1.12.1.tgz"
-  integrity sha512-TDq4Ojh9fcohAw6OIMXqiIcTq5KUXTGRkVxbSo1hQnSy6lAM5GSdfwWeSxpAo0YzgsgF182E/U0mDNhuA0tW7w==
-  dependencies:
-    "@webassemblyjs/ast" "1.12.1"
-    "@webassemblyjs/helper-wasm-bytecode" "1.11.6"
-    "@webassemblyjs/ieee754" "1.11.6"
-    "@webassemblyjs/leb128" "1.11.6"
-    "@webassemblyjs/utf8" "1.11.6"
-
-"@webassemblyjs/wasm-opt@1.12.1":
-  version "1.12.1"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/wasm-opt/-/wasm-opt-1.12.1.tgz"
-  integrity sha512-Jg99j/2gG2iaz3hijw857AVYekZe2SAskcqlWIZXjji5WStnOpVoat3gQfT/Q5tb2djnCjBtMocY/Su1GfxPBg==
-  dependencies:
-    "@webassemblyjs/ast" "1.12.1"
-    "@webassemblyjs/helper-buffer" "1.12.1"
-    "@webassemblyjs/wasm-gen" "1.12.1"
-    "@webassemblyjs/wasm-parser" "1.12.1"
-
-"@webassemblyjs/wasm-parser@^1.12.1", "@webassemblyjs/wasm-parser@1.12.1":
-  version "1.12.1"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/wasm-parser/-/wasm-parser-1.12.1.tgz"
-  integrity sha512-xikIi7c2FHXysxXe3COrVUPSheuBtpcfhbpFj4gmu7KRLYOzANztwUU0IbsqvMqzuNK2+glRGWCEqZo1WCLyAQ==
-  dependencies:
-    "@webassemblyjs/ast" "1.12.1"
-    "@webassemblyjs/helper-api-error" "1.11.6"
-    "@webassemblyjs/helper-wasm-bytecode" "1.11.6"
-    "@webassemblyjs/ieee754" "1.11.6"
-    "@webassemblyjs/leb128" "1.11.6"
-    "@webassemblyjs/utf8" "1.11.6"
-
-"@webassemblyjs/wast-printer@1.12.1":
-  version "1.12.1"
-  resolved "https://registry.npmmirror.com/@webassemblyjs/wast-printer/-/wast-printer-1.12.1.tgz"
-  integrity sha512-+X4WAlOisVWQMikjbcvY2e0rwPsKQ9F688lksZhBcPycBBuii3O7m8FACbDMWDojpAqvjIncrG8J0XHKyQfVeA==
-  dependencies:
-    "@webassemblyjs/ast" "1.12.1"
-    "@xtuc/long" "4.2.2"
-
-"@xtuc/ieee754@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.npmmirror.com/@xtuc/ieee754/-/ieee754-1.2.0.tgz"
-  integrity sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==
-
-"@xtuc/long@4.2.2":
-  version "4.2.2"
-  resolved "https://registry.npmmirror.com/@xtuc/long/-/long-4.2.2.tgz"
-  integrity sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==
-
 abab@^2.0.6:
   version "2.0.6"
   resolved "https://registry.npmmirror.com/abab/-/abab-2.0.6.tgz"
@@ -2351,11 +2344,6 @@ acorn-globals@^7.0.0:
     acorn "^8.1.0"
     acorn-walk "^8.0.2"
 
-acorn-import-attributes@^1.9.5:
-  version "1.9.5"
-  resolved "https://registry.npmmirror.com/acorn-import-attributes/-/acorn-import-attributes-1.9.5.tgz"
-  integrity sha512-n02Vykv5uA3eHGM/Z2dQrcD56kL8TyDb2p1+0P83PClMnC/nc+anbQRhIOWnSq4Ke/KvDPrY3C9hDtC/A3eHnQ==
-
 acorn-jsx@^5.0.0, acorn-jsx@^5.3.2:
   version "5.3.2"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/acorn-jsx/-/acorn-jsx-5.3.2.tgz"
@@ -2368,7 +2356,7 @@ acorn-walk@^8.0.2, acorn-walk@^8.1.1:
   dependencies:
     acorn "^8.11.0"
 
-"acorn@^6.0.0 || ^7.0.0 || ^8.0.0", acorn@^8, acorn@^8.0.0, acorn@^8.1.0, acorn@^8.11.0, acorn@^8.4.1, acorn@^8.5.0, acorn@^8.7.1, acorn@^8.8.1, acorn@^8.8.2, acorn@^8.9.0:
+acorn@^8.0.0, acorn@^8.1.0, acorn@^8.11.0, acorn@^8.4.1, acorn@^8.5.0, acorn@^8.8.1, acorn@^8.9.0:
   version "8.12.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/acorn/-/acorn-8.12.0.tgz"
   integrity sha1-Fie/ouBYFIA2EzuNm1GnAGY8KUw=
@@ -2395,12 +2383,7 @@ ahooks@^3.7.5:
     screenfull "^5.0.0"
     tslib "^2.4.1"
 
-ajv-keywords@^3.5.2:
-  version "3.5.2"
-  resolved "https://registry.npmmirror.com/ajv-keywords/-/ajv-keywords-3.5.2.tgz"
-  integrity sha512-5p6WTN0DdTGVQk6VjcEju19IgaHudalcfabD7yhDGeA6bcQnmL+CpveLJq/3hvfwd1aof6L386Ougkx6RfyMIQ==
-
-ajv@^6.12.4, ajv@^6.12.5, ajv@^6.9.1:
+ajv@^6.12.4:
   version "6.12.6"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/ajv/-/ajv-6.12.6.tgz"
   integrity sha1-uvWmLoArB9l3A0WG+MO69a3ybfQ=
@@ -2460,22 +2443,12 @@ ansi-styles@^5.0.0:
   resolved "https://registry.npmmirror.com/ansi-styles/-/ansi-styles-5.2.0.tgz"
   integrity sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==
 
-ansi-styles@^6.0.0:
+ansi-styles@^6.0.0, ansi-styles@^6.1.0, ansi-styles@^6.2.1:
   version "6.2.1"
   resolved "https://registry.npmmirror.com/ansi-styles/-/ansi-styles-6.2.1.tgz"
   integrity sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==
 
-ansi-styles@^6.1.0:
-  version "6.2.1"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/ansi-styles/-/ansi-styles-6.2.1.tgz"
-  integrity sha1-DmIyDPmcIa//OzASGSVGqsv7BcU=
-
-ansi-styles@^6.2.1:
-  version "6.2.1"
-  resolved "https://registry.npmmirror.com/ansi-styles/-/ansi-styles-6.2.1.tgz"
-  integrity sha512-bN798gFfQX+viw3R7yrGWRqnrN2oRkEkUjjl4JNn4E8GxxbjtG3FbrEIIY3l8/hrwUwIeCZvi4QuOTP4MErVug==
-
-antd@^5.20.1, antd@>=5.8.0:
+antd@^5.20.1:
   version "5.20.3"
   resolved "https://registry.npmmirror.com/antd/-/antd-5.20.3.tgz"
   integrity sha512-v2s5LJlhuccIKLT17ESXQDkiQJdPK4jXg4x2pmSSRlrKXAxfftn8Zhd/7pdF3qR3OkwheQpSRjynrNZKp9Tgkg==
@@ -2565,19 +2538,19 @@ argparse@^2.0.1:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/argparse/-/argparse-2.0.1.tgz"
   integrity sha1-JG9Q88p4oyQPbJl+ipvR6sSeSzg=
 
-aria-query@^5.0.0, aria-query@~5.1.3:
-  version "5.1.3"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/aria-query/-/aria-query-5.1.3.tgz"
-  integrity sha1-GdsnzRARUnc2MTlvepWjtYwiw14=
-  dependencies:
-    deep-equal "^2.0.5"
-
 aria-query@5.3.0:
   version "5.3.0"
   resolved "https://registry.npmmirror.com/aria-query/-/aria-query-5.3.0.tgz"
   integrity sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==
   dependencies:
     dequal "^2.0.3"
+
+aria-query@^5.0.0, aria-query@~5.1.3:
+  version "5.1.3"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/aria-query/-/aria-query-5.1.3.tgz"
+  integrity sha1-GdsnzRARUnc2MTlvepWjtYwiw14=
+  dependencies:
+    deep-equal "^2.0.5"
 
 array-buffer-byte-length@^1.0.0, array-buffer-byte-length@^1.0.1:
   version "1.0.1"
@@ -2843,7 +2816,7 @@ braces@^3.0.2, braces@^3.0.3, braces@~3.0.2:
   dependencies:
     fill-range "^7.1.1"
 
-browserslist@^4.21.10, browserslist@^4.23.0, browserslist@^4.23.1, "browserslist@>= 4.21.0":
+browserslist@^4.23.0, browserslist@^4.23.1:
   version "4.23.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/browserslist/-/browserslist-4.23.1.tgz"
   integrity sha1-zkrwU0s9N9tcGkypi5CA+YUEHpY=
@@ -2930,6 +2903,19 @@ ccount@^2.0.0:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/ccount/-/ccount-2.0.1.tgz"
   integrity sha1-F6O/gjAuCHDW2kOgExGovAKj7PU=
 
+chalk@4.1.1, chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1:
+  version "4.1.1"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/chalk/-/chalk-4.1.1.tgz"
+  integrity sha1-yAs/qyi/Y3HmhjMl7uZ+YYt35q0=
+  dependencies:
+    ansi-styles "^4.1.0"
+    supports-color "^7.1.0"
+
+chalk@5.3.0:
+  version "5.3.0"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/chalk/-/chalk-5.3.0.tgz"
+  integrity sha1-Z8IKfr73Dn85cKAfkPohDLaGA4U=
+
 chalk@^2.4.2:
   version "2.4.2"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/chalk/-/chalk-2.4.2.tgz"
@@ -2946,19 +2932,6 @@ chalk@^3.0.0:
   dependencies:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
-
-chalk@^4.0.0, chalk@^4.1.0, chalk@^4.1.1, chalk@4.1.1:
-  version "4.1.1"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/chalk/-/chalk-4.1.1.tgz"
-  integrity sha1-yAs/qyi/Y3HmhjMl7uZ+YYt35q0=
-  dependencies:
-    ansi-styles "^4.1.0"
-    supports-color "^7.1.0"
-
-chalk@5.3.0:
-  version "5.3.0"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/chalk/-/chalk-5.3.0.tgz"
-  integrity sha1-Z8IKfr73Dn85cKAfkPohDLaGA4U=
 
 char-regex@^1.0.2:
   version "1.0.2"
@@ -3000,7 +2973,7 @@ character-reference-invalid@^2.0.0:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/character-reference-invalid/-/character-reference-invalid-2.0.1.tgz"
   integrity sha1-hcZrBB5DtHIQ+vQBJ4q/gIrEXLk=
 
-chokidar@^3.5.3, "chokidar@>=3.0.0 <4.0.0":
+"chokidar@>=3.0.0 <4.0.0", chokidar@^3.5.3:
   version "3.6.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/chokidar/-/chokidar-3.6.0.tgz"
   integrity sha1-GXxsxmnvKo3F57TZfuTgksPrDVs=
@@ -3014,11 +2987,6 @@ chokidar@^3.5.3, "chokidar@>=3.0.0 <4.0.0":
     readdirp "~3.6.0"
   optionalDependencies:
     fsevents "~2.3.2"
-
-chrome-trace-event@^1.0.2:
-  version "1.0.4"
-  resolved "https://registry.npmmirror.com/chrome-trace-event/-/chrome-trace-event-1.0.4.tgz"
-  integrity sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==
 
 ci-info@^3.2.0, ci-info@^3.6.1:
   version "3.9.0"
@@ -3042,15 +3010,15 @@ classcat@^5.0.3, classcat@^5.0.4:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/classcat/-/classcat-5.0.5.tgz"
   integrity sha1-jCCfNZqTrDAkBKEBYbUB66nAnHc=
 
-classnames@^2.2.1, classnames@^2.2.3, classnames@^2.2.5, classnames@^2.2.6, classnames@^2.3.1, classnames@^2.3.2, classnames@^2.5.1, classnames@2.x:
-  version "2.5.1"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/classnames/-/classnames-2.5.1.tgz"
-  integrity sha1-undMYUvg8BbaEFyFjnFZ6ujnaHs=
-
 classnames@2.3.1:
   version "2.3.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/classnames/-/classnames-2.3.1.tgz"
   integrity sha1-38+jiR4wbsHa0QXQ6I9EF7hTXo4=
+
+classnames@2.x, classnames@^2.2.1, classnames@^2.2.3, classnames@^2.2.5, classnames@^2.2.6, classnames@^2.3.1, classnames@^2.3.2, classnames@^2.5.1:
+  version "2.5.1"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/classnames/-/classnames-2.5.1.tgz"
+  integrity sha1-undMYUvg8BbaEFyFjnFZ6ujnaHs=
 
 clean-regexp@^1.0.0:
   version "1.0.0"
@@ -3089,7 +3057,7 @@ cli-truncate@^4.0.0:
     slice-ansi "^5.0.0"
     string-width "^7.0.0"
 
-client-only@^0.0.1, client-only@0.0.1:
+client-only@0.0.1, client-only@^0.0.1:
   version "0.0.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/client-only/-/client-only-0.0.1.tgz"
   integrity sha1-OLul1APEGrFQv/ZKlchQE89zvKE=
@@ -3103,15 +3071,15 @@ cliui@^8.0.1:
     strip-ansi "^6.0.1"
     wrap-ansi "^7.0.0"
 
-clsx@^2.1.0:
-  version "2.1.1"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/clsx/-/clsx-2.1.1.tgz"
-  integrity sha1-7tOXyf2L2IK/sY3qtxAgSaLzKZk=
-
 clsx@2.0.0:
   version "2.0.0"
   resolved "https://registry.npmmirror.com/clsx/-/clsx-2.0.0.tgz"
   integrity sha512-rQ1+kcj+ttHG0MKVGBUXwayCCF1oh39BF5COIpRzuCEv8Mwjv0XucrI2ExNTOn9IlLifGClWQcU9BrZORvtw6Q==
+
+clsx@^2.1.0:
+  version "2.1.1"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/clsx/-/clsx-2.1.1.tgz"
+  integrity sha1-7tOXyf2L2IK/sY3qtxAgSaLzKZk=
 
 co@^4.6.0:
   version "4.6.0"
@@ -3156,15 +3124,15 @@ color-convert@^2.0.1:
   dependencies:
     color-name "~1.1.4"
 
-color-name@^1.0.0, color-name@~1.1.4:
-  version "1.1.4"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/color-name/-/color-name-1.1.4.tgz"
-  integrity sha1-wqCah6y95pVD3m9j+jmVyCbFNqI=
-
 color-name@1.1.3:
   version "1.1.3"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/color-name/-/color-name-1.1.3.tgz"
   integrity sha1-p9BVi9icQveV3UIyj3QIMcpTvCU=
+
+color-name@^1.0.0, color-name@~1.1.4:
+  version "1.1.4"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/color-name/-/color-name-1.1.4.tgz"
+  integrity sha1-wqCah6y95pVD3m9j+jmVyCbFNqI=
 
 color-string@^1.9.0:
   version "1.9.1"
@@ -3204,10 +3172,15 @@ comma-separated-tokens@^2.0.0:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/comma-separated-tokens/-/comma-separated-tokens-2.0.3.tgz"
   integrity sha1-TonJRYrLYbyP7xn0UplzsjkoOe4=
 
-commander@^2.20.0:
-  version "2.20.3"
-  resolved "https://registry.npmmirror.com/commander/-/commander-2.20.3.tgz"
-  integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
+commander@11.0.0:
+  version "11.0.0"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/commander/-/commander-11.0.0.tgz"
+  integrity sha1-Q+GcJdvtyCViA1OOjX6TRod6b2c=
+
+commander@7:
+  version "7.2.0"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/commander/-/commander-7.2.0.tgz"
+  integrity sha1-o2y1fQtQHOEI5NIFWaFQo5HZerc=
 
 commander@^4.0.0:
   version "4.1.1"
@@ -3218,16 +3191,6 @@ commander@^8.3.0:
   version "8.3.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/commander/-/commander-8.3.0.tgz"
   integrity sha1-SDfqGy2me5xhamevuw+v7lZ7ymY=
-
-commander@11.0.0:
-  version "11.0.0"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/commander/-/commander-11.0.0.tgz"
-  integrity sha1-Q+GcJdvtyCViA1OOjX6TRod6b2c=
-
-commander@7:
-  version "7.2.0"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/commander/-/commander-7.2.0.tgz"
-  integrity sha1-o2y1fQtQHOEI5NIFWaFQo5HZerc=
 
 compute-scroll-into-view@^3.0.2:
   version "3.1.0"
@@ -3345,7 +3308,7 @@ cssstyle@^2.3.0:
   dependencies:
     cssom "~0.3.6"
 
-csstype@^3.0.2, csstype@^3.1.3, csstype@3.1.3:
+csstype@3.1.3, csstype@^3.0.2, csstype@^3.1.3:
   version "3.1.3"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/csstype/-/csstype-3.1.3.tgz"
   integrity sha1-2A/ylNEU+w5qxQD7+FtgE31+/4E=
@@ -3364,17 +3327,10 @@ cytoscape-fcose@^2.1.0:
   dependencies:
     cose-base "^2.2.0"
 
-cytoscape@^3.2.0, cytoscape@^3.23.0:
+cytoscape@^3.23.0:
   version "3.30.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/cytoscape/-/cytoscape-3.30.0.tgz"
   integrity sha1-WwwT97swVIHixwQU1MXxSdku2oI=
-
-d3-array@^3.2.0, "d3-array@2 - 3", "d3-array@2.10.0 - 3", "d3-array@2.5.0 - 3", d3-array@3:
-  version "3.2.4"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/d3-array/-/d3-array-3.2.4.tgz"
-  integrity sha1-Ff7DOyN/l6xdfJhtx32ic6jtC7U=
-  dependencies:
-    internmap "1 - 2"
 
 "d3-array@1 - 2":
   version "2.12.1"
@@ -3382,6 +3338,13 @@ d3-array@^3.2.0, "d3-array@2 - 3", "d3-array@2.10.0 - 3", "d3-array@2.5.0 - 3", 
   integrity sha1-4gtBqvzf/fXVCSgATs7PgVpGXoE=
   dependencies:
     internmap "^1.0.0"
+
+"d3-array@2 - 3", "d3-array@2.10.0 - 3", "d3-array@2.5.0 - 3", d3-array@3, d3-array@^3.2.0:
+  version "3.2.4"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/d3-array/-/d3-array-3.2.4.tgz"
+  integrity sha1-Ff7DOyN/l6xdfJhtx32ic6jtC7U=
+  dependencies:
+    internmap "1 - 2"
 
 d3-axis@3:
   version "3.0.0"
@@ -3430,7 +3393,7 @@ d3-delaunay@6:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/d3-dispatch/-/d3-dispatch-3.0.1.tgz"
   integrity sha1-X8dShOnCN1w2yDlBGgz1UMv8TV4=
 
-d3-drag@^3.0.0, "d3-drag@2 - 3", d3-drag@3:
+"d3-drag@2 - 3", d3-drag@3, d3-drag@^3.0.0:
   version "3.0.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/d3-drag/-/d3-drag-3.0.0.tgz"
   integrity sha1-mUqunNI8cZ9TteEOOgphCMaWB7o=
@@ -3492,15 +3455,15 @@ d3-hierarchy@3:
   dependencies:
     d3-color "1 - 3"
 
-d3-path@^3.1.0, "d3-path@1 - 3", d3-path@3:
-  version "3.1.0"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/d3-path/-/d3-path-3.1.0.tgz"
-  integrity sha1-It+TkDL7WnGuixgA1h3beFHEJSY=
-
 d3-path@1:
   version "1.0.9"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/d3-path/-/d3-path-1.0.9.tgz"
   integrity sha1-SMBQux/owmJJOoyvVSTj6VkXAc8=
+
+"d3-path@1 - 3", d3-path@3, d3-path@^3.1.0:
+  version "3.1.0"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/d3-path/-/d3-path-3.1.0.tgz"
+  integrity sha1-It+TkDL7WnGuixgA1h3beFHEJSY=
 
 d3-polygon@3:
   version "3.0.1"
@@ -3544,17 +3507,10 @@ d3-scale@4:
     d3-time "2.1.1 - 3"
     d3-time-format "2 - 4"
 
-d3-selection@^3.0.0, "d3-selection@2 - 3", d3-selection@3:
+"d3-selection@2 - 3", d3-selection@3, d3-selection@^3.0.0:
   version "3.0.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/d3-selection/-/d3-selection-3.0.0.tgz"
   integrity sha1-wlM4IH76csxbm9FFihpBkB8eGzE=
-
-d3-shape@^1.2.0:
-  version "1.3.7"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/d3-shape/-/d3-shape-1.3.7.tgz"
-  integrity sha1-32OAG+B7yYa8VPY3ibT+UCmStdc=
-  dependencies:
-    d3-path "1"
 
 d3-shape@3:
   version "3.2.0"
@@ -3562,6 +3518,13 @@ d3-shape@3:
   integrity sha1-oag5y9m6RfKGdMadf4Vbz5HfxqU=
   dependencies:
     d3-path "^3.1.0"
+
+d3-shape@^1.2.0:
+  version "1.3.7"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/d3-shape/-/d3-shape-1.3.7.tgz"
+  integrity sha1-32OAG+B7yYa8VPY3ibT+UCmStdc=
+  dependencies:
+    d3-path "1"
 
 "d3-time-format@2 - 4", d3-time-format@4:
   version "4.1.0"
@@ -3593,7 +3556,7 @@ d3-shape@3:
     d3-interpolate "1 - 3"
     d3-timer "1 - 3"
 
-d3-zoom@^3.0.0, d3-zoom@3:
+d3-zoom@3, d3-zoom@^3.0.0:
   version "3.0.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/d3-zoom/-/d3-zoom-3.0.0.tgz"
   integrity sha1-0T9BZccyF//qpUKVzWlps+eu6PM=
@@ -3689,19 +3652,12 @@ data-view-byte-offset@^1.0.0:
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
 
-dayjs@^1.11.11, dayjs@^1.11.7, dayjs@^1.9.1, "dayjs@>= 1.x":
+dayjs@^1.11.11, dayjs@^1.11.7, dayjs@^1.9.1:
   version "1.11.11"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/dayjs/-/dayjs-1.11.11.tgz"
   integrity sha1-3+Dp1Uxfi2jM+MpfcqxgPn5e1Z4=
 
-debug@^3.2.7:
-  version "3.2.7"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/debug/-/debug-3.2.7.tgz"
-  integrity sha1-clgLfpFF+zm2Z2+cXl+xALk0F5o=
-  dependencies:
-    ms "^2.1.1"
-
-debug@^4.0.0, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1, debug@^4.3.2, debug@^4.3.4, debug@4:
+debug@4, debug@^4.0.0, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1, debug@^4.3.2, debug@^4.3.4:
   version "4.3.5"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/debug/-/debug-4.3.5.tgz"
   integrity sha1-6DRE7Ouf7dSh2lbWca4kRqAabh4=
@@ -3714,6 +3670,13 @@ debug@4.3.4:
   integrity sha1-Exn2V5NX8jONMzfSzdSRS7XcyGU=
   dependencies:
     ms "2.1.2"
+
+debug@^3.2.7:
+  version "3.2.7"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/debug/-/debug-3.2.7.tgz"
+  integrity sha1-clgLfpFF+zm2Z2+cXl+xALk0F5o=
+  dependencies:
+    ms "^2.1.1"
 
 decimal.js@^10.4.2:
   version "10.4.3"
@@ -3922,7 +3885,7 @@ echarts-for-react@^3.0.2:
     fast-deep-equal "^3.1.3"
     size-sensor "^1.0.1"
 
-"echarts@^3.0.0 || ^4.0.0 || ^5.0.0", echarts@^5.4.1:
+echarts@^5.4.1:
   version "5.5.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/echarts/-/echarts-5.5.1.tgz"
   integrity sha1-jcnGjQxUiTS+3LX2M9sH7R3SEBw=
@@ -3965,7 +3928,7 @@ emoji-regex@^9.2.2:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/emoji-regex/-/emoji-regex-9.2.2.tgz"
   integrity sha1-hAyIA7DYBH9P8M+WMXazLU7z7XI=
 
-enhanced-resolve@^5.12.0, enhanced-resolve@^5.17.0:
+enhanced-resolve@^5.12.0:
   version "5.17.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/enhanced-resolve/-/enhanced-resolve-5.17.0.tgz"
   integrity sha1-0DdgN4ndlVW4mq7H63iEXEkIm8U=
@@ -4088,11 +4051,6 @@ es-iterator-helpers@^1.0.19:
     internal-slot "^1.0.7"
     iterator.prototype "^1.1.2"
     safe-array-concat "^1.1.2"
-
-es-module-lexer@^1.2.1:
-  version "1.5.4"
-  resolved "https://registry.npmmirror.com/es-module-lexer/-/es-module-lexer-1.5.4.tgz"
-  integrity sha512-MVNK56NiMrOwitFB7cqDwq0CQutbw+0BvLshJSse0MUNU+y1FC3bUS/AQg7oUng+/wKrrki7JfmwtVHkVfPLlw==
 
 es-object-atoms@^1.0.0:
   version "1.0.0"
@@ -4243,7 +4201,7 @@ eslint-plugin-html@^7.1.0:
   dependencies:
     htmlparser2 "^8.0.1"
 
-eslint-plugin-import@*, eslint-plugin-import@^2.27.5, eslint-plugin-import@^2.28.1:
+eslint-plugin-import@^2.27.5, eslint-plugin-import@^2.28.1:
   version "2.29.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/eslint-plugin-import/-/eslint-plugin-import-2.29.1.tgz"
   integrity sha1-1Fs3te9ZAdY5wVJw101G0WEVBkM=
@@ -4427,7 +4385,7 @@ eslint-rule-composer@^0.3.0:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/eslint-rule-composer/-/eslint-rule-composer-0.3.0.tgz"
   integrity sha1-eTIMknsMXA09PSt2yLSkiPJbuvk=
 
-eslint-scope@^5.1.1, eslint-scope@5.1.1:
+eslint-scope@^5.1.1:
   version "5.1.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/eslint-scope/-/eslint-scope-5.1.1.tgz"
   integrity sha1-54blmmbLkrP2wfsNUIqrF0hI9Iw=
@@ -4435,15 +4393,7 @@ eslint-scope@^5.1.1, eslint-scope@5.1.1:
     esrecurse "^4.3.0"
     estraverse "^4.1.1"
 
-eslint-scope@^7.1.1:
-  version "7.2.2"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/eslint-scope/-/eslint-scope-7.2.2.tgz"
-  integrity sha1-3rT5JWM5DzIAaJSvYqItuhxGQj8=
-  dependencies:
-    esrecurse "^4.3.0"
-    estraverse "^5.2.0"
-
-eslint-scope@^7.2.2:
+eslint-scope@^7.1.1, eslint-scope@^7.2.2:
   version "7.2.2"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/eslint-scope/-/eslint-scope-7.2.2.tgz"
   integrity sha1-3rT5JWM5DzIAaJSvYqItuhxGQj8=
@@ -4480,7 +4430,7 @@ eslint-visitor-keys@^3.0.0, eslint-visitor-keys@^3.3.0, eslint-visitor-keys@^3.4
   resolved "http://example.com/artifactory/api/npm/npm-virtual/eslint-visitor-keys/-/eslint-visitor-keys-3.4.3.tgz"
   integrity sha1-DNcv6FUOPC6uFWqWpN3c0cisWAA=
 
-eslint@*, "eslint@^2 || ^3 || ^4 || ^5 || ^6 || ^7.2.0 || ^8", "eslint@^3 || ^4 || ^5 || ^6 || ^7 || ^8", "eslint@^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0", "eslint@^6.0.0 || ^7.0.0 || ^8.0.0", "eslint@^6.0.0 || ^7.0.0 || >=8.0.0", "eslint@^6.2.0 || ^7.0.0 || ^8.0.0 || ^9.0.0", "eslint@^7.0.0 || ^8.0.0", "eslint@^7.0.0 || ^8.0.0 || ^9.0.0", "eslint@^7.23.0 || ^8.0.0", eslint@^8.0.0, eslint@^8.36.0, eslint@>=4.19.1, eslint@>=5, eslint@>=6.0.0, eslint@>=7.0.0, eslint@>=7.4.0, eslint@>=8.28.0:
+eslint@^8.36.0:
   version "8.57.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/eslint/-/eslint-8.57.0.tgz"
   integrity sha1-x4am/Q4LaJQar2JFlvuYcIkZVmg=
@@ -4622,10 +4572,20 @@ eventemitter3@^5.0.1:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/eventemitter3/-/eventemitter3-5.0.1.tgz"
   integrity sha1-U/X/0KSSrIAHIbtCxmuEHelkI8Q=
 
-events@^3.2.0:
-  version "3.3.0"
-  resolved "https://registry.npmmirror.com/events/-/events-3.3.0.tgz"
-  integrity sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==
+execa@7.2.0:
+  version "7.2.0"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/execa/-/execa-7.2.0.tgz"
+  integrity sha1-ZX51uphPQqcPOJKM7ch9by1P5Ok=
+  dependencies:
+    cross-spawn "^7.0.3"
+    get-stream "^6.0.1"
+    human-signals "^4.3.0"
+    is-stream "^3.0.0"
+    merge-stream "^2.0.0"
+    npm-run-path "^5.1.0"
+    onetime "^6.0.0"
+    signal-exit "^3.0.7"
+    strip-final-newline "^3.0.0"
 
 execa@^5.0.0:
   version "5.1.1"
@@ -4641,21 +4601,6 @@ execa@^5.0.0:
     onetime "^5.1.2"
     signal-exit "^3.0.3"
     strip-final-newline "^2.0.0"
-
-execa@7.2.0:
-  version "7.2.0"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/execa/-/execa-7.2.0.tgz"
-  integrity sha1-ZX51uphPQqcPOJKM7ch9by1P5Ok=
-  dependencies:
-    cross-spawn "^7.0.3"
-    get-stream "^6.0.1"
-    human-signals "^4.3.0"
-    is-stream "^3.0.0"
-    merge-stream "^2.0.0"
-    npm-run-path "^5.1.0"
-    onetime "^6.0.0"
-    signal-exit "^3.0.7"
-    strip-final-newline "^3.0.0"
 
 exit@^0.1.2:
   version "0.1.2"
@@ -4739,15 +4684,7 @@ fill-range@^7.1.1:
   dependencies:
     to-regex-range "^5.0.1"
 
-find-up@^4.0.0:
-  version "4.1.0"
-  resolved "https://registry.npmmirror.com/find-up/-/find-up-4.1.0.tgz"
-  integrity sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw==
-  dependencies:
-    locate-path "^5.0.0"
-    path-exists "^4.0.0"
-
-find-up@^4.1.0:
+find-up@^4.0.0, find-up@^4.1.0:
   version "4.1.0"
   resolved "https://registry.npmmirror.com/find-up/-/find-up-4.1.0.tgz"
   integrity sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw==
@@ -4893,7 +4830,7 @@ get-tsconfig@^4.5.0:
   dependencies:
     resolve-pkg-maps "^1.0.0"
 
-glob-parent@^5.1.2:
+glob-parent@^5.1.2, glob-parent@~5.1.2:
   version "5.1.2"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/glob-parent/-/glob-parent-5.1.2.tgz"
   integrity sha1-hpgyxYA0/mikCTwX3BXoNA2EAcQ=
@@ -4907,19 +4844,7 @@ glob-parent@^6.0.2:
   dependencies:
     is-glob "^4.0.3"
 
-glob-parent@~5.1.2:
-  version "5.1.2"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/glob-parent/-/glob-parent-5.1.2.tgz"
-  integrity sha1-hpgyxYA0/mikCTwX3BXoNA2EAcQ=
-  dependencies:
-    is-glob "^4.0.1"
-
-glob-to-regexp@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.npmmirror.com/glob-to-regexp/-/glob-to-regexp-0.4.1.tgz"
-  integrity sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw==
-
-glob@^10.3.10, glob@10.3.10:
+glob@10.3.10, glob@^10.3.10:
   version "10.3.10"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/glob/-/glob-10.3.10.tgz"
   integrity sha1-A1HruAn9GH/kIauWr4PTpwcV30s=
@@ -4930,19 +4855,7 @@ glob@^10.3.10, glob@10.3.10:
     minipass "^5.0.0 || ^6.0.2 || ^7.0.0"
     path-scurry "^1.10.1"
 
-glob@^7.1.3:
-  version "7.2.3"
-  resolved "https://registry.npmmirror.com/glob/-/glob-7.2.3.tgz"
-  integrity sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==
-  dependencies:
-    fs.realpath "^1.0.0"
-    inflight "^1.0.4"
-    inherits "2"
-    minimatch "^3.1.1"
-    once "^1.3.0"
-    path-is-absolute "^1.0.0"
-
-glob@^7.1.4:
+glob@^7.1.3, glob@^7.1.4:
   version "7.2.3"
   resolved "https://registry.npmmirror.com/glob/-/glob-7.2.3.tgz"
   integrity sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==
@@ -4993,7 +4906,7 @@ gopd@^1.0.1:
   dependencies:
     get-intrinsic "^1.1.3"
 
-graceful-fs@^4.1.2, graceful-fs@^4.2.11, graceful-fs@^4.2.4, graceful-fs@^4.2.9:
+graceful-fs@^4.2.11, graceful-fs@^4.2.4, graceful-fs@^4.2.9:
   version "4.2.11"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/graceful-fs/-/graceful-fs-4.2.11.tgz"
   integrity sha1-QYPk6L8Iu24Fu7L30uDI9xLKQOM=
@@ -5254,7 +5167,7 @@ i18next-resources-to-backend@^1.1.3:
   dependencies:
     "@babel/runtime" "^7.23.2"
 
-i18next@^22.4.13, "i18next@>= 19.0.0":
+i18next@^22.4.13:
   version "22.5.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/i18next/-/i18next-22.5.1.tgz"
   integrity sha1-md8LMYdBpQYADCQ0Kac1Ll9E1CQ=
@@ -5278,7 +5191,7 @@ immediate@~3.0.5:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/immediate/-/immediate-3.0.6.tgz"
   integrity sha1-nbHb0Pr43m++D13V5Wu2BigN5ps=
 
-immer@^9.0.19, immer@>=9.0.6:
+immer@^9.0.19:
   version "9.0.21"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/immer/-/immer-9.0.21.tgz"
   integrity sha1-HgJeoxpA8k+wZPH+8j6TFJYzAXY=
@@ -5341,15 +5254,15 @@ internal-slot@^1.0.4, internal-slot@^1.0.7:
     hasown "^2.0.0"
     side-channel "^1.0.4"
 
-internmap@^1.0.0:
-  version "1.0.1"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/internmap/-/internmap-1.0.1.tgz"
-  integrity sha1-ABfMijuZYF8DAvKxmNJy4BXl35U=
-
 "internmap@1 - 2":
   version "2.0.3"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/internmap/-/internmap-2.0.3.tgz"
   integrity sha1-ZoXyN1XkPFJOJR0py8lySOMGEAk=
+
+internmap@^1.0.0:
+  version "1.0.1"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/internmap/-/internmap-1.0.1.tgz"
+  integrity sha1-ABfMijuZYF8DAvKxmNJy4BXl35U=
 
 intersection-observer@^0.12.0:
   version "0.12.2"
@@ -5668,11 +5581,6 @@ isexe@^2.0.0:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/isexe/-/isexe-2.0.0.tgz"
   integrity sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
 
-isomorphic.js@^0.2.4:
-  version "0.2.5"
-  resolved "https://registry.npmmirror.com/isomorphic.js/-/isomorphic.js-0.2.5.tgz"
-  integrity sha512-PIeMbHqMt4DnUP3MA/Flc0HElYjMXArsw1qwJZcm9sqR8mq3l8NYizFMty0pWwE/tzIGH3EKK5+jes5mAr85yw==
-
 istanbul-lib-coverage@^3.0.0, istanbul-lib-coverage@^3.2.0:
   version "3.2.2"
   resolved "https://registry.npmmirror.com/istanbul-lib-coverage/-/istanbul-lib-coverage-3.2.2.tgz"
@@ -5964,7 +5872,7 @@ jest-resolve-dependencies@^29.7.0:
     jest-regex-util "^29.6.3"
     jest-snapshot "^29.7.0"
 
-jest-resolve@*, jest-resolve@^29.7.0:
+jest-resolve@^29.7.0:
   version "29.7.0"
   resolved "https://registry.npmmirror.com/jest-resolve/-/jest-resolve-29.7.0.tgz"
   integrity sha512-IOVhZSrg+UvVAshDSDtHyFCCBUl/Q3AAJv8iZ6ZjnZ74xzvwuzLXid9IIIPgTnY62SJjfuupMKZsZQRsCvxEgA==
@@ -6098,15 +6006,6 @@ jest-watcher@^29.7.0:
     jest-util "^29.7.0"
     string-length "^4.0.1"
 
-jest-worker@^27.4.5:
-  version "27.5.1"
-  resolved "https://registry.npmmirror.com/jest-worker/-/jest-worker-27.5.1.tgz"
-  integrity sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==
-  dependencies:
-    "@types/node" "*"
-    merge-stream "^2.0.0"
-    supports-color "^8.0.0"
-
 jest-worker@^29.7.0:
   version "29.7.0"
   resolved "https://registry.npmmirror.com/jest-worker/-/jest-worker-29.7.0.tgz"
@@ -6117,7 +6016,7 @@ jest-worker@^29.7.0:
     merge-stream "^2.0.0"
     supports-color "^8.0.0"
 
-jest@*, jest@^29.7.0:
+jest@^29.7.0:
   version "29.7.0"
   resolved "https://registry.npmmirror.com/jest/-/jest-29.7.0.tgz"
   integrity sha512-NIy3oAFp9shda19hy4HK0HRTWKtPJmGdnvywu01nOqNC2vZg+Z+fvJDxpMQA88eb2I9EcafcdjYgsDthnYTvGw==
@@ -6219,7 +6118,7 @@ json-buffer@3.0.1:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/json-buffer/-/json-buffer-3.0.1.tgz"
   integrity sha1-kziAKjDTtmBfvgYT4JQAjKjAWhM=
 
-json-parse-even-better-errors@^2.3.0, json-parse-even-better-errors@^2.3.1:
+json-parse-even-better-errors@^2.3.0:
   version "2.3.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/json-parse-even-better-errors/-/json-parse-even-better-errors-2.3.1.tgz"
   integrity sha1-fEeAWpQxmSjgV3dAXcEuH3pO4C0=
@@ -6344,17 +6243,10 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-lexical@^0.16.0, lexical@0.16.1:
+lexical@0.16.1, lexical@^0.16.0:
   version "0.16.1"
   resolved "https://registry.npmmirror.com/lexical/-/lexical-0.16.1.tgz"
   integrity sha512-+R05d3+N945OY8pTUjTqQrWoApjC+ctzvjnmNETtx9WmVAaiW0tQVG+AYLt5pDGY8dQXtd4RPorvnxBTECt9SA==
-
-lib0@^0.2.86:
-  version "0.2.95"
-  resolved "https://registry.npmmirror.com/lib0/-/lib0-0.2.95.tgz"
-  integrity sha512-St5XGDh5omvNawGkAOa7CFRjxl4xEKLj9DxgT8Nl7rmrD6l2WRTngvmZGhJKRaniROterT0RDVdnwLlU9PiEOg==
-  dependencies:
-    isomorphic.js "^0.2.4"
 
 lie@3.1.1:
   version "3.1.1"
@@ -6363,7 +6255,7 @@ lie@3.1.1:
   dependencies:
     immediate "~3.0.5"
 
-lilconfig@^2.1.0, lilconfig@2.1.0:
+lilconfig@2.1.0, lilconfig@^2.1.0:
   version "2.1.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/lilconfig/-/lilconfig-2.1.0.tgz"
   integrity sha1-eOI6yJ67fhv78lsYBD3nVlSOf1I=
@@ -6417,11 +6309,6 @@ listr2@8.2.4:
     log-update "^6.1.0"
     rfdc "^1.4.1"
     wrap-ansi "^9.0.0"
-
-loader-runner@^4.2.0:
-  version "4.3.0"
-  resolved "https://registry.npmmirror.com/loader-runner/-/loader-runner-4.3.0.tgz"
-  integrity sha512-3R/1M+yS3j5ou80Me59j7F9IMs4PXs3VqRrm0TU3AbKPxlmpoY1TNscJV/oGJXo8qCatFGTfDbY6W6ipGOYXfg==
 
 local-pkg@^0.4.3:
   version "0.4.3"
@@ -6592,43 +6479,7 @@ mdast-util-from-markdown@^0.8.5:
     parse-entities "^2.0.0"
     unist-util-stringify-position "^2.0.0"
 
-mdast-util-from-markdown@^1.0.0:
-  version "1.3.1"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/mdast-util-from-markdown/-/mdast-util-from-markdown-1.3.1.tgz"
-  integrity sha1-lCGlokfxDTHS+u0qMN9eyJzq/PA=
-  dependencies:
-    "@types/mdast" "^3.0.0"
-    "@types/unist" "^2.0.0"
-    decode-named-character-reference "^1.0.0"
-    mdast-util-to-string "^3.1.0"
-    micromark "^3.0.0"
-    micromark-util-decode-numeric-character-reference "^1.0.0"
-    micromark-util-decode-string "^1.0.0"
-    micromark-util-normalize-identifier "^1.0.0"
-    micromark-util-symbol "^1.0.0"
-    micromark-util-types "^1.0.0"
-    unist-util-stringify-position "^3.0.0"
-    uvu "^0.5.0"
-
-mdast-util-from-markdown@^1.1.0:
-  version "1.3.1"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/mdast-util-from-markdown/-/mdast-util-from-markdown-1.3.1.tgz"
-  integrity sha1-lCGlokfxDTHS+u0qMN9eyJzq/PA=
-  dependencies:
-    "@types/mdast" "^3.0.0"
-    "@types/unist" "^2.0.0"
-    decode-named-character-reference "^1.0.0"
-    mdast-util-to-string "^3.1.0"
-    micromark "^3.0.0"
-    micromark-util-decode-numeric-character-reference "^1.0.0"
-    micromark-util-decode-string "^1.0.0"
-    micromark-util-normalize-identifier "^1.0.0"
-    micromark-util-symbol "^1.0.0"
-    micromark-util-types "^1.0.0"
-    unist-util-stringify-position "^3.0.0"
-    uvu "^0.5.0"
-
-mdast-util-from-markdown@^1.3.0:
+mdast-util-from-markdown@^1.0.0, mdast-util-from-markdown@^1.1.0, mdast-util-from-markdown@^1.3.0:
   version "1.3.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/mdast-util-from-markdown/-/mdast-util-from-markdown-1.3.1.tgz"
   integrity sha1-lCGlokfxDTHS+u0qMN9eyJzq/PA=
@@ -6813,14 +6664,7 @@ mdast-util-to-string@^2.0.0:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/mdast-util-to-string/-/mdast-util-to-string-2.0.0.tgz"
   integrity sha1-uM/mpxPhCRy1tyj8SIhaR2f4uXs=
 
-mdast-util-to-string@^3.0.0:
-  version "3.2.0"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/mdast-util-to-string/-/mdast-util-to-string-3.2.0.tgz"
-  integrity sha1-Zve7YyR1Z0HF9HpTVX8Mvxa294k=
-  dependencies:
-    "@types/mdast" "^3.0.0"
-
-mdast-util-to-string@^3.1.0:
+mdast-util-to-string@^3.0.0, mdast-util-to-string@^3.1.0:
   version "3.2.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/mdast-util-to-string/-/mdast-util-to-string-3.2.0.tgz"
   integrity sha1-Zve7YyR1Z0HF9HpTVX8Mvxa294k=
@@ -7256,14 +7100,6 @@ micromark@~2.11.0:
     debug "^4.0.0"
     parse-entities "^2.0.0"
 
-micromatch@^4.0.4, micromatch@^4.0.5:
-  version "4.0.7"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/micromatch/-/micromatch-4.0.7.tgz"
-  integrity sha1-M+gZDZ/kdKmJVSX1YY7uE21GwuU=
-  dependencies:
-    braces "^3.0.3"
-    picomatch "^2.3.1"
-
 micromatch@4.0.5:
   version "4.0.5"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/micromatch/-/micromatch-4.0.5.tgz"
@@ -7272,12 +7108,20 @@ micromatch@4.0.5:
     braces "^3.0.2"
     picomatch "^2.3.1"
 
+micromatch@^4.0.4, micromatch@^4.0.5:
+  version "4.0.7"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/micromatch/-/micromatch-4.0.7.tgz"
+  integrity sha1-M+gZDZ/kdKmJVSX1YY7uE21GwuU=
+  dependencies:
+    braces "^3.0.3"
+    picomatch "^2.3.1"
+
 mime-db@1.52.0:
   version "1.52.0"
   resolved "https://registry.npmmirror.com/mime-db/-/mime-db-1.52.0.tgz"
   integrity sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==
 
-mime-types@^2.1.12, mime-types@^2.1.27:
+mime-types@^2.1.12:
   version "2.1.35"
   resolved "https://registry.npmmirror.com/mime-types/-/mime-types-2.1.35.tgz"
   integrity sha512-ZDY+bPm5zTTF+YpCrAU9nK0UgICYPT0QtT1NZWFv4s++TNkcgVaT0g6+4R2uI4MjQjzysHB1zxuWL50hzaeXiw==
@@ -7335,11 +7179,6 @@ mkdirp@^0.5.6:
   dependencies:
     minimist "^1.2.6"
 
-"monaco-editor@>= 0.21.0 < 1", "monaco-editor@>= 0.25.0 < 1":
-  version "0.50.0"
-  resolved "https://registry.npmmirror.com/monaco-editor/-/monaco-editor-0.50.0.tgz"
-  integrity sha512-8CclLCmrRRh+sul7C08BmPBP3P8wVWfBHomsTcndxg5NRCEPfu/mc2AGU8k37ajjDVXcXFc12ORAMUkmk+lkFA==
-
 monacopilot@^0.11.8:
   version "0.11.8"
   resolved "https://registry.npmmirror.com/monacopilot/-/monacopilot-0.11.8.tgz"
@@ -7350,7 +7189,7 @@ mri@^1.1.0:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/mri/-/mri-1.2.0.tgz"
   integrity sha1-ZyFID+wqEaSImGERWki2y+fMjws=
 
-ms@^2.1.1, ms@2.1.2:
+ms@2.1.2, ms@^2.1.1:
   version "2.1.2"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/ms/-/ms-2.1.2.tgz"
   integrity sha1-0J0fNXtEP0kzgqjrPM0YOHKuYAk=
@@ -7369,11 +7208,6 @@ nanoid@^3.3.6, nanoid@^3.3.7:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/nanoid/-/nanoid-3.3.7.tgz"
   integrity sha1-0MMBppG8jVTvoKIibM8/4v1la9g=
 
-nanoid@^3.3.7:
-  version "3.3.7"
-  resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.7.tgz#d0c301a691bc8d54efa0a2226ccf3fe2fd656bd8"
-  integrity sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==
-
 natural-compare-lite@^1.4.0:
   version "1.4.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/natural-compare-lite/-/natural-compare-lite-1.4.0.tgz"
@@ -7388,11 +7222,6 @@ negotiator@^0.6.3:
   version "0.6.3"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/negotiator/-/negotiator-0.6.3.tgz"
   integrity sha1-WOMjpy/twNb5zU0x/kn1FHlZDM0=
-
-neo-async@^2.6.2:
-  version "2.6.2"
-  resolved "https://registry.npmmirror.com/neo-async/-/neo-async-2.6.2.tgz"
-  integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
 next-nprogress-bar@^2.3.8:
   version "2.3.12"
@@ -7581,14 +7410,7 @@ once@^1.3.0:
   dependencies:
     wrappy "1"
 
-onetime@^5.1.0:
-  version "5.1.2"
-  resolved "https://registry.npmmirror.com/onetime/-/onetime-5.1.2.tgz"
-  integrity sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==
-  dependencies:
-    mimic-fn "^2.1.0"
-
-onetime@^5.1.2:
+onetime@^5.1.0, onetime@^5.1.2:
   version "5.1.2"
   resolved "https://registry.npmmirror.com/onetime/-/onetime-5.1.2.tgz"
   integrity sha512-kbpaSSGJTWdAY5KPVeMOKXSrPtr8C8C7wodJbcsd51jRnmD+GZu8Y0VoU6Dm5Z4vWr0Ig/1NKuWRKf7j5aaYSg==
@@ -7843,22 +7665,6 @@ postcss-nested@^6.0.1:
   dependencies:
     postcss-selector-parser "^6.0.11"
 
-postcss-selector-parser@^6.0.11:
-  version "6.1.0"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/postcss-selector-parser/-/postcss-selector-parser-6.1.0.tgz"
-  integrity sha1-SWlMtOfGSSmf6lEKKfpldxBLz1M=
-  dependencies:
-    cssesc "^3.0.0"
-    util-deprecate "^1.0.2"
-
-postcss-selector-parser@^6.0.15:
-  version "6.1.0"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/postcss-selector-parser/-/postcss-selector-parser-6.1.0.tgz"
-  integrity sha1-SWlMtOfGSSmf6lEKKfpldxBLz1M=
-  dependencies:
-    cssesc "^3.0.0"
-    util-deprecate "^1.0.2"
-
 postcss-selector-parser@6.0.10:
   version "6.0.10"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/postcss-selector-parser/-/postcss-selector-parser-6.0.10.tgz"
@@ -7867,19 +7673,18 @@ postcss-selector-parser@6.0.10:
     cssesc "^3.0.0"
     util-deprecate "^1.0.2"
 
+postcss-selector-parser@^6.0.11, postcss-selector-parser@^6.0.15:
+  version "6.1.0"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/postcss-selector-parser/-/postcss-selector-parser-6.1.0.tgz"
+  integrity sha1-SWlMtOfGSSmf6lEKKfpldxBLz1M=
+  dependencies:
+    cssesc "^3.0.0"
+    util-deprecate "^1.0.2"
+
 postcss-value-parser@^4.0.0, postcss-value-parser@^4.0.2, postcss-value-parser@^4.2.0:
   version "4.2.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/postcss-value-parser/-/postcss-value-parser-4.2.0.tgz"
   integrity sha1-cjwJkgg2um0+WvAZ+SvAlxwC5RQ=
-
-postcss@^8.0.0, postcss@^8.1.0, postcss@^8.2.14, postcss@^8.4.21, postcss@^8.4.23, postcss@^8.4.31, postcss@>=8.0.9:
-  version "8.4.39"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/postcss/-/postcss-8.4.39.tgz"
-  integrity sha1-qjyUmYth06nCWe+lHbSzkuG94OM=
-  dependencies:
-    nanoid "^3.3.7"
-    picocolors "^1.0.1"
-    source-map-js "^1.2.0"
 
 postcss@8.4.31:
   version "8.4.31"
@@ -7899,6 +7704,15 @@ postcss@8.4.38:
     picocolors "^1.0.0"
     source-map-js "^1.2.0"
 
+postcss@^8.4.23, postcss@^8.4.31:
+  version "8.4.39"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/postcss/-/postcss-8.4.39.tgz"
+  integrity sha1-qjyUmYth06nCWe+lHbSzkuG94OM=
+  dependencies:
+    nanoid "^3.3.7"
+    picocolors "^1.0.1"
+    source-map-js "^1.2.0"
+
 prelude-ls@^1.2.1:
   version "1.2.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/prelude-ls/-/prelude-ls-1.2.1.tgz"
@@ -7913,16 +7727,7 @@ pretty-format@^27.0.2:
     ansi-styles "^5.0.0"
     react-is "^17.0.1"
 
-pretty-format@^29.0.0:
-  version "29.7.0"
-  resolved "https://registry.npmmirror.com/pretty-format/-/pretty-format-29.7.0.tgz"
-  integrity sha512-Pdlw/oPxN+aXdmM9R00JVC9WVFoCLTKJvDVLgmJ+qAffBMxsV85l/Lu7sNx4zSzPyoL2euImuEwHhOXdEgNFZQ==
-  dependencies:
-    "@jest/schemas" "^29.6.3"
-    ansi-styles "^5.0.0"
-    react-is "^18.0.0"
-
-pretty-format@^29.7.0:
+pretty-format@^29.0.0, pretty-format@^29.7.0:
   version "29.7.0"
   resolved "https://registry.npmmirror.com/pretty-format/-/pretty-format-29.7.0.tgz"
   integrity sha512-Pdlw/oPxN+aXdmM9R00JVC9WVFoCLTKJvDVLgmJ+qAffBMxsV85l/Lu7sNx4zSzPyoL2euImuEwHhOXdEgNFZQ==
@@ -8006,13 +7811,6 @@ queue-microtask@^1.2.2:
   version "1.2.3"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/queue-microtask/-/queue-microtask-1.2.3.tgz"
   integrity sha1-SSkii7xyTfrEPg77BYyve2z7YkM=
-
-randombytes@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.npmmirror.com/randombytes/-/randombytes-2.1.0.tgz"
-  integrity sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==
-  dependencies:
-    safe-buffer "^5.1.0"
 
 rc-cascader@~3.27.0:
   version "3.27.0"
@@ -8382,7 +8180,7 @@ react-code-blocks@^0.1.6:
     styled-components "^6.1.0"
     tslib "^2.6.0"
 
-react-dom@*, "react-dom@^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0", "react-dom@^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0", "react-dom@^16 || ^17 || ^18", "react-dom@^16.8.0 || ^17.0.0 || ^18.0.0", react-dom@^18.0.0, react-dom@^18.2.0, "react-dom@>= 16.8.0", react-dom@>=16.0.0, react-dom@>=16.11.0, react-dom@>=16.14.0, react-dom@>=16.8.0, react-dom@>=16.9.0, react-dom@>=17, react-dom@>=17.0.0, react-dom@>=17.x, react-dom@~18.2.0:
+react-dom@~18.2.0:
   version "18.2.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/react-dom/-/react-dom-18.2.0.tgz"
   integrity sha1-IqrzhwjbJnTtmtoiTKSqcI2CHj0=
@@ -8416,7 +8214,7 @@ react-headless-pagination@^1.1.4:
   dependencies:
     clsx "^2.1.0"
 
-react-hook-form@^7.0.0, react-hook-form@^7.51.4:
+react-hook-form@^7.51.4:
   version "7.52.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/react-hook-form/-/react-hook-form-7.52.0.tgz"
   integrity sha1-5SszBD4oNxlYa53YD21Rto3TmZw=
@@ -8446,12 +8244,7 @@ react-is@^17.0.1:
   resolved "https://registry.npmmirror.com/react-is/-/react-is-17.0.2.tgz"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-is@^18.0.0:
-  version "18.3.1"
-  resolved "https://registry.npmmirror.com/react-is/-/react-is-18.3.1.tgz"
-  integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
-
-react-is@^18.2.0:
+react-is@^18.0.0, react-is@^18.2.0:
   version "18.3.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/react-is/-/react-is-18.3.1.tgz"
   integrity sha1-6DVX3BLq5jqZ4AOkY4ix3LtE234=
@@ -8542,7 +8335,7 @@ react-window@^1.8.9:
     "@babel/runtime" "^7.0.0"
     memoize-one ">=3.1.1 <6"
 
-react@*, "react@^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0", "react@^15.0.0 || >=16.0.0", "react@^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0", "react@^16 || ^17 || ^18", "react@^16.11.0 || ^17.0.0 || ^18.0.0", "react@^16.3.0 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17 || ^18 || ^19", "react@^16.8.0 || ^17.0.0 || ^18.0.0", react@^18.0.0, react@^18.2.0, "react@>= 0.14.0", "react@>= 16", "react@>= 16.8.0", "react@>= 16.8.0 || 17.x.x || ^18.0.0-0", react@>=16, react@>=16.0.0, react@>=16.11.0, react@>=16.13.1, react@>=16.14.0, react@>=16.8, react@>=16.8.0, react@>=16.9.0, react@>=17, react@>=17.0.0, react@>=17.x, react@>=18.2.0, react@~18.2.0, "react@15.x || 16.x || 17.x || 18.x":
+react@~18.2.0:
   version "18.2.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/react/-/react-18.2.0.tgz"
   integrity sha1-VVvZhZKIMlX6AN4U8RUakXtdd9U=
@@ -8856,11 +8649,6 @@ safe-array-concat@^1.1.2:
     has-symbols "^1.0.3"
     isarray "^2.0.5"
 
-safe-buffer@^5.1.0:
-  version "5.2.1"
-  resolved "https://registry.npmmirror.com/safe-buffer/-/safe-buffer-5.2.1.tgz"
-  integrity sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ==
-
 safe-regex-test@^1.0.3:
   version "1.0.3"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/safe-regex-test/-/safe-regex-test-1.0.3.tgz"
@@ -8882,7 +8670,7 @@ safe-regex@^2.1.1:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/safer-buffer/-/safer-buffer-2.1.2.tgz"
   integrity sha1-RPoWGwGHuVSd2Eu5GAL5vYOFzWo=
 
-sass@^1.3.0, sass@^1.61.0:
+sass@^1.61.0:
   version "1.77.6"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/sass/-/sass-1.77.6.tgz"
   integrity sha1-iYhFwTSAeMLm0bZPnuBrP4vUieQ=
@@ -8898,21 +8686,12 @@ saxes@^6.0.0:
   dependencies:
     xmlchars "^2.2.0"
 
-scheduler@^0.23.0, scheduler@>=0.19.0:
+scheduler@^0.23.0:
   version "0.23.2"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/scheduler/-/scheduler-0.23.2.tgz"
   integrity sha1-QUumSjsoKJLpRM8hCOzAeNEVzcM=
   dependencies:
     loose-envify "^1.1.0"
-
-schema-utils@^3.1.1, schema-utils@^3.2.0:
-  version "3.3.0"
-  resolved "https://registry.npmmirror.com/schema-utils/-/schema-utils-3.3.0.tgz"
-  integrity sha512-pN/yOAvcC+5rQ5nERGuwrjLlYvLTbCibnZ1I7B1LaiAz9BRBlE9GMgE/eqV30P7aJQUf7Ddimy/RsbYO/GrVGg==
-  dependencies:
-    "@types/json-schema" "^7.0.8"
-    ajv "^6.12.5"
-    ajv-keywords "^3.5.2"
 
 screenfull@^5.0.0:
   version "5.2.0"
@@ -8926,12 +8705,12 @@ scroll-into-view-if-needed@^3.1.0:
   dependencies:
     compute-scroll-into-view "^3.0.2"
 
-semver@^6.3.0:
-  version "6.3.1"
-  resolved "https://registry.npmmirror.com/semver/-/semver-6.3.1.tgz"
-  integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
+"semver@2 || 3 || 4 || 5":
+  version "5.7.2"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/semver/-/semver-5.7.2.tgz"
+  integrity sha1-SNVdtzfDKHzUg14X+hP+rOHEHvg=
 
-semver@^6.3.1:
+semver@^6.3.0, semver@^6.3.1:
   version "6.3.1"
   resolved "https://registry.npmmirror.com/semver/-/semver-6.3.1.tgz"
   integrity sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==
@@ -8940,18 +8719,6 @@ semver@^7.0.0, semver@^7.3.5, semver@^7.3.6, semver@^7.3.7, semver@^7.3.8, semve
   version "7.6.2"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/semver/-/semver-7.6.2.tgz"
   integrity sha1-Hjs0dZ+Jbo8U1hNHMs55iusMbhM=
-
-"semver@2 || 3 || 4 || 5":
-  version "5.7.2"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/semver/-/semver-5.7.2.tgz"
-  integrity sha1-SNVdtzfDKHzUg14X+hP+rOHEHvg=
-
-serialize-javascript@^6.0.1:
-  version "6.0.2"
-  resolved "https://registry.npmmirror.com/serialize-javascript/-/serialize-javascript-6.0.2.tgz"
-  integrity sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==
-  dependencies:
-    randombytes "^2.1.0"
 
 server-only@^0.0.1:
   version "0.0.1"
@@ -9036,17 +8803,7 @@ side-channel@^1.0.4, side-channel@^1.0.6:
     get-intrinsic "^1.2.4"
     object-inspect "^1.13.1"
 
-signal-exit@^3.0.2:
-  version "3.0.7"
-  resolved "https://registry.npmmirror.com/signal-exit/-/signal-exit-3.0.7.tgz"
-  integrity sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==
-
-signal-exit@^3.0.3:
-  version "3.0.7"
-  resolved "https://registry.npmmirror.com/signal-exit/-/signal-exit-3.0.7.tgz"
-  integrity sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==
-
-signal-exit@^3.0.7:
+signal-exit@^3.0.2, signal-exit@^3.0.3, signal-exit@^3.0.7:
   version "3.0.7"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/signal-exit/-/signal-exit-3.0.7.tgz"
   integrity sha1-qaF2f4r4QVURTqq9c/mSc8j1mtk=
@@ -9094,23 +8851,15 @@ slice-ansi@^7.1.0:
     ansi-styles "^6.2.1"
     is-fullwidth-code-point "^5.0.0"
 
-sortablejs@^1.15.0, sortablejs@1:
+sortablejs@^1.15.0:
   version "1.15.2"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/sortablejs/-/sortablejs-1.15.2.tgz"
   integrity sha1-Tp972kcYvRg4rdnxhm7HcWkUmAk=
 
-source-map-js@^1.0.2, source-map-js@^1.2.0, "source-map-js@>=0.6.2 <2.0.0":
+"source-map-js@>=0.6.2 <2.0.0", source-map-js@^1.0.2, source-map-js@^1.2.0:
   version "1.2.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/source-map-js/-/source-map-js-1.2.0.tgz"
   integrity sha1-FrgJwWJRe1uMPn3NMVoqXCYSsq8=
-
-source-map-support@~0.5.20:
-  version "0.5.21"
-  resolved "https://registry.npmmirror.com/source-map-support/-/source-map-support-0.5.21.tgz"
-  integrity sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w==
-  dependencies:
-    buffer-from "^1.0.0"
-    source-map "^0.6.0"
 
 source-map-support@0.5.13:
   version "0.5.13"
@@ -9120,12 +8869,7 @@ source-map-support@0.5.13:
     buffer-from "^1.0.0"
     source-map "^0.6.0"
 
-source-map@^0.6.0:
-  version "0.6.1"
-  resolved "https://registry.npmmirror.com/source-map/-/source-map-0.6.1.tgz"
-  integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
-
-source-map@^0.6.1:
+source-map@^0.6.0, source-map@^0.6.1, source-map@~0.6.1:
   version "0.6.1"
   resolved "https://registry.npmmirror.com/source-map/-/source-map-0.6.1.tgz"
   integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
@@ -9134,11 +8878,6 @@ source-map@^0.7.0:
   version "0.7.4"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/source-map/-/source-map-0.7.4.tgz"
   integrity sha1-qbvnBcnYhG9OCP9nZazw8bCJhlY=
-
-source-map@~0.6.1:
-  version "0.6.1"
-  resolved "https://registry.npmmirror.com/source-map/-/source-map-0.6.1.tgz"
-  integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
 
 space-separated-tokens@^1.0.0:
   version "1.1.5"
@@ -9232,16 +8971,7 @@ string-length@^4.0.1:
     is-fullwidth-code-point "^3.0.0"
     strip-ansi "^6.0.1"
 
-string-width@^4.1.0, string-width@^4.2.0:
-  version "4.2.3"
-  resolved "https://registry.npmmirror.com/string-width/-/string-width-4.2.3.tgz"
-  integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
-  dependencies:
-    emoji-regex "^8.0.0"
-    is-fullwidth-code-point "^3.0.0"
-    strip-ansi "^6.0.1"
-
-string-width@^4.2.3:
+string-width@^4.1.0, string-width@^4.2.0, string-width@^4.2.3:
   version "4.2.3"
   resolved "https://registry.npmmirror.com/string-width/-/string-width-4.2.3.tgz"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
@@ -9330,28 +9060,14 @@ stringify-entities@^4.0.0:
     character-entities-html4 "^2.0.0"
     character-entities-legacy "^3.0.0"
 
-"strip-ansi-cjs@npm:strip-ansi@^6.0.1":
+"strip-ansi-cjs@npm:strip-ansi@^6.0.1", strip-ansi@^6.0.0, strip-ansi@^6.0.1:
   version "6.0.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/strip-ansi/-/strip-ansi-6.0.1.tgz"
   integrity sha1-nibGPTD1NEPpSJSVshBdN7Z6hdk=
   dependencies:
     ansi-regex "^5.0.1"
 
-strip-ansi@^6.0.0, strip-ansi@^6.0.1:
-  version "6.0.1"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/strip-ansi/-/strip-ansi-6.0.1.tgz"
-  integrity sha1-nibGPTD1NEPpSJSVshBdN7Z6hdk=
-  dependencies:
-    ansi-regex "^5.0.1"
-
-strip-ansi@^7.0.1:
-  version "7.1.0"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/strip-ansi/-/strip-ansi-7.1.0.tgz"
-  integrity sha1-1bZWjKaJ2FYTcLBwdoXSJDT6/0U=
-  dependencies:
-    ansi-regex "^6.0.1"
-
-strip-ansi@^7.1.0:
+strip-ansi@^7.0.1, strip-ansi@^7.1.0:
   version "7.1.0"
   resolved "https://registry.npmmirror.com/strip-ansi/-/strip-ansi-7.1.0.tgz"
   integrity sha512-iq6eVVI64nQQTRYq2KtEg2d2uU7LElhTJwsH4YzIHZshxlgZms/wIc4VoDQTlG/IvVIrBKG06CrZnp0qv7hkcQ==
@@ -9421,18 +9137,13 @@ styled-jsx@5.1.1:
 
 stylis@4.3.2:
   version "4.3.2"
-  resolved "https://registry.yarnpkg.com/stylis/-/stylis-4.3.2.tgz#8f76b70777dd53eb669c6f58c997bf0a9972e444"
+  resolved "https://registry.npmmirror.com/stylis/-/stylis-4.3.2.tgz"
   integrity sha512-bhtUjWd/z6ltJiQwg0dUfxEJ+W+jdqQd8TbWLWyeIJHlnsqmGLRFFd8e5mA0AZi/zx90smXRlN66YMTcaSFifg==
 
 stylis@^4.1.3, stylis@^4.3.3:
   version "4.3.4"
   resolved "https://registry.npmmirror.com/stylis/-/stylis-4.3.4.tgz"
   integrity sha512-osIBl6BGUmSfDkyH2mB7EFvCJntXDrLhKjHTRj/rK6xLH0yuPrHULDRQzKokSOD4VoorhtKpfcfW1GAntu8now==
-
-stylis@4.3.2:
-  version "4.3.2"
-  resolved "https://registry.npmmirror.com/stylis/-/stylis-4.3.2.tgz"
-  integrity sha512-bhtUjWd/z6ltJiQwg0dUfxEJ+W+jdqQd8TbWLWyeIJHlnsqmGLRFFd8e5mA0AZi/zx90smXRlN66YMTcaSFifg==
 
 sucrase@^3.32.0:
   version "3.35.0"
@@ -9503,7 +9214,7 @@ tailwind-merge@^2.4.0:
   resolved "https://registry.npmmirror.com/tailwind-merge/-/tailwind-merge-2.4.0.tgz"
   integrity sha512-49AwoOQNKdqKPd9CViyH5wJoSKsCDjUlzL8DxuGp3P1FsGY36NJDAa18jLZcaHAUUuTj+JB8IAo8zWgBNvBF7A==
 
-tailwindcss@^3.4.4, "tailwindcss@>=2.0.0 || >=3.0.0 || >=3.0.0-alpha.1", "tailwindcss@>=3.0.0 || insiders":
+tailwindcss@^3.4.4:
   version "3.4.4"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/tailwindcss/-/tailwindcss-3.4.4.tgz"
   integrity sha1-NR2TInPmq/p1zn0ia1vzpsslfAU=
@@ -9531,31 +9242,10 @@ tailwindcss@^3.4.4, "tailwindcss@>=2.0.0 || >=3.0.0 || >=3.0.0-alpha.1", "tailwi
     resolve "^1.22.2"
     sucrase "^3.32.0"
 
-tapable@^2.1.1, tapable@^2.2.0:
+tapable@^2.2.0:
   version "2.2.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/tapable/-/tapable-2.2.1.tgz"
   integrity sha1-GWenPvQGCoLxKrlq+G1S/bdu7KA=
-
-terser-webpack-plugin@^5.3.10:
-  version "5.3.10"
-  resolved "https://registry.npmmirror.com/terser-webpack-plugin/-/terser-webpack-plugin-5.3.10.tgz"
-  integrity sha512-BKFPWlPDndPs+NGGCr1U59t0XScL5317Y0UReNrHaw9/FwhPENlq6bfgs+4yPfyP51vqC1bQ4rp1EfXW5ZSH9w==
-  dependencies:
-    "@jridgewell/trace-mapping" "^0.3.20"
-    jest-worker "^27.4.5"
-    schema-utils "^3.1.1"
-    serialize-javascript "^6.0.1"
-    terser "^5.26.0"
-
-terser@^5.26.0:
-  version "5.31.3"
-  resolved "https://registry.npmmirror.com/terser/-/terser-5.31.3.tgz"
-  integrity sha512-pAfYn3NIZLyZpa83ZKigvj6Rn9c/vd5KfYGX7cN1mnzqgDcxWvrU5ZtAfIKhEXz9nRecw4z3LXkjaq96/qZqAA==
-  dependencies:
-    "@jridgewell/source-map" "^0.3.3"
-    acorn "^8.8.2"
-    commander "^2.20.0"
-    source-map-support "~0.5.20"
 
 test-exclude@^6.0.0:
   version "6.0.0"
@@ -9659,7 +9349,7 @@ ts-interface-checker@^0.1.9:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/ts-interface-checker/-/ts-interface-checker-0.1.13.tgz"
   integrity sha1-eE/T1nlyK8EDsbS4AwvN212yppk=
 
-ts-node@^10.9.2, ts-node@>=9.0.0:
+ts-node@^10.9.2:
   version "10.9.2"
   resolved "https://registry.npmmirror.com/ts-node/-/ts-node-10.9.2.tgz"
   integrity sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==
@@ -9688,6 +9378,16 @@ tsconfig-paths@^3.15.0:
     minimist "^1.2.6"
     strip-bom "^3.0.0"
 
+tslib@2.3.0:
+  version "2.3.0"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/tslib/-/tslib-2.3.0.tgz"
+  integrity sha1-gDuM2rPhK6WBpMpByIObuw2ssJ4=
+
+tslib@2.6.2, tslib@^2.6.0:
+  version "2.6.2"
+  resolved "https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz"
+  integrity sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==
+
 tslib@^1.8.1:
   version "1.14.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/tslib/-/tslib-1.14.1.tgz"
@@ -9697,16 +9397,6 @@ tslib@^2.3.1, tslib@^2.4.0, tslib@^2.4.1:
   version "2.6.3"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/tslib/-/tslib-2.6.3.tgz"
   integrity sha1-BDj4EK16ntzeeiQcPYDbaTyMv+A=
-
-tslib@^2.6.0, tslib@2.6.2:
-  version "2.6.2"
-  resolved "https://registry.npmmirror.com/tslib/-/tslib-2.6.2.tgz"
-  integrity sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==
-
-tslib@2.3.0:
-  version "2.3.0"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/tslib/-/tslib-2.3.0.tgz"
-  integrity sha1-gDuM2rPhK6WBpMpByIObuw2ssJ4=
 
 tsutils@^3.21.0:
   version "3.21.0"
@@ -9796,7 +9486,7 @@ typed-array-length@^1.0.6:
     is-typed-array "^1.1.13"
     possible-typed-array-names "^1.0.0"
 
-typescript@>=2.7, "typescript@>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta", typescript@>=3.3.1, typescript@>=3.9, typescript@4.9.5:
+typescript@4.9.5:
   version "4.9.5"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/typescript/-/typescript-4.9.5.tgz"
   integrity sha1-CVl5+bzA0J2jJNWNA86Pg3TL5lo=
@@ -9940,15 +9630,15 @@ use-strict@1.0.1:
   resolved "http://example.com/artifactory/api/npm/npm-virtual/use-strict/-/use-strict-1.0.1.tgz"
   integrity sha1-C7gNlPSaSgUZK4Sox9NOlfGn46A=
 
-use-sync-external-store@^1.2.0:
-  version "1.2.2"
-  resolved "http://example.com/artifactory/api/npm/npm-virtual/use-sync-external-store/-/use-sync-external-store-1.2.2.tgz"
-  integrity sha1-w7Y5Dzow66EyANIwLc3x57V7Lvk=
-
 use-sync-external-store@1.2.0:
   version "1.2.0"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz"
   integrity sha1-fb79bvP+TnZ6DPXXKHqs+1hGkoo=
+
+use-sync-external-store@^1.2.0:
+  version "1.2.2"
+  resolved "http://example.com/artifactory/api/npm/npm-virtual/use-sync-external-store/-/use-sync-external-store-1.2.2.tgz"
+  integrity sha1-w7Y5Dzow66EyANIwLc3x57V7Lvk=
 
 util-deprecate@^1.0.2:
   version "1.0.2"
@@ -10057,14 +9747,6 @@ walker@^1.0.8:
   dependencies:
     makeerror "1.0.12"
 
-watchpack@^2.4.1:
-  version "2.4.1"
-  resolved "https://registry.npmmirror.com/watchpack/-/watchpack-2.4.1.tgz"
-  integrity sha512-8wrBCMtVhqcXP2Sup1ctSkga6uc2Bx0IIvKyT7yTFier5AXHooSI+QyQQAtTb7+E0IUCCKyTFmXqdqgum2XWGg==
-  dependencies:
-    glob-to-regexp "^0.4.1"
-    graceful-fs "^4.1.2"
-
 web-namespaces@^2.0.0:
   version "2.0.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/web-namespaces/-/web-namespaces-2.0.1.tgz"
@@ -10086,41 +9768,6 @@ webpack-code-inspector-plugin@0.13.0:
   integrity sha1-5FK+eSsTbHx90UgqDU1OCvaUaEU=
   dependencies:
     code-inspector-core "0.13.0"
-
-webpack-sources@^3.2.3:
-  version "3.2.3"
-  resolved "https://registry.npmmirror.com/webpack-sources/-/webpack-sources-3.2.3.tgz"
-  integrity sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==
-
-webpack@^5.1.0, webpack@>=4:
-  version "5.93.0"
-  resolved "https://registry.npmmirror.com/webpack/-/webpack-5.93.0.tgz"
-  integrity sha512-Y0m5oEY1LRuwly578VqluorkXbvXKh7U3rLoQCEO04M97ScRr44afGVkI0FQFsXzysk5OgFAxjZAb9rsGQVihA==
-  dependencies:
-    "@types/eslint-scope" "^3.7.3"
-    "@types/estree" "^1.0.5"
-    "@webassemblyjs/ast" "^1.12.1"
-    "@webassemblyjs/wasm-edit" "^1.12.1"
-    "@webassemblyjs/wasm-parser" "^1.12.1"
-    acorn "^8.7.1"
-    acorn-import-attributes "^1.9.5"
-    browserslist "^4.21.10"
-    chrome-trace-event "^1.0.2"
-    enhanced-resolve "^5.17.0"
-    es-module-lexer "^1.2.1"
-    eslint-scope "5.1.1"
-    events "^3.2.0"
-    glob-to-regexp "^0.4.1"
-    graceful-fs "^4.2.11"
-    json-parse-even-better-errors "^2.3.1"
-    loader-runner "^4.2.0"
-    mime-types "^2.1.27"
-    neo-async "^2.6.2"
-    schema-utils "^3.2.0"
-    tapable "^2.1.1"
-    terser-webpack-plugin "^5.3.10"
-    watchpack "^2.4.1"
-    webpack-sources "^3.2.3"
 
 whatwg-encoding@^2.0.0:
   version "2.0.0"
@@ -10292,7 +9939,7 @@ yaml-eslint-parser@^1.1.0, yaml-eslint-parser@^1.2.1:
     lodash "^4.17.21"
     yaml "^2.0.0"
 
-yaml@^2.0.0, yaml@2.3.1:
+yaml@2.3.1, yaml@^2.0.0:
   version "2.3.1"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/yaml/-/yaml-2.3.1.tgz"
   integrity sha1-Av4JddI81EEkKqcgTgn8KKwqwzs=
@@ -10319,13 +9966,6 @@ yargs@^17.3.1:
     string-width "^4.2.3"
     y18n "^5.0.5"
     yargs-parser "^21.1.1"
-
-yjs@>=13.5.22:
-  version "13.6.18"
-  resolved "https://registry.npmmirror.com/yjs/-/yjs-13.6.18.tgz"
-  integrity sha512-GBTjO4QCmv2HFKFkYIJl7U77hIB1o22vSCSQD1Ge8ZxWbIbn8AltI4gyXbtL+g5/GJep67HCMq3Y5AmNwDSyEg==
-  dependencies:
-    lib0 "^0.2.86"
 
 yn@3.1.1:
   version "3.1.1"
@@ -10354,7 +9994,7 @@ zundo@^2.1.0:
   resolved "https://registry.npmmirror.com/zundo/-/zundo-2.1.0.tgz"
   integrity sha512-IMhYXDZWbyGu/p3rQb1d3orhCfAyi9hGkx6N579ZtO7mWrzvBdNyGEcxciv1jtIYPKBqLSAgzKqjLguau09f9g==
 
-zustand@^4.3.0, zustand@^4.4.1, zustand@^4.5.2:
+zustand@^4.4.1, zustand@^4.5.2:
   version "4.5.4"
   resolved "http://example.com/artifactory/api/npm/npm-virtual/zustand/-/zustand-4.5.4.tgz"
   integrity sha1-Y6vdge37GQvGHgu64EXMTVIVigU=

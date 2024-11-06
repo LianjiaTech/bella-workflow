@@ -16,6 +16,7 @@ import com.ke.bella.workflow.db.tables.WorkflowAggregate;
 import com.ke.bella.workflow.db.tables.WorkflowAsApi;
 import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
+import com.ke.bella.workflow.db.tables.WorkflowNodeRunTemp;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.WorkflowScheduling;
@@ -57,8 +58,10 @@ public class Indexes {
     public static final Index WORKFLOW_AS_API_IDX_WFID = Internal.createIndex(DSL.name("idx_wfid"), WorkflowAsApi.WORKFLOW_AS_API, new OrderField[] { WorkflowAsApi.WORKFLOW_AS_API.TENANT_ID, WorkflowAsApi.WORKFLOW_AS_API.WORKFLOW_ID }, false);
     public static final Index WORKFLOW_KAFKA_TRIGGER_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER, new OrderField[] { WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER.WORKFLOW_ID }, false);
     public static final Index WORKFLOW_NODE_RUN_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowNodeRun.WORKFLOW_NODE_RUN, new OrderField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.WORKFLOW_ID, WorkflowNodeRun.WORKFLOW_NODE_RUN.CTIME, WorkflowNodeRun.WORKFLOW_NODE_RUN.STATUS }, false);
+    public static final Index WORKFLOW_NODE_RUN_TEMP_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP, new OrderField[] { WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP.WORKFLOW_ID, WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP.CTIME, WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP.STATUS }, false);
     public static final Index WORKFLOW_RUN_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowRun.WORKFLOW_RUN, new OrderField[] { WorkflowRun.WORKFLOW_RUN.WORKFLOW_ID, WorkflowRun.WORKFLOW_RUN.CTIME, WorkflowRun.WORKFLOW_RUN.STATUS }, false);
     public static final Index WORKFLOW_SCHEDULING_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowScheduling.WORKFLOW_SCHEDULING, new OrderField[] { WorkflowScheduling.WORKFLOW_SCHEDULING.WORKFLOW_ID }, false);
     public static final Index WORKFLOW_WEBOT_TRIGGER_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER, new OrderField[] { WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER.WORKFLOW_ID }, false);
     public static final Index WORKFLOW_NODE_RUN_IDX_WORKFLOW_RUNID = Internal.createIndex(DSL.name("idx_workflow_runid"), WorkflowNodeRun.WORKFLOW_NODE_RUN, new OrderField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID, WorkflowNodeRun.WORKFLOW_NODE_RUN.NODE_ID }, false);
+    public static final Index WORKFLOW_NODE_RUN_TEMP_IDX_WORKFLOW_RUNID = Internal.createIndex(DSL.name("idx_workflow_runid"), WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP, new OrderField[] { WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP.WORKFLOW_RUN_ID, WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP.NODE_ID }, false);
 }

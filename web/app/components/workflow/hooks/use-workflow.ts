@@ -480,11 +480,7 @@ export const useWorkflowInit = () => {
       })
       setData(res)
       workflowStore.setState({
-        envSecrets: (res.environment_variables || []).filter(env => env.value_type === 'secret').reduce((acc, env) => {
-          acc[env.id] = env.value
-          return acc
-        }, {} as Record<string, string>),
-        environmentVariables: res.environment_variables?.map(env => env.value_type === 'secret' ? { ...env, value: '[__HIDDEN__]' } : env) || [],
+        environmentVariables: res.environment_variables?.map(env => env) || [],
         role,
       })
       setSyncWorkflowDraftHash(res.hash)

@@ -16,6 +16,7 @@ import com.ke.bella.workflow.db.tables.WorkflowAggregate;
 import com.ke.bella.workflow.db.tables.WorkflowAsApi;
 import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
+import com.ke.bella.workflow.db.tables.WorkflowNodeRunTemp;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.WorkflowScheduling;
@@ -87,6 +88,11 @@ public class Tables {
      * The table <code>workflow_node_run</code>.
      */
     public static final WorkflowNodeRun WORKFLOW_NODE_RUN = WorkflowNodeRun.WORKFLOW_NODE_RUN;
+
+    /**
+     * The table <code>workflow_node_run_temp</code>.
+     */
+    public static final WorkflowNodeRunTemp WORKFLOW_NODE_RUN_TEMP = WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP;
 
     /**
      * The table <code>workflow_run</code>.

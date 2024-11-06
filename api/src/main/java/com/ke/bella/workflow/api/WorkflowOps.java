@@ -94,6 +94,7 @@ public class WorkflowOps {
     public static class WorkflowSync extends Operator {
         String workflowId;
         String graph;
+        String envVars;
         String title;
         String desc;
         String mode;

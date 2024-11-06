@@ -24,6 +24,7 @@ import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.WorkflowSchema.EnvVar;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
@@ -77,6 +78,8 @@ public class WorkflowService {
         if(wf == null) {
             WorkflowDB workflowDb = repo.addDraftWorkflow(op);
             repo.addWorkflowAggregate(workflowDb);
+        } else if(!StringUtils.equals(wf.getEnvVars(), op.getEnvVars())) {
+            repo.updateDraftWorkflow(op);
         } else if(!StringUtils.equals(wf.getGraph(), op.getGraph())) {
             WorkflowSchema old = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
             WorkflowSchema opg = Objects.isNull(op.getGraph()) ? null : JsonUtils.fromJson(op.getGraph(), WorkflowSchema.class);
@@ -145,7 +148,7 @@ public class WorkflowService {
         WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
 
         // 构建执行上下文
-        WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        WorkflowSchema meta = WorkflowSchema.fromWorkflowDB(wf);
         WorkflowGraph graph = new WorkflowGraph(meta);
         WorkflowRunState state = new WorkflowRunState();
         state.putVariable("sys", "query", op.getQuery());
@@ -156,6 +159,10 @@ public class WorkflowService {
         state.putVariable("sys", "tenant_id", wr.getTenantId());
         state.putVariable("sys", "workflow_id", wr.getWorkflowId());
         state.putVariable("sys", "run_id", wr.getWorkflowRunId());
+        List<EnvVar> ennVars = meta.getEnvironmentVariables();
+        if(ennVars != null) {
+            ennVars.forEach(v -> state.putVariable("env", v.getName(), v.getValue()));
+        }
 
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())
@@ -179,7 +186,7 @@ public class WorkflowService {
         WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
 
         // 构建执行上下文
-        WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        WorkflowSchema meta = WorkflowSchema.fromWorkflowDB(wf);
 
         // 判断节点是否存在及构造上下文
         Node node = meta.getGraph().getNodes().stream().filter(n -> StringUtils.equals(n.getId(), nodeId)).findFirst()
@@ -199,6 +206,11 @@ public class WorkflowService {
         state.putVariable("sys", "tenant_id", wr.getTenantId());
         state.putVariable("sys", "workflow_id", wr.getWorkflowId());
         state.putVariable("sys", "run_id", wr.getWorkflowRunId());
+        List<EnvVar> ennVars = meta.getEnvironmentVariables();
+        if(ennVars != null) {
+            ennVars.forEach(v -> state.putVariable("env", v.getName(), v.getValue()));
+        }
+
         new WorkflowRunner().runNode(context, new WorkflowRunCallback(this, callback), nodeId);
     }
 

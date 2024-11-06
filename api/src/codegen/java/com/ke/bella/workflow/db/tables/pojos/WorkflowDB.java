@@ -32,6 +32,7 @@ public class WorkflowDB implements Operator, Serializable {
     private Long          muid;
     private String        muName;
     private LocalDateTime mtime;
+    private String        envVars;
 
     public WorkflowDB() {}
 
@@ -50,6 +51,7 @@ public class WorkflowDB implements Operator, Serializable {
         this.muid = value.muid;
         this.muName = value.muName;
         this.mtime = value.mtime;
+        this.envVars = value.envVars;
     }
 
     public WorkflowDB(
@@ -66,7 +68,8 @@ public class WorkflowDB implements Operator, Serializable {
         LocalDateTime ctime,
         Long          muid,
         String        muName,
-        LocalDateTime mtime
+        LocalDateTime mtime,
+        String        envVars
     ) {
         this.id = id;
         this.tenantId = tenantId;
@@ -82,6 +85,7 @@ public class WorkflowDB implements Operator, Serializable {
         this.muid = muid;
         this.muName = muName;
         this.mtime = mtime;
+        this.envVars = envVars;
     }
 
     /**
@@ -280,6 +284,20 @@ public class WorkflowDB implements Operator, Serializable {
         this.mtime = mtime;
     }
 
+    /**
+     * Getter for <code>workflow.env_vars</code>.
+     */
+    public String getEnvVars() {
+        return this.envVars;
+    }
+
+    /**
+     * Setter for <code>workflow.env_vars</code>.
+     */
+    public void setEnvVars(String envVars) {
+        this.envVars = envVars;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("WorkflowDB (");
@@ -298,6 +316,7 @@ public class WorkflowDB implements Operator, Serializable {
         sb.append(", ").append(muid);
         sb.append(", ").append(muName);
         sb.append(", ").append(mtime);
+        sb.append(", ").append(envVars);
 
         sb.append(")");
         return sb.toString();

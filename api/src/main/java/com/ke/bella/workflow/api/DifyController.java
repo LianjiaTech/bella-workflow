@@ -1,5 +1,36 @@
 package com.ke.bella.workflow.api;
 
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Throwables;
@@ -8,6 +39,7 @@ import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.WorkflowSchema.EnvVar;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerType;
@@ -34,12 +66,13 @@ import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.space.BellaSpaceService;
+import com.ke.bella.workflow.utils.DifyUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
-import com.ke.bella.workflow.utils.DifyUtils;
 import com.theokanning.openai.assistants.message.Message;
 import com.theokanning.openai.assistants.message.MessageListSearchParameters;
 import com.theokanning.openai.service.OpenAiService;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,34 +81,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import javax.servlet.http.HttpServletRequest;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/console/api/apps")
@@ -169,15 +174,25 @@ public class DifyController {
         if(Objects.isNull(wf)) {
             return DifyUtils.getDefaultWorkflowSchema();
         }
-        return JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+
+        return WorkflowSchema.fromWorkflowDB(wf);
     }
 
     @GetMapping(value = "/{workflowId}/export")
     public Object export(@PathVariable String workflowId, @RequestParam("include_secret") boolean inc) throws Exception {
         initContext();
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
+        WorkflowSchema schema = WorkflowSchema.fromWorkflowDB(wf);
+        List<EnvVar> vars = schema.getEnvironmentVariables();
+        if(vars != null && !inc) {
+            vars = vars.stream().filter(v -> !v.getType().equals("secret")).collect(Collectors.toList());
+        }
 
-        return ImmutableMap.of("data", wf.getGraph());
+        Map<String, Object> obj = new LinkedHashMap<>();
+        obj.put("environment_variables", vars);
+        obj.put("graph", schema.getGraph());
+
+        return ImmutableMap.of("data", JsonUtils.toJson(obj));
     }
 
     @GetMapping("/{workflowId}/workflows")
@@ -284,9 +299,15 @@ public class DifyController {
         // 前端当页面退出等情况，使用navigator.sendBeacon的形式发送请求，此api不支持设置header，故此处通过请求参数实现。
         initContext(op);
         Assert.hasText(workflowId, "workflowId不能为空");
+        if (schema == null) {
+            schema = DifyUtils.getDefaultWorkflowSchema();
+        }
+        List<EnvVar> vars = schema.getEnvironmentVariables();
+
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         WorkflowSync sync = WorkflowSync.builder()
-                .graph(Objects.nonNull(schema) ? JsonUtils.toJson(schema) : JsonUtils.toJson(DifyUtils.getDefaultWorkflowSchema()))
+                .graph(JsonUtils.toJson(schema))
+                .envVars(JsonUtils.toJson(vars))
                 .workflowId(workflowId)
                 .build();
         if(Objects.isNull(wf)) {
@@ -305,6 +326,7 @@ public class DifyController {
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         WorkflowSync sync = WorkflowSync.builder()
                 .graph(JsonUtils.toJson(dsl))
+                .envVars(JsonUtils.toJson(dsl.getEnvironmentVariables()))
                 .workflowId(workflowId)
                 .build();
         if(Objects.isNull(wf)) {

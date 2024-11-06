@@ -150,6 +150,7 @@ public class WorkflowRepo implements BaseRepo {
         rec.setTenantId(BellaContext.getOperator().getTenantId());
         rec.setWorkflowId(op.getWorkflowId() == null ? IDGenerator.newWorkflowId() : op.getWorkflowId());
         rec.setGraph(op.getGraph());
+        rec.setEnvVars(op.getEnvVars());
         if(!StringUtils.isEmpty(op.getMode())) {
             rec.setMode(op.getMode());
         }
@@ -223,6 +224,11 @@ public class WorkflowRepo implements BaseRepo {
         if(!StringUtils.isEmpty(op.getGraph())) {
             rec.setGraph(op.getGraph());
         }
+
+        if(!StringUtils.isEmpty(op.getEnvVars())) {
+            rec.setEnvVars(op.getEnvVars());
+        }
+
         if(!StringUtils.isEmpty(op.getTitle())) {
             rec.setTitle(op.getTitle());
         }

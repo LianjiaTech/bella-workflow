@@ -16,6 +16,7 @@ import com.ke.bella.workflow.db.tables.WorkflowAggregate;
 import com.ke.bella.workflow.db.tables.WorkflowAsApi;
 import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
+import com.ke.bella.workflow.db.tables.WorkflowNodeRunTemp;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.WorkflowScheduling;
@@ -103,6 +104,11 @@ public class DefaultSchema extends SchemaImpl {
     public final WorkflowNodeRun WORKFLOW_NODE_RUN = WorkflowNodeRun.WORKFLOW_NODE_RUN;
 
     /**
+     * The table <code>workflow_node_run_temp</code>.
+     */
+    public final WorkflowNodeRunTemp WORKFLOW_NODE_RUN_TEMP = WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP;
+
+    /**
      * The table <code>workflow_run</code>.
      */
     public final WorkflowRun WORKFLOW_RUN = WorkflowRun.WORKFLOW_RUN;
@@ -150,6 +156,7 @@ public class DefaultSchema extends SchemaImpl {
             WorkflowAsApi.WORKFLOW_AS_API,
             WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER,
             WorkflowNodeRun.WORKFLOW_NODE_RUN,
+            WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP,
             WorkflowRun.WORKFLOW_RUN,
             WorkflowRunSharding.WORKFLOW_RUN_SHARDING,
             WorkflowScheduling.WORKFLOW_SCHEDULING,

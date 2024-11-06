@@ -41,3 +41,5 @@ CREATE TABLE `rdb_datasource` (
   UNIQUE KEY `idx_id` (`datasource_id`),
   KEY `idx_t_space_topic` (`tenant_id`,`space_code`(128),`host`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+ALTER TABLE workflow add column `env_vars` text NOT NULL;

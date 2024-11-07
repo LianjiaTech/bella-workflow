@@ -28,7 +28,6 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.assistants.message.MessageContent;
@@ -139,7 +138,7 @@ public class RagNode extends BaseNode<RagNode.Data> {
 
             CompletableFuture<List<MessageContent>> ragFuture = new CompletableFuture<>();
 
-            final String messageId = data.isGenerateNewMessage() ? IDGenerator.newMessageId()
+            final String messageId = data.isGenerateNewMessage() ? context.newMessageId()
                     : (String) context.getState().getVariable("sys", "message_id");
 
             RealEventSource eventSource = new RealEventSource(request, new EventSourceListener() {

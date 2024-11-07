@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 import com.ke.bella.workflow.IWorkflowCallback.Delta;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.service.CustomRdb;
 import com.ke.bella.workflow.service.DataSourceService;
@@ -77,7 +76,7 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
     }
 
     public String newMessageId() {
-        return IDGenerator.newMessageId();
+        return context.newMessageId();
     }
 
     public void sleep(long timeout) throws InterruptedException {

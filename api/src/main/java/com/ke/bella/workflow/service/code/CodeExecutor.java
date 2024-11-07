@@ -54,6 +54,9 @@ public class CodeExecutor {
 
         if(language == CodeLanguage.groovy) {
             Object result = GroovySandbox.execute(code, inputs, timeout, maxMemoryBytes);
+            if(result == null) {
+                return new HashMap<>();
+            }
             if(result instanceof Map) {
                 return result;
             } else if(result instanceof NodeRunResult) {

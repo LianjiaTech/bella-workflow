@@ -94,6 +94,8 @@ public class WorkflowOps {
     public static class WorkflowSync extends Operator {
         String workflowId;
         String graph;
+        @Builder.Default
+        String envVars = "";
         String title;
         String desc;
         String mode;
@@ -399,5 +401,18 @@ public class WorkflowOps {
         String workflowId;
         String inputs;
         String inputKey;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DomainAdd extends Operator {
+        String domain;
+        String desc;
+
+        @Builder.Default
+        int custom = 1;
     }
 }

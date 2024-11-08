@@ -1,8 +1,12 @@
-package com.ke.bella.workflow.api;
+package com.ke.bella.workflow.api.interceptor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import com.ke.bella.workflow.api.BellaResponse;
+import com.ke.bella.workflow.api.DifyController;
+import com.ke.bella.workflow.db.BellaContext;
+import org.apache.http.auth.AuthenticationException;
 import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -16,14 +20,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.utils.JsonUtils;
-
 import lombok.extern.slf4j.Slf4j;
 
-@RestControllerAdvice(assignableTypes = { WorkflowController.class, TriggerController.class, WorkflowCustomApi.class, ResponseAdvice.class })
+@RestControllerAdvice(assignableTypes = { DifyController.class, DifyResponseAdvice.class })
 @Slf4j
-public class ResponseAdvice implements ResponseBodyAdvice<Object> {
+public class DifyResponseAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
@@ -37,21 +38,15 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
             Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         try {
             response.getHeaders().add("Cache-Control", "no-cache");
-            if(body instanceof BellaResponse) {
-                response.setStatusCode(HttpStatus.valueOf(((BellaResponse) body).getCode()));
+            if(body instanceof DifyController.DifyResponse) {
+                response.setStatusCode(HttpStatus.valueOf(((DifyController.DifyResponse) body).getCode()));
                 return body;
             }
 
-            BellaResponse<Object> resp = new BellaResponse<>();
-            resp.setCode(200);
-            resp.setTimestamp(System.currentTimeMillis());
-            resp.setData(body);
-
-            if(body instanceof String) {
-                return JsonUtils.toJson(resp);
+            if(body instanceof BellaResponse) {
+                response.setStatusCode(HttpStatus.valueOf(((BellaResponse) body).getCode()));
             }
-
-            return resp;
+            return body;
         } finally {
             BellaContext.clearAll();
         }
@@ -66,6 +61,10 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
                 || e instanceof DataIntegrityViolationException
                 || e instanceof MethodArgumentNotValidException) {
             code = 400;
+        }
+
+        if(e instanceof AuthenticationException) {
+            code = 401;
         }
 
         if(e instanceof DataIntegrityViolationException) {

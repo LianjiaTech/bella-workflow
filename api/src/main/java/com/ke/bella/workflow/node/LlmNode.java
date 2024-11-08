@@ -23,7 +23,6 @@ import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.completion.chat.AssistantMessage;
@@ -113,7 +112,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             IWorkflowCallback callback) {
         StringBuilder fullText = new StringBuilder();
         CompletableFuture<String> completionFuture = new CompletableFuture<>();
-        final String messageId = data.isGenerateNewMessage() ? IDGenerator.newMessageId()
+        final String messageId = data.isGenerateNewMessage() ? context.newMessageId()
                 : (String) context.getState().getVariable("sys", "message_id");
         // todo usage
         Disposable subscribe = llmResult.subscribe(chunk -> {

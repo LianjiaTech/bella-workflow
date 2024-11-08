@@ -1,7 +1,12 @@
 package com.ke.bella.workflow.api;
 
+import java.util.List;
 import java.util.Map;
 
+import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
+import com.ke.bella.workflow.utils.DifyUtils;
+import com.ke.bella.workflow.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -33,7 +38,6 @@ import com.ke.bella.workflow.api.callbacks.WorkflowRunStreamingCallback;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
@@ -47,6 +51,18 @@ public class WorkflowController {
 
     @Autowired
     WorkflowService ws;
+
+    @PostMapping("/workflow")
+    public WorkflowDB createApp(@RequestBody DifyController.DifyApp app) {
+        WorkflowSchema schema = DifyUtils.getDefaultWorkflowSchema();
+        WorkflowSync sync = WorkflowSync.builder()
+                .title(app.getName())
+                .desc(app.getDescription())
+                .graph(JsonUtils.toJson(schema))
+                .mode(app.getMode())
+                .build();
+        return ws.newWorkflow(sync);
+    }
 
     @PostMapping("/workflow/draft/info")
     public WorkflowDB draftInfo(@RequestBody WorkflowOp op) {
@@ -261,5 +277,12 @@ public class WorkflowController {
         }, isCallback ? 10L : MAX_TIMEOUT + 5000L);
 
         return BellaResponse.builder().code(201).data("OK").build();
+    }
+
+    @RequestMapping("/workflow/{workflowId}/workflow-runs/{workflowRunId}/node-executions")
+    public DifyController.DifyNodeExecution getWorkflowNodeRuns(@PathVariable String workflowId,
+            @PathVariable String workflowRunId) {
+        List<WorkflowNodeRunDB> nodeRuns = ws.getNodeRuns(workflowRunId);
+        return DifyController.DifyNodeExecution.builder().data(DifyUtils.transfer(nodeRuns)).build();
     }
 }

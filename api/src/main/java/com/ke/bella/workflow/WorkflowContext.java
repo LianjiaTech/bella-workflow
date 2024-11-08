@@ -10,12 +10,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowSchema.Edge;
+import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.node.Start;
@@ -201,5 +202,11 @@ public class WorkflowContext {
 
     public boolean isFlashMode() {
         return flashMode > 0;
+    }
+
+    public synchronized String newMessageId() {
+        String msgId = IDGenerator.newMessageId();
+        state.putVariable("sys", "message_id", msgId);
+        return msgId;
     }
 }

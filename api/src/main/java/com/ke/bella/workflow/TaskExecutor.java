@@ -46,15 +46,16 @@ public class TaskExecutor {
         thread.setDaemon(true);
         thread.setName("bella-sandbox-" + Thread.currentThread().getId());
         thread.start();
-
+        long tid = thread.getId();
         T result = null;
         try {
             if(Configs.isThreadAllocatedMemorySupported && maxMemoryBytes > 0) {
                 long elapsed = 0;
+                long initMem = Utils.getThreadAllocatedBytes(tid);
                 while (elapsed < timeout) {
-                    long mem = Utils.getThreadAllocatedBytes(thread.getId());
+                    long mem = Utils.getThreadAllocatedBytes(tid) - initMem;
                     if(mem > maxMemoryBytes) {
-                        String msg = String.format("内存使用超出限制, 当前累计使用内存：%,d, 限制：%,d", mem, maxMemoryBytes);
+                        String msg = String.format("内存使用超出限制, 当前累计使用内存：%,d, 限制：%,d (tid: %d)", mem, maxMemoryBytes, tid);
                         throw new IllegalArgumentException(msg);
                     }
 
@@ -63,7 +64,7 @@ public class TaskExecutor {
                         long cpuTime = Utils.getThreadCpuTimeMills(thread.getId());
                         long rate = cpuTime * 100 / elapsed;
                         if(rate > Configs.MAX_CPU_TIME_RATE) {
-                            String msg = String.format("CPU使用率超出限制, 当前累计使用CPU率：%d%%, 限制：%d%%", rate, Configs.MAX_CPU_TIME_RATE);
+                            String msg = String.format("CPU使用率超出限制, 当前累计使用CPU率：%d%%, 限制：%d%% (tid: %d)", rate, Configs.MAX_CPU_TIME_RATE, tid);
                             throw new IllegalArgumentException(msg);
                         }
                     }

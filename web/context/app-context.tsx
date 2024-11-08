@@ -4,6 +4,7 @@ import { createRef, useCallback, useEffect, useMemo, useRef, useState } from 're
 import useSWR from 'swr'
 import { createContext, useContext, useContextSelector } from 'use-context-selector'
 import type { FC, ReactNode } from 'react'
+import { fetchUserInfo } from '@/service/workflow'
 import { fetchAppList } from '@/service/apps'
 import Loading from '@/app/components/base/loading'
 import type { App } from '@/types/app'
@@ -86,6 +87,8 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
   const pageContainerRef = useRef<HTMLDivElement>(null)
 
   const { data: appList, mutate: mutateApps } = useSWR({ url: '/apps', params: { page: 1, limit: 30, name: '' } }, fetchAppList)
+
+  const { data: userProfileResponse, mutate: mutateUserInfo } = useSWR('/userInfo', fetchUserInfo)
   /*
   const { data: userProfileResponse, mutate: mutateUserProfile } = useSWR({ url: '/account/profile', params: {} }, fetchUserProfile)
   const { data: currentWorkspaceResponse, mutate: mutateCurrentWorkspace } = useSWR({ url: '/workspaces/current', params: {} }, fetchCurrentWorkspace)
@@ -93,9 +96,9 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
 
   const [userProfile, setUserProfile] = useState<UserProfileResponse>({
     id: '1',
-    name: 'ai-arch',
+    name: '',
     avatar: '',
-    email: 'ai-arch@example.com',
+    email: '',
     is_password_set: true,
     interface_language: 'zh-Hans',
     interface_theme: 'light',
@@ -110,6 +113,35 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
   const isCurrentWorkspaceOwner = useMemo(() => currentWorkspace.role === 'owner', [currentWorkspace.role])
   const isCurrentWorkspaceEditor = useMemo(() => ['owner', 'admin', 'editor'].includes(currentWorkspace.role), [currentWorkspace.role])
   const isCurrentWorkspaceDatasetOperator = useMemo(() => currentWorkspace.role === 'dataset_operator', [currentWorkspace.role])
+  useEffect(() => {
+    if (userProfileResponse) {
+      const profile = {
+        id: userProfileResponse.userId.toString(),
+        name: userProfileResponse.userName,
+        avatar: '',
+        email: userProfileResponse.email,
+        is_password_set: true,
+        interface_language: 'zh-Hans',
+        interface_theme: 'light',
+        timezone: 'Asia/Shanghai',
+        last_login_at: '1721898072',
+        last_login_ip: '0.0.0.0',
+        created_at: '1721898071',
+      }
+      setUserProfile(profile)
+      const workspace: ICurrentWorkspace = {
+        id: userProfileResponse.spaceCode,
+        name: userProfileResponse.spaceCode,
+        plan: '',
+        status: '',
+        created_at: 0,
+        role: 'normal',
+        providers: [],
+        in_trail: true,
+      }
+      setCurrentWorkspace(workspace)
+    }
+  }, [userProfileResponse])
   /*  const updateUserProfileAndVersion = useCallback(async () => {
     if (userProfileResponse && !userProfileResponse.bodyUsed) {
       const result = await userProfileResponse.json()

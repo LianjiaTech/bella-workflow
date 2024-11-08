@@ -150,6 +150,7 @@ public class WorkflowRepo implements BaseRepo {
         rec.setTenantId(BellaContext.getOperator().getTenantId());
         rec.setWorkflowId(op.getWorkflowId() == null ? IDGenerator.newWorkflowId() : op.getWorkflowId());
         rec.setGraph(op.getGraph());
+        rec.setEnvVars(op.getEnvVars());
         if(!StringUtils.isEmpty(op.getMode())) {
             rec.setMode(op.getMode());
         }
@@ -175,6 +176,7 @@ public class WorkflowRepo implements BaseRepo {
         if(workflowDb.getVersion() > 0L) {
             rec.setLatestPublishVersion(workflowDb.getVersion());
         }
+        rec.setSpaceCode(BellaContext.getOperator().getSpaceCode());
         db.insertInto(WORKFLOW_AGGREGATE).set(rec).execute();
 
         return rec.into(WorkflowAggregateDB.class);
@@ -222,6 +224,11 @@ public class WorkflowRepo implements BaseRepo {
         if(!StringUtils.isEmpty(op.getGraph())) {
             rec.setGraph(op.getGraph());
         }
+
+        if(!StringUtils.isEmpty(op.getEnvVars())) {
+            rec.setEnvVars(op.getEnvVars());
+        }
+
         if(!StringUtils.isEmpty(op.getTitle())) {
             rec.setTitle(op.getTitle());
         }
@@ -553,8 +560,7 @@ public class WorkflowRepo implements BaseRepo {
     public Page<WorkflowAggregateDB> pageWorkflowAggregate(WorkflowPage op) {
         SelectSeekStep2<WorkflowAggregateRecord, Integer, LocalDateTime> sql = db.selectFrom(WORKFLOW_AGGREGATE)
                 .where(WORKFLOW_AGGREGATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
-                .and(Objects.isNull(BellaContext.getOperator().getUserId()) ? DSL.noCondition()
-                        : WORKFLOW_AGGREGATE.CUID.eq(BellaContext.getOperator().getUserId()))
+                .and(WORKFLOW_AGGREGATE.SPACE_CODE.eq(BellaContext.getOperator().getSpaceCode()))
                 .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition()
                         : WORKFLOW_AGGREGATE.TITLE.like("%" + DSL.escape(op.getName(), '\\') + "%"))
                 .and(StringUtils.isEmpty(op.getWorkflowId()) ? DSL.noCondition() : WORKFLOW_AGGREGATE.WORKFLOW_ID.eq(op.getWorkflowId()))
@@ -582,6 +588,13 @@ public class WorkflowRepo implements BaseRepo {
         db.insertInto(WORKFLOW_AS_API).set(rec).execute();
 
         return rec.into(WorkflowAsApiDB.class);
+    }
+
+    public List<WorkflowAsApiDB> listCustomApis(String workflowId) {
+        return db.selectFrom(WORKFLOW_AS_API)
+                .where(WORKFLOW_AS_API.TENANT_ID.eq(BellaContext.getOperator().getTenantId())
+                        .and(WORKFLOW_AS_API.WORKFLOW_ID.eq(workflowId)))
+                .fetchInto(WorkflowAsApiDB.class);
     }
 
     @SuppressWarnings("serial")

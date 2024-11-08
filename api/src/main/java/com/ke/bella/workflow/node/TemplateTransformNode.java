@@ -15,7 +15,6 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.WorkflowSchema.Variable;
-import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.code.CodeExecutor;
@@ -52,7 +51,7 @@ public class TemplateTransformNode extends BaseNode<TemplateTransformNode.Data> 
                 Delta delta = Delta.builder()
                         .name(data.getMessageRoleName())
                         .content(Delta.fromText(text))
-                        .messageId(data.isGenerateNewMessage() ? IDGenerator.newMessageId()
+                        .messageId(data.isGenerateNewMessage() ? context.newMessageId()
                                 : (String) context.getState().getVariable("sys", "message_id"))
                         .build();
                 callback.onWorkflowNodeRunProgress(context, getNodeId(), nodeRunId, ProgressData

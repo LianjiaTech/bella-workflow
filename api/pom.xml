@@ -209,7 +209,7 @@
     </dependency>
     <dependency>
       <groupId>com.ke.bella.openapi</groupId>
-      <artifactId>sdk</artifactId>
+      <artifactId>auth</artifactId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
@@ -299,7 +299,7 @@
                     </pojoClass>
                   </table>
                   <table>
-                    <expression>tenant|workflow.*|wecom.*|kafka.*</expression>
+                    <expression>tenant|workflow.*|wecom.*|.*_datasource|domain</expression>
                     <daoClass>
                       <transform>PASCAL</transform>
                       <expression>$0_D_B_Dao</expression>

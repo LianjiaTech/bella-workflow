@@ -10,6 +10,12 @@ public class Configs {
 
     public static String API_BASE;
 
+    public static String BELLA_TOOL_API_BASE;
+
+    public static String BORE_API_BASE;
+
+    public static String SAND_BOX_API_BASE;
+
     public static long MAX_EXE_TIME = 600; // 600s
 
     public static boolean GROOVY_SANDBOX_ENABLE = false;
@@ -30,8 +36,23 @@ public class Configs {
         OPEN_API_BASE = openApiBase;
     }
 
+    @Value("${bella.toolApiBase}")
+    public void setBellaToolApiBase(String bellaToolApiBase) {
+        BELLA_TOOL_API_BASE = bellaToolApiBase;
+    }
+
+    @Value("${bella.boreApiBase}")
+    public void setBoreApiBase(String boreApiBase) {
+        BORE_API_BASE = boreApiBase;
+    }
+
     @Value("${bella.workflow.sandbox.groovy}")
     public void setGroovySandbox(boolean value) {
         GROOVY_SANDBOX_ENABLE = value;
+    }
+
+    @Value("${bella.codeSandboxApiBase}")
+    public void setSandboxApiBase(String sandboxApiBase) {
+        SAND_BOX_API_BASE = sandboxApiBase;
     }
 }

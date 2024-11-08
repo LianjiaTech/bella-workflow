@@ -25,9 +25,7 @@ const EnvPanel = () => {
   const store = useStoreApi()
   const setShowEnvPanel = useStore(s => s.setShowEnvPanel)
   const envList = useStore(s => s.environmentVariables) as EnvironmentVariable[]
-  const envSecrets = useStore(s => s.envSecrets)
   const updateEnvList = useStore(s => s.setEnvironmentVariables)
-  const setEnvSecrets = useStore(s => s.setEnvSecrets)
   const { doSyncWorkflowDraft } = useNodesSyncDraft()
 
   const [showVariableModal, setShowVariableModal] = useState(false)
@@ -67,12 +65,7 @@ const EnvPanel = () => {
     setCacheForDelete(undefined)
     setShowRemoveConfirm(false)
     doSyncWorkflowDraft()
-    if (env.value_type === 'secret') {
-      const newMap = { ...envSecrets }
-      delete newMap[env.id]
-      setEnvSecrets(newMap)
-    }
-  }, [doSyncWorkflowDraft, envList, envSecrets, removeUsedVarInNodes, setEnvSecrets, updateEnvList])
+  }, [doSyncWorkflowDraft, envList, removeUsedVarInNodes, updateEnvList])
 
   const deleteCheck = useCallback((env: EnvironmentVariable) => {
     const effectedNodes = getEffectedNodes(env)
@@ -87,43 +80,15 @@ const EnvPanel = () => {
 
   const handleSave = useCallback(async (env: EnvironmentVariable) => {
     // add env
-    let newEnv = env
+    const newEnv = env
     if (!currentVar) {
-      if (env.value_type === 'secret') {
-        setEnvSecrets({
-          ...envSecrets,
-          [env.id]: formatSecret(env.value),
-        })
-      }
       const newList = [env, ...envList]
       updateEnvList(newList)
       await doSyncWorkflowDraft()
-      updateEnvList(newList.map(e => (e.id === env.id && env.value_type === 'secret') ? { ...e, value: '[__HIDDEN__]' } : e))
+      updateEnvList(newList)
       return
     }
-    else if (currentVar.value_type === 'secret') {
-      if (env.value_type === 'secret') {
-        if (envSecrets[currentVar.id] !== env.value) {
-          newEnv = env
-          setEnvSecrets({
-            ...envSecrets,
-            [env.id]: formatSecret(env.value),
-          })
-        }
-        else {
-          newEnv = { ...env, value: '[__HIDDEN__]' }
-        }
-      }
-    }
-    else {
-      if (env.value_type === 'secret') {
-        newEnv = env
-        setEnvSecrets({
-          ...envSecrets,
-          [env.id]: formatSecret(env.value),
-        })
-      }
-    }
+
     const newList = envList.map(e => e.id === currentVar.id ? newEnv : e)
     updateEnvList(newList)
     // side effects of rename env
@@ -139,8 +104,7 @@ const EnvPanel = () => {
       setNodes(newNodes)
     }
     await doSyncWorkflowDraft()
-    updateEnvList(newList.map(e => (e.id === env.id && env.value_type === 'secret') ? { ...e, value: '[__HIDDEN__]' } : e))
-  }, [currentVar, doSyncWorkflowDraft, envList, envSecrets, getEffectedNodes, setEnvSecrets, store, updateEnvList])
+  }, [currentVar, doSyncWorkflowDraft, envList, getEffectedNodes, store, updateEnvList])
 
   return (
     <div
@@ -194,7 +158,7 @@ const EnvPanel = () => {
                 </div>
               </div>
             </div>
-            <div className='text-text-tertiary system-xs-regular truncate'>{env.value_type === 'secret' ? envSecrets[env.id] : env.value}</div>
+            <div className='text-text-tertiary system-xs-regular truncate'>{env.value_type === 'secret' ? '************' : env.value}</div>
           </div>
         ))}
       </div>

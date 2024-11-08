@@ -4,8 +4,10 @@
 package com.ke.bella.workflow.db;
 
 
+import com.ke.bella.workflow.db.tables.Domain;
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.KafkaDatasource;
+import com.ke.bella.workflow.db.tables.RdbDatasource;
 import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.WecomGroupInfo;
 import com.ke.bella.workflow.db.tables.WecomGroupMember;
@@ -14,6 +16,7 @@ import com.ke.bella.workflow.db.tables.WorkflowAggregate;
 import com.ke.bella.workflow.db.tables.WorkflowAsApi;
 import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
+import com.ke.bella.workflow.db.tables.WorkflowNodeRunTemp;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.WorkflowScheduling;
@@ -41,6 +44,11 @@ public class DefaultSchema extends SchemaImpl {
     public static final DefaultSchema DEFAULT_SCHEMA = new DefaultSchema();
 
     /**
+     * The table <code>domain</code>.
+     */
+    public final Domain DOMAIN = Domain.DOMAIN;
+
+    /**
      * The table <code>instance</code>.
      */
     public final Instance INSTANCE = Instance.INSTANCE;
@@ -49,6 +57,11 @@ public class DefaultSchema extends SchemaImpl {
      * The table <code>kafka_datasource</code>.
      */
     public final KafkaDatasource KAFKA_DATASOURCE = KafkaDatasource.KAFKA_DATASOURCE;
+
+    /**
+     * The table <code>rdb_datasource</code>.
+     */
+    public final RdbDatasource RDB_DATASOURCE = RdbDatasource.RDB_DATASOURCE;
 
     /**
      * The table <code>tenant</code>.
@@ -91,6 +104,11 @@ public class DefaultSchema extends SchemaImpl {
     public final WorkflowNodeRun WORKFLOW_NODE_RUN = WorkflowNodeRun.WORKFLOW_NODE_RUN;
 
     /**
+     * The table <code>workflow_node_run_temp</code>.
+     */
+    public final WorkflowNodeRunTemp WORKFLOW_NODE_RUN_TEMP = WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP;
+
+    /**
      * The table <code>workflow_run</code>.
      */
     public final WorkflowRun WORKFLOW_RUN = WorkflowRun.WORKFLOW_RUN;
@@ -126,8 +144,10 @@ public class DefaultSchema extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.<Table<?>>asList(
+            Domain.DOMAIN,
             Instance.INSTANCE,
             KafkaDatasource.KAFKA_DATASOURCE,
+            RdbDatasource.RDB_DATASOURCE,
             Tenant.TENANT,
             WecomGroupInfo.WECOM_GROUP_INFO,
             WecomGroupMember.WECOM_GROUP_MEMBER,
@@ -136,6 +156,7 @@ public class DefaultSchema extends SchemaImpl {
             WorkflowAsApi.WORKFLOW_AS_API,
             WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER,
             WorkflowNodeRun.WORKFLOW_NODE_RUN,
+            WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP,
             WorkflowRun.WORKFLOW_RUN,
             WorkflowRunSharding.WORKFLOW_RUN_SHARDING,
             WorkflowScheduling.WORKFLOW_SCHEDULING,

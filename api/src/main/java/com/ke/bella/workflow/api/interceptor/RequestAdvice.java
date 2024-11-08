@@ -1,5 +1,6 @@
-package com.ke.bella.workflow.api;
+package com.ke.bella.workflow.api.interceptor;
 
+import com.ke.bella.workflow.api.Operator;
 import com.ke.bella.workflow.db.BellaContext;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
@@ -28,6 +29,7 @@ public class RequestAdvice extends RequestBodyAdviceAdapter {
                 oper.setUserId(oldOperator.getUserId());
                 oper.setUserName(oldOperator.getUserName());
                 oper.setTenantId(oldOperator.getTenantId());
+                oper.setSpaceCode(oldOperator.getSpaceCode());
             });
             BellaContext.setOperator(oper);
         }

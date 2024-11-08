@@ -1,12 +1,17 @@
 package com.ke.bella.workflow;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
+import com.ke.bella.workflow.utils.JsonUtils;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +25,20 @@ import lombok.NoArgsConstructor;
 public class WorkflowSchema {
     private Graph graph;
 
+    @JsonIgnore
+    @Builder.Default
+    private List<EnvVar> environmentVariables = new ArrayList<>();
+
+    @JsonProperty("environment_variables")
+    public void setEnvironmentVariables(List<EnvVar> vars) {
+        if(vars != null) {
+            this.environmentVariables = vars;
+        } else {
+            vars = new ArrayList<>();
+        }
+    }
+
+
     public WorkflowSchema iterationSchema(String iterationId) {
         List<Edge> es = graph.edges.stream()
                 .filter(e -> e.getData().isInIteration() && e.getData().getIterationId().equals(iterationId))
@@ -31,6 +50,26 @@ public class WorkflowSchema {
         return WorkflowSchema.builder()
                 .graph(subg)
                 .build();
+    }
+
+    public static WorkflowSchema fromWorkflowDB(WorkflowDB wf) {
+        WorkflowSchema schema = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        schema.setEnvironmentVariables(JsonUtils.fromJson(wf.getEnvVars(), new TypeReference<List<EnvVar>>() {
+        }));
+        return schema;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class EnvVar {
+        String id;
+        @JsonProperty("value_type")
+        String type;
+        String name;
+        Object value;
+
     }
 
     @Data

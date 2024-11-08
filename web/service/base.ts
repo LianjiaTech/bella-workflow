@@ -312,10 +312,11 @@ const baseFetch = <T>(
 
   const urlPrefix = isPublicAPI ? PUBLIC_API_PREFIX : API_PREFIX
   let urlWithPrefix = `${urlPrefix}${url.startsWith('/') ? url : `/${url}`}`
-  const { userName, ucid, tenantId } = getUserInfo()
+  const { userName, ucid, tenantId, spaceCode } = getUserInfo()
   options.headers.set('X-BELLA-OPERATOR-NAME', encodeURI(userName))
   options.headers.set('X-BELLA-OPERATOR-ID', ucid)
   options.headers.set('X-BELLA-TENANT-ID', tenantId)
+  options.headers.set('X-BELLA-OPERATOR-SPACE', spaceCode)
   const { method, params, body } = options
   // handle query
   if (method === 'GET' && params) {
@@ -351,6 +352,13 @@ const baseFetch = <T>(
             const bodyJson = res.json()
             switch (res.status) {
               case 401: {
+                console.log('response status is 401')
+                let redirectUrl = res.headers.get('X-Redirect-Login') || res.headers.get('x-redirect-login')
+                if (redirectUrl) {
+                  redirectUrl += encodeURIComponent(globalThis.location.href)
+                  globalThis.location.href = redirectUrl
+                  break
+                }
                 if (isPublicAPI) {
                   return bodyJson.then((data: ResponseError) => {
                     if (!silent)

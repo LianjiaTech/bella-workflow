@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row14;
+import org.jooq.Row15;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -121,6 +121,11 @@ public class Workflow extends TableImpl<WorkflowRecord> {
      */
     public final TableField<WorkflowRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
+    /**
+     * The column <code>workflow.env_vars</code>.
+     */
+    public final TableField<WorkflowRecord, String> ENV_VARS = createField(DSL.name("env_vars"), SQLDataType.CLOB.nullable(false), this, "");
+
     private Workflow(Name alias, Table<WorkflowRecord> aliased) {
         this(alias, aliased, null);
     }
@@ -206,11 +211,11 @@ public class Workflow extends TableImpl<WorkflowRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row14 type methods
+    // Row15 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row14<Long, String, String, String, String, String, String, Long, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row14) super.fieldsRow();
+    public Row15<Long, String, String, String, String, String, String, Long, Long, String, LocalDateTime, Long, String, LocalDateTime, String> fieldsRow() {
+        return (Row15) super.fieldsRow();
     }
 }

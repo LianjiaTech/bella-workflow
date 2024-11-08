@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row17;
+import org.jooq.Row18;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -65,6 +65,11 @@ public class WorkflowAggregate extends TableImpl<WorkflowAggregateRecord> {
      * The column <code>workflow_aggregate.workflow_id</code>.
      */
     public final TableField<WorkflowAggregateRecord, String> WORKFLOW_ID = createField(DSL.name("workflow_id"), SQLDataType.VARCHAR(128).nullable(false), this, "");
+
+    /**
+     * The column <code>workflow_aggregate.space_code</code>.
+     */
+    public final TableField<WorkflowAggregateRecord, String> SPACE_CODE = createField(DSL.name("space_code"), SQLDataType.VARCHAR(64).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow_aggregate.title</code>.
@@ -221,11 +226,11 @@ public class WorkflowAggregate extends TableImpl<WorkflowAggregateRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row17 type methods
+    // Row18 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row17<Long, String, String, String, String, String, String, Long, Long, Long, Integer, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row17) super.fieldsRow();
+    public Row18<Long, String, String, String, String, String, String, String, Long, Long, Long, Integer, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
+        return (Row18) super.fieldsRow();
     }
 }

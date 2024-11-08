@@ -16,6 +16,7 @@ import type {
   HistoryWorkflowData,
   HistoryWorkflowVersion,
   Node,
+  Role,
   RunFile,
   ToolWithProvider,
   WorkflowRunningData,
@@ -40,6 +41,8 @@ type Shape = {
   setHistoryWorkflowVersion: (historyWorkflowVersion?: HistoryWorkflowVersion) => void
   isVersionHistory: boolean
   setVersionHistory: (versionHistory: boolean) => void
+  role?: Role
+  setRole: (role: Role) => void
   showRunHistory: boolean
   setShowRunHistory: (showRunHistory: boolean) => void
   showFeaturesPanel: boolean
@@ -95,8 +98,6 @@ type Shape = {
   setShowEnvPanel: (showEnvPanel: boolean) => void
   environmentVariables: EnvironmentVariable[]
   setEnvironmentVariables: (environmentVariables: EnvironmentVariable[]) => void
-  envSecrets: Record<string, string>
-  setEnvSecrets: (envSecrets: Record<string, string>) => void
   selection: null | { x1: number; y1: number; x2: number; y2: number }
   setSelection: (selection: Shape['selection']) => void
   bundleNodeSize: { width: number; height: number } | null
@@ -164,6 +165,8 @@ export const createWorkflowStore = () => {
     setHistoryWorkflowVersion: historyWorkflowVersion => set(() => ({ historyWorkflowVersion })),
     isVersionHistory: false,
     setVersionHistory: isVersionHistory => set(() => ({ isVersionHistory })),
+    role: undefined,
+    setRole: role => set(() => ({ role })),
     showRunHistory: false,
     setShowRunHistory: showRunHistory => set(() => ({ showRunHistory })),
     showFeaturesPanel: false,
@@ -215,8 +218,6 @@ export const createWorkflowStore = () => {
     setShowEnvPanel: showEnvPanel => set(() => ({ showEnvPanel })),
     environmentVariables: [],
     setEnvironmentVariables: environmentVariables => set(() => ({ environmentVariables })),
-    envSecrets: {},
-    setEnvSecrets: envSecrets => set(() => ({ envSecrets })),
     selection: null,
     setSelection: selection => set(() => ({ selection })),
     bundleNodeSize: null,

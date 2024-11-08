@@ -23,10 +23,9 @@ const VariableModal = ({
   const { t } = useTranslation()
   const { notify } = useContext(ToastContext)
   const envList = useStore(s => s.environmentVariables)
-  const envSecrets = useStore(s => s.envSecrets)
   const [type, setType] = React.useState<'string' | 'number' | 'secret'>('string')
   const [name, setName] = React.useState('')
-  const [value, setValue] = React.useState<any>()
+  const [value, setValue] = React.useState<any>('')
 
   const handleNameChange = (v: string) => {
     if (!v)
@@ -58,9 +57,9 @@ const VariableModal = ({
     if (env) {
       setType(env.value_type)
       setName(env.name)
-      setValue(env.value_type === 'secret' ? envSecrets[env.id] : env.value)
+      setValue(env.value)
     }
-  }, [env, envSecrets])
+  }, [env])
 
   return (
     <div

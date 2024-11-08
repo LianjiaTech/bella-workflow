@@ -8,8 +8,9 @@ import java.util.concurrent.TimeUnit;
 import com.ke.bella.workflow.IWorkflowCallback.Delta;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.node.BaseNode;
+import com.ke.bella.workflow.service.CustomRdb;
+import com.ke.bella.workflow.service.DataSourceService;
 import com.ke.bella.workflow.service.code.Requests;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
@@ -27,6 +28,7 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
 
     transient WorkflowContext context;
     transient IWorkflowCallback callback;
+    transient BaseNode<?> node;
 
     @Builder.Default
     transient Requests http = new Requests();
@@ -74,15 +76,15 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
     }
 
     public String newMessageId() {
-        return IDGenerator.newMessageId();
+        return context.newMessageId();
     }
 
     public void sleep(long timeout) throws InterruptedException {
         TimeUnit.MILLISECONDS.sleep(Math.max(timeout, 1));
     }
 
-    private String flowKey(String key) {
-        return String.format("%s-%s-%s", context.getTenantId(), context.getWorkflowId(), key);
+    public void onProgress(Object data) {
+        onProgress(node, data);
     }
 
     public void onProgress(BaseNode<?> self, Object data) {
@@ -104,6 +106,14 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
                 .data(delta)
                 .build();
         callback.onWorkflowNodeRunProgress(context, self.getNodeId(), self.getNodeRunId(), progress);
+    }
+
+    public void sendMessage(String text) {
+        onProgress(node, (String) get("message_id"), text);
+    }
+
+    public void sendNewMessage(String text) {
+        onProgress(node, newMessageId(), text);
     }
 
     @SuppressWarnings("rawtypes")
@@ -128,6 +138,18 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
 
     public Object fromJson(String json) {
         return JsonUtils.fromJson(json, Object.class);
+    }
+
+    public CustomRdb rdb(String datasourceId) {
+        return DataSourceService.ds().acquireCustomRdb(datasourceId);
+    }
+
+    public WorkflowSys with(BaseNode<?> node) {
+        return WorkflowSys.builder()
+                .callback(callback)
+                .context(context)
+                .node(node)
+                .build();
     }
 
     public static boolean isInterrupted() {

@@ -64,3 +64,13 @@ bella:
     run-path: /v1/workflow/run
   knowledge-file:
     search: http://example.com/api/v1/knowledge/searchNew/forWorkflow
+  cas:
+    server-url-prefix: http://example.com/
+    server-login-url: https://example.com/login
+    client-index-url: https://example.com/
+
+spring:
+  redis:
+    host: redis.example.com
+    port: 14312
+    password: bella123

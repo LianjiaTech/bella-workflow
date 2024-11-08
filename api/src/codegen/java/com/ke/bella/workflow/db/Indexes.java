@@ -4,8 +4,10 @@
 package com.ke.bella.workflow.db;
 
 
+import com.ke.bella.workflow.db.tables.Domain;
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.KafkaDatasource;
+import com.ke.bella.workflow.db.tables.RdbDatasource;
 import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.WecomGroupInfo;
 import com.ke.bella.workflow.db.tables.WecomGroupMember;
@@ -14,6 +16,7 @@ import com.ke.bella.workflow.db.tables.WorkflowAggregate;
 import com.ke.bella.workflow.db.tables.WorkflowAsApi;
 import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.WorkflowNodeRun;
+import com.ke.bella.workflow.db.tables.WorkflowNodeRunTemp;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.WorkflowScheduling;
@@ -44,7 +47,9 @@ public class Indexes {
     public static final Index TENANT_IDX_PARENT_ID = Internal.createIndex(DSL.name("idx_parent_id"), Tenant.TENANT, new OrderField[] { Tenant.TENANT.PARENT_ID }, false);
     public static final Index WORKFLOW_WEBOT_TRIGGER_IDX_ROBOTID = Internal.createIndex(DSL.name("idx_robotid"), WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER, new OrderField[] { WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER.ROBOT_ID }, false);
     public static final Index WORKFLOW_SCHEDULING_IDX_STATUS_TRIGGER_NEXT_TIME = Internal.createIndex(DSL.name("idx_status_trigger_next_time"), WorkflowScheduling.WORKFLOW_SCHEDULING, new OrderField[] { WorkflowScheduling.WORKFLOW_SCHEDULING.TRIGGER_NEXT_TIME, WorkflowScheduling.WORKFLOW_SCHEDULING.RUNNING_STATUS, WorkflowScheduling.WORKFLOW_SCHEDULING.STATUS }, false);
+    public static final Index DOMAIN_IDX_T_SPACE_TOPIC = Internal.createIndex(DSL.name("idx_t_space_topic"), Domain.DOMAIN, new OrderField[] { Domain.DOMAIN.TENANT_ID, Domain.DOMAIN.SPACE_CODE, Domain.DOMAIN.DOMAIN_ }, false);
     public static final Index KAFKA_DATASOURCE_IDX_T_SPACE_TOPIC = Internal.createIndex(DSL.name("idx_t_space_topic"), KafkaDatasource.KAFKA_DATASOURCE, new OrderField[] { KafkaDatasource.KAFKA_DATASOURCE.TENANT_ID, KafkaDatasource.KAFKA_DATASOURCE.TOPIC }, false);
+    public static final Index RDB_DATASOURCE_IDX_T_SPACE_TOPIC = Internal.createIndex(DSL.name("idx_t_space_topic"), RdbDatasource.RDB_DATASOURCE, new OrderField[] { RdbDatasource.RDB_DATASOURCE.TENANT_ID, RdbDatasource.RDB_DATASOURCE.SPACE_CODE, RdbDatasource.RDB_DATASOURCE.HOST }, false);
     public static final Index WORKFLOW_RUN_IDX_TENANT_ID = Internal.createIndex(DSL.name("idx_tenant_id"), WorkflowRun.WORKFLOW_RUN, new OrderField[] { WorkflowRun.WORKFLOW_RUN.TENANT_ID, WorkflowRun.WORKFLOW_RUN.CTIME }, false);
     public static final Index WECOM_GROUP_MEMBER_IDX_TENANT_ID_SPACE_CODE_CUID_GROUP_CODE = Internal.createIndex(DSL.name("idx_tenant_id_space_code_cuid_group_code"), WecomGroupMember.WECOM_GROUP_MEMBER, new OrderField[] { WecomGroupMember.WECOM_GROUP_MEMBER.TENANT_ID, WecomGroupMember.WECOM_GROUP_MEMBER.SPACE_CODE, WecomGroupMember.WECOM_GROUP_MEMBER.GROUP_CODE }, false);
     public static final Index WECOM_GROUP_INFO_IDX_TENANT_ID_SPACE_CODE_CUID_SCENE = Internal.createIndex(DSL.name("idx_tenant_id_space_code_cuid_scene"), WecomGroupInfo.WECOM_GROUP_INFO, new OrderField[] { WecomGroupInfo.WECOM_GROUP_INFO.TENANT_ID, WecomGroupInfo.WECOM_GROUP_INFO.SPACE_CODE, WecomGroupInfo.WECOM_GROUP_INFO.CUID, WecomGroupInfo.WECOM_GROUP_INFO.SCENE }, false);
@@ -53,8 +58,10 @@ public class Indexes {
     public static final Index WORKFLOW_AS_API_IDX_WFID = Internal.createIndex(DSL.name("idx_wfid"), WorkflowAsApi.WORKFLOW_AS_API, new OrderField[] { WorkflowAsApi.WORKFLOW_AS_API.TENANT_ID, WorkflowAsApi.WORKFLOW_AS_API.WORKFLOW_ID }, false);
     public static final Index WORKFLOW_KAFKA_TRIGGER_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER, new OrderField[] { WorkflowKafkaTrigger.WORKFLOW_KAFKA_TRIGGER.WORKFLOW_ID }, false);
     public static final Index WORKFLOW_NODE_RUN_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowNodeRun.WORKFLOW_NODE_RUN, new OrderField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.WORKFLOW_ID, WorkflowNodeRun.WORKFLOW_NODE_RUN.CTIME, WorkflowNodeRun.WORKFLOW_NODE_RUN.STATUS }, false);
+    public static final Index WORKFLOW_NODE_RUN_TEMP_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP, new OrderField[] { WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP.WORKFLOW_ID, WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP.CTIME, WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP.STATUS }, false);
     public static final Index WORKFLOW_RUN_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowRun.WORKFLOW_RUN, new OrderField[] { WorkflowRun.WORKFLOW_RUN.WORKFLOW_ID, WorkflowRun.WORKFLOW_RUN.CTIME, WorkflowRun.WORKFLOW_RUN.STATUS }, false);
     public static final Index WORKFLOW_SCHEDULING_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowScheduling.WORKFLOW_SCHEDULING, new OrderField[] { WorkflowScheduling.WORKFLOW_SCHEDULING.WORKFLOW_ID }, false);
     public static final Index WORKFLOW_WEBOT_TRIGGER_IDX_WORKFLOW_ID = Internal.createIndex(DSL.name("idx_workflow_id"), WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER, new OrderField[] { WorkflowWebotTrigger.WORKFLOW_WEBOT_TRIGGER.WORKFLOW_ID }, false);
     public static final Index WORKFLOW_NODE_RUN_IDX_WORKFLOW_RUNID = Internal.createIndex(DSL.name("idx_workflow_runid"), WorkflowNodeRun.WORKFLOW_NODE_RUN, new OrderField[] { WorkflowNodeRun.WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID, WorkflowNodeRun.WORKFLOW_NODE_RUN.NODE_ID }, false);
+    public static final Index WORKFLOW_NODE_RUN_TEMP_IDX_WORKFLOW_RUNID = Internal.createIndex(DSL.name("idx_workflow_runid"), WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP, new OrderField[] { WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP.WORKFLOW_RUN_ID, WorkflowNodeRunTemp.WORKFLOW_NODE_RUN_TEMP.NODE_ID }, false);
 }

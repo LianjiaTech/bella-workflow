@@ -37,7 +37,7 @@ import type {
 } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import type { RETRIEVE_METHOD } from '@/types/app'
 import type { SystemFeatures } from '@/types/feature'
-import type { Datasource } from '@/types/workflow'
+import type { CustomDomain, Datasource } from '@/types/workflow'
 
 export const login: Fetcher<CommonResponse & { data: string }, { url: string; body: Record<string, any> }> = ({ url, body }) => {
   return post(url, { body }) as Promise<CommonResponse & { data: string }>
@@ -316,4 +316,8 @@ export const changePasswordWithToken: Fetcher<CommonResponse, { url: string; bod
 
 export const fetchDatasourceList: Fetcher<Datasource[], string> = (url) => {
   return get<Datasource[]>(url)
+}
+
+export const fetchDomainList: Fetcher<CustomDomain[], { url: string; prefix: string }> = ({ url, prefix }) => {
+  return get<CustomDomain[]>(`${url}?prefix=${prefix}`)
 }

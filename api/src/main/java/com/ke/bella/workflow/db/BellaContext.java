@@ -8,6 +8,7 @@ import com.ke.bella.workflow.api.Operator;
 public class BellaContext {
     private static ThreadLocal<Operator> operatorLocal = new ThreadLocal<>();
     private static ThreadLocal<String> apiKey = new ThreadLocal<>();
+    private static ThreadLocal<Map<String, String>> transHeaders = new ThreadLocal<>();
 
     public static void setOperator(Operator operator) {
         operatorLocal.set(operator);
@@ -24,21 +25,32 @@ public class BellaContext {
     public static void clearAll() {
         operatorLocal.remove();
         apiKey.remove();
+        transHeaders.remove();
     }
 
     public static Map<String, Object> snapshot() {
         Map<String, Object> map = new HashMap<>();
         map.put("oper", operatorLocal.get());
         map.put("ak", apiKey.get());
+        map.put("trans_headers", transHeaders.get());
         return map;
     }
 
     public static void replace(Map<String, Object> map) {
         operatorLocal.set((Operator) map.get("oper"));
         apiKey.set((String) map.get("ak"));
+        transHeaders.set((Map<String, String>) map.get("trans_headers"));
     }
 
     public static String getApiKey() {
         return apiKey.get();
+    }
+
+    public static void setTransHeaders(Map<String, String> headers) {
+        transHeaders.set(headers);
+    }
+
+    public static Map<String, String> getTransHeaders() {
+        return transHeaders.get();
     }
 }

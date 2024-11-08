@@ -3,13 +3,15 @@ import { get, post } from './base'
 import type { CommonResponse } from '@/models/common'
 import type {
   ChatRunHistoryResponse,
+  CustomApiDetail,
+  CustomApiListResponse,
   FetchWorkflowDraftResponse,
-  NodesDefaultConfigsResponse,
+  NodesDefaultConfigsResponse, UserInfoResponse,
   WorkflowRunHistoryResponse,
   WorkflowTriggerDetail,
   WorkflowVersionHistoryResponse,
 } from '@/types/workflow'
-import type { BlockEnum, HistoryWorkflowVersion } from '@/app/components/workflow/types'
+import type { BlockEnum, HistoryWorkflowVersion, Role } from '@/app/components/workflow/types'
 
 export const fetchWorkflowDraft = (url: string) => {
   return get(url, {}, { silent: true }) as Promise<FetchWorkflowDraftResponse>
@@ -41,6 +43,10 @@ export const deactivateWorkflowVersion: Fetcher<HistoryWorkflowVersion, { workfl
 
 export const fetchDefaultWorkflowVersion: Fetcher<HistoryWorkflowVersion, string> = (url) => {
   return get<HistoryWorkflowVersion>(url)
+}
+
+export const fetchSpaceRole = () => {
+  return get<Role>('/space/role', {}, {})
 }
 
 export const fetcChatRunHistory: Fetcher<ChatRunHistoryResponse, string> = (url) => {
@@ -87,4 +93,16 @@ export const activateTrigger: Fetcher<WorkflowTriggerDetail, { workflowId: strin
 
 export const deactivateTrigger: Fetcher<WorkflowTriggerDetail, { workflowId: string; triggerId: string; triggerType: string }> = ({ workflowId, triggerId, triggerType }) => {
   return post<WorkflowTriggerDetail>(`apps/${workflowId}/trigger/deactivate`, { body: { triggerId, triggerType } })
+}
+
+export const fetchWorkflowCustomApis: Fetcher<CustomApiListResponse, { workflowId: string }> = ({ workflowId }) => {
+  return get<CustomApiListResponse>(`apps/${workflowId}/custom-apis`)
+}
+
+export const createCustomApi: Fetcher<CustomApiDetail, { workflowId: string; host: string; path: string }> = ({ workflowId, host, path }) => {
+  return post<CustomApiDetail>(`apps/${workflowId}/customApi/create`, { body: { host, path } })
+}
+
+export const fetchUserInfo: Fetcher<UserInfoResponse> = () => {
+  return get<UserInfoResponse>('/userInfo')
 }

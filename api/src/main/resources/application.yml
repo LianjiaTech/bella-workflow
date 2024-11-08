@@ -60,7 +60,21 @@ datasource:
 bella:
   apiBase: ${BELLA_API_BASE:https://example.com/v1/}
   openApiBase: ${BELLA_OPEN_API_BASE:https://example.com/v1/}
+  toolApiBase: ${BELLA_TOOL_API_BASE:http://example.com}
+  boreApiBase: ${BELLA_TOOL_API_BASE:http://example.com}
+  codeSandboxApiBase: ${BELLA_CODE_SANDBOX_API_BASE:https://example.com/v1/}
   workflow:
     sandbox:
         groovy: false
-    
+  login:
+    # 本地环境去掉 bella.login.type 即可关闭登录的身份校验
+    # type: cas
+  session:
+    cookie-name: bella_workflow_sessionId
+    max-inactive-interval: 60
+    cookie-max-age: -1
+    cookie-domain: ke.com
+    cookie-context-path: /
+  cas:
+    logoutUri: /console/api/logout
+    client-support: true

@@ -32,10 +32,6 @@ public class CodeExecutor {
 
     private static final String X_API_KEY = "bella-workflow-sandbox";
 
-    private static final String CODE_SANDBOX_URL = Configs.OPEN_API_BASE + "sandbox/run";
-
-    private static final String DEPENDENCIES_SANDBOX_URL = Configs.OPEN_API_BASE + "sandbox/dependencies";
-
     private static final Map<String, String> CODE_LANGUAGE_TO_RUNNING_LANGUAGE = ImmutableMap.of(
             CodeLanguage.javascript.name(), "nodejs",
             CodeLanguage.jinja2.name(), CodeLanguage.python3.name(),
@@ -85,7 +81,8 @@ public class CodeExecutor {
                 .preload(preload)
                 .dependencies(dependencies).build();
 
-        SandBoxResp<SandBoxResp.CodeRunResult> sandBoxResp = HttpUtils.postJson(ImmutableMap.of("X-Api-Key", X_API_KEY), CODE_SANDBOX_URL,
+        SandBoxResp<SandBoxResp.CodeRunResult> sandBoxResp = HttpUtils.postJson(ImmutableMap.of("X-Api-Key", X_API_KEY),
+                Configs.SAND_BOX_API_BASE + "sandbox/run",
                 JsonUtils.toJson(op),
                 new TypeReference<SandBoxResp<SandBoxResp.CodeRunResult>>() {
                 });
@@ -104,7 +101,7 @@ public class CodeExecutor {
         params.put("language", CODE_LANGUAGE_TO_RUNNING_LANGUAGE.get(language.name()));
 
         SandBoxResp<SandBoxResp.DependenciesResult> sandBoxResp = HttpUtils.get(ImmutableMap.of("X-Api-Key", X_API_KEY),
-                DEPENDENCIES_SANDBOX_URL,
+                Configs.SAND_BOX_API_BASE + "sandbox/dependencies",
                 params,
                 new TypeReference<SandBoxResp<SandBoxResp.DependenciesResult>>() {
                 });

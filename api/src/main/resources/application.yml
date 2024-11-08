@@ -62,6 +62,7 @@ bella:
   openApiBase: ${BELLA_OPEN_API_BASE:https://example.com/v1/}
   toolApiBase: ${BELLA_TOOL_API_BASE:http://example.com}
   boreApiBase: ${BELLA_TOOL_API_BASE:http://example.com}
+  codeSandboxApiBase: ${BELLA_CODE_SANDBOX_API_BASE:https://example.com/v1/}
   workflow:
     sandbox:
         groovy: false

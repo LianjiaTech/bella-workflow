@@ -1,24 +1,26 @@
 package com.ke.bella.workflow.node;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -65,7 +67,9 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
     }
 
     private List<KnowledgeRetrievalResult> invokeFileRetrieve(String query, List<String> datasetIds, Integer topK, Float scoreThreshold) {
-        Map<String, String> headers = Collections.singletonMap("Authorization", "Bearer " + BellaContext.getApiKey());
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Bearer " + BellaContext.getApiKey());
+        Optional.ofNullable(BellaContext.getTransHeaders()).ifPresent(map -> map.forEach(headers::putIfAbsent));
         String fileRetrieveUrl = Configs.OPEN_API_BASE + FILES_RETRIEVE;
 
         KnowledgeRetrievalRequest request = new KnowledgeRetrievalRequest();

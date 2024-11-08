@@ -1,9 +1,12 @@
 package com.ke.bella.workflow.utils;
 
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 import com.theokanning.openai.client.AuthenticationInterceptor;
 import com.theokanning.openai.client.OpenAiApi;
@@ -11,6 +14,7 @@ import com.theokanning.openai.service.OpenAiService;
 
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 
@@ -25,10 +29,17 @@ public class OpenAiUtils {
             .build();
 
     public static OpenAiService defaultOpenAiService(String token, long readTimeout, TimeUnit unit) {
+        Map transHeaders = BellaContext.getTransHeaders();
         ObjectMapper mapper = OpenAiService.defaultObjectMapper();
 
         OkHttpClient curClient = client.newBuilder()
                 .addInterceptor(new AuthenticationInterceptor(token))
+                .addInterceptor(chain -> {
+                    Request.Builder requestBuilder = chain.request().newBuilder();
+
+                    Optional.ofNullable(BellaContext.getTransHeaders()).ifPresent(map -> map.forEach(requestBuilder::addHeader));
+                    return chain.proceed(requestBuilder.build());
+                })
                 .readTimeout(readTimeout, unit).build();
 
         Retrofit retrofit = OpenAiService.defaultRetrofit(curClient, mapper, Configs.OPEN_API_BASE);

@@ -560,7 +560,7 @@ public class WorkflowRepo implements BaseRepo {
     public Page<WorkflowAggregateDB> pageWorkflowAggregate(WorkflowPage op) {
         SelectSeekStep2<WorkflowAggregateRecord, Integer, LocalDateTime> sql = db.selectFrom(WORKFLOW_AGGREGATE)
                 .where(WORKFLOW_AGGREGATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
-                .and(WORKFLOW_AGGREGATE.SPACE_CODE.eq(op.getSpaceCode()))
+                .and(WORKFLOW_AGGREGATE.SPACE_CODE.eq(BellaContext.getOperator().getSpaceCode()))
                 .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition()
                         : WORKFLOW_AGGREGATE.TITLE.like("%" + DSL.escape(op.getName(), '\\') + "%"))
                 .and(StringUtils.isEmpty(op.getWorkflowId()) ? DSL.noCondition() : WORKFLOW_AGGREGATE.WORKFLOW_ID.eq(op.getWorkflowId()))

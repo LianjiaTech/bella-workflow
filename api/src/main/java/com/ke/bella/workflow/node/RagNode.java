@@ -129,6 +129,7 @@ public class RagNode extends BaseNode<RagNode.Data> {
             HashMap<String, String> headers = new HashMap<>();
             headers.put("Authorization", "Bearer " + BellaContext.getApiKey());
             headers.put(X_BELLA_REQUEST_ID, nodeRunId);
+            Optional.ofNullable(BellaContext.getTransHeaders()).ifPresent(map -> map.forEach(headers::putIfAbsent));
 
             Request request = new Request.Builder()
                     .url(Configs.OPEN_API_BASE + RAG_PATH)

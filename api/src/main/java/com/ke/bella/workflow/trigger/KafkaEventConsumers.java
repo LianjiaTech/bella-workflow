@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -142,11 +143,17 @@ public class KafkaEventConsumers {
         return server + "/" + topic;
     }
 
-    void tryTrigger(Set<String> dataSourceIds, Object value) {
+    void tryTrigger(Set<String> dataSourceIds, String event) {
         List<WorkflowKafkaTriggerDB> ts = triggers.listAllActiveKafkaTriggers(dataSourceIds);
-        List<WorkflowKafkaTriggerDB> ts2 = ts.stream().filter(t -> canTrigger(t, value))
-                .collect(Collectors.toList());
-        helper.tryKafkaTrigger(ts2, value);
+
+        if(!CollectionUtils.isEmpty(ts)) {
+            KafkaEventConsumers.LOGGER.info("try trigger kafka msg from {}, event: {}", dataSourceIds.iterator().next(), event);
+
+            Object value = JsonUtils.fromJson(event, Object.class);
+            List<WorkflowKafkaTriggerDB> ts2 = ts.stream().filter(t -> canTrigger(t, value))
+                    .collect(Collectors.toList());
+            helper.tryKafkaTrigger(ts2, value);
+        }
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -180,8 +187,7 @@ public class KafkaEventConsumers {
 
             Set<String> dsids = consumerDataSourceIdsMapping.get(key);
             if(dsids != null && !dsids.isEmpty()) {
-                Object obj = JsonUtils.fromJson(value, Object.class);
-                tryTrigger(dsids, obj);
+                tryTrigger(dsids, value);
             }
         }
     }

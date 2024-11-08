@@ -583,6 +583,9 @@ public class WorkflowRepo implements BaseRepo {
         rec.setSummary(StringUtils.hasText(op.getSummary()) ? op.getSummary() : wf.getTitle());
         rec.setDesc(StringUtils.hasText(op.getDesc()) ? op.getDesc() : wf.getDesc());
         rec.setHash(HttpUtils.sha256(op.getHost() + op.getPath()));
+        if(op.getVersion() != null) {
+            rec.setVersion(op.getVersion());
+        }
 
         fillCreatorInfo(rec);
         db.insertInto(WORKFLOW_AS_API).set(rec).execute();

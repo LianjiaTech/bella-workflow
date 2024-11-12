@@ -38,6 +38,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(apikeyInterceptor)
                 .addPathPatterns("/v1/**")
                 .addPathPatterns("/capi/**")
+                .excludePathPatterns("/v1/workflow/trigger/callback/**")
                 .order(50);
         registry.addInterceptor(difyRequestInterceptor)
                 .addPathPatterns("/console/api/**")

@@ -29,15 +29,14 @@ public class OpenAiUtils {
             .build();
 
     public static OpenAiService defaultOpenAiService(String token, long readTimeout, TimeUnit unit) {
-        Map transHeaders = BellaContext.getTransHeaders();
         ObjectMapper mapper = OpenAiService.defaultObjectMapper();
+        Map<String, String> transHeaders = BellaContext.getTransHeaders();
 
         OkHttpClient curClient = client.newBuilder()
                 .addInterceptor(new AuthenticationInterceptor(token))
                 .addInterceptor(chain -> {
                     Request.Builder requestBuilder = chain.request().newBuilder();
-
-                    Optional.ofNullable(BellaContext.getTransHeaders()).ifPresent(map -> map.forEach(requestBuilder::addHeader));
+                    Optional.ofNullable(transHeaders).ifPresent(map -> map.forEach(requestBuilder::addHeader));
                     return chain.proceed(requestBuilder.build());
                 })
                 .readTimeout(readTimeout, unit).build();

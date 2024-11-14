@@ -26,6 +26,8 @@ public class Configs {
 
     public static long MAX_CPU_TIME_RATE = 85;
 
+    public static int TASK_THREAD_NUMS;
+
     @Value("${bella.apiBase}")
     public void setApiBase(String apiBase) {
         API_BASE = apiBase;
@@ -54,5 +56,10 @@ public class Configs {
     @Value("${bella.codeSandboxApiBase}")
     public void setSandboxApiBase(String sandboxApiBase) {
         SAND_BOX_API_BASE = sandboxApiBase;
+    }
+
+    @Value("${bella.task.threadNums}")
+    public void setTaskThreadNums(int taskThreadNums) {
+        TASK_THREAD_NUMS = taskThreadNums;
     }
 }

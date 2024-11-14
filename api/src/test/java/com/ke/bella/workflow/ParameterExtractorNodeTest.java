@@ -6,21 +6,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.ke.bella.workflow.api.Operator;
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.service.Configs;
-
-public class ParameterExtractorNodeTest {
-
-    @BeforeAll
-    public static void initBellaContext() {
-        Configs.OPEN_API_BASE = "https://example.com/v1/";
-        BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
-        BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
-    }
+public class ParameterExtractorNodeTest extends CommonNodeTest {
 
     @Test
     public void testToolCallsMode() throws IOException {

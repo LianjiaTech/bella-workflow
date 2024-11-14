@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.ke.bella.workflow.service.Configs;
 
-public class TemplateTransformNodeTest {
+public class TemplateTransformNodeTest extends CommonNodeTest {
 
     @BeforeAll
     public static void initOpenAPIContext() {

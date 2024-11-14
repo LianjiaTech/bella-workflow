@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -33,6 +34,7 @@ import com.ke.bella.workflow.db.tables.pojos.RdbDatasourceDB;
 import com.ke.bella.workflow.utils.Utils;
 
 @Component
+@DependsOn("configs")
 public class DataSourceService implements ApplicationContextAware {
 
     @Resource

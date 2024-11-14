@@ -26,7 +26,7 @@ public class Configs {
 
     public static long MAX_CPU_TIME_RATE = 85;
 
-    public static int TASK_THREAD_NUMS;
+    public static Integer TASK_THREAD_NUMS;
 
     @Value("${bella.apiBase}")
     public void setApiBase(String apiBase) {
@@ -59,7 +59,7 @@ public class Configs {
     }
 
     @Value("${bella.task.threadNums}")
-    public void setTaskThreadNums(int taskThreadNums) {
+    public void setTaskThreadNums(Integer taskThreadNums) {
         TASK_THREAD_NUMS = taskThreadNums;
     }
 }

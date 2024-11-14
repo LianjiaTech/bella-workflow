@@ -13,6 +13,7 @@ import com.theokanning.openai.client.OpenAiApi;
 import com.theokanning.openai.service.OpenAiService;
 
 import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -22,11 +23,18 @@ public class OpenAiUtils {
     static HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
     static long DEFAULT_READ_TIMEOUT_SECONDS = 60 * 5L;
     static TimeUnit DEFAULT_READ_TIMEOUT_UNIT = TimeUnit.SECONDS;
+    static OkHttpClient client;
+    static {
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(Configs.TASK_THREAD_NUMS);
+        dispatcher.setMaxRequestsPerHost(Configs.TASK_THREAD_NUMS);
 
-    static OkHttpClient client = new OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .connectionPool(new ConnectionPool(1500, 60, TimeUnit.SECONDS))
-            .build();
+        client = new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .dispatcher(dispatcher)
+                .connectionPool(new ConnectionPool(Configs.TASK_THREAD_NUMS, 60, TimeUnit.SECONDS))
+                .build();
+    }
 
     public static OpenAiService defaultOpenAiService(String token, long readTimeout, TimeUnit unit) {
         ObjectMapper mapper = OpenAiService.defaultObjectMapper();

@@ -78,3 +78,5 @@ bella:
   cas:
     logoutUri: /console/api/logout
     client-support: true
+  task:
+    threadNums: 1000

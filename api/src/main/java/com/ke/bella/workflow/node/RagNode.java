@@ -41,6 +41,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -55,10 +56,7 @@ import okhttp3.sse.EventSourceListener;
 @Slf4j
 public class RagNode extends BaseNode<RagNode.Data> {
     static HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-    static OkHttpClient client = new OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .connectionPool(new ConnectionPool(1500, 60, TimeUnit.SECONDS))
-            .build();
+    static OkHttpClient client;
 
     private static final String RAG_PATH = "/api/rag/query";
     private static final Long DEFAULT_READ_TIMEOUT_SECONDS = 60 * 5L;
@@ -67,6 +65,18 @@ public class RagNode extends BaseNode<RagNode.Data> {
     private long ttftConnect;
     private long ttftEnd;
     private static final String X_BELLA_REQUEST_ID = "X-BELLA-REQUEST-ID";
+
+    static {
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(Configs.TASK_THREAD_NUMS);
+        dispatcher.setMaxRequestsPerHost(Configs.TASK_THREAD_NUMS);
+
+        client = new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .dispatcher(dispatcher)
+                .connectionPool(new ConnectionPool(Configs.TASK_THREAD_NUMS, 60, TimeUnit.SECONDS))
+                .build();
+    }
 
     public RagNode(WorkflowSchema.Node meta) {
         super(meta, JsonUtils.convertValue(meta.getData(), Data.class));

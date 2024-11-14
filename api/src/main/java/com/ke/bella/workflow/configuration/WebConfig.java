@@ -39,6 +39,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/v1/**")
                 .addPathPatterns("/capi/**")
                 .excludePathPatterns("/v1/workflow/trigger/callback/**")
+                .excludePathPatterns("/v1/workflow/callback/**")
                 .order(50);
         registry.addInterceptor(difyRequestInterceptor)
                 .addPathPatterns("/console/api/**")

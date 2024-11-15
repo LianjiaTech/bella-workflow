@@ -105,6 +105,9 @@ public class WorkflowRunner {
                         }
                     }
                 } else {
+                    if(!exceptions.isEmpty()) {
+                        break;
+                    }
                     LockSupport.parkNanos(1000000); // 1ms
                 }
             }

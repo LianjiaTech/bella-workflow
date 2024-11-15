@@ -2,6 +2,7 @@ package com.ke.bella.workflow.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -10,6 +11,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.ke.bella.workflow.utils.JsonUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -59,7 +62,8 @@ public class DataSourceService implements ApplicationContextAware {
             .build(CacheLoader.<String, CustomRdb>from(k -> {
                 RdbDatasourceDB e = getRdbDatasource(k);
                 Assert.notNull(e, "找不到对应的数据源: " + k);
-                return CustomRdb.using(e.getDbType(), e.getHost(), e.getPort(), e.getDb(), e.getUser(), e.getPassword());
+                return CustomRdb.using(e.getDbType(), e.getHost(), e.getPort(), e.getDb(), e.getUser(), e.getPassword(),
+                        JsonUtils.fromJson(e.getParams(), new TypeReference<Map<String, String>>(){ }));
             }));
 
     private static ApplicationContext applicationContext;
@@ -109,6 +113,7 @@ public class DataSourceService implements ApplicationContextAware {
     }
 
     public RdbDatasourceDB createRdbDatasource(RdbDataSourceAdd op) {
+        checkRdbDatasource(op);
         return repo.addRdbDataSource(op);
     }
 
@@ -118,7 +123,7 @@ public class DataSourceService implements ApplicationContextAware {
 
     public void checkRdbDatasource(RdbDataSourceAdd op) {
         try (CustomRdb rdb = CustomRdb.using(op.getDbType(),
-                op.getHost(), op.getPort(), op.getDb(), op.getUser(), op.getPassword())) {
+                op.getHost(), op.getPort(), op.getDb(), op.getUser(), op.getPassword(), op.getParams())) {
             rdb.conn().execute("select 1;");
         } catch (Throwable e) {
             e = Utils.getRootCause(e);

@@ -129,6 +129,11 @@ public class WorkflowRunState {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public synchronized void putNodeState(String nodeId, NodeRunResult state) {
+        putNodeState(nodeId, state, false);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public synchronized void putNodeState(String nodeId, NodeRunResult state, boolean isResume) {
         NodeRunResult.Status s = state.status;
         if(s == NodeRunResult.Status.running || s == null) {
             throw new IllegalStateException("工作流节点运行状态异常");
@@ -162,8 +167,10 @@ public class WorkflowRunState {
             }
         }
 
-        if(s != NodeRunResult.Status.skipped && s != NodeRunResult.Status.notified) {
-            this.runningNodeCount -= 1;
+        if(!isResume) {
+            if(s != NodeRunResult.Status.skipped && s != NodeRunResult.Status.notified) {
+                this.runningNodeCount -= 1;
+            }
         }
 
         if(s == NodeRunResult.Status.failed) {

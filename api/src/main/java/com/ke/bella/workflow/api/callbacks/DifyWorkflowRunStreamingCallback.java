@@ -171,16 +171,22 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData pdata) {
         if(ProgressData.ObjectType.DELTA_CONTENT.equals(pdata.getObject()) && pdata.getData() instanceof Delta) {
-            DifyEvent event = DifyEvent.builder()
+            DifyEvent.DifyEventBuilder eb = DifyEvent.builder()
                     .id(((Delta) pdata.getData()).getMessageId())
                     .workflowRunId(context.getRunId())
                     .threadId(context.getThreadId())
                     .workflowId(context.getWorkflowId())
                     .taskId(context.getRunId())
-                    .event("message")
-                    .answer(pdata.getData().toString())
-                    .build();
-            SseHelper.sendEvent(emitter, event);
+                    .event("message");
+            DeltaContentX delta = ((Delta) pdata.getData()).getContent().get(0);
+            if(delta.getText() != null) {
+                eb.answer(delta.getText().getValue());
+            } else if(delta.getImageDelta() != null) {
+                eb.answer(String.format("![%s](%s)", delta.getImageDelta().getId(), delta.getImageDelta().getUrl()));
+            } else if(delta.getImageUrl() != null) {
+                eb.answer(String.format("![image](%s)", delta.getImageDelta().getId(), delta.getImageUrl().getUrl()));
+            }
+            SseHelper.sendEvent(emitter, eb.build());
         }
     }
 
@@ -375,6 +381,8 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         private String threadId;
         private String message;
         private Integer status;
+        private String type;
+        private String url;
 
         @JsonProperty("conversation_id")
         public String getConversationId() {

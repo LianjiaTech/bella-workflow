@@ -71,8 +71,6 @@ bella:
       groovy: true
   knowledge-file:
     search: http://example.com/api/v1/knowledge/searchNew/forWorkflow
-  session:
-    cookie-domain: localhost
   cas:
     server-url-prefix: https://example.com/
     server-login-url: https://example.com/login

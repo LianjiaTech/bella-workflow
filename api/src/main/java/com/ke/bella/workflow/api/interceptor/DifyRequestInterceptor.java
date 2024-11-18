@@ -1,16 +1,8 @@
 package com.ke.bella.workflow.api.interceptor;
 
-import static com.ke.bella.workflow.api.interceptor.ConcurrentStartInterceptor.ASYNC_REQUEST_MARKER;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.ke.bella.openapi.login.context.ConsoleContext;
 import com.ke.bella.workflow.api.Operator;
+import com.ke.bella.workflow.db.BellaContext;
 import org.apache.http.auth.AuthenticationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -18,7 +10,13 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.ke.bella.workflow.db.BellaContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
+import static com.ke.bella.workflow.api.interceptor.ConcurrentStartInterceptor.ASYNC_REQUEST_MARKER;
 
 /**
  * Unified processing request from bella, transfer header info to operator
@@ -52,18 +50,16 @@ public class DifyRequestInterceptor extends HandlerInterceptorAdapter {
                     .tenantId(tenantId)
                     .spaceCode(spaceCode)
                     .build());
-        } else if(BellaContext.getApiKey() == null){
+        } else if(BellaContext.getApiKey() == null) {
             com.ke.bella.openapi.Operator operator = ConsoleContext.getOperatorIgnoreNull();
-//            if(operator == null) {
-//                throw new AuthenticationException("认证失败");
-//            }
-            if(operator != null) {
-                BellaContext.setOperator(Operator.builder()
-                        .userId(operator.getUserId())
-                        .userName(operator.getUserName())
-                        .email(operator.getEmail())
-                        .build());
+            if(operator == null) {
+                throw new AuthenticationException("认证失败");
             }
+            BellaContext.setOperator(Operator.builder()
+                    .userId(operator.getUserId())
+                    .userName(operator.getUserName())
+                    .email(operator.getEmail())
+                    .build());
         }
         return true;
     }

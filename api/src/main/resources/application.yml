@@ -63,12 +63,13 @@ bella:
   toolApiBase: ${BELLA_TOOL_API_BASE:http://example.com}
   boreApiBase: ${BELLA_TOOL_API_BASE:http://example.com}
   codeSandboxApiBase: ${BELLA_CODE_SANDBOX_API_BASE:https://example.com/v1/}
+  maxEexMemoryAlloc: ${BELLA_MAX_EX_MEMORY_ALLOC:209715200}
   workflow:
     sandbox:
         groovy: false
   login:
     # 本地环境去掉 bella.login.type 即可关闭登录的身份校验
-    # type: cas
+    type: cas
   session:
     cookie-name: bella_workflow_sessionId
     max-inactive-interval: 60

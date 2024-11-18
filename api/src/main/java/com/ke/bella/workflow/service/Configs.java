@@ -22,7 +22,7 @@ public class Configs {
 
     public static boolean isThreadAllocatedMemorySupported = false;
 
-    public static long MAX_EXE_MEMORY_ALLOC = 100 * 1024 * 1024; // 100MB
+    public static long MAX_EXE_MEMORY_ALLOC = 200 * 1024 * 1024; // 200MB
 
     public static long MAX_CPU_TIME_RATE = 85;
 
@@ -54,5 +54,10 @@ public class Configs {
     @Value("${bella.codeSandboxApiBase}")
     public void setSandboxApiBase(String sandboxApiBase) {
         SAND_BOX_API_BASE = sandboxApiBase;
+    }
+
+    @Value("${bella.maxEexMemoryAlloc}")
+    public void setMaxEexMemoryAlloc(long maxEexMemoryAlloc) {
+        MAX_EXE_MEMORY_ALLOC = maxEexMemoryAlloc;
     }
 }

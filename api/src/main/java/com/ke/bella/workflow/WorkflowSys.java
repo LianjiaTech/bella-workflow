@@ -116,6 +116,21 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
         onProgress(node, newMessageId(), text);
     }
 
+    public void sendImageDelta(String id, String url) {
+        Delta delta = Delta.builder()
+                .name(node.getNodeData().getMessageRoleName())
+                .content(Delta.fromImageDelta(id, url))
+                .messageId((String) get("message_id"))
+                .build();
+
+        ProgressData progress = ProgressData.builder()
+                .object(ProgressData.ObjectType.DELTA_CONTENT)
+                .data(delta)
+                .build();
+        callback.onWorkflowNodeRunProgress(context, node.getNodeId(), node.getNodeRunId(), progress);
+    }
+
+
     @SuppressWarnings("rawtypes")
     public Object chat(Object req) {
         ChatCompletionRequest request = null;

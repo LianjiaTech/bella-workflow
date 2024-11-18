@@ -2,6 +2,7 @@
 package com.ke.bella.workflow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -14,6 +15,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
@@ -52,7 +54,7 @@ public interface IWorkflowCallback {
         String messageId;
         String role;
         String name;
-        List<DeltaContent> content;
+        List<? extends DeltaContent> content;
 
         @Override
         public String toString() {
@@ -70,6 +72,40 @@ public interface IWorkflowCallback {
             }
             return ret;
         }
+
+        public static List<DeltaContentX> fromImageDelta(String id, String url) {
+            DeltaContentX c = DeltaContentX.builder()
+                    .imageDelta(ImageDelta.builder()
+                            .id(id)
+                            .url(url)
+                            .build())
+                    .build();
+            c.setType("image_delta");
+            return Arrays.asList(c);
+        }
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @SuperBuilder
+    public class ImageDelta {
+        @NonNull
+        private String url;
+
+        private String id;
+
+        public ImageDelta(String url) {
+            this.url = url;
+        }
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DeltaContentX extends DeltaContent {
+        ImageDelta imageDelta;
     }
 
     @Data

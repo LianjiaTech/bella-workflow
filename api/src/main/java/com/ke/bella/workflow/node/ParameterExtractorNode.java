@@ -315,7 +315,6 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
             ToolChoice toolChoice = new ToolChoice(new Function(function.getName()));
             chatCompletionRequest.setToolChoice(toolChoice);
         }
-        chatCompletionRequest.setStreamOptions(StreamOption.INCLUDE);
         chatCompletionRequest.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
         // fixme:
         // 1. 三方包流式请求，严格校验协议；

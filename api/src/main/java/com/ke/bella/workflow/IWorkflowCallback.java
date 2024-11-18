@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.assistants.message.MessageContent;
 import com.theokanning.openai.assistants.message.content.DeltaContent;
 import com.theokanning.openai.assistants.message.content.Text;
@@ -54,21 +55,29 @@ public interface IWorkflowCallback {
         String messageId;
         String role;
         String name;
-        List<? extends DeltaContent> content;
+        List<DeltaContentX> content;
 
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            for (DeltaContent dc : content) {
-                sb.append(dc.getText().getValue());
+            for (DeltaContentX dc : content) {
+                if(dc.getText() != null) {
+                    sb.append(dc.getText().getValue());
+                }
+
+                ImageDelta imgd = dc.getImageDelta();
+                if(imgd != null) {
+                    sb.append(JsonUtils.toJson(imgd));
+                }
+
             }
             return sb.toString();
         }
 
-        public static List<DeltaContent> fromText(String... contents) {
-            List<DeltaContent> ret = new ArrayList<>();
+        public static List<DeltaContentX> fromText(String... contents) {
+            List<DeltaContentX> ret = new ArrayList<>();
             for (String text : contents) {
-                ret.add(new DeltaContent(0, "text", new Text(text, null), null, null));
+                ret.add(DeltaContentX.from(new DeltaContent(0, "text", new Text(text, null), null, null)));
             }
             return ret;
         }
@@ -106,6 +115,15 @@ public interface IWorkflowCallback {
     @Builder
     public static class DeltaContentX extends DeltaContent {
         ImageDelta imageDelta;
+
+        public static DeltaContentX from(DeltaContent o) {
+            DeltaContentX c = new DeltaContentX();
+            c.setType(o.getType());
+            c.setImageUrl(o.getImageUrl());
+            c.setImageFile(o.getImageFile());
+            c.setText(o.getText());
+            return c;
+        }
     }
 
     @Data

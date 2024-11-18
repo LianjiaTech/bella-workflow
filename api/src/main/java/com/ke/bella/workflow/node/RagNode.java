@@ -1,7 +1,6 @@
 package com.ke.bella.workflow.node;
 
-import static com.ke.bella.workflow.IWorkflowCallback.ProgressData.EventType.MESSAGE_COMPLETED;
-import static com.ke.bella.workflow.IWorkflowCallback.ProgressData.EventType.MESSAGE_DELTA;
+import static com.ke.bella.workflow.IWorkflowCallback.ProgressData.EventType.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.base.Throwables;
 import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.IWorkflowCallback.DeltaContentX;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
@@ -31,7 +31,6 @@ import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.assistants.message.MessageContent;
-import com.theokanning.openai.assistants.message.content.DeltaContent;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 
 import lombok.AllArgsConstructor;
@@ -350,7 +349,7 @@ public class RagNode extends BaseNode<RagNode.Data> {
     public static class RagStreamingResponse {
         private String id;
         private String object;
-        private List<DeltaContent> delta;
+        private List<DeltaContentX> delta;
         private List<MessageContent> content;
         private List<RagRetrievalDoc> doc;
     }

@@ -450,7 +450,7 @@ public class WorkflowService {
                 .processData(JsonUtils.fromJson(wnr.getProcessData(), Map.class))
                 .status(NodeRunResult.Status.valueOf(wnr.getStatus()))
                 .activatedSourceHandles(JsonUtils.fromJson(wnr.getActivedTargetHandles(), List.class))
-                .build()));
+                .build(), true));
 
         state.putVariable("sys", "query", wr.getQuery());
         state.putVariable("sys", "files", JsonUtils.fromJson(wr.getFiles(), List.class));

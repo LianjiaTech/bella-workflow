@@ -64,13 +64,14 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         }]
         : []
       ),
+      {
+        name: t('common.appMenus.apiAccess'),
+        href: `/app/${appId}/develop`,
+        icon: RiTerminalBoxLine,
+        selectedIcon: RiTerminalBoxFill,
+      },
       ...(mode === 'workflow'
         ? [{
-          name: t('common.appMenus.apiAccess'),
-          href: `/app/${appId}/develop`,
-          icon: RiTerminalBoxLine,
-          selectedIcon: RiTerminalBoxFill,
-        }, {
           name: t('common.appMenus.trigger'),
           href: `/app/${appId}/trigger`,
           icon: RiTimerFlashLine,

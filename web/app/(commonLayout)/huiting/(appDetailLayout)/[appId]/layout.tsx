@@ -7,6 +7,13 @@ import cn from 'classnames'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import { useContext, useContextSelector } from 'use-context-selector'
+import {
+  RiTerminalBoxFill,
+  RiTerminalBoxLine, RiTerminalFill,
+  RiTerminalLine,
+  RiTimerFlashFill,
+  RiTimerFlashLine,
+} from '@remixicon/react'
 import s from './style.module.css'
 import { useStore } from '@/app/components/app/store'
 import type { NavIcon } from '@/app/components/app-sidebar/navLink'
@@ -15,11 +22,9 @@ import AppsContext, { useAppContext } from '@/context/app-context'
 import Loading from '@/app/components/base/loading'
 import {
   PromptEngineering,
-  TerminalSquare,
 } from '@/app/components/base/icons/src/vender/line/development'
 import {
   PromptEngineering as PromptEngineeringSolid,
-  TerminalSquare as TerminalSquareSolid,
 } from '@/app/components/base/icons/src/vender/solid/development'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import { ToastContext } from '@/app/components/base/toast'
@@ -73,9 +78,24 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
       ),
       {
         name: t('common.appMenus.apiAccess'),
-        href: `/huiting/${appId}/develop${urlParams}`,
-        icon: TerminalSquare,
-        selectedIcon: TerminalSquareSolid,
+        href: `/huiting/${appId}/develop`,
+        icon: RiTerminalBoxLine,
+        selectedIcon: RiTerminalBoxFill,
+      },
+      ...(mode === 'workflow'
+        ? [{
+          name: t('common.appMenus.trigger'),
+          href: `/huiting/${appId}/trigger`,
+          icon: RiTimerFlashLine,
+          selectedIcon: RiTimerFlashFill,
+        }]
+        : []
+      ),
+      {
+        name: t('common.appMenus.customApi'),
+        href: `/huiting/${appId}/customApi`,
+        icon: RiTerminalLine,
+        selectedIcon: RiTerminalFill,
       },
     ]
     return navs

@@ -28,6 +28,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -53,6 +54,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
 
     protected WorkflowSchema.Node meta;
     @Getter
+    @Setter
     protected String nodeRunId;
     protected T data;
     @Getter
@@ -145,9 +147,6 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                     callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
                     throw new IllegalStateException(result.getError().getMessage(), result.getError());
                 } else if(result.getStatus() == NodeRunResult.Status.waiting) {
-                    if(context.isFlashMode()) {
-                        throw new IllegalArgumentException("极速模式下不支持节点挂起，请调整请求里的flashMode参数");
-                    }
                     callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
                 }
             }
@@ -257,6 +256,13 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static BaseNode from(WorkflowSchema.Node meta, String nodeRunId) {
+        BaseNode node = from(meta);
+        node.setNodeRunId(nodeRunId);
+        return node;
     }
 
     @SuppressWarnings("rawtypes")

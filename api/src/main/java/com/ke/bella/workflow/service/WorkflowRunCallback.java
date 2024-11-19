@@ -70,6 +70,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowRunSuspended(WorkflowContext context) {
         LOGGER.info("{} {} onWorkflowRunSuspended", context.getWorkflowId(), context.getRunId());
 
+        service.dumpWorkflowRunState(context);
         service.updateWorkflowRun(context, WorkflowRunStatus.suspended.name());
 
         delegate.onWorkflowRunSuspended(context);

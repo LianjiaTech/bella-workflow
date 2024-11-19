@@ -1,5 +1,7 @@
 package com.ke.bella.workflow.utils;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 import org.springframework.util.StringUtils;
@@ -58,6 +60,17 @@ public class JsonUtils {
         }
     }
 
+    public static <T> T fromJson(InputStream is, Class<T> clazz) {
+        try {
+            if(is == null) {
+                return null;
+            }
+            return mapper.readValue(is, clazz);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
     public static String toJson(Object obj) {
         try {
             return mapper.writeValueAsString(obj);
@@ -70,6 +83,14 @@ public class JsonUtils {
         try {
             return mapper2.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static void toJson(Object obj, OutputStream os) {
+        try {
+            mapper.writeValue(os, obj);
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }

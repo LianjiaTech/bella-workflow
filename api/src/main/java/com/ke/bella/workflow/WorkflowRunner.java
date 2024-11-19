@@ -3,6 +3,7 @@ package com.ke.bella.workflow;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -61,12 +62,13 @@ public class WorkflowRunner {
         }
     }
 
-    public void resume(WorkflowContext context, IWorkflowCallback callback, List<String> nodeIds) {
+    public void resume(WorkflowContext context, IWorkflowCallback callback, Map<String, String> nodeIds) {
         context.getState().setStatus(WorkflowRunStatus.running);
-        context.getState().putNextNodes(nodeIds);
+        context.putResumeNodeMapping(nodeIds);
+        context.getState().putNextNodes(nodeIds.keySet());
         callback.onWorkflowRunResumed(context);
         if(context.getTriggerFrom().equals("DEBUG_NODE")) {
-            runNode(context, callback, nodeIds.get(0));
+            runNode(context, callback, nodeIds.keySet().iterator().next());
         } else {
             run0(context, callback);
         }

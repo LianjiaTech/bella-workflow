@@ -50,10 +50,10 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
         inputs 参数包含了多组键值对（Key/Value pairs），每组的键对应一个特定变量，每组的值则是该变量的具体值。
       - `responseMode` (string) Required
         返回响应模式，支持：
-        - `streaming` 流式模式（推荐）。基于 SSE（**[Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)**）实现类似打字机输出方式的流式返回。
-        - `blocking` 阻塞模式，等待执行完毕后返回结果。（请求若流程较长可能会被中断）。
+        - `streaming` 流式模式（推荐）。基于 SSE（**[Server-Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)**）实现类似打字机输出方式的流式返回。<i>(Chatflow请优先考虑`streaming`模式)</i>
+        - `blocking` 阻塞模式，等待执行完毕后返回结果。（请求若流程较长可能会被中断）。 <i>(Chatflow若使用`blocking`模式，最终`outputs`为结束节点绑定变量)</i>
         - `callback` 回调模式，执行任务提交后立即返回，工作流运行完成时回调到指定的`callbackUrl`
-        <i>长时间运行的任务请优先考虑callback模式</i>
+        <i>(长时间运行的任务请优先考虑callback模式)</i>
       - `userId` (Long) Required
         用户标识，Ke内必须使用ucid。
       - `userName` (string) Required

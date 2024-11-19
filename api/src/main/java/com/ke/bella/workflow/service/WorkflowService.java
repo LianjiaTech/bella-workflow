@@ -385,7 +385,17 @@ public class WorkflowService {
         wnr.setNotifyData(JsonUtils.toJson(inputs));
         wnr.setNodeRunId(nodeRunId);
 
-        repo.updateWorkflowNodeRun(wnr);
+        if(wr.getFlashMode().intValue() == 0) {
+            repo.updateWorkflowNodeRun(wnr);
+        } else {
+            wnr.setInputs("");
+            wnr.setOutputs("");
+            wnr.setError("");
+            wnr.setProcessData("");
+            wnr.setNodeType("");
+            wnr.setTitle("");
+            repo.addWorkflowRunNode(wnr);
+        }
     }
 
     @SuppressWarnings("rawtypes")

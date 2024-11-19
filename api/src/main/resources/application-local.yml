@@ -92,8 +92,8 @@ spring:
 #    port: 6379
 
 s3:
-  ak: yqlHbxpGy4F9yjIp
-  sk: 9tWW51tPMIKC9BnqgRtfr8pWxMtOWXvI
-  endpoint: http://example.com
-  bucket: ait-raw-data
-  root: bella-workflow
+  ak: bella123
+  sk: bella123
+  endpoint: https://example.com
+  bucket: bella-workflow
+  root: test-states

@@ -74,3 +74,10 @@ spring:
     host: redis.example.com
     port: 14312
     password: bella123
+
+s3:
+  ak: bella123
+  sk: bella123
+  endpoint: https://example.com
+  bucket: bella-workflow
+  root: states

@@ -12,9 +12,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.amazonaws.services.s3.model.S3Object;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowContext;
@@ -55,6 +57,9 @@ public class WorkflowService {
 
     @Resource
     WorkflowRunCountUpdator counter;
+
+    @Autowired
+    AmazonS3Service s3;
 
     @PostConstruct
     public void init() {
@@ -388,11 +393,11 @@ public class WorkflowService {
         Set<String> nodeids = context.getState().waitingNodeIds();
         List<WorkflowNodeRunDB> wrns = repo.queryWorkflowNodeRuns(context.getRunId(), nodeids);
 
-        List<String> ids = new ArrayList<>();
+        Map<String, String> ids = new HashMap<>();
         Map<String, Map> notifiedData = new HashMap<>();
         wrns.forEach(r -> {
             if(r.getStatus().equals(NodeRunResult.Status.notified.name())) {
-                ids.add(r.getNodeId());
+                ids.put(r.getNodeId(), r.getNodeRunId());
                 notifiedData.put(r.getNodeId(), JsonUtils.fromJson(r.getNotifyData(), Map.class));
             }
         });
@@ -422,12 +427,13 @@ public class WorkflowService {
         WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
         WorkflowSchema meta = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
         WorkflowGraph graph = new WorkflowGraph(meta);
+        WorkflowRunState state = resumeWorkflowRunState(wr.getWorkflowRunId());
         WorkflowContext context = WorkflowContext.builder()
                 .tenantId(wr.getTenantId())
                 .workflowId(wr.getWorkflowId())
                 .runId(wr.getWorkflowRunId())
                 .graph(graph)
-                .state(getWorkflowRunState(wr))
+                .state(state)
                 .userInputs(new HashMap())
                 .triggerFrom(wr.getTriggerFrom())
                 .ctime(wr.getCtime())
@@ -512,5 +518,25 @@ public class WorkflowService {
             wf = getWorkflow(op.getWorkflowId(), op.getVersion());
         }
         return repo.addCustomApi(wf, op);
+    }
+
+    public void dumpWorkflowRunState(WorkflowContext context) {
+        try {
+            LOGGER.info("{} {} dump workflow run state to s3", context.getWorkflowId(), context.getRunId());
+            String json = JsonUtils.toJson(context.getState());
+            s3.putObject(context.getRunId(), json);
+        } catch (Exception e) {
+            throw new IllegalStateException("faild to dump workflow run state to s3.", e);
+        }
+    }
+
+    public WorkflowRunState resumeWorkflowRunState(String runId) {
+        try {
+            LOGGER.info("{} resume workflow run state from s3", runId);
+            S3Object obj = s3.getObject(runId);
+            return JsonUtils.fromJson(obj.getObjectContent(), WorkflowRunState.class);
+        } catch (Exception e) {
+            throw new IllegalStateException("faild to resume workflow run state from s3.", e);
+        }
     }
 }

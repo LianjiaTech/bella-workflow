@@ -90,3 +90,10 @@ spring:
     password: bella123
 #    host: localhost
 #    port: 6379
+
+s3:
+  ak: yqlHbxpGy4F9yjIp
+  sk: 9tWW51tPMIKC9BnqgRtfr8pWxMtOWXvI
+  endpoint: http://example.com
+  bucket: ait-raw-data
+  root: bella-workflow

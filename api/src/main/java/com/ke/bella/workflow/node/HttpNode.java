@@ -168,13 +168,6 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
                 .build();
     }
 
-    @Override
-    public void validate(WorkflowContext ctx) {
-        if(ctx.getFlashMode() > 0 && data.isCallback()) {
-            throw new IllegalArgumentException("http节点的callback模式下不支持flashMode");
-        }
-    }
-
     private ResponseHelper handleResponseBody(Request request, Response response) {
         ResponseHelper result = ResponseHelper.defaultHelper();
 

@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.node;
 
-import static com.ke.bella.workflow.IWorkflowCallback.ProgressData.EventType.*;
+import static com.ke.bella.workflow.IWorkflowCallback.ProgressData.EventType.MESSAGE_COMPLETED;
+import static com.ke.bella.workflow.IWorkflowCallback.ProgressData.EventType.MESSAGE_DELTA;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -162,11 +163,13 @@ public class RagNode extends BaseNode<RagNode.Data> {
                         }
 
                         if(MESSAGE_DELTA.equals(type)) {
-                            callback.onWorkflowNodeRunProgress(context, getNodeId(), nodeRunId,
-                                    IWorkflowCallback.ProgressData.builder().object(ragStreamingResponse.getObject())
-                                            .data(IWorkflowCallback.Delta.builder().messageId(messageId)
-                                                    .content(ragStreamingResponse.getDelta()).build())
-                                            .build());
+                            if(data.isGenerateDeltaContent()) {
+                                callback.onWorkflowNodeRunProgress(context, getNodeId(), nodeRunId,
+                                        IWorkflowCallback.ProgressData.builder().object(ragStreamingResponse.getObject())
+                                                .data(IWorkflowCallback.Delta.builder().messageId(messageId)
+                                                        .content(ragStreamingResponse.getDelta()).build())
+                                                .build());
+                            }
                         } else if(MESSAGE_COMPLETED.equals(type)) {
                             result = ragStreamingResponse.getContent();
                         } else {

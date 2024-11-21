@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.service;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
@@ -36,15 +37,30 @@ public class CustomRdb implements AutoCloseable {
         return dsl;
     }
 
-    public static String createJdbcUrl(String dbType, String host, int port, String databaseName) {
+    public static String createJdbcUrl(String dbType, String host, int port, String databaseName, Map<String, String> params) {
+        StringBuilder url = new StringBuilder();
         switch (dbType) {
         case "mysql":
-            return String.format("jdbc:mysql://%s:%d/%s", host, port, databaseName);
+            url = url.append(String.format("jdbc:mysql://%s:%d/%s", host, port, databaseName));
+            break;
         case "postgres":
-            return String.format("jdbc:postgresql://%s:%d/%s", host, port, databaseName);
+            url = url.append(String.format("jdbc:postgresql://%s:%d/%s", host, port, databaseName));
+            break;
         default:
             throw new IllegalArgumentException("Unsupported database type: " + dbType);
         }
+        if (params != null && !params.isEmpty()) {
+            url.append("?");
+            boolean first = true;
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                if (!first) {
+                    url.append("&");
+                }
+                url.append(entry.getKey()).append("=").append(entry.getValue());
+                first = false;
+            }
+        }
+        return url.toString();
     }
 
     public static SQLDialect getSQLDialect(String dbType) {
@@ -68,8 +84,8 @@ public class CustomRdb implements AutoCloseable {
         return new HikariDataSource(config);
     }
 
-    public static CustomRdb using(String dbType, String host, int port, String db, String user, String password) {
-        String jdbc = createJdbcUrl(dbType, host, port, db);
+    public static CustomRdb using(String dbType, String host, int port, String db, String user, String password, Map<String, String> params) {
+        String jdbc = createJdbcUrl(dbType, host, port, db, params);
         HikariDataSource dss = createDataSource(jdbc, user, password);
         DSLContext dsl = DSL.using(dss, getSQLDialect(dbType));
 

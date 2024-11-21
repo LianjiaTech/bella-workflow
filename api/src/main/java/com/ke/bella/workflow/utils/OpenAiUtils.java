@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.utils;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -16,6 +17,7 @@ import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 
@@ -41,7 +43,16 @@ public class OpenAiUtils {
         Map<String, String> transHeaders = BellaContext.getTransHeaders();
 
         OkHttpClient curClient = client.newBuilder()
-                .addInterceptor(new AuthenticationInterceptor(token))
+                .addInterceptor(new AuthenticationInterceptor(token) {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Request request = chain.request()
+                                .newBuilder()
+                                .header("Authorization", token)
+                                .build();
+                        return chain.proceed(request);
+                    }
+                })
                 .addInterceptor(chain -> {
                     Request.Builder requestBuilder = chain.request().newBuilder();
                     Optional.ofNullable(transHeaders).ifPresent(map -> map.forEach(requestBuilder::addHeader));

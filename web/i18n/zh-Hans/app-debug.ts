@@ -108,6 +108,7 @@ const translation = {
       words: '词',
       textBlocks: '文本块',
       selectTitle: '选择引用知识库',
+      searchTips: '输入文件名回车搜索...',
       selected: '个知识库被选中',
       noDataSet: '未找到知识库',
       toCreate: '去创建',

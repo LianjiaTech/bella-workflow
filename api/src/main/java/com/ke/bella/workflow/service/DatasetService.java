@@ -61,6 +61,7 @@ public class DatasetService {
                 .pageNo(op.getPage())
                 .pageSize(op.getLimit())
                 .fileIds(op.getIds())
+                .filename(op.getName())
                 .spaceCode(BellaContext.getOperator().getSpaceCode())
                 .build();
         BellaResp bellaResp = HttpUtils.postJson(header, Configs.BORE_API_BASE + KNOWLEDGE_FILE_SEARCH_PATH, JsonUtils.toJson(searchReq),
@@ -116,6 +117,7 @@ public class DatasetService {
         @Builder.Default
         private String sort = "ALL";
         private String spaceCode;
+        private String filename;
     }
 
     @Data

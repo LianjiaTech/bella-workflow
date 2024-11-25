@@ -431,7 +431,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
             } else {
                 apiKey = data.getAuthorization().getConfig().apiKey;
             }
-            builder.add(config.header(), config.prefix() + apiKey);
+            builder.add(Variables.format(config.header(), context.getState().getVariablePool()), Variables.format(config.prefix() + apiKey, context.getState().getVariablePool()));
         }
 
         return builder.build();
@@ -452,7 +452,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
             if(t.contains(":")) {
                 String[] kv = t.split(":", 2);
                 if(kv.length == 2) {
-                    map.put(kv[0], Variables.format(kv[1], pool));
+                    map.put(Variables.format(kv[0], pool), Variables.format(kv[1], pool));
                 } else if(kv.length == 1) {
                     map.put(kv[0], "");
                 } else {

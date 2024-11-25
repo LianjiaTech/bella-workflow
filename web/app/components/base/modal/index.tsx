@@ -14,6 +14,9 @@ type IModal = {
   children?: React.ReactNode
   closable?: boolean
   overflowVisible?: boolean
+  searchBox?: boolean
+  searchBoxTips?: React.ReactNode
+  onSearchChange?: (content: string) => void
 }
 
 export default function Modal({
@@ -26,6 +29,9 @@ export default function Modal({
   children,
   closable = false,
   overflowVisible = false,
+  searchBox = false,
+  searchBoxTips,
+  onSearchChange,
 }: IModal) {
   return (
     <Transition appear show={isShow} as={Fragment}>
@@ -64,12 +70,26 @@ export default function Modal({
                 overflowVisible ? 'overflow-visible' : 'overflow-hidden',
                 className,
               )}>
-                {title && <Dialog.Title
-                  as="h3"
-                  className="text-lg font-medium leading-6 text-gray-900"
-                >
-                  {title}
-                </Dialog.Title>}
+                <div className="flex items-center justify-between">
+                  {title && <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-gray-900"
+                  >
+                    {title}
+                  </Dialog.Title>}
+                  {searchBox && <input
+                    type="text"
+                    placeholder={searchBoxTips as string}
+                    className="ml-3 p-1 border border-gray-300 rounded"
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' && onSearchChange) {
+                        event.preventDefault()
+                        const target = event.target as HTMLInputElement
+                        onSearchChange(target.value)
+                      }
+                    }}
+                  />}
+                </div>
                 {description && <Dialog.Description className='text-gray-500 text-xs font-normal mt-2'>
                   {description}
                 </Dialog.Description>}

@@ -22,7 +22,7 @@ public class Configs {
 
     public static boolean isThreadAllocatedMemorySupported = false;
 
-    public static long MAX_EXE_MEMORY_ALLOC = 100 * 1024 * 1024; // 100MB
+    public static long MAX_EXE_MEMORY_ALLOC = 200 * 1024 * 1024; // 200MB
 
     public static long MAX_CPU_TIME_RATE = 85;
 
@@ -61,5 +61,10 @@ public class Configs {
     @Value("${bella.task.threadNums}")
     public void setTaskThreadNums(Integer taskThreadNums) {
         TASK_THREAD_NUMS = taskThreadNums;
+    }
+
+    @Value("${bella.maxExeMemoryAlloc}")
+    public void setMaxExeMemoryAlloc(long maxExeMemoryAlloc) {
+        MAX_EXE_MEMORY_ALLOC = maxExeMemoryAlloc;
     }
 }

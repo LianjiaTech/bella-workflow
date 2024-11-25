@@ -63,6 +63,9 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     @Getter
     private PrintStream out;
 
+    @Getter
+    private String callbackUrl;
+
     protected BaseNode(WorkflowSchema.Node meta, T data) {
         this(meta, UUID.randomUUID().toString(), data);
     }
@@ -214,15 +217,17 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     }
 
     private void appendBuiltinVariables(WorkflowContext context) {
+        callbackUrl = getCallbackUrl(
+                context.getTenantId(),
+                context.getWorkflowId(),
+                context.getRunId());
+
         // append callbackUrl
         if(isCallback()) {
-            String url = getCallbackUrl(
-                    context.getTenantId(),
-                    context.getWorkflowId(),
-                    context.getRunId());
-            context.getState().putVariable(getNodeId(), "callbackUrl", url);
+            context.getState().putVariable(getNodeId(), "callbackUrl", callbackUrl);
         }
     }
+
 
     public String getCallbackUrl(String tenantId, String workflowId, String runId) {
         return String.format("%s/workflow/callback/%s/%s/%s/%s/%s",

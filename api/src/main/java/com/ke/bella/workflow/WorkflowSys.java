@@ -10,6 +10,7 @@ import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.service.CustomRdb;
+import com.ke.bella.workflow.service.CustomRedis;
 import com.ke.bella.workflow.service.DataSourceService;
 import com.ke.bella.workflow.service.code.Requests;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -157,6 +158,10 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
 
     public CustomRdb rdb(String datasourceId) {
         return DataSourceService.ds().acquireCustomRdb(datasourceId);
+    }
+
+    public CustomRedis redis(String datasourceId) {
+        return DataSourceService.ds().acquireCustomRedis(datasourceId);
     }
 
     public WorkflowSys with(BaseNode<?> node) {

@@ -8,6 +8,7 @@ import com.ke.bella.workflow.db.tables.Domain;
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.KafkaDatasource;
 import com.ke.bella.workflow.db.tables.RdbDatasource;
+import com.ke.bella.workflow.db.tables.RedisDatasource;
 import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.WecomGroupInfo;
 import com.ke.bella.workflow.db.tables.WecomGroupMember;
@@ -50,6 +51,7 @@ public class Indexes {
     public static final Index DOMAIN_IDX_T_SPACE_TOPIC = Internal.createIndex(DSL.name("idx_t_space_topic"), Domain.DOMAIN, new OrderField[] { Domain.DOMAIN.TENANT_ID, Domain.DOMAIN.SPACE_CODE, Domain.DOMAIN.DOMAIN_ }, false);
     public static final Index KAFKA_DATASOURCE_IDX_T_SPACE_TOPIC = Internal.createIndex(DSL.name("idx_t_space_topic"), KafkaDatasource.KAFKA_DATASOURCE, new OrderField[] { KafkaDatasource.KAFKA_DATASOURCE.TENANT_ID, KafkaDatasource.KAFKA_DATASOURCE.TOPIC }, false);
     public static final Index RDB_DATASOURCE_IDX_T_SPACE_TOPIC = Internal.createIndex(DSL.name("idx_t_space_topic"), RdbDatasource.RDB_DATASOURCE, new OrderField[] { RdbDatasource.RDB_DATASOURCE.TENANT_ID, RdbDatasource.RDB_DATASOURCE.SPACE_CODE, RdbDatasource.RDB_DATASOURCE.HOST }, false);
+    public static final Index REDIS_DATASOURCE_IDX_T_SPACE_TOPIC = Internal.createIndex(DSL.name("idx_t_space_topic"), RedisDatasource.REDIS_DATASOURCE, new OrderField[] { RedisDatasource.REDIS_DATASOURCE.TENANT_ID, RedisDatasource.REDIS_DATASOURCE.SPACE_CODE, RedisDatasource.REDIS_DATASOURCE.HOST }, false);
     public static final Index WORKFLOW_RUN_IDX_TENANT_ID = Internal.createIndex(DSL.name("idx_tenant_id"), WorkflowRun.WORKFLOW_RUN, new OrderField[] { WorkflowRun.WORKFLOW_RUN.TENANT_ID, WorkflowRun.WORKFLOW_RUN.CTIME }, false);
     public static final Index WECOM_GROUP_MEMBER_IDX_TENANT_ID_SPACE_CODE_CUID_GROUP_CODE = Internal.createIndex(DSL.name("idx_tenant_id_space_code_cuid_group_code"), WecomGroupMember.WECOM_GROUP_MEMBER, new OrderField[] { WecomGroupMember.WECOM_GROUP_MEMBER.TENANT_ID, WecomGroupMember.WECOM_GROUP_MEMBER.SPACE_CODE, WecomGroupMember.WECOM_GROUP_MEMBER.GROUP_CODE }, false);
     public static final Index WECOM_GROUP_INFO_IDX_TENANT_ID_SPACE_CODE_CUID_SCENE = Internal.createIndex(DSL.name("idx_tenant_id_space_code_cuid_scene"), WecomGroupInfo.WECOM_GROUP_INFO, new OrderField[] { WecomGroupInfo.WECOM_GROUP_INFO.TENANT_ID, WecomGroupInfo.WECOM_GROUP_INFO.SPACE_CODE, WecomGroupInfo.WECOM_GROUP_INFO.CUID, WecomGroupInfo.WECOM_GROUP_INFO.SCENE }, false);

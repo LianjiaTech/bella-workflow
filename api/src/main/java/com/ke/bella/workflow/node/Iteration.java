@@ -101,6 +101,7 @@ public class Iteration extends BaseNode<Iteration.Data> {
                 .userInputs(new HashMap())
                 .triggerFrom(context.getTriggerFrom())
                 .build();
+        context.addChild(subContext);
         new WorkflowRunner().run(subContext, cb);
 
         return IterationResult.builder()

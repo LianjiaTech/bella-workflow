@@ -44,7 +44,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
             ctx.setThreadId(threadId);
         }
 
-        service.updateWorkflowRun(ctx, WorkflowRunStatus.running.name());
+        service.markWorkflowRunStarted(ctx);
 
         delegate.onWorkflowRunStarted(ctx);
     }
@@ -53,7 +53,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowRunSucceeded(WorkflowContext ctx) {
         LOGGER.info("{} {} onWorkflowRunSucceeded", ctx.getWorkflowId(), ctx.getRunId());
 
-        service.updateWorkflowRun(ctx, WorkflowRunStatus.succeeded.name(), ctx.getWorkflowRunResult().getOutputs());
+        service.markWorkflowRunSuccessed(ctx, ctx.getWorkflowRunResult().getOutputs());
 
         delegate.onWorkflowRunSucceeded(ctx);
 
@@ -71,16 +71,25 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         LOGGER.info("{} {} onWorkflowRunSuspended", context.getWorkflowId(), context.getRunId());
 
         service.dumpWorkflowRunState(context);
-        service.updateWorkflowRun(context, WorkflowRunStatus.suspended.name());
+        service.updateWorkflowRunStatus(context, WorkflowRunStatus.suspended.name());
 
         delegate.onWorkflowRunSuspended(context);
+    }
+
+    @Override
+    public void onWorkflowRunStopped(WorkflowContext context) {
+        LOGGER.info("{} {} onWorkflowRunStopped", context.getWorkflowId(), context.getRunId());
+
+        service.updateWorkflowRunStatus(context, WorkflowRunStatus.stopped.name());
+
+        delegate.onWorkflowRunStopped(context);
     }
 
     @Override
     public void onWorkflowRunResumed(WorkflowContext context) {
         LOGGER.info("{} {} onWorkflowRunResumed", context.getWorkflowId(), context.getRunId());
 
-        service.updateWorkflowRun(context, WorkflowRunStatus.running.name());
+        service.updateWorkflowRunStatus(context, WorkflowRunStatus.running.name());
 
         delegate.onWorkflowRunResumed(context);
     }

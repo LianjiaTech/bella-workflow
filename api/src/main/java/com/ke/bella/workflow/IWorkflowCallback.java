@@ -167,6 +167,8 @@ public interface IWorkflowCallback {
 
     void onWorkflowRunSuspended(WorkflowContext context);
 
+    void onWorkflowRunStopped(WorkflowContext context);
+
     void onWorkflowRunResumed(WorkflowContext context);
 
     void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t);

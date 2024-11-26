@@ -62,6 +62,11 @@ bella:
     trigger:
         callback-path: /v1/workflow/trigger/callback
     run-path: /v1/workflow/run
+    redis:
+        host: 0.0.0.0
+        port: 6379
+        user:
+        password: bella123
   knowledge-file:
     search: http://example.com/api/v1/knowledge/searchNew/forWorkflow
   cas:

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.LockSupport;
@@ -18,9 +19,22 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class WorkflowRunner {
+    private static final Map<String, WorkflowContext> runnningContexts = new ConcurrentHashMap<>();
+
+    public static boolean isRunning(String runId) {
+        return runnningContexts.containsKey(runId);
+    }
+
+    public static void interrupt(String runId) {
+        WorkflowContext ctx = runnningContexts.get(runId);
+        if(ctx != null) {
+            ctx.setInterrupted(true);
+        }
+    }
 
     public void run(WorkflowContext context, IWorkflowCallback callback) {
         try {
+            addRunningContext(context);
             context.start();
             callback.onWorkflowRunStarted(context);
             context.validate();
@@ -29,6 +43,8 @@ public class WorkflowRunner {
             LOGGER.info(e.getMessage(), e);
             context.getState().setStatus(WorkflowRunStatus.failed);
             callback.onWorkflowRunFailed(context, e.toString(), e);
+        } finally {
+            removeRunningContext(context);
         }
     }
 
@@ -36,7 +52,7 @@ public class WorkflowRunner {
     public void runNode(WorkflowContext context, IWorkflowCallback callback, String nodeId) {
         BaseNode node = context.getNode(nodeId);
         try {
-
+            addRunningContext(context);
             WorkflowSys sys = WorkflowSys.builder()
                     .context(context)
                     .callback(callback)
@@ -59,18 +75,25 @@ public class WorkflowRunner {
         } catch (Exception e) {
             LOGGER.info("node run failed, e: {}", Throwables.getStackTraceAsString(e));
             // single node does not require processing, swallow the exception
+        } finally {
+            removeRunningContext(context);
         }
     }
 
     public void resume(WorkflowContext context, IWorkflowCallback callback, Map<String, String> nodeIds) {
-        context.getState().setStatus(WorkflowRunStatus.running);
-        context.putResumeNodeMapping(nodeIds);
-        context.getState().putNextNodes(nodeIds.keySet());
-        callback.onWorkflowRunResumed(context);
-        if(context.getTriggerFrom().equals("DEBUG_NODE")) {
-            runNode(context, callback, nodeIds.keySet().iterator().next());
-        } else {
-            run0(context, callback);
+        try {
+            addRunningContext(context);
+            context.getState().setStatus(WorkflowRunStatus.running);
+            context.putResumeNodeMapping(nodeIds);
+            context.getState().putNextNodes(nodeIds.keySet());
+            callback.onWorkflowRunResumed(context);
+            if(context.getTriggerFrom().equals("DEBUG_NODE")) {
+                runNode(context, callback, nodeIds.keySet().iterator().next());
+            } else {
+                run0(context, callback);
+            }
+        } finally {
+            removeRunningContext(context);
         }
     }
 
@@ -110,6 +133,9 @@ public class WorkflowRunner {
                     if(!exceptions.isEmpty()) {
                         break;
                     }
+                    if(context.isInterrupted()) {
+                        break;
+                    }
                     LockSupport.parkNanos(1000000); // 1ms
                 }
             }
@@ -124,6 +150,9 @@ public class WorkflowRunner {
             if(context.isSuspended()) {
                 context.getState().setStatus(WorkflowRunStatus.suspended);
                 callback.onWorkflowRunSuspended(context);
+            } else if(context.isInterrupted()) {
+                context.getState().setStatus(WorkflowRunStatus.stopped);
+                callback.onWorkflowRunStopped(context);
             } else {
                 context.getState().setStatus(WorkflowRunStatus.succeeded);
                 callback.onWorkflowRunSucceeded(context);
@@ -141,5 +170,13 @@ public class WorkflowRunner {
             context.getState().setStatus(WorkflowRunStatus.failed);
             callback.onWorkflowRunFailed(context, e.toString(), e);
         }
+    }
+
+    private static void addRunningContext(WorkflowContext ctx) {
+        runnningContexts.put(ctx.getRunId(), ctx);
+    }
+
+    private static void removeRunningContext(WorkflowContext ctx) {
+        runnningContexts.remove(ctx.getRunId());
     }
 }

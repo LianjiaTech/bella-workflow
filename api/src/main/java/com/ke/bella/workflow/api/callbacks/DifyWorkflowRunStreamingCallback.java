@@ -7,7 +7,6 @@ import java.util.Objects;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
@@ -26,7 +25,6 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     final SseEmitter emitter;
     final WorkflowService ws;
     final long timeout;
-    long suspendedTime = System.currentTimeMillis();
 
     public DifyWorkflowRunStreamingCallback(SseEmitter emitter, WorkflowService ws) {
         this.emitter = emitter;
@@ -80,8 +78,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowRunSuspended(WorkflowContext context) {
-        suspendedTime = System.currentTimeMillis();
-        waitResume(context);
+        ws.waitWorkflowRunNotify(context, this, timeout);
     }
 
     @Override
@@ -331,35 +328,6 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowIterationCompleted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
-    }
-
-    private void waitResume(WorkflowContext context) {
-        if(System.currentTimeMillis() - suspendedTime >= timeout) {
-            DifyEvent event = DifyEvent.builder()
-                    .workflowRunId(context.getRunId())
-                    .threadId(context.getThreadId())
-                    .workflowId(context.getWorkflowId())
-                    .taskId(context.getRunId())
-                    .event("workflow_finished")
-                    .data(DifyData.builder()
-                            .id(context.getRunId())
-                            .status(WorkflowRunState.WorkflowRunStatus.failed.name())
-                            .workflowId(context.getWorkflowId())
-                            .inputs(context.getUserInputs())
-                            .error("wait workflow resume timeout.")
-                            .createdAt(System.currentTimeMillis())
-                            .finishedAt(System.currentTimeMillis())
-                            .elapsedTime(context.elapsedTime(LocalDateTime.now()) / 1000d)
-                            .build())
-                    .build();
-            SseHelper.sendEvent(emitter, event);
-            emitter.complete();
-        }
-        TaskExecutor.schedule(() -> {
-            if(!ws.tryResumeWorkflow(context, this)) {
-                waitResume(context);
-            }
-        }, 5000);
     }
 
     @Data

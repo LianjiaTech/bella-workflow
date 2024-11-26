@@ -44,9 +44,12 @@ public class WorkflowContext {
     private LocalDateTime ctime;
     private int flashMode;
     private boolean stateful;
+    private boolean interrupted;
     @Builder.Default
     private long nodeTimeout = 300;
     private WorkflowSys sys;
+    @Builder.Default
+    private List<WorkflowContext> children = new ArrayList<>();
 
     private Map<String, String> runNodeMapping;
 
@@ -97,8 +100,12 @@ public class WorkflowContext {
         }
     }
 
-    public boolean isSuspended() {
+    public synchronized boolean isSuspended() {
         return !state.waitingNodeIds().isEmpty();
+    }
+
+    public synchronized boolean isInterrupted() {
+        return interrupted;
     }
 
     synchronized BaseNode getNode(String nodeId) {
@@ -215,5 +222,16 @@ public class WorkflowContext {
 
     public synchronized void putResumeNodeMapping(Map<String, String> nodeIds) {
         runNodeMapping = new HashMap<>(nodeIds);
+    }
+
+    public synchronized void addChild(WorkflowContext child) {
+        children.add(child);
+    }
+
+    public synchronized void interrupt() {
+        this.interrupted = true;
+        for (WorkflowContext ctx : children) {
+            ctx.interrupt();
+        }
     }
 }

@@ -119,6 +119,10 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
 
     @Override
     public NodeRunResult run(WorkflowContext context, IWorkflowCallback callback) {
+        if(context.isInterrupted()) {
+            return NodeRunResult.newSkippedResult(null);
+        }
+
         Long startTime = System.nanoTime();
 
         setOut(context, callback);

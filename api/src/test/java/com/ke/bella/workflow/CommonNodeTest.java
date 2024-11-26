@@ -9,6 +9,7 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowGraph;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 public class CommonNodeTest {
@@ -21,6 +22,7 @@ public class CommonNodeTest {
                 .graph(graph)
                 .state(new WorkflowRunState())
                 .userInputs(inputs)
+                .runId(IDGenerator.newWorkflowRunId())
                 .build();
         return context;
     }

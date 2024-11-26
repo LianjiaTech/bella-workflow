@@ -69,6 +69,11 @@ bella:
     run-path: /v1/workflow/run
     sandbox:
       groovy: true
+    redis:
+        host: 0.0.0.0
+        port: 6379
+        user:
+        password: scaks3askjdh
   knowledge-file:
     search: http://example.com/api/v1/knowledge/searchNew/forWorkflow
   cas:

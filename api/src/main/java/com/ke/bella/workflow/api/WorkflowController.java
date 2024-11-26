@@ -26,6 +26,7 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowCopy;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowNodeRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
+import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunCancel;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunInfo;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunResponse;
@@ -138,6 +139,14 @@ public class WorkflowController {
         Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE]之一");
 
         return run0(op, "published");
+    }
+
+    @PostMapping("/workflow/cancel")
+    public Object cancel(@RequestBody WorkflowRunCancel op) {
+        Assert.hasText(op.runId, "runId不能为空");
+
+        ws.cancelWorkflowRun(op);
+        return BellaResponse.builder().code(201).data("OK").build();
     }
 
     @PostMapping("/{tenantId}/workflow/{workflowId}/run")
@@ -267,14 +276,14 @@ public class WorkflowController {
         ws.notifyWorkflowRun(wr, nodeId, nodeRunId, inputs);
 
         boolean isCallback = wr.getResponseMode().equals(ResponseMode.callback.name());
-
-        // resume简单实现版：
-        // 非callback时，等待超时时间到了之后再去试一下是否需要resume
-        // callback时，可立即去尝试是否可以resume
-        TaskExecutor.schedule(() -> {
-            WorkflowRunNotifyCallback callback = new WorkflowRunNotifyCallback(ws, wr.getCallbackUrl());
-            ws.tryResumeWorkflow(wr.getWorkflowRunId(), callback);
-        }, isCallback ? 10L : MAX_TIMEOUT + 5000L);
+        if(isCallback) {
+            TaskExecutor.schedule(() -> {
+                WorkflowRunNotifyCallback callback = new WorkflowRunNotifyCallback(ws, wr.getCallbackUrl());
+                ws.tryResumeWorkflow(wr.getWorkflowRunId(), callback);
+            }, 10L);
+        } else {
+            TaskExecutor.submit(() -> ws.notifyWorkflowRun(wr.getWorkflowRunId()));
+        }
 
         return BellaResponse.builder().code(201).data("OK").build();
     }

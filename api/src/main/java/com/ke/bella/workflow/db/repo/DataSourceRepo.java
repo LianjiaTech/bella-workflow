@@ -1,11 +1,14 @@
 package com.ke.bella.workflow.db.repo;
 
+import static com.ke.bella.workflow.db.Tables.REDIS_DATASOURCE;
 import static com.ke.bella.workflow.db.tables.KafkaDatasource.*;
 
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import com.ke.bella.workflow.db.tables.pojos.RedisDatasourceDB;
+import com.ke.bella.workflow.db.tables.records.RedisDatasourceRecord;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
@@ -14,6 +17,7 @@ import org.springframework.util.StringUtils;
 import com.ke.bella.workflow.api.DataSourceOps.DataSourceOp;
 import com.ke.bella.workflow.api.DataSourceOps.KafkaDataSourceAdd;
 import com.ke.bella.workflow.api.DataSourceOps.RdbDataSourceAdd;
+import com.ke.bella.workflow.api.DataSourceOps.RedisDataSourceAdd;
 import com.ke.bella.workflow.api.WorkflowOps.DomainAdd;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
@@ -140,6 +144,38 @@ public class DataSourceRepo implements BaseRepo {
                 .where(RDB_DATASOURCE.DATASOURCE_ID.eq(datasourceId))
                 .and(RDB_DATASOURCE.STATUS.eq(0))
                 .fetchOneInto(RdbDatasourceDB.class);
+    }
+
+    public RedisDatasourceDB addRedisDataSource(RedisDataSourceAdd op) {
+        RedisDatasourceRecord rec = REDIS_DATASOURCE.newRecord();
+
+        rec.from(op);
+        rec.setDatasourceId(IDGenerator.newDataSourceId("redis"));
+
+        fillCreatorInfo(rec);
+
+        db.insertInto(REDIS_DATASOURCE).set(rec).execute();
+
+        return rec.into(RedisDatasourceDB.class);
+    }
+
+    public void removeRedisDatasource(DataSourceOp op) {
+        RedisDatasourceRecord rec = REDIS_DATASOURCE.newRecord();
+        rec.setStatus(-1);
+        fillUpdatorInfo(rec);
+
+        db.update(REDIS_DATASOURCE)
+                .set(rec)
+                .where(REDIS_DATASOURCE.DATASOURCE_ID.eq(op.getDatasourceId()))
+                .execute();
+
+    }
+
+    public RedisDatasourceDB queryRedisDataSource(String datasourceId) {
+        return db.selectFrom(REDIS_DATASOURCE)
+                .where(REDIS_DATASOURCE.DATASOURCE_ID.eq(datasourceId))
+                .and(REDIS_DATASOURCE.STATUS.eq(0))
+                .fetchOneInto(RedisDatasourceDB.class);
     }
 
 }

@@ -2,6 +2,7 @@ package com.ke.bella.workflow.api.interceptor;
 
 import com.ke.bella.workflow.api.Operator;
 import com.ke.bella.workflow.db.BellaContext;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -28,8 +29,12 @@ public class RequestAdvice extends RequestBodyAdviceAdapter {
             Optional.ofNullable(BellaContext.getOperator()).ifPresent(oldOperator -> {
                 oper.setUserId(oldOperator.getUserId());
                 oper.setUserName(oldOperator.getUserName());
-                oper.setTenantId(oldOperator.getTenantId());
-                oper.setSpaceCode(oldOperator.getSpaceCode());
+                if(StringUtils.isNotEmpty(oldOperator.getTenantId())) {
+                    oper.setTenantId(oldOperator.getTenantId());
+                }
+                if(StringUtils.isNotEmpty(oldOperator.getSpaceCode())) {
+                    oper.setSpaceCode(oldOperator.getSpaceCode());
+                }
             });
             BellaContext.setOperator(oper);
         }

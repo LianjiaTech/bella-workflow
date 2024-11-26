@@ -1,25 +1,6 @@
 package com.ke.bella.workflow.service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.ke.bella.workflow.utils.JsonUtils;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -29,12 +10,31 @@ import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.api.DataSourceOps.DataSourceOp;
 import com.ke.bella.workflow.api.DataSourceOps.KafkaDataSourceAdd;
 import com.ke.bella.workflow.api.DataSourceOps.RdbDataSourceAdd;
+import com.ke.bella.workflow.api.DataSourceOps.RedisDataSourceAdd;
 import com.ke.bella.workflow.api.WorkflowOps.DomainAdd;
 import com.ke.bella.workflow.db.repo.DataSourceRepo;
 import com.ke.bella.workflow.db.tables.pojos.DomainDB;
 import com.ke.bella.workflow.db.tables.pojos.KafkaDatasourceDB;
 import com.ke.bella.workflow.db.tables.pojos.RdbDatasourceDB;
+import com.ke.bella.workflow.db.tables.pojos.RedisDatasourceDB;
+import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.Utils;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 @DependsOn("configs")
@@ -45,10 +45,10 @@ public class DataSourceService implements ApplicationContextAware {
 
     AtomicReference<Set<String>> customDomains = new AtomicReference<>(new HashSet<>());
 
-    RemovalListener<String, CustomRdb> removalListener = new RemovalListener<String, CustomRdb>() {
+    RemovalListener<String, AutoCloseable> removalListener = new RemovalListener<String, AutoCloseable>() {
         @Override
-        public void onRemoval(RemovalNotification<String, CustomRdb> notification) {
-            CustomRdb value = notification.getValue();
+        public void onRemoval(RemovalNotification<String, AutoCloseable> notification) {
+            AutoCloseable value = notification.getValue();
             try {
                 value.close();
             } catch (Exception e) {
@@ -61,11 +61,21 @@ public class DataSourceService implements ApplicationContextAware {
             .expireAfterAccess(10, TimeUnit.MINUTES)
             .maximumSize(1024)
             .removalListener(removalListener)
-            .build(CacheLoader.<String, CustomRdb>from(k -> {
+            .build(CacheLoader.from(k -> {
                 RdbDatasourceDB e = getRdbDatasource(k);
                 Assert.notNull(e, "找不到对应的数据源: " + k);
                 return CustomRdb.using(e.getDbType(), e.getHost(), e.getPort(), e.getDb(), e.getUser(), e.getPassword(),
                         JsonUtils.fromJson(e.getParams(), new TypeReference<Map<String, String>>(){ }));
+            }));
+
+    LoadingCache<String, CustomRedis> redisCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .maximumSize(1024)
+            .removalListener(removalListener)
+            .build(CacheLoader.from(k -> {
+                RedisDatasourceDB e = getRedisDatasource(k);
+                Assert.notNull(e, "找不到对应的数据源: " + k);
+                return CustomRedis.using(e.getHost(), e.getPort(), e.getUser(), e.getPassword(), e.getDb());
             }));
 
     private static ApplicationContext applicationContext;
@@ -136,6 +146,36 @@ public class DataSourceService implements ApplicationContextAware {
     public CustomRdb acquireCustomRdb(String datasourceId) {
         try {
             return rdbCache.get(datasourceId);
+        } catch (ExecutionException e) {
+            throw new IllegalArgumentException(Utils.getRootCause(e));
+        }
+    }
+
+    public RedisDatasourceDB getRedisDatasource(String datasourceId) {
+        return repo.queryRedisDataSource(datasourceId);
+    }
+
+    public RedisDatasourceDB createRedisDatasource(RedisDataSourceAdd op) {
+        checkRedisDatasource(op);
+        return repo.addRedisDataSource(op);
+    }
+
+    public void removeRedisDatasource(DataSourceOp op) {
+        repo.removeRedisDatasource(op);
+    }
+
+    public void checkRedisDatasource(RedisDataSourceAdd op) {
+        try (CustomRedis rdb = CustomRedis.using(op.getHost(), op.getPort(), op.getUser(), op.getPassword(), op.getDb())) {
+            rdb.conn().get("mykey");
+        } catch (Throwable e) {
+            e = Utils.getRootCause(e);
+            throw new IllegalArgumentException("校验不通过:" + e.getMessage(), e);
+        }
+    }
+
+    public CustomRedis acquireCustomRedis(String datasourceId) {
+        try {
+            return redisCache.get(datasourceId);
         } catch (ExecutionException e) {
             throw new IllegalArgumentException(Utils.getRootCause(e));
         }

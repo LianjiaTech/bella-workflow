@@ -14,11 +14,13 @@ Event：
 type Props = {
   value: InputVar[]
   onChange?: (value: InputVar[]) => void
+  onDescBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
 }
 
 const JsonEditor: FC<Props> = ({
   value,
   onChange,
+  onDescBlur,
 }) => {
   const { t } = useTranslation()
   const [payload, setPayload] = useState<InputVar[]>(value)
@@ -61,6 +63,7 @@ const JsonEditor: FC<Props> = ({
                 index={index}
                 value={item}
                 onChange={handleCheckInputVars}
+                onDescBlur={onDescBlur}
               /></div>
           ))}
 

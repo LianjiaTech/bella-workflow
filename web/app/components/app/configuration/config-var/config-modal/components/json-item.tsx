@@ -20,6 +20,7 @@ type Props = {
   index: number
   value: InputVar
   onChange: (index: number, value: any) => void
+  onDescBlur?: (e: React.FocusEvent<HTMLInputElement>) => void
 }
 const inputClassName = ' px-3 text-sm leading-9 text-gray-900 border-0 rounded-lg h-9 bg-gray-100 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
 
@@ -27,6 +28,7 @@ const Item: React.FC<Props> = ({
   index,
   value,
   onChange,
+  onDescBlur,
 }) => {
   const { t } = useTranslation()
   const isChild = value.varType === VarType.object || value.varType === VarType.arrayObject
@@ -88,6 +90,7 @@ const Item: React.FC<Props> = ({
           value={item.variable}
           onChange={e => handleSelfItemChange('variable')(e.target.value)}
           placeholder={t('appDebug.variableConig.inputPlaceholder')!}
+          onBlur={onDescBlur}
         />
         <div>
           <Selector

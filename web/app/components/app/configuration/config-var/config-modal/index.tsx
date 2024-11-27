@@ -150,10 +150,6 @@ const ConfigModal: FC<IConfigModalProps> = ({
     if (isError)
       return
 
-    if (!tempPayload.label) {
-      Toast.notify({ type: 'error', message: t('appDebug.variableConig.errorMsg.labelNameRequired') })
-      return
-    }
     if (isStringInput || type === InputVarType.number || type === InputVarType.json) {
       onConfirm(tempPayload, moreInfo)
     }
@@ -203,6 +199,7 @@ const ConfigModal: FC<IConfigModalProps> = ({
               <JsonEditor
                 value={[tempPayload]}
                 onChange={handleJsonChange}
+                onDescBlur={handleVarKeyBlur}
               />
             )
             : (<>

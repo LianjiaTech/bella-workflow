@@ -69,6 +69,12 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
         - C. 当`flashMode`为3时，B. + 工作流将不再保存输出的outputs数据。
         - D. 当`flashMode`为10时，工作流将不再保存所有数据。   
         <i>限制：与挂起不兼容，当工作流存在挂起逻辑时无效</i>
+      - `threadId` (string) Optional
+        （仅在Chatflow模式下可用）上下文标识（可参考OpenAPI Assistant API中的Thread模块），通过传入上下文标识`threadId`，自定义start节点的sys.thread_id变量
+      - `stateful` (boolean) Optional
+        （仅在Chatflow模式下可用）状态标识，支持有状态地运行工作流，默认为`false`
+        - A. 当`stateful`为`true`时，会将运行工作流时产生的所有`messages`（即所有`直接回复`的内容），自动持久化到`AssistantAPI`对应的`Thread`模块
+        - B. 当`stateful`为`false`时，则默认不对`messages`进行处理
 
     ### Response
     当 `responseMode` 为 `blocking` 时，返回 CompletionResponse object。

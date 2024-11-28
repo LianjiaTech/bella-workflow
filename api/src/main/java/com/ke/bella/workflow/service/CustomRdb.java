@@ -113,7 +113,7 @@ public class CustomRdb implements AutoCloseable {
             return dsl.resultQuery(sql, bindings).iterator();
         }
 
-        public int execute(String sql, Object... bindings) {
+        public int run(String sql, Object... bindings) {
             return dsl.query(sql, bindings).execute();
         }
     }

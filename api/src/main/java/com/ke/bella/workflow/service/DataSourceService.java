@@ -124,7 +124,7 @@ public class DataSourceService implements ApplicationContextAware {
     public void checkRdbDatasource(RdbDataSourceAdd op) {
         try (CustomRdb rdb = CustomRdb.using(op.getDbType(),
                 op.getHost(), op.getPort(), op.getDb(), op.getUser(), op.getPassword(), op.getParams())) {
-            rdb.conn().execute("select 1;");
+            rdb.conn().run("select 1;");
         } catch (Throwable e) {
             e = Utils.getRootCause(e);
             throw new IllegalArgumentException("校验不通过:" + e.getMessage(), e);

@@ -76,6 +76,7 @@ const UpdateDSLModal = ({
           graph,
           features,
           hash,
+          environment_variables,
         } = await updateWorkflowDraftFromDSL(appDetail.id, fileContent)
         const { nodes, edges, viewport } = graph
         eventEmitter?.emit({
@@ -86,6 +87,7 @@ const UpdateDSLModal = ({
             viewport,
             features,
             hash,
+            environment_variables,
           },
         } as any)
         if (onImport)

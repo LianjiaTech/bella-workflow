@@ -9,7 +9,6 @@ export const getQueryParams = (param: string): string | null => {
 }
 
 export const setUserInfo = (ucid: string, userName: string, tenantId: string, spaceCode: string) => {
-  globalThis.sessionStorage.setItem('currentTenantId', tenantId)
   if (userName !== '' && ucid !== '' && tenantId !== '' && spaceCode !== '') {
     const userInfo: any = {
       ucid,
@@ -21,15 +20,32 @@ export const setUserInfo = (ucid: string, userName: string, tenantId: string, sp
   }
 }
 
+export const setTenantId = (tenantId: string) => {
+  globalThis.sessionStorage?.setItem('currentTenantId', tenantId)
+}
+
+export const getTenantId = (): string => {
+  return globalThis.sessionStorage?.getItem('currentTenantId') || ''
+}
+
+export const setSpaceCode = (spaceCode: string) => {
+  globalThis.sessionStorage?.setItem('currentSpaceCode', spaceCode)
+}
+
+export const getSpaceCode = (userCode: string): string => {
+  return globalThis.sessionStorage?.getItem('currentSpaceCode') || userCode
+}
+
 export const getUserInfo = (): { userName: string; ucid: string; tenantId: string ; spaceCode: string } => {
-  const tenantId: string = globalThis.sessionStorage.getItem('currentTenantId')
-  const userInfoStr: string = globalThis.localStorage?.getItem(tenantId)
+  const tenantId = globalThis.sessionStorage?.getItem('currentTenantId')
+  const spaceCode = globalThis.sessionStorage?.getItem('currentSpaceCode')
+  const userInfoStr = globalThis.localStorage?.getItem(tenantId)
   return userInfoStr != null
     ? JSON.parse(userInfoStr)
     : {
       userName: '',
       ucid: '',
-      tenantId: '',
-      spaceCode: '',
+      tenantId,
+      spaceCode,
     }
 }

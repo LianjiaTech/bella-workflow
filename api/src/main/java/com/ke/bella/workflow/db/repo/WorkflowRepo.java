@@ -16,6 +16,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.jooq.SelectConditionStep;
 import org.jooq.SelectSeekStep1;
@@ -78,11 +79,12 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     public Page<WorkflowDB> pageDraftWorkflow(WorkflowPage op) {
-        SelectSeekStep1<WorkflowRecord, Long> sql = db.selectFrom(WORKFLOW)
-                .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
-                .and(WORKFLOW.VERSION.eq(0l))
-                .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition() : WORKFLOW.TITLE.like("%" + op.getName() + "%"))
-                .orderBy(WORKFLOW.ID.desc());
+        @NotNull
+        SelectSeekStep1<WorkflowAggregateRecord, Long> sql = db.selectFrom(WORKFLOW_AGGREGATE)
+                .where(WORKFLOW_AGGREGATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW_AGGREGATE.SPACE_CODE.eq(BellaContext.getOperator().getSpaceCode()))
+                .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition() : WORKFLOW_AGGREGATE.TITLE.like("%" + op.getName() + "%"))
+                .orderBy(WORKFLOW_AGGREGATE.ID.desc());
         return queryPage(db, sql, op.getPage(), op.getPageSize(), WorkflowDB.class);
     }
 
@@ -282,7 +284,7 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     public TenantDB getTenant(String tenantId) {
-        return db.selectFrom(TENANT).where(TENANT.TENANT_ID.eq(tenantId)).fetchOne().into(TenantDB.class);
+        return db.selectFrom(TENANT).where(TENANT.TENANT_ID.eq(tenantId)).fetchOneInto(TenantDB.class);
     }
 
     public List<TenantDB> listTenants(List<String> tenantId) {

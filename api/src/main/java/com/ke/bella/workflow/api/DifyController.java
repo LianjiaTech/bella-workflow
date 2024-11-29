@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -35,6 +34,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.ke.bella.openapi.space.RoleWithSpace;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.TaskExecutor;
@@ -100,19 +100,6 @@ public class DifyController {
         if(op != null && contextOperatorInvalid()) {
             BellaContext.setOperator(op);
         }
-        initContext();
-    }
-
-    public void initContext() {
-        if(contextOperatorInvalid()) {
-            BellaContext.setOperator(Operator.builder()
-                    .userId(userIdL)
-                    .tenantId("test")
-                    .userName("test")
-                    .build());
-        }
-        BellaContext.setApiKey(Optional.ofNullable(ws.getTenant(BellaContext.getOperator().getTenantId()))
-                .orElseThrow(() -> new IllegalArgumentException("租户不存在")).getOpenapiKey());
     }
 
     public static boolean contextOperatorInvalid() {
@@ -124,8 +111,6 @@ public class DifyController {
 
     @GetMapping
     public Page<DifyApp> pageApps(@RequestParam int page, @RequestParam int limit, @RequestParam String name) {
-        initContext();
-
         WorkflowPage op = WorkflowPage.builder().page(page).pageSize(limit).name(name).build();
 
         Page<WorkflowDB> wfs = ws.pageDraftWorkflow(op);
@@ -151,8 +136,6 @@ public class DifyController {
 
     @PostMapping
     public DifyApp createApp(@RequestBody DifyApp app) {
-        initContext();
-
         WorkflowSchema schema = DifyUtils.getDefaultWorkflowSchema();
         WorkflowSync sync = WorkflowSync.builder()
                 .title(app.getName())
@@ -168,7 +151,6 @@ public class DifyController {
 
     @GetMapping("/{workflowId}/workflows/draft")
     public WorkflowSchema getDraftInfo(@PathVariable String workflowId) {
-        initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         if(Objects.isNull(wf)) {
@@ -180,7 +162,6 @@ public class DifyController {
 
     @GetMapping(value = "/{workflowId}/export")
     public Object export(@PathVariable String workflowId, @RequestParam("include_secret") boolean inc) throws Exception {
-        initContext();
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         WorkflowSchema schema = WorkflowSchema.fromWorkflowDB(wf);
         List<EnvVar> vars = schema.getEnvironmentVariables();
@@ -198,7 +179,6 @@ public class DifyController {
     @GetMapping("/{workflowId}/workflows")
     public Page<WorkflowDB> getWorkflows(@PathVariable String workflowId, @RequestParam(required = false, defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int limit) {
-        initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
         WorkflowPage op = WorkflowPage.builder().page(page).pageSize(limit).workflowId(workflowId).build();
         return ws.pageWorkflows(op);
@@ -257,7 +237,6 @@ public class DifyController {
 
     @GetMapping("/{workflowId}")
     public DifyApp getDifyApp(@PathVariable String workflowId) {
-        initContext();
         WorkflowAggregateDB wf = ws.getWorkflowAggregate(workflowId);
         return DifyApp.builder()
                 .tenantId(wf.getTenantId())
@@ -273,8 +252,6 @@ public class DifyController {
 
     @PutMapping("/{workflowId}")
     public DifyApp updateDifyApp(@PathVariable String workflowId, @RequestBody DifyApp app) {
-        initContext();
-
         WorkflowSync op = WorkflowSync.builder()
                 .title(app.getName())
                 .desc(app.getDescription())
@@ -321,7 +298,6 @@ public class DifyController {
 
     @PostMapping("/{workflowId}/workflows/draft/import")
     public WorkflowSchema importDSL(@PathVariable String workflowId, @RequestBody WorkflowSchema dsl) {
-        initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
         WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         WorkflowSync sync = WorkflowSync.builder()
@@ -339,7 +315,6 @@ public class DifyController {
 
     @PostMapping("/{workflowId}/workflows/draft/nodes/{nodeId}/run")
     public Object nodeRun(@PathVariable String workflowId, @PathVariable String nodeId, @RequestBody WorkflowOps.WorkflowNodeRun op) {
-        initContext();
         op.setWorkflowId(workflowId);
         Assert.hasText(workflowId, "workflowId不能为空");
         Assert.hasText(nodeId, "nodeId不能为空");
@@ -366,7 +341,6 @@ public class DifyController {
 
     @GetMapping("/{workflowId}/workflows/publish")
     public Object getPublish(@PathVariable String workflowId) {
-        initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
         WorkflowDB wf = ws.getPublishedWorkflow(workflowId, null);
         if(Objects.isNull(wf)) {
@@ -377,7 +351,6 @@ public class DifyController {
 
     @PostMapping("/{workflowId}/workflows/publish")
     public Object publish(@PathVariable String workflowId) {
-        initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
         try {
             WorkflowDB wf = ws.publish(workflowId);
@@ -399,7 +372,6 @@ public class DifyController {
     }
 
     private Object workflowRun0(String workflowId, DifyWorkflowRun op) {
-        initContext();
         op.setWorkflowId(workflowId);
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
         Assert.hasText(workflowId, "workflowId不能为空");
@@ -440,21 +412,17 @@ public class DifyController {
 
     @RequestMapping("/{workflowId}/workflow-app-logs")
     public Page<WorkflowRunDB> pageWorkflowRun(@PathVariable String workflowId) {
-        initContext();
         return ws.listWorkflowRun(WorkflowRunPage.builder().workflowId(workflowId).build());
     }
 
     @RequestMapping("/{workflowId}/workflow-triggers")
     public Object listWorkflowTriggers(@PathVariable String workflowId, @RequestParam String triggerType) {
-        initContext();
-
         List<WorkflowTrigger> triggers = ts.listWorkflowTriggers(workflowId, TriggerType.valueOf(triggerType));
         return ImmutableMap.of("data", triggers);
     }
 
     @PostMapping("/{workflowId}/trigger/create")
     public Object createWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowTrigger trigger) {
-        initContext();
         WorkflowDB wd = ws.getPublishedWorkflow(workflowId, null);
         Assert.notNull(wd, "工作流需要先发布，才可以创建触发器");
 
@@ -466,8 +434,6 @@ public class DifyController {
         Assert.hasText(trigger.getTriggerId(), "triggerId不能为空");
         Assert.hasText(trigger.getTriggerType(), "triggerType不能为空");
 
-        initContext();
-
         ts.activateWorkflowTrigger(trigger.getTriggerId(), trigger.getTriggerType());
 
         return trigger;
@@ -478,23 +444,18 @@ public class DifyController {
         Assert.hasText(trigger.getTriggerId(), "triggerId不能为空");
         Assert.hasText(trigger.getTriggerType(), "triggerType不能为空");
 
-        initContext();
-
         ts.deactivateWorkflowTrigger(trigger.getTriggerId(), trigger.getTriggerType());
         return trigger;
     }
 
     @GetMapping("/{workflowId}/custom-apis")
     public Object listCustomApis(@PathVariable String workflowId) {
-        initContext();
-
         List<WorkflowAsApiDB> triggers = ws.listCustomApis(workflowId);
         return ImmutableMap.of("data", triggers);
     }
 
     @PostMapping("/{workflowId}/customApi/create")
     public Object createCustomApi(@PathVariable String workflowId, @RequestBody WorkflowAsApiPublish op) {
-        initContext();
         WorkflowDB wd = ws.getPublishedWorkflow(workflowId, null);
         Assert.notNull(wd, "工作流需要先发布，才可以创建自定义 API");
 
@@ -506,7 +467,6 @@ public class DifyController {
     public Page<DifyWorkflowVersion> listWorkflowVersions(@PathVariable(value = "workflowId") String workflowId,
             @RequestParam(value = "last_id", defaultValue = "1") int lastId,
             @RequestParam(value = "limit", defaultValue = "100") int limit) {
-        initContext();
         Assert.isTrue(limit > 0, "limit必须大于0");
         Assert.isTrue(limit <= 100, "limit必须小于100");
         WorkflowPage page = WorkflowPage.builder().page(lastId).pageSize(limit).workflowId(workflowId).build();
@@ -522,7 +482,6 @@ public class DifyController {
 
     @GetMapping("/{workflowId}/workflow-versions/default")
     public Object getDefaultWorkflowVersion(@PathVariable(value = "workflowId") String workflowId) {
-        initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
         return ws.getWorkflowAggregate(workflowId);
     }
@@ -530,7 +489,6 @@ public class DifyController {
     @PostMapping("/{workflowId}/workflow-versions/activate")
     public Object activateWorkflowVersions(@PathVariable(value = "workflowId") String workflowId,
             @RequestBody WorkflowOp op) {
-        initContext();
         Assert.hasText(workflowId, "workflowId不能为空");
         ws.activateDefaultVersions(op);
         return ws.getWorkflowAggregate(workflowId);
@@ -539,7 +497,6 @@ public class DifyController {
     @PostMapping("/{workflowId}/workflow-versions/deactivate")
     public Object deactivateWorkflowVersions(@PathVariable(value = "workflowId") String workflowId,
             @RequestBody WorkflowOp op) {
-        initContext();
         ws.deactivateDefaultVersions(op);
         return ws.getWorkflowAggregate(workflowId);
     }
@@ -548,7 +505,6 @@ public class DifyController {
     public Page<DifyRunHistory> pageWorkflowRuns(HttpServletRequest request, @PathVariable String workflowId,
             @RequestParam(value = "last_id", required = false) String lastId,
             @RequestParam(value = "limit", defaultValue = "100") int limit) {
-        initContext();
         Assert.isTrue(limit > 0, "limit必须大于0");
         Assert.isTrue(limit < 101, "limit必须小于100");
         WorkflowRunPage page = WorkflowRunPage.builder().lastId(lastId).pageSize(limit).workflowId(workflowId).build();
@@ -588,7 +544,6 @@ public class DifyController {
     @RequestMapping("/{workflowId}/chat-messages")
     public Page<DifyChatFlowRun> pageChatFlowRuns(@PathVariable String workflowId,
             @RequestParam(value = "conversation_id", required = false) String threadId) {
-        initContext();
         OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
 
         List<Message> messages = openAiService.listMessages(threadId, new MessageListSearchParameters()).getData();
@@ -640,7 +595,6 @@ public class DifyController {
     @GetMapping("/{workflowId}/workflow-runs/{workflowRunId}")
     public DifyRunHistoryDetails getWorkflowRun(@PathVariable String workflowId,
             @PathVariable String workflowRunId) {
-        initContext();
         WorkflowRunDB wr = ws.getWorkflowRun(workflowRunId);
         WorkflowDB wf = ws.getWorkflow(workflowId, wr.getWorkflowVersion());
         return DifyUtils.transfer(wr, wf);
@@ -649,7 +603,6 @@ public class DifyController {
     @RequestMapping("/{workflowId}/workflow-runs/{workflowRunId}/node-executions")
     public DifyNodeExecution getWorkflowNodeRuns(@PathVariable String workflowId,
             @PathVariable String workflowRunId) {
-        initContext();
         List<WorkflowNodeRunDB> nodeRuns = ws.getNodeRuns(workflowRunId);
         return DifyNodeExecution.builder().data(DifyUtils.transfer(nodeRuns)).build();
     }
@@ -658,18 +611,15 @@ public class DifyController {
     public Object defaultBlockConfigs(@PathVariable(value = "workflowId") String workflowId,
             @PathVariable(value = "blockType", required = false) String blockType,
             @RequestParam(value = "q", required = false) String query) {
-        initContext();
         return BaseNode.defaultConfigs(NodeType.of(blockType), JsonUtils.fromJson(query, Map.class));
     }
 
     @GetMapping("/{workflowId}/workflows/default-workflow-block-configs")
     public Object defaultBlockConfigs(@PathVariable(value = "workflowId") String workflowId) {
-        initContext();
         return BaseNode.defaultConfigs();
     }
 
-    public BellaSpaceService.SpaceRole getSpaceRole() {
-		initContext();
+    public RoleWithSpace getSpaceRole() {
         return ss.userSpaceRoles();
     }
 

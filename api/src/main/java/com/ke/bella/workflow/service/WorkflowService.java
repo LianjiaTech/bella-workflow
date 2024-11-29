@@ -192,6 +192,14 @@ public class WorkflowService {
         return repo.getTenant(tenantId);
     }
 
+    public String getTenantApiKey(String tenantId) {
+        TenantDB db = repo.getTenant(tenantId);
+        if(db != null) {
+            return db.getOpenapiKey();
+        }
+        return "";
+    }
+
     public List<TenantDB> listTenants(List<String> tenantIds) {
         return repo.listTenants(tenantIds);
     }

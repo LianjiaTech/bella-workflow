@@ -117,16 +117,12 @@ export type AccountIntegrate = {
 }
 
 export type IWorkspace = {
-  id: string
-  name: string
-  plan: string
-  status: string
-  created_at: number
-  current: boolean
+  spaceCode: string
+  spaceName: string
+  roleCode: string
 }
 
 export type ICurrentWorkspace = Omit<IWorkspace, 'current'> & {
-  role: 'owner' | 'admin' | 'editor' | 'dataset_operator' | 'normal'
   providers: Provider[]
   in_trail: boolean
   trial_end_reason?: string

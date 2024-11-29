@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
@@ -34,6 +35,12 @@ public class DifyControllerTest extends AbstractTest {
     private DifyController dify;
 
     static {
+        BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
+        BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
+    }
+
+    @BeforeEach
+    public void initContext() {
         BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
         BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
     }

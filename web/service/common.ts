@@ -126,8 +126,8 @@ export const updateCurrentWorkspace: Fetcher<ICurrentWorkspace, { url: string; b
   return post<ICurrentWorkspace>(url, { body })
 }
 
-export const fetchWorkspaces: Fetcher<{ workspaces: IWorkspace[] }, { url: string; params: Record<string, any> }> = ({ url, params }) => {
-  return { data: null } as any // get<{ workspaces: IWorkspace[] }>(url, { params })
+export const fetchWorkspaces: Fetcher<{ data: IWorkspace[] }, { url: string; params: Record<string, any> }> = ({ url, params }) => {
+  return get<{ data: IWorkspace[] }>(url, { params })
 }
 
 export const switchWorkspace: Fetcher<CommonResponse & { new_tenant: IWorkspace }, { url: string; body: Record<string, any> }> = ({ url, body }) => {

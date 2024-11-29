@@ -1,5 +1,7 @@
 package com.ke.bella.workflow.api;
 
+import java.util.Collections;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,5 +40,10 @@ public class DifyConsoleController {
     @GetMapping("/space/role")
     public RoleWithSpace getSpaceRole() {
         return dc.getSpaceRole();
+    }
+
+    @GetMapping("/tags")
+    public Object listTag() {
+        return Collections.emptyList();
     }
 }

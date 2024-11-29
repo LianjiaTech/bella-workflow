@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
-import com.ke.bella.openapi.space.RoleWithSpace;
 import com.ke.bella.workflow.api.WorkflowOps.DomainAdd;
 import com.ke.bella.workflow.api.model.DifyModelResponse;
 import com.ke.bella.workflow.api.model.ModelInfoService;

@@ -6,6 +6,7 @@ import { useSelectedLayoutSegment } from 'next/navigation'
 import { Bars3Icon } from '@heroicons/react/20/solid'
 import HeaderBillingBtn from '../billing/header-billing-btn'
 import AccountDropdown from './account-dropdown'
+import WorkplaceSelector from './space-dropdown/workplace-selector'
 import AppNav from './app-nav'
 import EnvNav from './env-nav'
 import { WorkspaceProvider } from '@/context/workspace-context'
@@ -56,6 +57,9 @@ const Header = () => {
             <LogoSite className='object-contain' />
           </Link>
           {/* <GithubStar /> */}
+          <WorkspaceProvider>
+            <WorkplaceSelector/>
+          </WorkspaceProvider>
         </>}
       </div>
       {isMobile && (
@@ -70,8 +74,8 @@ const Header = () => {
         <div className='flex items-center'>
           {/*  {!isCurrentWorkspaceDatasetOperator && <ExploreNav className={navClassName} />} */}
           {!isCurrentWorkspaceDatasetOperator && <AppNav />}
-          {/* {(isCurrentWorkspaceEditor || isCurrentWorkspaceDatasetOperator) && <DatasetNav />}
-          {!isCurrentWorkspaceDatasetOperator && <ToolsNav className={navClassName} />} */}
+          {/* {(isCurrentWorkspaceEditor || isCurrentWorkspaceDatasetOperator) && <DatasetNav />} */}
+          {/* {!isCurrentWorkspaceDatasetOperator && <ToolsNav className={navClassName} />} */}
         </div>
       )}
       <div className='flex items-center flex-shrink-0'>
@@ -89,8 +93,8 @@ const Header = () => {
         <div className='w-full flex flex-col p-2 gap-y-1'>
           {/* {!isCurrentWorkspaceDatasetOperator && <ExploreNav className={navClassName} />} */}
           {!isCurrentWorkspaceDatasetOperator && <AppNav />}
-          {/* {(isCurrentWorkspaceEditor || isCurrentWorkspaceDatasetOperator) && <DatasetNav />}
-          {!isCurrentWorkspaceDatasetOperator && <ToolsNav className={navClassName} />} */}
+          {/* {(isCurrentWorkspaceEditor || isCurrentWorkspaceDatasetOperator) && <DatasetNav />} */}
+          {/* {!isCurrentWorkspaceDatasetOperator && <ToolsNav className={navClassName} />} */}
         </div>
       )}
     </div>

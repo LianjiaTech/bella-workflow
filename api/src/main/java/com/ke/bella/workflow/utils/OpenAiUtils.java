@@ -13,26 +13,36 @@ import com.theokanning.openai.client.AuthenticationInterceptor;
 import com.theokanning.openai.client.OpenAiApi;
 import com.theokanning.openai.service.OpenAiService;
 
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 
+@Slf4j
 public class OpenAiUtils {
     static HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
     static long DEFAULT_READ_TIMEOUT_SECONDS = 60 * 5L;
     static TimeUnit DEFAULT_READ_TIMEOUT_UNIT = TimeUnit.SECONDS;
+    static OkHttpClient client;
+    static {
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(Configs.TASK_THREAD_NUMS);
+        dispatcher.setMaxRequestsPerHost(Configs.TASK_THREAD_NUMS);
 
-    static OkHttpClient client = new OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .connectionPool(new ConnectionPool(1500, 60, TimeUnit.SECONDS))
-            .build();
+        client = new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .dispatcher(dispatcher)
+                .connectionPool(new ConnectionPool(Configs.TASK_THREAD_NUMS, 60, TimeUnit.SECONDS))
+                .build();
+    }
 
     public static OpenAiService defaultOpenAiService(String token, long readTimeout, TimeUnit unit) {
-        Map transHeaders = BellaContext.getTransHeaders();
         ObjectMapper mapper = OpenAiService.defaultObjectMapper();
+        Map<String, String> transHeaders = BellaContext.getTransHeaders();
 
         OkHttpClient curClient = client.newBuilder()
                 .addInterceptor(new AuthenticationInterceptor(token) {
@@ -47,8 +57,7 @@ public class OpenAiUtils {
                 })
                 .addInterceptor(chain -> {
                     Request.Builder requestBuilder = chain.request().newBuilder();
-
-                    Optional.ofNullable(BellaContext.getTransHeaders()).ifPresent(map -> map.forEach(requestBuilder::addHeader));
+                    Optional.ofNullable(transHeaders).ifPresent(map -> map.forEach(requestBuilder::addHeader));
                     return chain.proceed(requestBuilder.build());
                 })
                 .readTimeout(readTimeout, unit).build();

@@ -133,6 +133,7 @@ public class WorkflowService {
             repo.addWorkflowAggregate(workflowDb);
         } else if(!StringUtils.equals(wf.getEnvVars(), op.getEnvVars())) {
             repo.updateDraftWorkflow(op);
+            repo.updateWorkflowAggregate(op);
         } else if(!StringUtils.equals(wf.getGraph(), op.getGraph())) {
             WorkflowSchema old = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
             WorkflowSchema opg = Objects.isNull(op.getGraph()) ? null : JsonUtils.fromJson(op.getGraph(), WorkflowSchema.class);
@@ -556,7 +557,7 @@ public class WorkflowService {
                 .processData(JsonUtils.fromJson(wnr.getProcessData(), Map.class))
                 .status(NodeRunResult.Status.valueOf(wnr.getStatus()))
                 .activatedSourceHandles(JsonUtils.fromJson(wnr.getActivedTargetHandles(), List.class))
-                .build()));
+                .build(), true));
 
         state.putVariable("sys", "query", wr.getQuery());
         state.putVariable("sys", "files", JsonUtils.fromJson(wr.getFiles(), List.class));

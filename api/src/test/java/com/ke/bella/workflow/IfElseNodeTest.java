@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class IfElseNodeTest {
+public class IfElseNodeTest extends CommonNodeTest {
 
     @Test
     public void testIfElseNodeNewStruct() throws IOException {

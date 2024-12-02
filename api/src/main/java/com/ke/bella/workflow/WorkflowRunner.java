@@ -133,9 +133,11 @@ public class WorkflowRunner {
                     if(!exceptions.isEmpty()) {
                         break;
                     }
+
                     if(context.isInterrupted()) {
                         break;
                     }
+
                     LockSupport.parkNanos(1000000); // 1ms
                 }
             }

@@ -8,6 +8,7 @@ import com.ke.bella.workflow.db.tables.Domain;
 import com.ke.bella.workflow.db.tables.Instance;
 import com.ke.bella.workflow.db.tables.KafkaDatasource;
 import com.ke.bella.workflow.db.tables.RdbDatasource;
+import com.ke.bella.workflow.db.tables.RedisDatasource;
 import com.ke.bella.workflow.db.tables.Tenant;
 import com.ke.bella.workflow.db.tables.WecomGroupInfo;
 import com.ke.bella.workflow.db.tables.WecomGroupMember;
@@ -48,6 +49,11 @@ public class Tables {
      * The table <code>rdb_datasource</code>.
      */
     public static final RdbDatasource RDB_DATASOURCE = RdbDatasource.RDB_DATASOURCE;
+
+    /**
+     * The table <code>redis_datasource</code>.
+     */
+    public static final RedisDatasource REDIS_DATASOURCE = RedisDatasource.REDIS_DATASOURCE;
 
     /**
      * The table <code>tenant</code>.

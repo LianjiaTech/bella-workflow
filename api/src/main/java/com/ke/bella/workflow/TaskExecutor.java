@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TaskExecutor {
     static ThreadFactory tf = new NamedThreadFactory("bella-worker-", true);
-    static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1000, tf);
+    static ScheduledExecutorService executor = Executors.newScheduledThreadPool(Configs.TASK_THREAD_NUMS, tf);
 
     public static void schedule(Runnable r, long delayMills) {
         executor.schedule(new Task(r), delayMills, TimeUnit.MILLISECONDS);

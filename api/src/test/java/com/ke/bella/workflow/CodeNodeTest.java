@@ -8,15 +8,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.service.Configs;
 
-public class CodeNodeTest {
-
-    @BeforeAll
-    public static void initOpenAPIContext() {
-        Configs.SAND_BOX_API_BASE = "https://example.com/v1/";
-    }
+public class CodeNodeTest extends CommonNodeTest {
 
     @Test
     public void testPython3() throws IOException {

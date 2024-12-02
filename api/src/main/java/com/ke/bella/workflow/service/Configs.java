@@ -26,6 +26,8 @@ public class Configs {
 
     public static long MAX_CPU_TIME_RATE = 85;
 
+    public static Integer TASK_THREAD_NUMS;
+
     @Value("${bella.apiBase}")
     public void setApiBase(String apiBase) {
         API_BASE = apiBase;
@@ -56,8 +58,13 @@ public class Configs {
         SAND_BOX_API_BASE = sandboxApiBase;
     }
 
-    @Value("${bella.maxEexMemoryAlloc}")
-    public void setMaxEexMemoryAlloc(long maxEexMemoryAlloc) {
-        MAX_EXE_MEMORY_ALLOC = maxEexMemoryAlloc;
+    @Value("${bella.task.threadNums}")
+    public void setTaskThreadNums(Integer taskThreadNums) {
+        TASK_THREAD_NUMS = taskThreadNums;
+    }
+
+    @Value("${bella.maxExeMemoryAlloc}")
+    public void setMaxExeMemoryAlloc(long maxExeMemoryAlloc) {
+        MAX_EXE_MEMORY_ALLOC = maxExeMemoryAlloc;
     }
 }

@@ -56,7 +56,7 @@ CREATE TABLE `kafka_datasource` (
   `topic` varchar(255) NOT NULL COMMENT 'Kafka topic',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '数据源名称',
   `msg_schema` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '消息体的json schema',
-  `status` int NOT NULL DEFAULT '0' COMMENT '数据源状态\n-1: 无笑\n0: 生效',
+  `status` int NOT NULL DEFAULT '0' COMMENT '数据源状态\n-1: 无效\n0: 生效',
   `cuid` bigint NOT NULL DEFAULT '0',
   `muid` bigint NOT NULL DEFAULT '0',
   `ctime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -124,7 +124,8 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
                 tokens = chunk.getUsage().getCompletionTokens();
             }
 
-            if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()) {
+            if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()
+                    && chunk.getChoices().get(0).getMessage() != null && chunk.getChoices().get(0).getMessage().getContent() != null) {
                 String content = chunk.getChoices().get(0).getMessage().getContent();
                 fullText.append(content);
                 if(data.isGenerateDeltaContent()) {
@@ -157,7 +158,8 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     }
 
     private Flowable<ChatCompletionChunk> invokeLlm(List<ChatMessage> chatMessages) {
-		OpenAiService service = OpenAiUtils.defaultOpenAiService(data.getAuthorization().getToken(), data.getTimeout().getReadSeconds(), TimeUnit.SECONDS);
+        OpenAiService service = OpenAiUtils.defaultOpenAiService(data.getAuthorization().getToken(), data.getTimeout().getReadSeconds(),
+                TimeUnit.SECONDS);
         ChatCompletionRequest chatCompletionRequest = Optional.ofNullable(JsonUtils.fromJson(JsonUtils.toJson(data.getModel().getCompletionParams()),
                 ChatCompletionRequest.class)).orElse(new ChatCompletionRequest());
         chatCompletionRequest.setMessages(chatMessages);

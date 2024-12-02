@@ -5,14 +5,28 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import com.ke.bella.workflow.WorkflowContext;
-import com.ke.bella.workflow.WorkflowGraph;
-import com.ke.bella.workflow.WorkflowRunState;
-import com.ke.bella.workflow.WorkflowSchema;
+import org.junit.jupiter.api.BeforeAll;
+
+import com.ke.bella.workflow.api.Operator;
+import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
+import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.JsonUtils;
 
-public class CommonNodeTest {
+public abstract class CommonNodeTest {
+
+    @BeforeAll
+    public static void initBellaContext() {
+        Configs.API_BASE = "https://example.com/v1/";
+        Configs.OPEN_API_BASE = "https://example.com/v1/";
+        Configs.BELLA_TOOL_API_BASE = "http://example.com";
+        Configs.BORE_API_BASE = "https://example.com";
+        Configs.SAND_BOX_API_BASE = "https://example.com/v1/";
+        Configs.TASK_THREAD_NUMS = 100;
+        BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
+        BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
+    }
+
     public static WorkflowContext createContext(String caseFilePath, Map<String, Object> inputs) throws IOException {
         // 读取JSON文件并将其解析为JsonNode
         WorkflowSchema meta = JsonUtils.fromJson(new String(Files.readAllBytes(Paths.get(caseFilePath))),

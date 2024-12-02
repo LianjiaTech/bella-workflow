@@ -5,23 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.CollectionUtils;
 
-import com.ke.bella.workflow.api.Operator;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.node.KnowledgeRetrievalNode;
-import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.JsonUtils;
 
-public class RagNodeTest {
-    @BeforeAll
-    public static void initBellaContext() {
-        Configs.OPEN_API_BASE = "https://example.com/v1/";
-        BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
-        BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
-    }
+public class RagNodeTest extends CommonNodeTest {
 
     @Test
     public void testRagNode() throws IOException {

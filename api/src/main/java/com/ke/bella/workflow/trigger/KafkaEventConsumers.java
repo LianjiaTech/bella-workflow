@@ -65,7 +65,7 @@ public class KafkaEventConsumers {
     }
 
     void refresh() {
-        List<KafkaDatasourceDB> dss = ds.listAllKafkaDs();
+        List<KafkaDatasourceDB> dss = ds.listAllConsumerKafkaDs();
 
         for (KafkaDatasourceDB ds : dss) {
             String key = serverKey(ds.getServer(), ds.getTopic());

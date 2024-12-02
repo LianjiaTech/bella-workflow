@@ -37,6 +37,14 @@ public class DataSourceRepo implements BaseRepo {
     @Resource
     private DSLContext db;
 
+    public KafkaDatasourceDB queryKafkaDs(String dataSourceId, String type) {
+        return db.selectFrom(KAFKA_DATASOURCE)
+                .where(KAFKA_DATASOURCE.DATASOURCE_ID.eq(dataSourceId))
+                .and(KAFKA_DATASOURCE.STATUS.eq(0))
+                .and(KAFKA_DATASOURCE.TYPE.eq(type))
+                .fetchOneInto(KafkaDatasourceDB.class);
+    }
+
     public KafkaDatasourceDB addKafkaDs(KafkaDataSourceAdd op) {
         KafkaDatasourceRecord rec = KAFKA_DATASOURCE.newRecord();
         rec.from(op);
@@ -63,8 +71,9 @@ public class DataSourceRepo implements BaseRepo {
                 .execute();
     }
 
-    public List<KafkaDatasourceDB> listAllKafkaDs() {
+    public List<KafkaDatasourceDB> listAllConsumerKafkaDs() {
         return db.selectFrom(KAFKA_DATASOURCE)
+                .where(KAFKA_DATASOURCE.TYPE.eq("consumer"))
                 .fetchInto(KafkaDatasourceDB.class);
     }
 

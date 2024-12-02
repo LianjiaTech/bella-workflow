@@ -9,6 +9,7 @@ import com.ke.bella.workflow.IWorkflowCallback.Delta;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.node.BaseNode;
+import com.ke.bella.workflow.service.CustomKafkaProducer;
 import com.ke.bella.workflow.service.CustomRdb;
 import com.ke.bella.workflow.service.CustomRedis;
 import com.ke.bella.workflow.service.DataSourceService;
@@ -162,6 +163,10 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
 
     public CustomRedis redis(String datasourceId) {
         return DataSourceService.ds().acquireCustomRedis(datasourceId);
+    }
+
+    public CustomKafkaProducer kafka(String datasourceId) {
+        return DataSourceService.ds().acquireCustomKafkaProducer(datasourceId);
     }
 
     public WorkflowSys with(BaseNode<?> node) {

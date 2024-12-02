@@ -24,8 +24,8 @@ public class ApiToolTest {
                 Map.class);
         ApiTool.ToolBundle toolBundle = OpenapiUtil.extractToolBundleFromOpenapi(openapi, "createChatCompletion");
         ApiTool apiTool = new ApiTool(toolBundle, new ApiTool.Credentials(BellaToolService.BellaToolCredentialsType.Bearer.getAuthType(),
-                "Bearer", "Authorization", "2Z7cobwsMMShaTKhA108F5wGWoSxmtUt", null));
-        ImmutableMap<String, Object> inputs = ImmutableMap.of("model", "gpt-4", "messages", Lists.newArrayList(new UserMessage("你好")));
+                "Bearer ", "Authorization", "8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8", null));
+        ImmutableMap<String, Object> inputs = ImmutableMap.of("model", "gpt-4o-mini", "messages", Lists.newArrayList(new UserMessage("你好")));
         String execute = apiTool.execute(inputs);
         Assertions.assertNotNull(execute);
     }

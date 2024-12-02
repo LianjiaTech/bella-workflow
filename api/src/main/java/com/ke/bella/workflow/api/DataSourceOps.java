@@ -18,6 +18,7 @@ public class DataSourceOps {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class KafkaDataSourceAdd extends Operator {
+        String type;
         String server;
         String topic;
         String name;

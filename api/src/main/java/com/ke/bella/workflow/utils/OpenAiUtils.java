@@ -13,6 +13,7 @@ import com.theokanning.openai.client.AuthenticationInterceptor;
 import com.theokanning.openai.client.OpenAiApi;
 import com.theokanning.openai.service.OpenAiService;
 
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
@@ -21,6 +22,7 @@ import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 
+@Slf4j
 public class OpenAiUtils {
     static HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
     static long DEFAULT_READ_TIMEOUT_SECONDS = 60 * 5L;
@@ -46,6 +48,7 @@ public class OpenAiUtils {
                 .addInterceptor(new AuthenticationInterceptor(token) {
                     @Override
                     public Response intercept(Chain chain) throws IOException {
+                        LOGGER.info(token);
                         Request request = chain.request()
                                 .newBuilder()
                                 .header("Authorization", token)

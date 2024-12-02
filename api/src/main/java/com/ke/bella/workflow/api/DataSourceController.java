@@ -5,6 +5,7 @@ import com.ke.bella.workflow.db.tables.pojos.RdbDatasourceDB;
 import com.ke.bella.workflow.db.tables.pojos.RedisDatasourceDB;
 import com.ke.bella.workflow.service.DataSourceService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,6 +20,7 @@ public class DataSourceController {
 
     @PostMapping("/kafka/create")
     public KafkaDatasourceDB createKafkaDs(@RequestBody DataSourceOps.KafkaDataSourceAdd op) {
+        Assert.isTrue("consumer".equals(op.getType()) || "producer".equals(op.getType()), "type should be consumer or producer");
         return ds.createKafkaDs(op);
     }
 

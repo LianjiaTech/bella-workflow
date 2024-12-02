@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row15;
+import org.jooq.Row16;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -70,6 +70,11 @@ public class KafkaDatasource extends TableImpl<KafkaDatasourceRecord> {
      * The column <code>kafka_datasource.space_code</code>.
      */
     public final TableField<KafkaDatasourceRecord, String> SPACE_CODE = createField(DSL.name("space_code"), SQLDataType.VARCHAR(128).nullable(false).defaultValue(DSL.inline("PERSONNAL", SQLDataType.VARCHAR)), this, "");
+
+    /**
+     * The column <code>kafka_datasource.type</code>. kafka数据源类型producer, consumer
+     */
+    public final TableField<KafkaDatasourceRecord, String> TYPE = createField(DSL.name("type"), SQLDataType.VARCHAR(16).nullable(false).defaultValue(DSL.inline("consumer", SQLDataType.VARCHAR)), this, "kafka数据源类型producer, consumer");
 
     /**
      * The column <code>kafka_datasource.server</code>. kafka服务地址
@@ -214,11 +219,11 @@ host:port
     }
 
     // -------------------------------------------------------------------------
-    // Row15 type methods
+    // Row16 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row15<Long, String, String, String, String, String, String, String, Integer, Long, Long, LocalDateTime, LocalDateTime, String, String> fieldsRow() {
-        return (Row15) super.fieldsRow();
+    public Row16<Long, String, String, String, String, String, String, String, String, Integer, Long, Long, LocalDateTime, LocalDateTime, String, String> fieldsRow() {
+        return (Row16) super.fieldsRow();
     }
 }

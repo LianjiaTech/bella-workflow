@@ -26,7 +26,7 @@ public class Configs {
 
     public static long MAX_CPU_TIME_RATE = 85;
 
-    public static Integer TASK_THREAD_NUMS;
+    public static Integer TASK_THREAD_NUMS = 1000;
 
     @Value("${bella.apiBase}")
     public void setApiBase(String apiBase) {

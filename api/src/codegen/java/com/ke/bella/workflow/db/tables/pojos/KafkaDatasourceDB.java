@@ -22,6 +22,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
     private String        tenantId;
     private String        datasourceId;
     private String        spaceCode;
+    private String        type;
     private String        server;
     private String        topic;
     private String        name;
@@ -41,6 +42,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         this.tenantId = value.tenantId;
         this.datasourceId = value.datasourceId;
         this.spaceCode = value.spaceCode;
+        this.type = value.type;
         this.server = value.server;
         this.topic = value.topic;
         this.name = value.name;
@@ -59,6 +61,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         String        tenantId,
         String        datasourceId,
         String        spaceCode,
+        String        type,
         String        server,
         String        topic,
         String        name,
@@ -75,6 +78,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         this.tenantId = tenantId;
         this.datasourceId = datasourceId;
         this.spaceCode = spaceCode;
+        this.type = type;
         this.server = server;
         this.topic = topic;
         this.name = name;
@@ -142,6 +146,20 @@ public class KafkaDatasourceDB implements Operator, Serializable {
      */
     public void setSpaceCode(String spaceCode) {
         this.spaceCode = spaceCode;
+    }
+
+    /**
+     * Getter for <code>kafka_datasource.type</code>. kafka数据源类型producer, consumer
+     */
+    public String getType() {
+        return this.type;
+    }
+
+    /**
+     * Setter for <code>kafka_datasource.type</code>. kafka数据源类型producer, consumer
+     */
+    public void setType(String type) {
+        this.type = type;
     }
 
     /**
@@ -312,6 +330,7 @@ host:port
         sb.append(", ").append(tenantId);
         sb.append(", ").append(datasourceId);
         sb.append(", ").append(spaceCode);
+        sb.append(", ").append(type);
         sb.append(", ").append(server);
         sb.append(", ").append(topic);
         sb.append(", ").append(name);

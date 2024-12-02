@@ -90,7 +90,7 @@
           "generation_config": {
             "model": {
               "provider": "Azure",
-              "name": "gpt-4o",
+              "name": "gpt-4o-mini",
               "mode": "chat",
               "completion_params": {}
             }

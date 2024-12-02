@@ -45,17 +45,24 @@ public class DataSourceService implements ApplicationContextAware {
 
     AtomicReference<Set<String>> customDomains = new AtomicReference<>(new HashSet<>());
 
-    RemovalListener<String, AutoCloseable> removalListener = new RemovalListener<String, AutoCloseable>() {
-        @Override
-        public void onRemoval(RemovalNotification<String, AutoCloseable> notification) {
-            AutoCloseable value = notification.getValue();
-            try {
-                value.close();
-            } catch (Exception e) {
-                // ignore
-            }
+    RemovalListener<String, AutoCloseable> removalListener = notification -> {
+        AutoCloseable value = notification.getValue();
+        try {
+            value.close();
+        } catch (Exception e) {
+            // ignore
         }
     };
+
+    LoadingCache<String, CustomKafkaProducer> kafkaCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .maximumSize(1024)
+            .removalListener(removalListener)
+            .build(CacheLoader.from(k -> {
+                KafkaDatasourceDB e = getKafkaDatasource(k, "producer");
+                Assert.notNull(e, "找不到对应的数据源: " + k);
+                return CustomKafkaProducer.using(e.getServer());
+            }));
 
     LoadingCache<String, CustomRdb> rdbCache = CacheBuilder.newBuilder()
             .expireAfterAccess(10, TimeUnit.MINUTES)
@@ -118,6 +125,18 @@ public class DataSourceService implements ApplicationContextAware {
     private void refreshCustomDomains() {
         List<String> domains = repo.listAllCustomDomains();
         customDomains.set(new HashSet<>(domains));
+    }
+
+    public KafkaDatasourceDB getKafkaDatasource(String datasourceId, String type) {
+        return repo.queryKafkaDs(datasourceId, type);
+    }
+
+    public CustomKafkaProducer acquireCustomKafkaProducer(String datasourceId) {
+        try {
+            return kafkaCache.get(datasourceId);
+        } catch (ExecutionException e) {
+            throw new IllegalArgumentException(Utils.getRootCause(e));
+        }
     }
 
     public RdbDatasourceDB getRdbDatasource(String datasourceId) {

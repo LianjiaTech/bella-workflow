@@ -4,21 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import {
   RiAccountCircleFill,
   RiAccountCircleLine,
-  RiApps2AddFill,
-  RiApps2AddLine,
-  RiBox3Fill,
-  RiBox3Line,
   RiCloseLine,
-  RiColorFilterFill,
-  RiColorFilterLine,
-  RiDatabase2Fill,
-  RiDatabase2Line,
   RiGroup2Fill,
   RiGroup2Line,
-  RiMoneyDollarCircleFill,
-  RiMoneyDollarCircleLine,
-  RiPuzzle2Fill,
-  RiPuzzle2Line,
   RiTranslate2,
 } from '@remixicon/react'
 import AccountPage from './account-page'
@@ -71,44 +59,44 @@ export default function AccountSetting({
     if (isCurrentWorkspaceDatasetOperator)
       return []
     return [
-      {
-        key: 'provider',
-        name: t('common.settings.provider'),
-        icon: <RiBox3Line className={iconClassName} />,
-        activeIcon: <RiBox3Fill className={iconClassName} />,
-      },
+      // {
+      //   key: 'provider',
+      //   name: t('common.settings.provider'),
+      //   icon: <RiBox3Line className={iconClassName} />,
+      //   activeIcon: <RiBox3Fill className={iconClassName} />,
+      // },
       {
         key: 'members',
         name: t('common.settings.members'),
         icon: <RiGroup2Line className={iconClassName} />,
         activeIcon: <RiGroup2Fill className={iconClassName} />,
       },
-      {
-        // Use key false to hide this item
-        key: enableBilling ? 'billing' : false,
-        name: t('common.settings.billing'),
-        description: t('billing.plansCommon.receiptInfo'),
-        icon: <RiMoneyDollarCircleLine className={iconClassName} />,
-        activeIcon: <RiMoneyDollarCircleFill className={iconClassName} />,
-      },
-      {
-        key: 'data-source',
-        name: t('common.settings.dataSource'),
-        icon: <RiDatabase2Line className={iconClassName} />,
-        activeIcon: <RiDatabase2Fill className={iconClassName} />,
-      },
-      {
-        key: 'api-based-extension',
-        name: t('common.settings.apiBasedExtension'),
-        icon: <RiPuzzle2Line className={iconClassName} />,
-        activeIcon: <RiPuzzle2Fill className={iconClassName} />,
-      },
-      {
-        key: (enableReplaceWebAppLogo || enableBilling) ? 'custom' : false,
-        name: t('custom.custom'),
-        icon: <RiColorFilterLine className={iconClassName} />,
-        activeIcon: <RiColorFilterFill className={iconClassName} />,
-      },
+      // {
+      //   // Use key false to hide this item
+      //   key: enableBilling ? 'billing' : false,
+      //   name: t('common.settings.billing'),
+      //   description: t('billing.plansCommon.receiptInfo'),
+      //   icon: <RiMoneyDollarCircleLine className={iconClassName} />,
+      //   activeIcon: <RiMoneyDollarCircleFill className={iconClassName} />,
+      // },
+      // {
+      //   key: 'data-source',
+      //   name: t('common.settings.dataSource'),
+      //   icon: <RiDatabase2Line className={iconClassName} />,
+      //   activeIcon: <RiDatabase2Fill className={iconClassName} />,
+      // },
+      // {
+      //   key: 'api-based-extension',
+      //   name: t('common.settings.apiBasedExtension'),
+      //   icon: <RiPuzzle2Line className={iconClassName} />,
+      //   activeIcon: <RiPuzzle2Fill className={iconClassName} />,
+      // },
+      // {
+      //   key: (enableReplaceWebAppLogo || enableBilling) ? 'custom' : false,
+      //   name: t('custom.custom'),
+      //   icon: <RiColorFilterLine className={iconClassName} />,
+      //   activeIcon: <RiColorFilterFill className={iconClassName} />,
+      // },
     ].filter(item => !!item.key) as GroupItem[]
   })()
 
@@ -131,12 +119,12 @@ export default function AccountSetting({
           icon: <RiAccountCircleLine className={iconClassName} />,
           activeIcon: <RiAccountCircleFill className={iconClassName} />,
         },
-        {
-          key: 'integrations',
-          name: t('common.settings.integrations'),
-          icon: <RiApps2AddLine className={iconClassName} />,
-          activeIcon: <RiApps2AddFill className={iconClassName} />,
-        },
+        // {
+        //   key: 'integrations',
+        //   name: t('common.settings.integrations'),
+        //   icon: <RiApps2AddLine className={iconClassName} />,
+        //   activeIcon: <RiApps2AddFill className={iconClassName} />,
+        // },
         {
           key: 'language',
           name: t('common.settings.language'),

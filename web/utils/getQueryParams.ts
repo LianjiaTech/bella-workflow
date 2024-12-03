@@ -21,7 +21,8 @@ export const setUserInfo = (ucid: string, userName: string, tenantId: string, sp
 }
 
 export const setTenantId = (tenantId: string) => {
-  globalThis.sessionStorage?.setItem('currentTenantId', tenantId)
+  if (tenantId)
+    globalThis.sessionStorage?.setItem('currentTenantId', tenantId)
 }
 
 export const getTenantId = (): string => {
@@ -29,7 +30,8 @@ export const getTenantId = (): string => {
 }
 
 export const setSpaceCode = (spaceCode: string) => {
-  globalThis.sessionStorage?.setItem('currentSpaceCode', spaceCode)
+  if (spaceCode)
+    globalThis.sessionStorage?.setItem('currentSpaceCode', spaceCode)
 }
 
 export const getSpaceCode = (userCode: string): string => {

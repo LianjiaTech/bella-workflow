@@ -121,6 +121,7 @@ const translation = {
     newApp: '创建应用',
     newDataset: '创建知识库',
     tools: '工具',
+    datasources: '数据源',
   },
   userProfile: {
     settings: '设置',

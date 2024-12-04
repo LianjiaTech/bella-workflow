@@ -321,3 +321,15 @@ export const fetchDatasourceList: Fetcher<Datasource[], string> = (url) => {
 export const fetchDomainList: Fetcher<CustomDomain[], { url: string; prefix: string }> = ({ url, prefix }) => {
   return get<CustomDomain[]>(`${url}?prefix=${prefix}`)
 }
+
+export const createDatasource: Fetcher<Datasource, { url: string; body: object }> = ({ url, body }) => {
+  return post(url, { body }) as Promise<Datasource>
+}
+
+export const activeDatasource: Fetcher<Datasource, { datasourceId: string; type: string }> = ({ datasourceId, type }) => {
+  return post('/datasource/activate', { body: { datasourceId, type } }) as Promise<Datasource>
+}
+
+export const deactiveDatasource: Fetcher<Datasource, { datasourceId: string; type: string }> = ({ datasourceId, type }) => {
+  return post('/datasource/deactivate', { body: { datasourceId, type } }) as Promise<Datasource>
+}

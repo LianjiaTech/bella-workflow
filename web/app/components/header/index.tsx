@@ -9,6 +9,7 @@ import AccountDropdown from './account-dropdown'
 import WorkplaceSelector from './space-dropdown/workplace-selector'
 import AppNav from './app-nav'
 import EnvNav from './env-nav'
+import DatasourceNav from './datasource-nav'
 import { WorkspaceProvider } from '@/context/workspace-context'
 import { useAppContext } from '@/context/app-context'
 import LogoSite from '@/app/components/base/logo/logo-site'
@@ -74,7 +75,7 @@ const Header = () => {
         <div className='flex items-center'>
           {/*  {!isCurrentWorkspaceDatasetOperator && <ExploreNav className={navClassName} />} */}
           {!isCurrentWorkspaceDatasetOperator && <AppNav />}
-          {/* {(isCurrentWorkspaceEditor || isCurrentWorkspaceDatasetOperator) && <DatasetNav />} */}
+          {(isCurrentWorkspaceEditor || isCurrentWorkspaceDatasetOperator) && <DatasourceNav />}
           {/* {!isCurrentWorkspaceDatasetOperator && <ToolsNav className={navClassName} />} */}
         </div>
       )}
@@ -93,7 +94,7 @@ const Header = () => {
         <div className='w-full flex flex-col p-2 gap-y-1'>
           {/* {!isCurrentWorkspaceDatasetOperator && <ExploreNav className={navClassName} />} */}
           {!isCurrentWorkspaceDatasetOperator && <AppNav />}
-          {/* {(isCurrentWorkspaceEditor || isCurrentWorkspaceDatasetOperator) && <DatasetNav />} */}
+          {(isCurrentWorkspaceEditor || isCurrentWorkspaceDatasetOperator) && <DatasourceNav />}
           {/* {!isCurrentWorkspaceDatasetOperator && <ToolsNav className={navClassName} />} */}
         </div>
       )}

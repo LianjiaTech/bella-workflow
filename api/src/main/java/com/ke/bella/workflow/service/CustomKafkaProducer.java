@@ -1,19 +1,19 @@
 package com.ke.bella.workflow.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicReference;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Builder
 @AllArgsConstructor
@@ -24,9 +24,9 @@ public class CustomKafkaProducer implements AutoCloseable {
     KafkaProducer<String, String> producer;
 
     public void send(String topic, String key, String message) throws Exception {
-        ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, message);
+        ProducerRecord<String, String> rec = new ProducerRecord<>(topic, key, message);
         AtomicReference<Exception> e = new AtomicReference<>();
-        producer.send(record, (RecordMetadata metadata, Exception exception) -> {
+        producer.send(rec, (RecordMetadata metadata, Exception exception) -> {
             String msg = String.format("Message sent to topic %s partition %d with offset %d", metadata.topic(), metadata.partition(), metadata.offset());
             if(exception != null) {
                 e.set(exception);

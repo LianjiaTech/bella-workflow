@@ -18,6 +18,7 @@ const loadLangResources = (lang: string) => ({
     appAnnotation: require(`./${lang}/app-annotation`).default,
     share: require(`./${lang}/share-app`).default,
     dataset: require(`./${lang}/dataset`).default,
+    datasource: require(`./${lang}/datasource`).default,
     datasetDocuments: require(`./${lang}/dataset-documents`).default,
     datasetHitTesting: require(`./${lang}/dataset-hit-testing`).default,
     datasetSettings: require(`./${lang}/dataset-settings`).default,

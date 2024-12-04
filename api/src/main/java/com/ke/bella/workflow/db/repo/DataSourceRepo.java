@@ -80,6 +80,7 @@ public class DataSourceRepo implements BaseRepo {
     public List<KafkaDatasourceDB> listTenantAllActiveKafkaDs() {
         return db.selectFrom(KAFKA_DATASOURCE)
                 .where(KAFKA_DATASOURCE.TENANT_ID.eq(BellaContext.getOperator().getTenantId())
+                        .and(KAFKA_DATASOURCE.SPACE_CODE.eq(BellaContext.getOperator().getSpaceCode()))
                         .and(KAFKA_DATASOURCE.STATUS.eq(0)))
                 .fetchInto(KafkaDatasourceDB.class);
     }
@@ -155,6 +156,13 @@ public class DataSourceRepo implements BaseRepo {
                 .fetchOneInto(RdbDatasourceDB.class);
     }
 
+    public List<RdbDatasourceDB> listSpaceRdbDatasource() {
+        return db.selectFrom(RDB_DATASOURCE)
+                .where(RDB_DATASOURCE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(RDB_DATASOURCE.SPACE_CODE.eq(BellaContext.getOperator().getSpaceCode()))
+                .fetchInto(RdbDatasourceDB.class);
+    }
+
     public RedisDatasourceDB addRedisDataSource(RedisDataSourceAdd op) {
         RedisDatasourceRecord rec = REDIS_DATASOURCE.newRecord();
 
@@ -185,6 +193,30 @@ public class DataSourceRepo implements BaseRepo {
                 .where(REDIS_DATASOURCE.DATASOURCE_ID.eq(datasourceId))
                 .and(REDIS_DATASOURCE.STATUS.eq(0))
                 .fetchOneInto(RedisDatasourceDB.class);
+    }
+
+    public void activateRdb(String id) {
+        RdbDatasourceRecord rec = RDB_DATASOURCE.newRecord();
+        rec.setStatus(0);
+        fillUpdatorInfo(rec);
+
+        db.update(RDB_DATASOURCE)
+                .set(rec)
+                .where(RDB_DATASOURCE.DATASOURCE_ID.eq(id))
+                .execute();
+
+    }
+
+    public void deactivateRdb(String id) {
+        RdbDatasourceRecord rec = RDB_DATASOURCE.newRecord();
+        rec.setStatus(-1);
+        fillUpdatorInfo(rec);
+
+        db.update(RDB_DATASOURCE)
+                .set(rec)
+                .where(RDB_DATASOURCE.DATASOURCE_ID.eq(id))
+                .execute();
+
     }
 
 }

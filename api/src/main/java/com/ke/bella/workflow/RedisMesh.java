@@ -9,6 +9,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.springframework.util.CollectionUtils;
+
 import com.google.common.collect.ImmutableMap;
 
 import lombok.AllArgsConstructor;
@@ -189,6 +191,9 @@ public class RedisMesh {
             try (Jedis jedis = jedisPool.getResource()) {
                 List<Entry<String, List<StreamEntry>>> sentries = jedis.xread(XReadParams.xReadParams().count(1).block(1000),
                         ImmutableMap.of(streamKey, new StreamEntryID(lastId)));
+                if(CollectionUtils.isEmpty(sentries)) {
+                    continue;
+                }
                 List<StreamEntry> entries = sentries.get(0).getValue();
                 if(entries != null && !entries.isEmpty()) {
                     StreamEntry entry = entries.get(0);

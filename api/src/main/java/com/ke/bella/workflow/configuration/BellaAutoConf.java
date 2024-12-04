@@ -49,7 +49,7 @@ public class BellaAutoConf {
     @Bean
     public RedisMesh redisMesh(@Value("${bella.workflow.redis.host}") String host,
             @Value("${bella.workflow.redis.port}") int port,
-            @Value("${bella.workflow.redis.user}") String user,
+            @Value("${bella.workflow.redis.user:#{null}}") String user,
             @Value("${bella.workflow.redis.password}") String pwd) {
         JedisPoolConfig config = new JedisPoolConfig();
         config.setJmxNamePrefix("RedisMesh");
@@ -58,6 +58,7 @@ public class BellaAutoConf {
         Instance instance = AppContext.getInstance();
         String key = String.format("%s:%s", instance.getIpAddress(), instance.getPort());
         RedisMesh mesh = new RedisMesh(profile, key, "bella-workflow", pool);
+        mesh.start();
         return mesh;
     }
 

@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import com.ke.bella.workflow.api.BellaResponse;
+import com.ke.bella.workflow.api.DataSourceController;
 import com.ke.bella.workflow.api.DifyController;
 import com.ke.bella.workflow.db.BellaContext;
 import org.apache.http.auth.AuthenticationException;
@@ -22,7 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import lombok.extern.slf4j.Slf4j;
 
-@RestControllerAdvice(assignableTypes = { DifyController.class, DifyResponseAdvice.class })
+@RestControllerAdvice(assignableTypes = { DifyController.class, DifyResponseAdvice.class, DataSourceController.class })
 @Slf4j
 public class DifyResponseAdvice implements ResponseBodyAdvice<Object> {
 

@@ -32,6 +32,7 @@ public class DataSourceOps {
     @AllArgsConstructor
     public static class DataSourceOp extends Operator {
         String datasourceId;
+        String type;
     }
 
     @Getter

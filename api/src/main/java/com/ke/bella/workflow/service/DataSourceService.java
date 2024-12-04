@@ -96,6 +96,32 @@ public class DataSourceService implements ApplicationContextAware {
         TaskExecutor.scheduleAtFixedRate(this::refreshCustomDomains, 120);
     }
 
+    public void activate(DataSourceOp op) {
+        String id = op.getDatasourceId();
+        String type = op.getType();
+        switch (type) {
+        case "rdb":
+            repo.activateRdb(id);
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    public void deactivate(DataSourceOp op) {
+        String id = op.getDatasourceId();
+        String type = op.getType();
+        switch (type) {
+        case "rdb":
+            repo.deactivateRdb(id);
+            break;
+
+        default:
+            break;
+        }
+    }
+
     public KafkaDatasourceDB createKafkaDs(KafkaDataSourceAdd op) {
         return repo.addKafkaDs(op);
     }
@@ -107,6 +133,10 @@ public class DataSourceService implements ApplicationContextAware {
     public Object listDataSources(String type) {
         if("kafka".equals(type)) {
             return repo.listTenantAllActiveKafkaDs();
+        } else if("rdb".equals(type)) {
+            List<RdbDatasourceDB> dss = repo.listSpaceRdbDatasource();
+            dss.forEach(it -> it.setPassword("******"));
+            return dss;
         }
         return null;
     }
@@ -169,6 +199,10 @@ public class DataSourceService implements ApplicationContextAware {
         } catch (ExecutionException e) {
             throw new IllegalArgumentException(Utils.getRootCause(e));
         }
+    }
+
+    public List<RdbDatasourceDB> listSpaceRdbDatasource() {
+        return repo.listSpaceRdbDatasource();
     }
 
     public RedisDatasourceDB getRedisDatasource(String datasourceId) {

@@ -157,6 +157,10 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
         return JsonUtils.fromJson(json, Object.class);
     }
 
+    public String toJson(Object obj) {
+        return JsonUtils.toJson(obj);
+    }
+
     public CustomRdb rdb(String datasourceId) {
         return DataSourceService.ds().acquireCustomRdb(datasourceId);
     }

@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.service;
 
+import com.ke.bella.workflow.utils.JsonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,11 @@ public class CustomKafkaProducer implements AutoCloseable {
         if(e.get() != null) {
             throw e.get();
         }
+    }
+
+    public void send(String topic, String key, Object message) throws Exception {
+        String value = JsonUtils.toJson(message);
+        send(topic, key, value);
     }
 
     public static CustomKafkaProducer using(String servers) {

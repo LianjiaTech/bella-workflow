@@ -198,7 +198,7 @@ const CreateModal = ({ show, onSuccess, onClose, type }: CreateDialogProps) => {
         <div className='flex items-center justify-between space-x-2'>
           <input
             value={config.params}
-            onChange={e => setConfig({ ...config, params: e.target.value })}
+            onChange={e => setConfig({ ...config, params: JSON.parse(e.target.value) })}
             placeholder={t('datasource.create.paramsPlaceholder') || ''}
             className='grow h-10 px-3 text-sm font-normal bg-gray-100 rounded-lg border border-transparent outline-none appearance-none caret-primary-600 placeholder:text-gray-400 hover:bg-gray-50 hover:border hover:border-gray-300 focus:bg-gray-50 focus:border focus:border-gray-300 focus:shadow-xs'
           />

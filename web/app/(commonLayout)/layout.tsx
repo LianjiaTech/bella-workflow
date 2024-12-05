@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import type { ReactNode } from 'react'
 import { usePathname } from 'next/navigation'
 import SwrInitor from '@/app/components/swr-initor'
@@ -17,12 +17,16 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname()
   const isBella = pathname.startsWith('/bella')
   const isHuiting = pathname.startsWith('/huiting')
-  let tenantId = getQueryParams('tenant') || 'test'
-  if (pathname.startsWith('/bella'))
-    tenantId = '04633c4f-8638-43a3-a02e-af23c29f821f'
-  else if (pathname.startsWith('/huiting'))
-    tenantId = 'TENT-d815410c-f9db-459e-b4ab-67a52d8e63ce'
-  setTenantId(tenantId)
+
+  useEffect(() => {
+    let tenantId = getQueryParams('tenant') || 'test'
+    if (pathname.startsWith('/bella'))
+      tenantId = '04633c4f-8638-43a3-a02e-af23c29f821f'
+    else if (pathname.startsWith('/huiting'))
+      tenantId = 'TENT-d815410c-f9db-459e-b4ab-67a52d8e63ce'
+    setTenantId(tenantId)
+  }, [])
+
   return (
     <>
       <GA gaType={GaType.admin} />

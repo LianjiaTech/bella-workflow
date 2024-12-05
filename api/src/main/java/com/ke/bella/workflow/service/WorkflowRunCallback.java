@@ -98,7 +98,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t) {
         LOGGER.warn("{} {} onWorkflowRunFailed, error: {}", context.getWorkflowId(), context.getRunId(), error, t);
 
-        service.updateWorkflowRun(context, WorkflowRunStatus.failed.name(), error);
+        service.updateWorkflowRun(context, WorkflowRunStatus.failed.name(), t.toString());
 
         delegate.onWorkflowRunFailed(context, error, t);
     }

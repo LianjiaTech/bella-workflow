@@ -42,7 +42,7 @@ public class WorkflowRunner {
         } catch (Throwable e) {
             LOGGER.info(e.getMessage(), e);
             context.getState().setStatus(WorkflowRunStatus.failed);
-            callback.onWorkflowRunFailed(context, e.toString(), e);
+            callback.onWorkflowRunFailed(context, e.getMessage(), e);
         } finally {
             removeRunningContext(context);
         }
@@ -117,12 +117,12 @@ public class WorkflowRunner {
                             CompletableFuture future = null;
                             if(context.isResume(node.getNodeId())) {
                                 future = TaskExecutor.submit(() -> node.resume(context, callback)).exceptionally(e -> {
-                                    exceptions.add(e);
+                                    exceptions.add(Utils.getRootCause(e));
                                     return null;
                                 });
                             } else {
                                 future = TaskExecutor.submit(() -> node.run(context, callback)).exceptionally(e -> {
-                                    exceptions.add(e);
+                                    exceptions.add(Utils.getRootCause(e));
                                     return null;
                                 });
                             }
@@ -168,9 +168,8 @@ public class WorkflowRunner {
             }
         } catch (Throwable e) {
             LOGGER.info(e.getMessage(), e);
-            e = Utils.getRootCause(e);
             context.getState().setStatus(WorkflowRunStatus.failed);
-            callback.onWorkflowRunFailed(context, e.toString(), e);
+            callback.onWorkflowRunFailed(context, e.getMessage(), e);
         }
     }
 

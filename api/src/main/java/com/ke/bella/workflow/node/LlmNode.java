@@ -2,10 +2,10 @@ package com.ke.bella.workflow.node;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import com.ke.bella.workflow.utils.OpenAiUtils;
@@ -35,7 +35,6 @@ import com.theokanning.openai.completion.chat.UserMessage;
 import com.theokanning.openai.service.OpenAiService;
 
 import io.reactivex.Flowable;
-import io.reactivex.disposables.Disposable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -111,15 +110,14 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     private String handleInvokeResult(Data.Timeout timeout, WorkflowContext context, Flowable<ChatCompletionChunk> llmResult,
             IWorkflowCallback callback) {
         StringBuilder fullText = new StringBuilder();
-        CompletableFuture<String> completionFuture = new CompletableFuture<>();
         final String messageId = data.isGenerateNewMessage() ? context.newMessageId()
                 : (String) context.getState().getVariable("sys", "message_id");
-        // todo usage
-        Disposable subscribe = llmResult.subscribe(chunk -> {
+        Iterator<ChatCompletionChunk> it = llmResult.blockingIterable().iterator();
+        while (it.hasNext()) {
+            ChatCompletionChunk chunk = it.next();
             if(fullText.length() == 0) {
                 this.ttftEnd = System.nanoTime();
             }
-
             if(chunk.getUsage() != null) {
                 tokens = chunk.getUsage().getCompletionTokens();
             }
@@ -146,15 +144,8 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
                                     .build());
                 }
             }
-        }, completionFuture::completeExceptionally, () -> completionFuture.complete(fullText.toString()));
-        try {
-            return completionFuture.get(timeout.getReadSeconds(), TimeUnit.SECONDS);
-        } catch (Exception e) {
-            if(!subscribe.isDisposed()) {
-                subscribe.dispose();
-            }
-            throw new RuntimeException(e);
         }
+        return fullText.toString();
     }
 
     private Flowable<ChatCompletionChunk> invokeLlm(List<ChatMessage> chatMessages) {

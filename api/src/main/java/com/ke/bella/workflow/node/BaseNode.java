@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.WorkflowContext;
+import com.ke.bella.workflow.WorkflowNodeRunException;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.db.BellaContext;
@@ -151,8 +152,9 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 if(result.getStatus() == NodeRunResult.Status.succeeded) {
                     callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
                 } else if(result.getStatus() == NodeRunResult.Status.failed) {
-                    callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
-                    throw new IllegalStateException(result.getError().getMessage(), result.getError());
+                    WorkflowNodeRunException e = WorkflowNodeRunException.from(this, result.getError());
+                    callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, e.getMessage(), e);
+                    throw e;
                 } else if(result.getStatus() == NodeRunResult.Status.waiting) {
                     callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
                 }

@@ -11,13 +11,13 @@ import BellaHeader from '@/app/(commonLayout)/bella/components/header'
 import { EventEmitterContextProvider } from '@/context/event-emitter'
 import { ProviderContextProvider } from '@/context/provider-context'
 import { ModalContextProvider } from '@/context/modal-context'
-import { setTenantId } from '@/utils/getQueryParams'
+import { getQueryParams, setTenantId } from '@/utils/getQueryParams'
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname()
   const isBella = pathname.startsWith('/bella')
   const isHuiting = pathname.startsWith('/huiting')
-  let tenantId = 'test'
+  let tenantId = getQueryParams('tenant') || 'test'
   if (pathname.startsWith('/bella'))
     tenantId = '04633c4f-8638-43a3-a02e-af23c29f821f'
   else if (pathname.startsWith('/huiting'))

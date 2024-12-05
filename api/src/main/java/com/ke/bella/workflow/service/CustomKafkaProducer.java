@@ -1,19 +1,20 @@
 package com.ke.bella.workflow.service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
+import com.ke.bella.workflow.utils.JsonUtils;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Builder
 @AllArgsConstructor
@@ -24,9 +25,9 @@ public class CustomKafkaProducer implements AutoCloseable {
     KafkaProducer<String, String> producer;
 
     public void send(String topic, String key, String message) throws Exception {
-        ProducerRecord<String, String> rec = new ProducerRecord<>(topic, key, message);
+        ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, message);
         AtomicReference<Exception> e = new AtomicReference<>();
-        producer.send(rec, (RecordMetadata metadata, Exception exception) -> {
+        producer.send(record, (RecordMetadata metadata, Exception exception) -> {
             String msg = String.format("Message sent to topic %s partition %d with offset %d", metadata.topic(), metadata.partition(), metadata.offset());
             if(exception != null) {
                 e.set(exception);
@@ -39,6 +40,11 @@ public class CustomKafkaProducer implements AutoCloseable {
         if(e.get() != null) {
             throw e.get();
         }
+    }
+
+    public void send(String topic, String key, Object message) throws Exception {
+        String value = JsonUtils.toJson(message);
+        send(topic, key, value);
     }
 
     public static CustomKafkaProducer using(String servers) {

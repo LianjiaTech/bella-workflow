@@ -3,10 +3,6 @@ package com.ke.bella.workflow.api;
 import java.util.List;
 import java.util.Map;
 
-import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
-import com.ke.bella.workflow.utils.DifyUtils;
-import com.ke.bella.workflow.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -18,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.ke.bella.workflow.TaskExecutor;
+import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TenantCreate;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
@@ -41,8 +38,11 @@ import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.service.WorkflowService;
+import com.ke.bella.workflow.utils.DifyUtils;
+import com.ke.bella.workflow.utils.JsonUtils;
 
 @RestController
 @RequestMapping("/v1")
@@ -55,6 +55,10 @@ public class WorkflowController {
 
     @PostMapping("/workflow")
     public WorkflowDB createApp(@RequestBody DifyController.DifyApp app) {
+        return createApp0(app);
+    }
+
+    public WorkflowDB createApp0(DifyController.DifyApp app) {
         WorkflowSchema schema = DifyUtils.getDefaultWorkflowSchema();
         WorkflowSync sync = WorkflowSync.builder()
                 .title(app.getName())

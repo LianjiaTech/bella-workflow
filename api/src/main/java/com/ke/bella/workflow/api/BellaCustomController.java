@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.service.WorkflowService;
 
 /**
@@ -21,6 +22,14 @@ public class BellaCustomController {
 
     @Autowired
     WorkflowService ws;
+
+    @Autowired
+    WorkflowController wc;
+
+    @PostMapping("/app")
+    public WorkflowDB createApp(@RequestBody DifyController.DifyApp app) {
+        return wc.createApp0(app);
+    }
 
     @GetMapping({ "/workflows", "" })
     public Page<WorkflowAggregateDB> pageWorkflowCustom(WorkflowOps.WorkflowPage op) {

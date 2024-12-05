@@ -4,8 +4,8 @@
  * @returns
  */
 export const getQueryParams = (param: string): string | null => {
-  const urlParams = new URLSearchParams(window.location.search)
-  return urlParams.get(param)
+  const urlParams = new URLSearchParams(window?.location.search)
+  return urlParams?.get(param)
 }
 
 export const setUserInfo = (ucid: string, userName: string, tenantId: string, spaceCode: string) => {

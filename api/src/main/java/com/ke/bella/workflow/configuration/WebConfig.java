@@ -8,6 +8,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.ke.bella.workflow.api.interceptor.ApikeyInterceptor;
+import com.ke.bella.workflow.api.interceptor.BellaCustomInterceptor;
 import com.ke.bella.workflow.api.interceptor.BellaTransHeadersInterceptor;
 import com.ke.bella.workflow.api.interceptor.ConcurrentStartInterceptor;
 import com.ke.bella.workflow.api.interceptor.DifyRequestInterceptor;
@@ -22,6 +23,8 @@ public class WebConfig implements WebMvcConfigurer {
     private ConcurrentStartInterceptor concurrentStartInterceptor;
     @Autowired
     private BellaTransHeadersInterceptor bellaTransHeadersInterceptor;
+    @Autowired
+    private BellaCustomInterceptor bellaCustomInterceptor;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -40,12 +43,17 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/capi/**")
                 .excludePathPatterns("/v1/workflow/trigger/callback/**")
                 .excludePathPatterns("/v1/workflow/callback/**")
+                .excludePathPatterns("/v1/custom/bella/**")
                 .order(50);
         registry.addInterceptor(difyRequestInterceptor)
                 .addPathPatterns("/console/api/**")
                 .addPathPatterns("/v1/**")
                 .excludePathPatterns("/v1/workflow/callback/**", "/v1/workflow/trigger/callback/**")
+                .excludePathPatterns("/v1/custom/bella/**")
                 .order(200);
+        registry.addInterceptor(bellaCustomInterceptor)
+                .addPathPatterns("/v1/custom/bella/**")
+                .order(200 + 1);
         registry.addInterceptor(bellaTransHeadersInterceptor)
                 .addPathPatterns("/**")
                 .order(Ordered.LOWEST_PRECEDENCE - 1);

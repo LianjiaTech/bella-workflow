@@ -12,6 +12,7 @@
 
     <logger name="druid" level="DEBUG" />
     <logger name="executableSql" level="DEBUG" />
+    <logger name="workflowRun" level="INFO" />
     <logger name="com.alibaba.druid.filter.stat" level="INFO" />
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder" charset="UTF-8">
@@ -84,6 +85,18 @@
                 <pattern>${FILE_LOG_PATTERN}</pattern>
             </encoder>
         </appender>
+        <appender name="WORKFLOW_RUN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <file>${LOG_PATH}/workflow-run.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_PATH}/workflow-run-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <maxFileSize>${FILE_MAX_SIZE}</maxFileSize>
+                <totalSizeCap>${LOG_TOTAL_FILE_SIZE}</totalSizeCap>
+                <maxHistory>${LOG_FILE_MAX_HISTORY}</maxHistory>
+            </rollingPolicy>
+            <encoder>
+                <pattern>${FILE_LOG_PATTERN}</pattern>
+            </encoder>
+        </appender>
 
         <!-- 异步输出 -->
         <appender name ="ASYNC_FILE" class= "ch.qos.logback.classic.AsyncAppender">
@@ -112,6 +125,9 @@
         </logger>
         <logger name="dubboProviderLogger" level="INFO" additivity="false">
             <appender-ref ref="DUBBO_PROVIDER_FILE"/>
+        </logger>
+        <logger name="workflowRun" level="INFO" additivity="false">
+            <appender-ref ref="WORKFLOW_RUN_FILE"/>
         </logger>
         <root level="INFO">
             <appender-ref ref="ASYNC_FILE"/>

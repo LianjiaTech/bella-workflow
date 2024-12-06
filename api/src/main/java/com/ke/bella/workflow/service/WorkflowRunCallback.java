@@ -1,8 +1,11 @@
 package com.ke.bella.workflow.service;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.IWorkflowCallback;
@@ -11,16 +14,19 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.assistants.message.MessageRequest;
 import com.theokanning.openai.assistants.thread.ThreadRequest;
 import com.theokanning.openai.service.OpenAiService;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
-
+    private static final Logger WORKFLOW_RUN_LOGGER = LoggerFactory.getLogger("workflowRun");
     private final WorkflowService service;
     private final IWorkflowCallback delegate;
     private final OpenAiService openAiService;
@@ -35,7 +41,18 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowRunStarted(WorkflowContext ctx) {
-        LOGGER.info("{} {} onWorkflowRunStarted", ctx.getWorkflowId(), ctx.getRunId());
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowRunStarted");
+        runLog.setTenantId(ctx.getTenantId());
+        runLog.setWorkflowId(ctx.getWorkflowId());
+        runLog.setWorkflowRunId(ctx.getRunId());
+        runLog.setFlashMode(ctx.getFlashMode());
+        runLog.setTriggerFrom(ctx.getTriggerFrom());
+        runLog.setStateful(ctx.isStateful());
+        runLog.setSys(ctx.getState().getVariablePool().get("sys"));
+        runLog.setInputs(ctx.userInputs());
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
         // 如果stateful打开且为chatflow，则视具体情况创建thread
         String threadId = ctx.getThreadId();
@@ -51,7 +68,14 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowRunSucceeded(WorkflowContext ctx) {
-        LOGGER.info("{} {} onWorkflowRunSucceeded", ctx.getWorkflowId(), ctx.getRunId());
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowRunSucceeded");
+        runLog.setTenantId(ctx.getTenantId());
+        runLog.setWorkflowId(ctx.getWorkflowId());
+        runLog.setWorkflowRunId(ctx.getRunId());
+        runLog.setOutputs(Optional.ofNullable(ctx.getWorkflowRunResult()).map(NodeRunResult::getOutputs).orElse(null));
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
         service.markWorkflowRunSuccessed(ctx, ctx.getWorkflowRunResult().getOutputs());
 
@@ -68,7 +92,13 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowRunSuspended(WorkflowContext context) {
-        LOGGER.info("{} {} onWorkflowRunSuspended", context.getWorkflowId(), context.getRunId());
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowRunSuspended");
+        runLog.setTenantId(context.getTenantId());
+        runLog.setWorkflowId(context.getWorkflowId());
+        runLog.setWorkflowRunId(context.getRunId());
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
         delegate.onWorkflowRunSuspended(context);
 
@@ -78,7 +108,13 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowRunStopped(WorkflowContext context) {
-        LOGGER.info("{} {} onWorkflowRunStopped", context.getWorkflowId(), context.getRunId());
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowRunStopped");
+        runLog.setTenantId(context.getTenantId());
+        runLog.setWorkflowId(context.getWorkflowId());
+        runLog.setWorkflowRunId(context.getRunId());
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
         service.updateWorkflowRunStatus(context, WorkflowRunStatus.stopped.name());
 
@@ -87,7 +123,13 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowRunResumed(WorkflowContext context) {
-        LOGGER.info("{} {} onWorkflowRunResumed", context.getWorkflowId(), context.getRunId());
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowRunResumed");
+        runLog.setTenantId(context.getTenantId());
+        runLog.setWorkflowId(context.getWorkflowId());
+        runLog.setWorkflowRunId(context.getRunId());
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
         service.updateWorkflowRunStatus(context, WorkflowRunStatus.running.name());
 
@@ -96,7 +138,14 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t) {
-        LOGGER.warn("{} {} onWorkflowRunFailed, error: {}", context.getWorkflowId(), context.getRunId(), error, t);
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowRunResumed");
+        runLog.setTenantId(context.getTenantId());
+        runLog.setWorkflowId(context.getWorkflowId());
+        runLog.setWorkflowRunId(context.getRunId());
+        runLog.setError(t);
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
         service.updateWorkflowRun(context, WorkflowRunStatus.failed.name(), t.toString());
 
@@ -105,7 +154,18 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId) {
-        LOGGER.info("{} {} onWorkflowNodeRunStarted", context.getWorkflowId(), context.getRunId());
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowNodeRunStarted");
+        runLog.setTenantId(context.getTenantId());
+        runLog.setWorkflowId(context.getWorkflowId());
+        runLog.setWorkflowRunId(context.getRunId());
+
+        runLog.setNodeId(nodeId);
+        runLog.setNodeRunId(nodeRunId);
+        runLog.setNodeTitle(context.getGraph().node(nodeId).getTitle());
+        runLog.setNodeType(context.getGraph().node(nodeId).getNodeType());
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
         if(!context.isFlashMode()) {
             service.createWorkflowNodeRun(context, nodeId, nodeRunId, NodeRunResult.Status.running.name());
@@ -116,7 +176,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowNodeRunProgress(WorkflowContext context, String nodeId, String nodeRunId, ProgressData data) {
-        LOGGER.info("{} {} onWorkflowNodeRunProgress", context.getWorkflowId(), context.getRunId());
+
         delegate.onWorkflowNodeRunProgress(context, nodeId, nodeRunId, data);
 
         if(context.isStateful() && "advanced-chat".equals(context.getWorkflowMode())) {
@@ -131,7 +191,22 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId, String nodeRunId) {
-        LOGGER.info("{} {} onWorkflowNodeRunWaited", context.getWorkflowId(), context.getRunId());
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowNodeRunWaited");
+        runLog.setTenantId(context.getTenantId());
+        runLog.setWorkflowId(context.getWorkflowId());
+        runLog.setWorkflowRunId(context.getRunId());
+
+        runLog.setNodeId(nodeId);
+        runLog.setNodeRunId(nodeRunId);
+        runLog.setNodeTitle(context.getGraph().node(nodeId).getTitle());
+        runLog.setNodeType(context.getGraph().node(nodeId).getNodeType());
+        if(context.getState().getNodeState(nodeId) != null) {
+            runLog.setNodeInputs(context.getState().getNodeState(nodeId).getInputs());
+            runLog.setNodeProcessData(context.getState().getNodeState(nodeId).getProcessData());
+        }
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
         if(!context.isFlashMode()) {
             service.updateWorkflowNodeRunWaited(context, nodeId, nodeRunId);
@@ -142,8 +217,23 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowNodeRunSucceeded(WorkflowContext ctx, String nodeId, String nodeRunId) {
-        LOGGER.info("{} {} onWorkflowNodeRunSucceeded, nodeId:{} result: {}", ctx.getWorkflowId(), ctx.getRunId(), nodeId,
-                ctx.getState().getNodeState(nodeId).getOutputs());
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowNodeRunSucceeded");
+        runLog.setTenantId(ctx.getTenantId());
+        runLog.setWorkflowId(ctx.getWorkflowId());
+        runLog.setWorkflowRunId(ctx.getRunId());
+
+        runLog.setNodeId(nodeId);
+        runLog.setNodeRunId(nodeRunId);
+        runLog.setNodeTitle(ctx.getGraph().node(nodeId).getTitle());
+        runLog.setNodeType(ctx.getGraph().node(nodeId).getNodeType());
+        if(ctx.getState().getNodeState(nodeId) != null) {
+            runLog.setNodeInputs(ctx.getState().getNodeState(nodeId).getInputs());
+            runLog.setNodeProcessData(ctx.getState().getNodeState(nodeId).getProcessData());
+            runLog.setNodeOutputs(ctx.getState().getNodeState(nodeId).getOutputs());
+        }
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
         if(!ctx.isFlashMode()) {
             service.updateWorkflowNodeRunSucceeded(ctx, nodeId, nodeRunId);
@@ -154,7 +244,23 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
-        LOGGER.info("{} {} onWorkflowNodeRunFailed. error:{}", context.getWorkflowId(), context.getRunId(), error, t);
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowNodeRunFailed");
+        runLog.setTenantId(context.getTenantId());
+        runLog.setWorkflowId(context.getWorkflowId());
+        runLog.setWorkflowRunId(context.getRunId());
+        runLog.setError(t);
+
+        runLog.setNodeId(nodeId);
+        runLog.setNodeRunId(nodeRunId);
+        runLog.setNodeTitle(context.getGraph().node(nodeId).getTitle());
+        runLog.setNodeType(context.getGraph().node(nodeId).getNodeType());
+        if(context.getState().getNodeState(nodeId) != null) {
+            runLog.setNodeInputs(context.getState().getNodeState(nodeId).getInputs());
+            runLog.setNodeProcessData(context.getState().getNodeState(nodeId).getProcessData());
+        }
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
         if(!context.isFlashMode()) {
             service.updateWorkflowNodeRunFailed(context, nodeId, nodeRunId, error);
@@ -165,13 +271,69 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowIterationStarted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
-        LOGGER.info("{} {} onWorkflowIterationStarted, index: {}", context.getWorkflowId(), context.getRunId(), index);
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowIterationStarted");
+        runLog.setTenantId(context.getTenantId());
+        runLog.setWorkflowId(context.getWorkflowId());
+        runLog.setWorkflowRunId(context.getRunId());
+
+        runLog.setNodeId(nodeId);
+        runLog.setNodeRunId(nodeRunId);
+
+        runLog.setIteration(true);
+        runLog.setIterationIndex(index);
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+
         delegate.onWorkflowIterationStarted(context, nodeId, nodeRunId, index);
     }
 
     @Override
     public void onWorkflowIterationCompleted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
-        LOGGER.info("{} {} onWorkflowIterationCompleted, index: {}", context.getWorkflowId(), context.getRunId(), index);
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setEvent("onWorkflowIterationCompleted");
+        runLog.setTenantId(context.getTenantId());
+        runLog.setWorkflowId(context.getWorkflowId());
+        runLog.setWorkflowRunId(context.getRunId());
+
+        runLog.setNodeId(nodeId);
+        runLog.setNodeRunId(nodeRunId);
+        if(context.getState().getNodeState(nodeId) != null) {
+            runLog.setNodeInputs(context.getState().getNodeState(nodeId).getInputs());
+            runLog.setNodeProcessData(context.getState().getNodeState(nodeId).getProcessData());
+            runLog.setNodeOutputs(context.getState().getNodeState(nodeId).getOutputs());
+        }
+
+        runLog.setIteration(true);
+        runLog.setIterationIndex(index);
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+
         delegate.onWorkflowIterationCompleted(context, nodeId, nodeRunId, index);
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class WorkflowRunLog {
+        private String event;
+        private String tenantId;
+        private String workflowId;
+        private String workflowRunId;
+        private int flashMode;
+        private String triggerFrom;
+        private boolean stateful;
+        private Object sys;
+        private Object inputs;
+        private Object outputs;
+        private String nodeId;
+        private String nodeType;
+        private String nodeTitle;
+        private String nodeRunId;
+        private Object nodeInputs;
+        private Object nodeProcessData;
+        private Object nodeOutputs;
+        private Throwable error;
+        private boolean iteration;
+        private Integer iterationIndex;
     }
 }

@@ -52,6 +52,7 @@ logging:
     root: INFO
     druid: INFO
     executableSql: INFO
+    workflowRun: INFO
     org:
       springframework: INFO
       jooq: DEBUG

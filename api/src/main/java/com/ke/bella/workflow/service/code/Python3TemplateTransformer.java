@@ -34,6 +34,14 @@ public class Python3TemplateTransformer implements TemplateTransformer {
             "httpx",
             "jinja2");
 
+    public String builtInDependencies() {
+        StringBuilder script = new StringBuilder();
+        for (String packageName : STANDARD_PACKAGES) {
+            script.append("import ").append(packageName).append("\n");
+        }
+        return script.toString();
+    }
+
     @Override
     public Set<String> getStandardPackages() {
         return STANDARD_PACKAGES;
@@ -41,7 +49,7 @@ public class Python3TemplateTransformer implements TemplateTransformer {
 
     @Override
     public String getRunnerScript() {
-        String scriptTemplate = "\n# declare main function" +
+        String scriptTemplate = builtInDependencies() + "\n# declare main function" +
                 "\n%s" +
                 "\n\nimport json" +
                 "\nfrom base64 import b64decode" +
@@ -73,14 +81,5 @@ public class Python3TemplateTransformer implements TemplateTransformer {
                 "    return {\n" +
                 "        \"result\": arg1 + arg2,\n" +
                 "    }\n";
-    }
-
-    @Override
-    public String getPreloadScript() {
-        StringBuilder script = new StringBuilder();
-        for (String packageName : STANDARD_PACKAGES) {
-            script.append("import ").append(packageName).append("\n");
-        }
-        return script.toString();
     }
 }

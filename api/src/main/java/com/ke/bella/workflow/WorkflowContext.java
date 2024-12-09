@@ -47,6 +47,8 @@ public class WorkflowContext {
     private boolean interrupted;
     @Builder.Default
     private long nodeTimeout = 300;
+    @Builder.Default
+    private long timeout = 300;
     private WorkflowSys sys;
     @Builder.Default
     private List<WorkflowContext> children = new ArrayList<>();

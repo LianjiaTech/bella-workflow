@@ -279,16 +279,7 @@ public class WorkflowController {
 
         ws.notifyWorkflowRun(wr, nodeId, nodeRunId, inputs);
 
-        boolean isCallback = wr.getResponseMode().equals(ResponseMode.callback.name());
-        if(isCallback) {
-            TaskExecutor.schedule(() -> {
-                WorkflowRunNotifyCallback callback = new WorkflowRunNotifyCallback(ws, wr.getCallbackUrl());
-                ws.tryResumeWorkflow(wr.getWorkflowRunId(), callback);
-            }, 10L);
-        } else {
-            TaskExecutor.submit(() -> ws.notifyWorkflowRun(wr.getWorkflowRunId()));
-        }
-
+        TaskExecutor.submit(() -> ws.notifyWorkflowRun(wr));
         return BellaResponse.builder().code(201).data("OK").build();
     }
 

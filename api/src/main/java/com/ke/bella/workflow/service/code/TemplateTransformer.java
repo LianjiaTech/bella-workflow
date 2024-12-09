@@ -32,19 +32,11 @@ public interface TemplateTransformer {
         return Collections.emptySet();
     }
 
-    default RunParams transformRunParams(String code, Map<String, Object> inputs,
-            List<CodeDependency> dependencies) {
+    default RunParams transformRunParams(String code, Map<String, Object> inputs) {
         String runnerScript = assembleRunnerScript(code, inputs);
         String preloadScript = getPreloadScript();
 
-        List<CodeDependency> packages = Optional.ofNullable(dependencies).orElse(new ArrayList<>());
-        Set<String> standardPackages = getStandardPackages();
-        packages.addAll(standardPackages.stream()
-                .filter(packageName -> packages.stream().noneMatch(dep -> dep.getName().equals(packageName)))
-                .map(CodeDependency::new)
-                .collect(Collectors.toList()));
-
-        return RunParams.builder().runnerScript(runnerScript).preloadScript(preloadScript).packages(packages).build();
+        return RunParams.builder().runnerScript(runnerScript).preloadScript(preloadScript).build();
     }
 
     default String extractResultStrFromResponse(String response) {
@@ -89,14 +81,13 @@ public interface TemplateTransformer {
     class RunParams {
         private String runnerScript;
         private String preloadScript;
-        private List<CodeDependency> packages;
     }
 
     @SuppressWarnings("all")
     default Map<String, Object> defaultConfig() {
         return JsonUtils.fromJson(String.format(
-                "{\"type\":\"code\",\"config\":{\"variables\":[{\"variable\":\"arg1\",\"value_selector\":[]},{\"variable\":\"arg2\",\"value_selector\":[]}],\"code_language\":\"%s\",\"code\":%s,\"outputs\":{\"result\":{\"type\":\"string\",\"children\":null}}},\"available_dependencies\":%s}",
-                getLanguage().name(), JsonUtils.toJson(getDefaultCode()), JsonUtils.toJson(getDefaultAvailablePackages())),
+                "{\"type\":\"code\",\"config\":{\"variables\":[{\"variable\":\"arg1\",\"value_selector\":[]},{\"variable\":\"arg2\",\"value_selector\":[]}],\"code_language\":\"%s\",\"code\":%s,\"outputs\":{\"result\":{\"type\":\"string\",\"children\":null}}}}",
+                getLanguage().name(), JsonUtils.toJson(getDefaultCode())),
                 new TypeReference<Map<String, Object>>() {
                 });
     }

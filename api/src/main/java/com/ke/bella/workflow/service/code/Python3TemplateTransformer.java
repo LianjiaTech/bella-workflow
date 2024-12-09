@@ -29,7 +29,10 @@ public class Python3TemplateTransformer implements TemplateTransformer {
             "sys",
             "time",
             "traceback",
-            "uuid");
+            "uuid",
+            "requests",
+            "httpx",
+            "jinja2");
 
     @Override
     public Set<String> getStandardPackages() {
@@ -70,5 +73,14 @@ public class Python3TemplateTransformer implements TemplateTransformer {
                 "    return {\n" +
                 "        \"result\": arg1 + arg2,\n" +
                 "    }\n";
+    }
+
+    @Override
+    public String getPreloadScript() {
+        StringBuilder script = new StringBuilder();
+        for (String packageName : STANDARD_PACKAGES) {
+            script.append("import ").append(packageName).append("\n");
+        }
+        return script.toString();
     }
 }

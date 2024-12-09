@@ -41,7 +41,7 @@ public class TemplateTransformNode extends BaseNode<TemplateTransformNode.Data> 
             data.getVariables()
                     .forEach(v -> inputs.put(v.getVariable(),
                             context.getState().getVariableValue(v.getValueSelector())));
-            Map codeResult = (Map) CodeExecutor.execute(CodeExecutor.CodeLanguage.jinja2, data.getTemplate(), inputs, null,
+            Map codeResult = (Map) CodeExecutor.execute(CodeExecutor.CodeLanguage.jinja2, data.getTemplate(), inputs,
                     context.getNodeTimeout() - 1, Configs.MAX_EXE_MEMORY_ALLOC);
 
             String text = codeResult.get("result").toString();

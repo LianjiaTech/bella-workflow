@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -33,12 +34,14 @@ import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.EnvVar;
 import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.api.WorkflowOps;
+import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunCancel;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
+import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
@@ -72,18 +75,7 @@ public class WorkflowService {
     @Autowired
     RedisMesh mesh;
 
-    ExpiringMap<String, WaitingWorkflowRun> waitingWorkflowRuns = ExpiringMap.builder()
-            .variableExpiration()
-            .maxSize(10240)
-            .expiration(10, TimeUnit.MINUTES)
-            .asyncExpirationListener(new ExpirationListener<String, WaitingWorkflowRun>() {
-                @Override
-                public void expired(String key, WaitingWorkflowRun value) {
-                    value.callback.onWorkflowRunFailed(value.context, "wait workflow resume timeout.", new TimeoutException());
-                }
-
-            })
-            .build();
+    WorkflowRunManager manager;
 
     public static final String EVENT_INTERRUPT = "interruptWorkflowRun";
     public static final String EVENT_NOTIFY = "notifyWorkflowRun";
@@ -96,6 +88,9 @@ public class WorkflowService {
 
     @PostConstruct
     public void init() {
+
+        this.manager = new WorkflowRunManager(mesh);
+
         // update counter every 5s.
         TaskExecutor.scheduleAtFixedRate(() -> counter.flush(), 5);
 
@@ -114,6 +109,13 @@ public class WorkflowService {
             public void onMessage(Event e) {
                 String runId = e.getPayload();
                 tryResumeWorkflowRun(runId);
+            }
+
+            @Override
+            public void onPrivateMessage(Event e) {
+                String runId = e.getPayload();
+                WorkflowRunDB wr = getWorkflowRun(runId);
+                TaskExecutor.submit(() -> notifyWorkflowRun(wr));
             }
         });
     }
@@ -239,7 +241,13 @@ public class WorkflowService {
                 .workflowMode(wf.getMode())
                 .stateful(op.isStateful())
                 .build();
-        new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
+
+        try {
+            manager.beforeRun(context);
+            new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
+        } finally {
+            manager.afterRun(context);
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -273,7 +281,12 @@ public class WorkflowService {
             ennVars.forEach(v -> state.putVariable("env", v.getName(), v.getValue()));
         }
 
-        new WorkflowRunner().runNode(context, new WorkflowRunCallback(this, callback), nodeId);
+        try {
+            manager.beforeRun(context);
+            new WorkflowRunner().runNode(context, new WorkflowRunCallback(this, callback), nodeId);
+        } finally {
+            manager.afterRun(context);
+        }
     }
 
     public void validateWorkflow(WorkflowDB wf) {
@@ -303,7 +316,6 @@ public class WorkflowService {
     }
 
     public void markWorkflowRunStarted(WorkflowContext context) {
-        mesh.addTask(context.getRunId(), 600);
         updateWorkflowRunStatus(context, WorkflowRunStatus.running.name());
     }
 
@@ -461,23 +473,17 @@ public class WorkflowService {
         }
     }
 
-
-
     public void cancelWorkflowRun(WorkflowRunCancel op) {
-        if(WorkflowRunner.isRunning(op.getRunId())) {
+        cancelWorkflowRunStatus(op.getRunId());
+        if(manager.isRunning(op.getRunId())) {
             interruptWorkflowRun(op.getRunId());
         } else {
-            String source = mesh.getInstanceId();
             String target = mesh.getInstanceId(op.getRunId());
-            if(source.equals(target)) {
-                cancelWorkflowRunStatus(op.getRunId());
+            Event e = Event.builder().name(EVENT_INTERRUPT).payload(op.getRunId()).build();
+            if(StringUtils.isNotEmpty(target)) {
+                mesh.sendPrivateMessage(target, e);
             } else {
-                Event e = Event.builder().name(EVENT_INTERRUPT).payload(op.getRunId()).build();
-                if(StringUtils.isNotEmpty(target)) {
-                    mesh.sendPrivateMessage(target, e);
-                } else {
-                    mesh.sendBroadcastMessage(e);
-                }
+                mesh.sendBroadcastMessage(e);
             }
         }
     }
@@ -510,8 +516,13 @@ public class WorkflowService {
         }
 
         context.getState().putNotifyData(notifiedData);
-        new WorkflowRunner().resume(context, new WorkflowRunCallback(this, callback), ids);
-        return true;
+        try {
+            manager.beforeRun(context);
+            new WorkflowRunner().resume(context, new WorkflowRunCallback(this, callback), ids);
+            return true;
+        } finally {
+            manager.afterRun(context);
+        }
     }
 
     public WorkflowRunDB getWorkflowRun(String workflowRunId) {
@@ -643,46 +654,113 @@ public class WorkflowService {
     }
 
     public void waitWorkflowRunNotify(WorkflowContext context, IWorkflowCallback callback, long timeout) {
-        waitingWorkflowRuns.put(context.getRunId(),
-                new WaitingWorkflowRun(context, callback),
-                timeout, TimeUnit.MILLISECONDS);
+        manager.waitWorkflowRunNotify(context, callback, timeout);
     }
 
-
-    public void notifyWorkflowRun(String workflowRunId) {
-        WaitingWorkflowRun wcc = requireWaitingWorkflowRun(workflowRunId);
+    public void notifyWorkflowRun(WorkflowRunDB wr) {
+        String runId = wr.getWorkflowRunId();
+        if(manager.isRunning(runId)) {
+            TaskExecutor.schedule(() -> notifyWorkflowRun(wr), 2000);
+            return;
+        }
+        WaitingWorkflowRun wcc = manager.requireWaitingWorkflowRun(runId);
         if(wcc != null) {
-            tryResumeWorkflowRun(workflowRunId);
+            tryResumeWorkflowRun(runId);
         } else {
-            Event e = Event.builder().name(EVENT_NOTIFY).payload(workflowRunId).build();
-            String instance = mesh.getInstanceId(workflowRunId);
-            if(StringUtils.isNotEmpty(instance)) {
-                mesh.sendPrivateMessage(instance, e);
+            String instance = mesh.getInstanceId(runId);
+            if(mesh.getInstanceId().equals(instance)) {
+                if(wr.getResponseMode().equals(ResponseMode.callback.name())) {
+                    WorkflowRunNotifyCallback callback = new WorkflowRunNotifyCallback(this, wr.getCallbackUrl());
+                    tryResumeWorkflow(wr.getWorkflowRunId(), callback);
+                }
             } else {
-                mesh.sendBroadcastMessage(e);
+                Event e = Event.builder().name(EVENT_NOTIFY).payload(runId).build();
+                if(StringUtils.isNotEmpty(instance)) {
+                    mesh.sendPrivateMessage(instance, e);
+                } else {
+                    if(wr.getResponseMode().equals(ResponseMode.callback.name())) {
+                        WorkflowRunNotifyCallback callback = new WorkflowRunNotifyCallback(this, wr.getCallbackUrl());
+                        tryResumeWorkflow(wr.getWorkflowRunId(), callback);
+                    } else {
+                        mesh.sendBroadcastMessage(e);
+                    }
+                }
             }
         }
     }
 
     private void interruptWorkflowRun(String runId) {
-        WorkflowRunner.interrupt(runId);
-    }
-
-    private void tryResumeWorkflowRun(String runId) {
-        WaitingWorkflowRun wcc = requireWaitingWorkflowRun(runId);
-        if(wcc != null) {
-            if(tryResumeWorkflow(wcc.context, wcc.callback)) {
-                removeWaitingWorkflowRun(runId);
-            }
+        WorkflowContext context = manager.getWorkflowContext(runId);
+        if(context != null) {
+            context.setInterrupted(true);
         }
     }
 
-    private WaitingWorkflowRun requireWaitingWorkflowRun(String runId) {
-        return waitingWorkflowRuns.get(runId);
+    private void tryResumeWorkflowRun(String runId) {
+        WaitingWorkflowRun wcc = manager.requireWaitingWorkflowRun(runId);
+        if(wcc != null) {
+            tryResumeWorkflow(wcc.context, wcc.callback);
+        }
     }
 
-    private void removeWaitingWorkflowRun(String runId) {
-        waitingWorkflowRuns.remove(runId);
+    public static class WorkflowRunManager {
+        final RedisMesh mesh;
+        final Map<String, WorkflowContext> runnningWorkflowRuns = new ConcurrentHashMap<>();
+        final ExpiringMap<String, WaitingWorkflowRun> waitingWorkflowRuns = ExpiringMap.builder()
+                .variableExpiration()
+                .maxSize(10240)
+                .expiration(10, TimeUnit.MINUTES)
+                .asyncExpirationListener(new ExpirationListener<String, WaitingWorkflowRun>() {
+                    @Override
+                    public void expired(String key, WaitingWorkflowRun value) {
+                        value.callback.onWorkflowRunFailed(value.context, "wait workflow resume timeout.", new TimeoutException());
+                    }
+
+                })
+                .build();
+
+        public WorkflowRunManager(RedisMesh mesh) {
+            this.mesh = mesh;
+        }
+
+        public synchronized void beforeRun(WorkflowContext context) {
+            if(runnningWorkflowRuns.containsKey(context.getRunId())) {
+                throw new IllegalStateException("存在正在运行的run实例");
+            }
+            waitingWorkflowRuns.remove(context.getRunId());
+            mesh.addTask(context.getRunId(), (int) context.getTimeout());
+            runnningWorkflowRuns.put(context.getRunId(), context);
+        }
+
+        public synchronized void afterRun(WorkflowContext context) {
+            runnningWorkflowRuns.remove(context.getRunId());
+            mesh.removeTask(context.getRunId());
+        }
+
+        public void waitWorkflowRunNotify(WorkflowContext context, IWorkflowCallback callback, long timeout) {
+            waitingWorkflowRuns.put(context.getRunId(),
+                    new WaitingWorkflowRun(context, callback),
+                    timeout, TimeUnit.SECONDS);
+        }
+
+        public WaitingWorkflowRun requireWaitingWorkflowRun(String runId) {
+            return waitingWorkflowRuns.get(runId);
+        }
+
+        public boolean isRunning(String runId) {
+            return runnningWorkflowRuns.containsKey(runId);
+        }
+
+        public synchronized WorkflowContext getWorkflowContext(String runId) {
+            WorkflowContext context = runnningWorkflowRuns.get(runId);
+            if(context == null) {
+                WaitingWorkflowRun t = waitingWorkflowRuns.get(runId);
+                if(t != null) {
+                    return t.context;
+                }
+            }
+            return null;
+        }
     }
 
 }

@@ -477,6 +477,20 @@ API
         return (LocalDateTime) get(30);
     }
 
+    /**
+     * Setter for <code>workflow_run.context</code>.
+     */
+    public void setContext(String value) {
+        set(31, value);
+    }
+
+    /**
+     * Getter for <code>workflow_run.context</code>.
+     */
+    public String getContext() {
+        return (String) get(31);
+    }
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -500,7 +514,7 @@ API
     /**
      * Create a detached, initialised WorkflowRunRecord
      */
-    public WorkflowRunRecord(Long id, String tenantId, String workflowId, Long workflowVersion, String workflowRunId, String workflowRunShardingKey, String triggerFrom, String query, String files, String inputs, String outputs, String status, String error, String callbackUrl, Integer callbackStatus, String workflowSchedulingId, String triggerId, String responseMode, String metadata, String threadId, Long elapsedTime, Integer flashMode, String traceId, Integer spanLev, Integer stateful, Long cuid, String cuName, LocalDateTime ctime, Long muid, String muName, LocalDateTime mtime) {
+    public WorkflowRunRecord(Long id, String tenantId, String workflowId, Long workflowVersion, String workflowRunId, String workflowRunShardingKey, String triggerFrom, String query, String files, String inputs, String outputs, String status, String error, String callbackUrl, Integer callbackStatus, String workflowSchedulingId, String triggerId, String responseMode, String metadata, String threadId, Long elapsedTime, Integer flashMode, String traceId, Integer spanLev, Integer stateful, Long cuid, String cuName, LocalDateTime ctime, Long muid, String muName, LocalDateTime mtime, String context) {
         super(WorkflowRun.WORKFLOW_RUN);
 
         setId(id);
@@ -534,5 +548,6 @@ API
         setMuid(muid);
         setMuName(muName);
         setMtime(mtime);
+        setContext(context);
     }
 }

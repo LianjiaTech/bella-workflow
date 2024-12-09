@@ -56,6 +56,7 @@ public class RedisMesh {
         String name;
         String from;
         String payload;
+        String context;
     }
 
     @Getter
@@ -227,6 +228,7 @@ public class RedisMesh {
         map.put("name", event.name);
         map.put("from", instanceId);
         map.put("payload", event.payload);
+        map.put("context", event.context);
         return map;
     }
 
@@ -235,6 +237,7 @@ public class RedisMesh {
         event.name = map.get("name");
         event.from = map.get("from");
         event.payload = map.get("payload");
+        event.context = map.get("context");
         return event;
     }
 }

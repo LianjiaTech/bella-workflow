@@ -49,6 +49,7 @@ public class WorkflowRunDB implements Operator, Serializable {
     private Long          muid;
     private String        muName;
     private LocalDateTime mtime;
+    private String        context;
 
     public WorkflowRunDB() {}
 
@@ -84,6 +85,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.muid = value.muid;
         this.muName = value.muName;
         this.mtime = value.mtime;
+        this.context = value.context;
     }
 
     public WorkflowRunDB(
@@ -117,7 +119,8 @@ public class WorkflowRunDB implements Operator, Serializable {
         LocalDateTime ctime,
         Long          muid,
         String        muName,
-        LocalDateTime mtime
+        LocalDateTime mtime,
+        String        context
     ) {
         this.id = id;
         this.tenantId = tenantId;
@@ -150,6 +153,7 @@ public class WorkflowRunDB implements Operator, Serializable {
         this.muid = muid;
         this.muName = muName;
         this.mtime = mtime;
+        this.context = context;
     }
 
     /**
@@ -608,6 +612,20 @@ API
         this.mtime = mtime;
     }
 
+    /**
+     * Getter for <code>workflow_run.context</code>.
+     */
+    public String getContext() {
+        return this.context;
+    }
+
+    /**
+     * Setter for <code>workflow_run.context</code>.
+     */
+    public void setContext(String context) {
+        this.context = context;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("WorkflowRunDB (");
@@ -643,6 +661,7 @@ API
         sb.append(", ").append(muid);
         sb.append(", ").append(muName);
         sb.append(", ").append(mtime);
+        sb.append(", ").append(context);
 
         sb.append(")");
         return sb.toString();

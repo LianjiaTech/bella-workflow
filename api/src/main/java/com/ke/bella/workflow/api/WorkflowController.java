@@ -276,7 +276,6 @@ public class WorkflowController {
 
         WorkflowRunDB wr = ws.getWorkflowRun(workflowRunId);
         Assert.notNull(wr, String.format("找不到对应的工作流运行实例", workflowRunId));
-
         ws.notifyWorkflowRun(wr, nodeId, nodeRunId, inputs);
 
         TaskExecutor.submit(() -> ws.notifyWorkflowRun(wr));

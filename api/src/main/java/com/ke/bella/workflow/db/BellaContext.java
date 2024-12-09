@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.ke.bella.workflow.api.Operator;
+import com.ke.bella.workflow.utils.JsonUtils;
 
 public class BellaContext {
     private static ThreadLocal<Operator> operatorLocal = new ThreadLocal<>();
@@ -40,6 +41,11 @@ public class BellaContext {
         operatorLocal.set((Operator) map.get("oper"));
         apiKey.set((String) map.get("ak"));
         transHeaders.set((Map<String, String>) map.get("trans_headers"));
+    }
+
+    public static void replace(String json) {
+        Map map = JsonUtils.fromJson(json, Map.class);
+        map.put("oper", JsonUtils.convertValue((Map) map.get("oper"), Operator.class));
     }
 
     public static String getApiKey() {

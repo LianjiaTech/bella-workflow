@@ -18,7 +18,6 @@ import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.code.CodeExecutor;
-import com.ke.bella.workflow.service.code.CodeExecutor.CodeDependency;
 import com.ke.bella.workflow.service.code.CodeExecutor.CodeLanguage;
 import com.ke.bella.workflow.utils.JsonUtils;
 
@@ -64,7 +63,7 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
             Object obj = CodeExecutor.execute(language,
                     data.getCode(),
                     bindings,
-                    data.getDependencies(), context.getNodeTimeout() - 1, Configs.MAX_EXE_MEMORY_ALLOC);
+                    context.getNodeTimeout() - 1, Configs.MAX_EXE_MEMORY_ALLOC);
             if(obj instanceof Map) {
                 Map<String, Object> result = transformResult((Map<String, Object>) obj, data.getOutputs(), "", 1);
                 return NodeRunResult.builder()
@@ -281,7 +280,6 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
         private String codeLanguage;
         private String code;
         private Map<String, Output> outputs;
-        private List<CodeDependency> dependencies;
 
         public void validate() {
             Stream.of(CodeLanguage.values())

@@ -43,7 +43,7 @@ public class CodeExecutor {
             CodeLanguage.javascript.name(), new NodeJsTemplateTransformer(),
             CodeLanguage.groovy.name(), new GroovyTemplateTransformer());
 
-    public static Object execute(CodeLanguage language, String code, Map<String, Object> inputs, List<CodeDependency> dependencies, long timeout,
+    public static Object execute(CodeLanguage language, String code, Map<String, Object> inputs, long timeout,
             long maxMemoryBytes) {
         TemplateTransformer transformer = Optional.ofNullable(transformers.get(language.name()))
                 .orElseThrow(() -> new IllegalArgumentException("unsupported code language"));
@@ -61,9 +61,8 @@ public class CodeExecutor {
                 throw new IllegalArgumentException("返回值类型必须是Map");
             }
         } else {
-            TemplateTransformer.RunParams runner = transformer.transformRunParams(code, inputs, dependencies);
-            String resp = executeCode(language, runner.getRunnerScript(), runner.getPreloadScript(),
-                    CollectionUtils.isEmpty(runner.getPackages()) ? null : runner.getPackages());
+            TemplateTransformer.RunParams runner = transformer.transformRunParams(code, inputs);
+            String resp = executeCode(language, runner.getRunnerScript(), runner.getPreloadScript());
 
             return transformer.transformResponse(resp);
         }
@@ -74,12 +73,11 @@ public class CodeExecutor {
                 .defaultConfig();
     }
 
-    private static String executeCode(CodeLanguage language, String code, String preload, List<CodeDependency> dependencies) {
+    private static String executeCode(CodeLanguage language, String code, String preload) {
         CodeRunOp op = CodeRunOp.builder()
                 .language(CODE_LANGUAGE_TO_RUNNING_LANGUAGE.get(language.name()))
                 .code(code)
-                .preload(preload)
-                .dependencies(dependencies).build();
+                .preload(preload).build();
 
         SandBoxResp<SandBoxResp.CodeRunResult> sandBoxResp = HttpUtils.postJson(ImmutableMap.of("X-Api-Key", X_API_KEY),
                 Configs.SAND_BOX_API_BASE + "sandbox/run",
@@ -127,7 +125,6 @@ public class CodeExecutor {
         @Builder.Default
         @JsonProperty("enable_network")
         private Boolean enableNetwork = true;
-        private List<CodeDependency> dependencies;
     }
 
     @AllArgsConstructor

@@ -1,18 +1,10 @@
 package com.ke.bella.workflow.service.code;
 
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 
 public class Jinja2TemplateTransformer implements TemplateTransformer {
-    @Override
-    public Set<String> getStandardPackages() {
-        return Stream.concat(Python3TemplateTransformer.STANDARD_PACKAGES.stream(), Sets.newHashSet("jinja2").stream()).collect(Collectors.toSet());
-    }
 
     @Override
     public String getRunnerScript() {
@@ -44,6 +36,7 @@ public class Jinja2TemplateTransformer implements TemplateTransformer {
         return "";
     }
 
+	@Override
     public String getPreloadScript() {
         return "\nimport jinja2" +
                 "\nfrom base64 import b64decode" +

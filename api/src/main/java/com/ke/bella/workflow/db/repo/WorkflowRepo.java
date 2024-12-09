@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
@@ -370,6 +371,10 @@ public class WorkflowRepo implements BaseRepo {
             rec.setTraceId(runId);
         } else {
             rec.setTraceId(op.getTraceId());
+        }
+
+        if(ResponseMode.callback.name().equals(op.getResponseMode())) {
+            rec.setContext(JsonUtils.toJson(BellaContext.snapshot()));
         }
 
         rec.setSpanLev(op.getSpanLev());

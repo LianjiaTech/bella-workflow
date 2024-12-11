@@ -46,6 +46,7 @@ public class BellaContext {
     public static void replace(String json) {
         Map map = JsonUtils.fromJson(json, Map.class);
         map.put("oper", JsonUtils.convertValue((Map) map.get("oper"), Operator.class));
+        replace(map);
     }
 
     public static String getApiKey() {

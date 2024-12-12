@@ -21,7 +21,7 @@ public abstract class CommonNodeTest {
         Configs.OPEN_API_BASE = "https://example.com/v1/";
         Configs.BELLA_TOOL_API_BASE = "http://example.com";
         Configs.BORE_API_BASE = "https://example.com";
-        Configs.SAND_BOX_API_BASE = "https://example.com/v1/";
+        Configs.SAND_BOX_API_BASE = "https://example.com/v2/";
         Configs.TASK_THREAD_NUMS = 100;
         BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
         BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");

@@ -9,7 +9,8 @@ import {
   useWorkflow,
 } from '../../hooks'
 import useOneStepRun from '../_base/hooks/use-one-step-run'
-import type { Param, ParameterExtractorNodeType, ReasoningModeType } from './types'
+import { ReasoningModeType } from './types'
+import type { Param, ParameterExtractorNodeType } from './types'
 import { useModelListAndDefaultModelAndCurrentProviderAndModel, useTextGenerationCurrentProviderAndModelAndModelList } from '@/app/components/header/account-setting/model-provider-page/hooks'
 import {
   ModelFeatureEnum,
@@ -182,6 +183,11 @@ const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
     })
     setInputs(newInputs)
   }, [inputs, setInputs])
+
+  useEffect(() => {
+    if (isSupportFunctionCall)
+      handleReasoningModeChange(ReasoningModeType.functionCall)
+  }, [isSupportFunctionCall])
 
   const handleImportFromTool = useCallback((params: Param[]) => {
     const newInputs = produce(inputs, (draft) => {

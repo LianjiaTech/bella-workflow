@@ -163,6 +163,9 @@ public class WorkflowService {
     public WorkflowDB getPublishedWorkflow(String workflowId, Long version) {
         if(version == null) {
             WorkflowAggregateDB wfg = repo.queryWorkflowAggregate(workflowId);
+            if(wfg == null) {
+                return null;
+            }
             version = wfg.getDefaultPublishVersion() > 0 ? wfg.getDefaultPublishVersion() : null;
         }
         return repo.queryPublishedWorkflow(workflowId, version);

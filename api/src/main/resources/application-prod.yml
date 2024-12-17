@@ -72,7 +72,7 @@ bella:
   cas:
     server-url-prefix: http://example.com/
     server-login-url: https://example.com/login
-    client-host: http://example.com
+    client-host: https://example.com
     client-index-url: https://example.com/
 
 spring:

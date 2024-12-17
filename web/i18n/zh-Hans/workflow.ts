@@ -276,6 +276,7 @@ const translation = {
         files: '文件列表',
       },
       noVarTip: '设置的输入可在工作流程中使用',
+      noVarAgentTip: '如果Chatflow用于智能体，请不要添加自定义变量',
     },
     end: {
       outputs: '输出',

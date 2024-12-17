@@ -29,7 +29,18 @@ public class Python3TemplateTransformer implements TemplateTransformer {
             "sys",
             "time",
             "traceback",
-            "uuid");
+            "uuid",
+            "requests",
+            "httpx",
+            "jinja2");
+
+    public String builtInDependencies() {
+        StringBuilder script = new StringBuilder();
+        for (String packageName : STANDARD_PACKAGES) {
+            script.append("import ").append(packageName).append("\n");
+        }
+        return script.toString();
+    }
 
     @Override
     public Set<String> getStandardPackages() {
@@ -38,7 +49,7 @@ public class Python3TemplateTransformer implements TemplateTransformer {
 
     @Override
     public String getRunnerScript() {
-        String scriptTemplate = "\n# declare main function" +
+        String scriptTemplate = builtInDependencies() + "\n# declare main function" +
                 "\n%s" +
                 "\n\nimport json" +
                 "\nfrom base64 import b64decode" +

@@ -4,12 +4,13 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Method;
 
+import com.ke.bella.workflow.WorkflowNodeRunException;
 import com.ke.bella.workflow.service.Configs;
 
 public class Utils {
     public static Throwable getRootCause(Throwable throwable) {
         Throwable rootCause = throwable;
-        while (rootCause.getCause() != null && rootCause != rootCause.getCause()) {
+        while (rootCause.getCause() != null && rootCause != rootCause.getCause() && !(rootCause instanceof WorkflowNodeRunException)) {
             rootCause = rootCause.getCause();
         }
         return rootCause;

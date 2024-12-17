@@ -56,6 +56,7 @@ logging:
     root: INFO
     druid: INFO
     executableSql: INFO
+    workflowRun: INFO
     org:
       springframework: INFO
       jooq: DEBUG
@@ -69,6 +70,10 @@ bella:
     run-path: /v1/workflow/run
     sandbox:
       groovy: true
+    redis:
+        host: 0.0.0.0
+        port: 6379
+        password: scaks3askjdh
   knowledge-file:
     search: http://example.com/api/v1/knowledge/searchNew/forWorkflow
   session:
@@ -90,3 +95,10 @@ spring:
     password: bella123
 #    host: localhost
 #    port: 6379
+
+s3:
+  ak: bella123
+  sk: bella123
+  endpoint: https://example.com
+  bucket: bella-workflow
+  root: test-states

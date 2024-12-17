@@ -172,6 +172,15 @@ public class WorkflowOps {
     @SuperBuilder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class WorkflowRunCancel extends Operator {
+        String runId;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class WorkflowCApiRun extends WorkflowRun {
         @Builder.Default
         String responseMode = ResponseMode.blocking.name();

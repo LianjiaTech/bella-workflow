@@ -6,10 +6,9 @@ import {
   useMemo,
 } from 'react'
 import { useNodes } from 'reactflow'
-import { BlockEnum } from '../../types'
+import { BlockEnum, InputVarType } from '../../types'
 import {
   useStore,
-  useWorkflowStore,
 } from '../../store'
 import type { StartNodeType } from '../../nodes/start/types'
 import Empty from './empty'
@@ -18,7 +17,7 @@ import { useChat } from './hooks'
 import type { ChatWrapperRefType } from './index'
 import Chat from '@/app/components/base/chat/chat'
 import type { OnSend } from '@/app/components/base/chat/types'
-import { useFeaturesStore } from '@/app/components/base/features/hooks'
+import { useFeatures, useFeaturesStore } from '@/app/components/base/features/hooks'
 import {
   fetchSuggestedQuestions,
   stopChatMessageResponding,
@@ -30,7 +29,6 @@ const ChatWrapper = forwardRef<ChatWrapperRefType>((_, ref) => {
   const startNode = nodes.find(node => node.data.type === BlockEnum.Start)
   const startVariables = startNode?.data.variables
   const appDetail = useAppStore(s => s.appDetail)
-  const workflowStore = useWorkflowStore()
   const featuresStore = useFeaturesStore()
   const inputs = useStore(s => s.inputs)
   const features = featuresStore!.getState().features
@@ -65,20 +63,60 @@ const ChatWrapper = forwardRef<ChatWrapperRefType>((_, ref) => {
     [],
     taskId => stopChatMessageResponding(appDetail!.id, taskId),
   )
+  const fileSettings = useFeatures(s => s.features.file)
+
+  const variables = useMemo(() => {
+    const startVariables = startNode?.data.variables
+    const data = startVariables || []
+    if (fileSettings?.image?.enabled) {
+      return [
+        ...data,
+        {
+          type: InputVarType.files,
+          variable: '__image',
+          required: false,
+          label: 'files',
+        },
+      ]
+    }
+
+    return data
+  }, [fileSettings?.image?.enabled, startNode?.data.variables])
 
   const doSend = useCallback<OnSend>((query, files) => {
+    const error: any = {}
+    const inputs0: any = {}
+    Object.keys(inputs).forEach((key) => {
+      const value = inputs[key]
+      const type = variables.find(item => item.variable === key)?.type
+      if (type === InputVarType.json) {
+        try {
+          inputs0[key] = JSON.parse(value)
+        }
+        catch (e) {
+          error[key] = true
+        }
+      }
+      else if (type === InputVarType.number) {
+        inputs0[key] = Number(value)
+      }
+      else {
+        inputs0[key] = value
+      }
+    })
+
     handleSend(
       {
         query,
         files,
-        inputs: workflowStore.getState().inputs,
+        inputs: inputs0,
         thread_id: conversationId,
       },
       {
         onGetSuggestedQuestions: (messageId, getAbortController) => fetchSuggestedQuestions(appDetail!.id, messageId, getAbortController),
       },
     )
-  }, [conversationId, handleSend, workflowStore, appDetail])
+  }, [inputs, variables, handleSend, conversationId, appDetail])
 
   useImperativeHandle(ref, () => {
     return {

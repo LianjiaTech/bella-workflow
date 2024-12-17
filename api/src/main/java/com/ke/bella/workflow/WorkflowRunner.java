@@ -3,6 +3,7 @@ package com.ke.bella.workflow;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -17,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class WorkflowRunner {
-
     public void run(WorkflowContext context, IWorkflowCallback callback) {
         try {
             context.start();
@@ -27,7 +27,7 @@ public class WorkflowRunner {
         } catch (Throwable e) {
             LOGGER.info(e.getMessage(), e);
             context.getState().setStatus(WorkflowRunStatus.failed);
-            callback.onWorkflowRunFailed(context, e.toString(), e);
+            callback.onWorkflowRunFailed(context, e.getMessage(), e);
         }
     }
 
@@ -35,7 +35,6 @@ public class WorkflowRunner {
     public void runNode(WorkflowContext context, IWorkflowCallback callback, String nodeId) {
         BaseNode node = context.getNode(nodeId);
         try {
-
             WorkflowSys sys = WorkflowSys.builder()
                     .context(context)
                     .callback(callback)
@@ -61,12 +60,13 @@ public class WorkflowRunner {
         }
     }
 
-    public void resume(WorkflowContext context, IWorkflowCallback callback, List<String> nodeIds) {
+    public void resume(WorkflowContext context, IWorkflowCallback callback, Map<String, String> nodeIds) {
         context.getState().setStatus(WorkflowRunStatus.running);
-        context.getState().putNextNodes(nodeIds);
+        context.putResumeNodeMapping(nodeIds);
+        context.getState().putNextNodes(nodeIds.keySet());
         callback.onWorkflowRunResumed(context);
         if(context.getTriggerFrom().equals("DEBUG_NODE")) {
-            runNode(context, callback, nodeIds.get(0));
+            runNode(context, callback, nodeIds.keySet().iterator().next());
         } else {
             run0(context, callback);
         }
@@ -92,12 +92,12 @@ public class WorkflowRunner {
                             CompletableFuture future = null;
                             if(context.isResume(node.getNodeId())) {
                                 future = TaskExecutor.submit(() -> node.resume(context, callback)).exceptionally(e -> {
-                                    exceptions.add(e);
+                                    exceptions.add(Utils.getRootCause(e));
                                     return null;
                                 });
                             } else {
                                 future = TaskExecutor.submit(() -> node.run(context, callback)).exceptionally(e -> {
-                                    exceptions.add(e);
+                                    exceptions.add(Utils.getRootCause(e));
                                     return null;
                                 });
                             }
@@ -108,6 +108,11 @@ public class WorkflowRunner {
                     if(!exceptions.isEmpty()) {
                         break;
                     }
+
+                    if(context.isInterrupted()) {
+                        break;
+                    }
+
                     LockSupport.parkNanos(1000000); // 1ms
                 }
             }
@@ -122,6 +127,9 @@ public class WorkflowRunner {
             if(context.isSuspended()) {
                 context.getState().setStatus(WorkflowRunStatus.suspended);
                 callback.onWorkflowRunSuspended(context);
+            } else if(context.isInterrupted()) {
+                context.getState().setStatus(WorkflowRunStatus.stopped);
+                callback.onWorkflowRunStopped(context);
             } else {
                 context.getState().setStatus(WorkflowRunStatus.succeeded);
                 callback.onWorkflowRunSucceeded(context);
@@ -135,9 +143,8 @@ public class WorkflowRunner {
             }
         } catch (Throwable e) {
             LOGGER.info(e.getMessage(), e);
-            e = Utils.getRootCause(e);
             context.getState().setStatus(WorkflowRunStatus.failed);
-            callback.onWorkflowRunFailed(context, e.toString(), e);
+            callback.onWorkflowRunFailed(context, e.getMessage(), e);
         }
     }
 }

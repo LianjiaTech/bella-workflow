@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.WorkflowContext;
+import com.ke.bella.workflow.WorkflowNodeRunException;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.db.BellaContext;
@@ -28,6 +29,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -53,6 +55,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
 
     protected WorkflowSchema.Node meta;
     @Getter
+    @Setter
     protected String nodeRunId;
     protected T data;
     @Getter
@@ -60,6 +63,9 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
 
     @Getter
     private PrintStream out;
+
+    @Getter
+    private String callbackUrl;
 
     protected BaseNode(WorkflowSchema.Node meta, T data) {
         this(meta, UUID.randomUUID().toString(), data);
@@ -114,6 +120,10 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
 
     @Override
     public NodeRunResult run(WorkflowContext context, IWorkflowCallback callback) {
+        if(context.isInterrupted()) {
+            return NodeRunResult.newSkippedResult(null);
+        }
+
         Long startTime = System.nanoTime();
 
         setOut(context, callback);
@@ -142,12 +152,10 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 if(result.getStatus() == NodeRunResult.Status.succeeded) {
                     callback.onWorkflowNodeRunSucceeded(context, meta.getId(), nodeRunId);
                 } else if(result.getStatus() == NodeRunResult.Status.failed) {
-                    callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, result.getError().toString(), result.getError());
-                    throw new IllegalStateException(result.getError().getMessage(), result.getError());
+                    WorkflowNodeRunException e = WorkflowNodeRunException.from(this, result.getError());
+                    callback.onWorkflowNodeRunFailed(context, meta.getId(), nodeRunId, e.getMessage(), e);
+                    throw e;
                 } else if(result.getStatus() == NodeRunResult.Status.waiting) {
-                    if(context.isFlashMode()) {
-                        throw new IllegalArgumentException("极速模式下不支持节点挂起，请调整请求里的flashMode参数");
-                    }
                     callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
                 }
             }
@@ -215,15 +223,17 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     }
 
     private void appendBuiltinVariables(WorkflowContext context) {
+        callbackUrl = getCallbackUrl(
+                context.getTenantId(),
+                context.getWorkflowId(),
+                context.getRunId());
+
         // append callbackUrl
         if(isCallback()) {
-            String url = getCallbackUrl(
-                    context.getTenantId(),
-                    context.getWorkflowId(),
-                    context.getRunId());
-            context.getState().putVariable(getNodeId(), "callbackUrl", url);
+            context.getState().putVariable(getNodeId(), "callbackUrl", callbackUrl);
         }
     }
+
 
     public String getCallbackUrl(String tenantId, String workflowId, String runId) {
         return String.format("%s/workflow/callback/%s/%s/%s/%s/%s",
@@ -257,6 +267,13 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static BaseNode from(WorkflowSchema.Node meta, String nodeRunId) {
+        BaseNode node = from(meta);
+        node.setNodeRunId(nodeRunId);
+        return node;
     }
 
     @SuppressWarnings("rawtypes")

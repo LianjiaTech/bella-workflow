@@ -16,9 +16,13 @@ public class ShutdownListener implements ApplicationListener<ApplicationEvent> {
     @Autowired
     InstanceRepo repo;
 
+    @Autowired
+    RedisMesh redisMesh;
+
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
         if(event instanceof ContextClosedEvent) {
+            redisMesh.shutdown();
             Instance instance = AppContext.getInstance();
             repo.unregister(instance.getIpAddress(), instance.getPort());
         }

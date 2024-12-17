@@ -1,14 +1,15 @@
 'use client'
-import type { FC } from 'react'
-import { useTranslation } from 'react-i18next'
-import React, { useCallback, useState } from 'react'
 import produce from 'immer'
+import type { FC } from 'react'
+import React, { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { Authorization as AuthorizationPayloadType } from '../../types'
 import { APIType, AuthorizationType } from '../../types'
 import RadioGroup from './radio-group'
-import useAvailableVarList from '@/app/components/workflow/nodes/_base/hooks/use-available-var-list'
+import Input from '@/app/components/workflow/nodes/_base/components/input-support-select-var'
 import { VarType } from '@/app/components/workflow/types'
 import type { Var } from '@/app/components/workflow/types'
+import useAvailableVarList from '@/app/components/workflow/nodes/_base/hooks/use-available-var-list'
 import Modal from '@/app/components/base/modal'
 import Button from '@/app/components/base/button'
 
@@ -79,7 +80,7 @@ const Authorization: FC<Props> = ({
   }, [tempPayload, setTempPayload])
 
   const handleAPIKeyOrHeaderChange = useCallback((type: 'api_key' | 'header' | 'secret') => {
-    return (e: React.ChangeEvent<HTMLInputElement>) => {
+    return (e: string) => {
       const newPayload = produce(tempPayload, (draft: AuthorizationPayloadType) => {
         if (!draft.config) {
           draft.config = {
@@ -87,7 +88,7 @@ const Authorization: FC<Props> = ({
             api_key: '',
           }
         }
-        draft.config[type] = e.target.value
+        draft.config[type] = e
       })
       setTempPayload(newPayload)
     }
@@ -145,33 +146,51 @@ const Authorization: FC<Props> = ({
                 />
               </Field>
               {tempPayload.config?.type === APIType.custom && (
-                <Field title={t(`${i18nPrefix}.header`)} isRequired>
-                  <input
-                    type='text'
-                    className='w-full h-8 leading-8 px-2.5  rounded-lg border-0 bg-gray-100  text-gray-900 text-[13px]  placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
+                <Field title={t(`${i18nPrefix}.header`) } isRequired>
+                  <Input
+                    instanceId={'http-authorization-header'}
+                    className='w-full h-8 leading-8 px-2.5 pt-1 rounded-lg border-0 bg-gray-100 text-gray-900 text-[13px] placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
                     value={tempPayload.config?.header || ''}
                     onChange={handleAPIKeyOrHeaderChange('header')}
+                    readOnly={false}
+                    nodesOutputVars={availableVars}
+                    availableNodes={availableNodesWithParent}
+                    onFocusChange={setIsFocus}
+                    placeholder={t('workflow.nodes.http.insertVarPlaceholder')!}
+                    promptMinHeightClassName='h-full'
                   />
                 </Field>
               )}
               {tempPayload.config?.type !== APIType.bella && (
                 <Field title={t(`${i18nPrefix}.api-key-title`)} isRequired>
-                  <input
-                    type='text'
-                    className='w-full h-8 leading-8 px-2.5  rounded-lg border-0 bg-gray-100  text-gray-900 text-[13px]  placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
+                  <Input
+                    instanceId={'http-authorization-apikey'}
+                    className='w-full h-8 leading-8 px-2.5 pt-1 rounded-lg border-0 bg-gray-100 text-gray-900 text-[13px] placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
                     value={tempPayload.config?.api_key || ''}
                     onChange={handleAPIKeyOrHeaderChange('api_key')}
+                    readOnly={false}
+                    nodesOutputVars={availableVars}
+                    availableNodes={availableNodesWithParent}
+                    onFocusChange={setIsFocus}
+                    placeholder={t('workflow.nodes.http.insertVarPlaceholder')!}
+                    promptMinHeightClassName='h-full'
                   />
                 </Field>
               )}
 
               {tempPayload.config?.type === APIType.ke_iam && (
                 <Field title={'API Key Secret'} isRequired>
-                  <input
-                    type='text'
-                    className='w-full h-8 leading-8 px-2.5  rounded-lg border-0 bg-gray-100  text-gray-900 text-[13px]  placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
+                  <Input
+                    instanceId={'http-authorization-secret'}
+                    className='w-full h-8 leading-8 px-2.5 pt-1 rounded-lg border-0 bg-gray-100 text-gray-900 text-[13px] placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
                     value={tempPayload.config?.secret || ''}
                     onChange={handleAPIKeyOrHeaderChange('secret')}
+                    readOnly={false}
+                    nodesOutputVars={availableVars}
+                    availableNodes={availableNodesWithParent}
+                    onFocusChange={setIsFocus}
+                    placeholder={t('workflow.nodes.http.insertVarPlaceholder')!}
+                    promptMinHeightClassName='h-full'
                   />
                 </Field>
               )}

@@ -43,7 +43,7 @@ public class CustomRdb implements AutoCloseable {
         case "mysql":
             url = url.append(String.format("jdbc:mysql://%s:%d/%s", host, port, databaseName));
             break;
-        case "postgres":
+        case "postgresql":
             url = url.append(String.format("jdbc:postgresql://%s:%d/%s", host, port, databaseName));
             break;
         default:
@@ -67,7 +67,7 @@ public class CustomRdb implements AutoCloseable {
         switch (dbType) {
         case "mysql":
             return SQLDialect.MYSQL;
-        case "postgres":
+        case "postgresql":
             return SQLDialect.POSTGRES;
         default:
             throw new IllegalArgumentException("Unsupported database type: " + dbType);
@@ -113,7 +113,7 @@ public class CustomRdb implements AutoCloseable {
             return dsl.resultQuery(sql, bindings).iterator();
         }
 
-        public int execute(String sql, Object... bindings) {
+        public int run(String sql, Object... bindings) {
             return dsl.query(sql, bindings).execute();
         }
     }

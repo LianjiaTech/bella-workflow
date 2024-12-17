@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import com.ke.bella.workflow.service.Configs;
 
 public class CodeNodeTest extends CommonNodeTest {
 
@@ -56,7 +59,6 @@ public class CodeNodeTest extends CommonNodeTest {
         inputs.put("input1", "1");
         inputs.put("input2", "2");
         WorkflowContext context = CommonNodeTest.createContext("src/test/resources/code_node_javascript.json", inputs);
-
         AtomicReference<Throwable> errorRef = new AtomicReference<>();
 
         new WorkflowRunner().run(context, new WorkflowCallbackAdaptor() {

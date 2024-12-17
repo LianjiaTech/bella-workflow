@@ -126,8 +126,8 @@ export const updateCurrentWorkspace: Fetcher<ICurrentWorkspace, { url: string; b
   return post<ICurrentWorkspace>(url, { body })
 }
 
-export const fetchWorkspaces: Fetcher<{ workspaces: IWorkspace[] }, { url: string; params: Record<string, any> }> = ({ url, params }) => {
-  return { data: null } as any // get<{ workspaces: IWorkspace[] }>(url, { params })
+export const fetchWorkspaces: Fetcher<{ data: IWorkspace[] }, { url: string; params: Record<string, any> }> = ({ url, params }) => {
+  return get<{ data: IWorkspace[] }>(url, { params })
 }
 
 export const switchWorkspace: Fetcher<CommonResponse & { new_tenant: IWorkspace }, { url: string; body: Record<string, any> }> = ({ url, body }) => {
@@ -320,4 +320,16 @@ export const fetchDatasourceList: Fetcher<Datasource[], string> = (url) => {
 
 export const fetchDomainList: Fetcher<CustomDomain[], { url: string; prefix: string }> = ({ url, prefix }) => {
   return get<CustomDomain[]>(`${url}?prefix=${prefix}`)
+}
+
+export const createDatasource: Fetcher<Datasource, { url: string; body: object }> = ({ url, body }) => {
+  return post(url, { body }) as Promise<Datasource>
+}
+
+export const activeDatasource: Fetcher<Datasource, { datasourceId: string; type: string }> = ({ datasourceId, type }) => {
+  return post('/datasource/activate', { body: { datasourceId, type } }) as Promise<Datasource>
+}
+
+export const deactiveDatasource: Fetcher<Datasource, { datasourceId: string; type: string }> = ({ datasourceId, type }) => {
+  return post('/datasource/deactivate', { body: { datasourceId, type } }) as Promise<Datasource>
 }

@@ -31,7 +31,7 @@ const Wrap = ({
     if (isExpand) {
       return {
         ...style,
-        width: panelWidth - 1,
+        width: '60%',
       }
     }
     return style

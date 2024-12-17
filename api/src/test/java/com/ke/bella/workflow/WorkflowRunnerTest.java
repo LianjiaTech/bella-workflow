@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 public class WorkflowRunnerTest {
@@ -20,6 +21,7 @@ public class WorkflowRunnerTest {
         WorkflowContext context = WorkflowContext.builder()
                 .graph(graph)
                 .state(new WorkflowRunState())
+                .runId(IDGenerator.newWorkflowRunId())
                 .userInputs(map)
                 .build();
         new WorkflowRunner().run(context, new WorkflowCallbackAdaptor() {

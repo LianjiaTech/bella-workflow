@@ -11,6 +11,7 @@ import type { App } from '@/types/app'
 import { Theme } from '@/types/app'
 import type { ICurrentWorkspace, LangGeniusVersionResponse, UserProfileResponse } from '@/models/common'
 import MaintenanceNotice from '@/app/components/header/maintenance-notice'
+import { getSpaceCode, setSpaceCode } from '@/utils/getQueryParams'
 
 export type AppContextValue = {
   theme: Theme
@@ -129,13 +130,11 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
         created_at: '1721898071',
       }
       setUserProfile(profile)
+      setSpaceCode(getSpaceCode(profile.id))
       const workspace: ICurrentWorkspace = {
-        id: userProfileResponse.spaceCode,
-        name: userProfileResponse.spaceCode,
-        plan: '',
-        status: '',
-        created_at: 0,
-        role: 'normal',
+        spaceCode: userProfileResponse.spaceCode,
+        spaceName: '个人空间',
+        roleCode: 'normal',
         providers: [],
         in_trail: true,
       }

@@ -7,7 +7,13 @@ import cn from 'classnames'
 import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import { useContext, useContextSelector } from 'use-context-selector'
-import { RiTerminalBoxFill, RiTerminalBoxLine, RiTimerFlashFill, RiTimerFlashLine } from '@remixicon/react'
+import {
+  RiTerminalBoxFill,
+  RiTerminalBoxLine, RiTerminalFill,
+  RiTerminalLine,
+  RiTimerFlashFill,
+  RiTimerFlashLine,
+} from '@remixicon/react'
 import AppSideBar from '../../components/app-sidebar/index'
 import s from './style.module.css'
 import { useStore } from '@/app/components/app/store'
@@ -69,13 +75,14 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         }]
         : []
       ),
+      {
+        name: t('common.appMenus.apiAccess'),
+        href: `/bella/${appId}/develop`,
+        icon: RiTerminalBoxLine,
+        selectedIcon: RiTerminalBoxFill,
+      },
       ...(mode === 'workflow'
         ? [{
-          name: t('common.appMenus.apiAccess'),
-          href: `/bella/${appId}/develop`,
-          icon: RiTerminalBoxLine,
-          selectedIcon: RiTerminalBoxFill,
-        }, {
           name: t('common.appMenus.trigger'),
           href: `/bella/${appId}/trigger`,
           icon: RiTimerFlashLine,
@@ -83,6 +90,12 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         }]
         : []
       ),
+      {
+        name: t('common.appMenus.customApi'),
+        href: `/bella/${appId}/customApi`,
+        icon: RiTerminalLine,
+        selectedIcon: RiTerminalFill,
+      },
     ]
     return navs
   }, [t])

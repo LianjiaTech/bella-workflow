@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,8 +17,10 @@ import org.springframework.util.Assert;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowSchema.Edge;
+import com.ke.bella.workflow.WorkflowSchema.Node;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.node.BaseNode;
+import com.ke.bella.workflow.node.End;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.node.Start;
 
@@ -41,9 +44,16 @@ public class WorkflowContext {
     private LocalDateTime ctime;
     private int flashMode;
     private boolean stateful;
+    private boolean interrupted;
     @Builder.Default
     private long nodeTimeout = 300;
+    @Builder.Default
+    private long timeout = 300;
     private WorkflowSys sys;
+    @Builder.Default
+    private List<WorkflowContext> children = new ArrayList<>();
+
+    private Map<String, String> runNodeMapping;
 
     public Map userInputs() {
         return this.userInputs;
@@ -92,29 +102,31 @@ public class WorkflowContext {
         }
     }
 
-    public boolean isSuspended() {
+    public synchronized boolean isSuspended() {
         return !state.waitingNodeIds().isEmpty();
     }
 
-    public BaseNode getNode(String nodeId) {
-        return BaseNode.from(graph.node(nodeId));
+    public synchronized boolean isInterrupted() {
+        return interrupted;
     }
 
-    public List<BaseNode> getNodes(List<String> nodeIds) {
-        return nodeIds.stream()
-                .map(id -> BaseNode.from(graph.node(id)))
-                .collect(Collectors.toList());
+    synchronized BaseNode getNode(String nodeId) {
+        if(this.isResume(nodeId)) {
+            return BaseNode.from(graph.node(nodeId), runNodeMapping.get(nodeId));
+        } else {
+            return BaseNode.from(graph.node(nodeId));
+        }
+    }
+
+    public Node getNodeMeta(String nodeId) {
+        return graph.node(nodeId);
     }
 
     public synchronized List<BaseNode> getNextNodes() {
         List<String> ids = state.takeNextNodes();
-
-        // 只有当所有依赖节点都ready的时候才可以执行
-        List<WorkflowSchema.Node> nodes = ids.stream()
-                .map(graph::node)
+        return ids.stream()
+                .map(this::getNode)
                 .collect(Collectors.toList());
-
-        return BaseNode.from(nodes);
     }
 
     public synchronized boolean isFinish() {
@@ -160,7 +172,7 @@ public class WorkflowContext {
 
         this.state.putNodeState(node.getNodeId(), result);
 
-        if(result.status != NodeRunResult.Status.skipped) {
+        if(node instanceof End && result.status != NodeRunResult.Status.skipped) {
             this.putWorkflowRunResult(result);
         }
 
@@ -208,5 +220,20 @@ public class WorkflowContext {
         String msgId = IDGenerator.newMessageId();
         state.putVariable("sys", "message_id", msgId);
         return msgId;
+    }
+
+    public synchronized void putResumeNodeMapping(Map<String, String> nodeIds) {
+        runNodeMapping = new HashMap<>(nodeIds);
+    }
+
+    public synchronized void addChild(WorkflowContext child) {
+        children.add(child);
+    }
+
+    public synchronized void interrupt() {
+        this.interrupted = true;
+        for (WorkflowContext ctx : children) {
+            ctx.interrupt();
+        }
     }
 }

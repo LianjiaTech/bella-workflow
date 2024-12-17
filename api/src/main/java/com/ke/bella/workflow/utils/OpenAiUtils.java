@@ -48,7 +48,6 @@ public class OpenAiUtils {
                 .addInterceptor(new AuthenticationInterceptor(token) {
                     @Override
                     public Response intercept(Chain chain) throws IOException {
-                        LOGGER.info(token);
                         Request request = chain.request()
                                 .newBuilder()
                                 .header("Authorization", token)

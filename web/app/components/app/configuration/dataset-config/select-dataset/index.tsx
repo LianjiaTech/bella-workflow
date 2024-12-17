@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { useGetState, useInfiniteScroll } from 'ahooks'
 import { useTranslation } from 'react-i18next'
 import produce from 'immer'
@@ -29,6 +29,7 @@ const SelectDataSet: FC<ISelectDataSetProps> = ({
   const { t } = useTranslation()
   const [selected, setSelected] = React.useState<DataSet[]>(selectedIds.map(id => ({ id }) as any))
   const [loaded, setLoaded] = React.useState(false)
+  const [datasetName, setDatasetName] = React.useState<string | undefined>(undefined)
   const [datasets, setDataSets] = React.useState<DataSet[] | null>(null)
   const hasNoData = !datasets || datasets?.length === 0
   const canSelectMulti = true
@@ -40,7 +41,7 @@ const SelectDataSet: FC<ISelectDataSetProps> = ({
   useInfiniteScroll(
     async () => {
       if (!isNoMore) {
-        const { data, has_more } = await fetchDatasets({ url: '/datasets', params: { page } })
+        const { data, has_more } = await fetchDatasets({ url: '/datasets', params: { name: datasetName, page } })
         setPage(getPage() + 1)
         setIsNoMore(!has_more)
         const newList = [...(datasets || []), ...data]
@@ -67,9 +68,8 @@ const SelectDataSet: FC<ISelectDataSetProps> = ({
       isNoMore: () => {
         return isNoMore
       },
-      reloadDeps: [isNoMore],
-    },
-  )
+      reloadDeps: [isNoMore, datasetName],
+    })
 
   const toggleSelect = (dataSet: DataSet) => {
     const isSelected = selected.some(item => item.id === dataSet.id)
@@ -87,12 +87,24 @@ const SelectDataSet: FC<ISelectDataSetProps> = ({
   const handleSelect = () => {
     onSelect(selected)
   }
+
+  const handleSearchChange = useCallback((searchContent: string) => {
+    setDatasetName(searchContent)
+    setDataSets([])
+    setLoaded(false)
+    setIsNoMore(false)
+    setPage(1)
+  }, [setPage])
+
   return (
     <Modal
       isShow={isShow}
       onClose={onClose}
       className='w-[400px]'
       title={t('appDebug.feature.dataSet.selectTitle')}
+      searchBox={true}
+      searchBoxTips={t('appDebug.feature.dataSet.searchTips')}
+      onSearchChange={handleSearchChange}
     >
       {!loaded && (
         <div className='flex h-[200px]'>

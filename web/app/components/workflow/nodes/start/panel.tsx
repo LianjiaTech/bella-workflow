@@ -44,7 +44,11 @@ const Panel: FC<NodePanelProps<StartNodeType>> = ({
         <Field
           title={t(`${i18nPrefix}.inputField`)}
           operations={
-            (!readOnly && !isChatMode) ? <AddButton onClick={showAddVarModal} /> : undefined
+            !readOnly
+              ? (<div className="flex items-center">{isChatMode && <span
+                className="bg-gray items-center justify-center leading-[18px] text-xs font-normal text-gray-500">({t(`${i18nPrefix}.noVarAgentTip`)})</span>}
+              <AddButton onClick={showAddVarModal}/></div>)
+              : undefined
           }
         >
           <>

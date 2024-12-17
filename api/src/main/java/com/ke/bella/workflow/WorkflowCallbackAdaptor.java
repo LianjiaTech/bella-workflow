@@ -49,6 +49,10 @@ public class WorkflowCallbackAdaptor implements IWorkflowCallback {
     }
 
     @Override
+    public void onWorkflowRunStopped(WorkflowContext context) {
+    }
+
+    @Override
     public void onWorkflowRunResumed(WorkflowContext context) {
     }
 

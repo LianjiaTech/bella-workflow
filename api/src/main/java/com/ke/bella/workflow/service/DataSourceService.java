@@ -1,11 +1,28 @@
 package com.ke.bella.workflow.service;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.api.DataSourceOps.DataSourceOp;
 import com.ke.bella.workflow.api.DataSourceOps.KafkaDataSourceAdd;
@@ -19,22 +36,6 @@ import com.ke.bella.workflow.db.tables.pojos.RdbDatasourceDB;
 import com.ke.bella.workflow.db.tables.pojos.RedisDatasourceDB;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.Utils;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 @DependsOn("configs")
@@ -95,6 +96,32 @@ public class DataSourceService implements ApplicationContextAware {
         TaskExecutor.scheduleAtFixedRate(this::refreshCustomDomains, 120);
     }
 
+    public void activate(DataSourceOp op) {
+        String id = op.getDatasourceId();
+        String type = op.getType();
+        switch (type) {
+        case "rdb":
+            repo.activateRdb(id);
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    public void deactivate(DataSourceOp op) {
+        String id = op.getDatasourceId();
+        String type = op.getType();
+        switch (type) {
+        case "rdb":
+            repo.deactivateRdb(id);
+            break;
+
+        default:
+            break;
+        }
+    }
+
     public KafkaDatasourceDB createKafkaDs(KafkaDataSourceAdd op) {
         return repo.addKafkaDs(op);
     }
@@ -106,6 +133,10 @@ public class DataSourceService implements ApplicationContextAware {
     public Object listDataSources(String type) {
         if("kafka".equals(type)) {
             return repo.listTenantAllActiveKafkaDs();
+        } else if("rdb".equals(type)) {
+            List<RdbDatasourceDB> dss = repo.listSpaceRdbDatasource();
+            dss.forEach(it -> it.setPassword("******"));
+            return dss;
         }
         return null;
     }
@@ -155,7 +186,7 @@ public class DataSourceService implements ApplicationContextAware {
     public void checkRdbDatasource(RdbDataSourceAdd op) {
         try (CustomRdb rdb = CustomRdb.using(op.getDbType(),
                 op.getHost(), op.getPort(), op.getDb(), op.getUser(), op.getPassword(), op.getParams())) {
-            rdb.conn().execute("select 1;");
+            rdb.conn().run("select 1;");
         } catch (Throwable e) {
             e = Utils.getRootCause(e);
             throw new IllegalArgumentException("校验不通过:" + e.getMessage(), e);
@@ -168,6 +199,10 @@ public class DataSourceService implements ApplicationContextAware {
         } catch (ExecutionException e) {
             throw new IllegalArgumentException(Utils.getRootCause(e));
         }
+    }
+
+    public List<RdbDatasourceDB> listSpaceRdbDatasource() {
+        return repo.listSpaceRdbDatasource();
     }
 
     public RedisDatasourceDB getRedisDatasource(String datasourceId) {

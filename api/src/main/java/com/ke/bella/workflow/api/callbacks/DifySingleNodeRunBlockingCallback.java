@@ -1,7 +1,5 @@
 package com.ke.bella.workflow.api.callbacks;
 
-import java.util.concurrent.TimeUnit;
-
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.service.WorkflowService;
 
@@ -38,7 +36,7 @@ public class DifySingleNodeRunBlockingCallback extends WorkflowRunBlockingCallba
         data = DifyWorkflowRunStreamingCallback.DifyData.builder()
                 .id(context.getRunId() + nodeId)
                 .nodeId(nodeId)
-                .title(context.getNode(nodeId).getMeta().getTitle())
+                .title(context.getNodeMeta(nodeId).getTitle())
                 .inputs(context.getState().getNodeState(nodeId).getInputs())
                 .outputs(context.getState().getNodeState(nodeId).getOutputs())
                 .error(null)
@@ -56,7 +54,7 @@ public class DifySingleNodeRunBlockingCallback extends WorkflowRunBlockingCallba
         data = DifyWorkflowRunStreamingCallback.DifyData.builder()
                 .id(context.getRunId() + nodeId)
                 .nodeId(nodeId)
-                .title(context.getNode(nodeId).getMeta().getTitle())
+                .title(context.getNodeMeta(nodeId).getTitle())
                 .inputs(context.getState().getNodeState(nodeId).getInputs())
                 .error(error)
                 .status(context.getState().getNodeState(nodeId).getStatus().name())
@@ -74,32 +72,6 @@ public class DifySingleNodeRunBlockingCallback extends WorkflowRunBlockingCallba
 
     @Override
     public void onWorkflowRunSuspended(WorkflowContext context) {
-        suspendedTime = System.currentTimeMillis();
-        waitResume(context, waitingNodeId);
-    }
-
-    private void waitResume(WorkflowContext context, String nodeId) {
-        if(System.currentTimeMillis() - suspendedTime >= timeout) {
-            data = DifyWorkflowRunStreamingCallback.DifyData.builder()
-                    .id(context.getRunId() + nodeId)
-                    .nodeId(nodeId)
-                    .title(context.getNode(nodeId).getMeta().getTitle())
-                    .inputs(context.getState().getNodeState(nodeId).getInputs())
-                    .error("wait workflow resume timeout.")
-                    .status(context.getState().getNodeState(nodeId).getStatus().name())
-                    .executionMetadata(null)
-                    .createdAt(System.currentTimeMillis())
-                    .elapsedTime(context.getState().getNodeState(nodeId).getElapsedTime() / 1000d)
-                    .build();
-        }
-
-        if(!ws.tryResumeWorkflow(context, this)) {
-            try {
-                TimeUnit.MILLISECONDS.sleep(5000);
-            } catch (InterruptedException e) {
-                throw new IllegalStateException("waitResume interrupted", e);
-            }
-            waitResume(context, nodeId);
-        }
+        ws.waitWorkflowRunNotify(context, this, timeout);
     }
 }

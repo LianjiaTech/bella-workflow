@@ -216,6 +216,11 @@ API
      */
     public final TableField<WorkflowRunRecord, LocalDateTime> MTIME = createField(DSL.name("mtime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.LOCALDATETIME)), this, "");
 
+    /**
+     * The column <code>workflow_run.context</code>.
+     */
+    public final TableField<WorkflowRunRecord, String> CONTEXT = createField(DSL.name("context"), SQLDataType.VARCHAR(4096).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
+
     private WorkflowRun(Name alias, Table<WorkflowRunRecord> aliased) {
         this(alias, aliased, null);
     }

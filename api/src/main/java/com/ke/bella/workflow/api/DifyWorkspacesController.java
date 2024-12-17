@@ -26,6 +26,7 @@ import com.ke.bella.workflow.api.model.ModelInfoService;
 import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.tables.pojos.DomainDB;
 import com.ke.bella.workflow.service.DataSourceService;
+import com.ke.bella.workflow.space.BellaSpaceService;
 import com.ke.bella.workflow.tool.ApiTool;
 import com.ke.bella.workflow.tool.BellaToolService;
 import com.ke.bella.workflow.tool.BellaToolService.ToolCollect;
@@ -52,15 +53,21 @@ public class DifyWorkspacesController {
     @Autowired
     DataSourceService ds;
 
+    @Autowired
+    BellaSpaceService ss;
+
+    @GetMapping()
+    public BellaResponse<?> listSpace() {
+        return BellaResponse.builder().data(ss.listSpace()).build();
+    }
+
     @GetMapping("/domain/list")
     public List<DomainDB> listDomains(@RequestParam(required = false) String prefix) {
-        dc.initContext();
         return ds.listDomains(prefix);
     }
 
     @PostMapping("/domain/add")
     public BellaResponse<?> addDomain(@RequestBody DomainAdd domainOp) {
-        dc.initContext();
         DomainDB data = ds.addDomain(domainOp);
         return BellaResponse.builder()
                 .data(data)
@@ -69,7 +76,6 @@ public class DifyWorkspacesController {
 
     @GetMapping("/current/models/model-types/{model_type}")
     public DifyModelResponse llmModel(@PathVariable("model_type") String modelType) {
-        dc.initContext();
         String apikey = BellaContext.getApiKey();
         return DifyModelResponse.builder()
                 .data(modelInfoService.fetchModels(modelType, apikey))
@@ -80,7 +86,6 @@ public class DifyWorkspacesController {
     public DifyModelResponse llmModelParams(@PathVariable("provider") String provider,
             @RequestParam("model") String model,
             @RequestParam(value = "modelType", defaultValue = "llm") String modelType) {
-        dc.initContext();
         String apikey = BellaContext.getApiKey();
         return DifyModelResponse.builder()
                 .data(modelInfoService.fetchParameterRules(model, modelType, provider, apikey))
@@ -89,7 +94,6 @@ public class DifyWorkspacesController {
 
     @GetMapping("/current/datasource/{type}")
     public Object listDataSources(@PathVariable("type") String type) {
-        dc.initContext();
         return ds.listDataSources(type);
     }
 

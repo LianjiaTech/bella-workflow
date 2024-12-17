@@ -52,6 +52,7 @@ logging:
     root: INFO
     druid: INFO
     executableSql: INFO
+    workflowRun: INFO
     org:
       springframework: INFO
       jooq: DEBUG
@@ -62,6 +63,10 @@ bella:
     trigger:
         callback-path: /v1/workflow/trigger/callback
     run-path: /v1/workflow/run
+    redis:
+        host: 0.0.0.0
+        port: 6379
+        password: bella123
   knowledge-file:
     search: http://example.com/api/v1/knowledge/searchNew/forWorkflow
   cas:
@@ -74,3 +79,10 @@ spring:
     host: redis.example.com
     port: 14312
     password: bella123
+
+s3:
+  ak: bella123
+  sk: bella123
+  endpoint: https://example.com
+  bucket: bella-workflow
+  root: states

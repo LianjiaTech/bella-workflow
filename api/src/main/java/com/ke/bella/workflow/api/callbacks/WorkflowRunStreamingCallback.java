@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.api.SseHelper;
@@ -16,7 +15,6 @@ public class WorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
     final SseEmitter emitter;
     final WorkflowService ws;
     final long timeout;
-    long suspendedTime = System.currentTimeMillis();
 
     public WorkflowRunStreamingCallback(SseEmitter emitter, WorkflowService ws) {
         this.emitter = emitter;
@@ -50,8 +48,8 @@ public class WorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         responseWorkflowInfo(context, data);
 
         SseHelper.sendEvent(emitter, "onWorkflowRunSuspended", data);
-        suspendedTime = System.currentTimeMillis();
-        waitResume(context);
+
+        ws.waitWorkflowRunNotify(context, this, timeout);
     }
 
     @Override
@@ -113,17 +111,4 @@ public class WorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
 
         SseHelper.sendEvent(emitter, "onWorkflowNodeRunFailed", data);
     }
-
-    private void waitResume(WorkflowContext context) {
-        if(System.currentTimeMillis() - suspendedTime >= timeout) {
-            SseHelper.sendEvent(emitter, "onTimeout", "wait workflow resume timeout.");
-            emitter.complete();
-        }
-        TaskExecutor.schedule(() -> {
-            if(!ws.tryResumeWorkflow(context, this)) {
-                waitResume(context);
-            }
-        }, 5000);
-    }
-
 }

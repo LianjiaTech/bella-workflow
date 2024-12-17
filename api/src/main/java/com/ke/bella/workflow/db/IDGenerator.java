@@ -100,4 +100,8 @@ public class IDGenerator {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(yyMMddHHmmss);
         return LocalDateTime.parse(str, formatter);
     }
+
+    public static String dsTypeFromCode(String code) {
+        return code.split("-")[1];
+    }
 }

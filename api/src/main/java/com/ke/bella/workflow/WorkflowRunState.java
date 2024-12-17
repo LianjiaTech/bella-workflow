@@ -1,7 +1,9 @@
 package com.ke.bella.workflow;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,26 +13,35 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ke.bella.workflow.db.BellaContext;
 
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-public class WorkflowRunState {
+public class WorkflowRunState implements Serializable {
+    private static final long serialVersionUID = 734805247655179406L;
+
     /** NodeId -> NodeRunResult */
-    final Map<String, NodeRunResult> nodeCompletedStates = new HashMap<>();
-    final Map<String, NodeRunResult> nodeWaitingStates = new HashMap<>();
+    @JsonProperty
+    Map<String, NodeRunResult> nodeCompletedStates = new HashMap<>();
+    @JsonProperty
+    Map<String, NodeRunResult> nodeWaitingStates = new HashMap<>();
     @SuppressWarnings("rawtypes")
-    final Map<String, Map> variablePoolMap = new HashMap<>();
+    @JsonProperty
+    Map<String, Map> variablePool = new HashMap<>();
+    @JsonProperty
+    Set<String> activatedSourceHandles = new HashSet<>();
+    @JsonProperty
+    Set<String> deadSourceHandles = new HashSet<>();
     @SuppressWarnings("rawtypes")
-    final Map<String, Map> notifyDataMap = new HashMap<>();
-    final Set<String> activatedSourceHandles = new HashSet<>();
-    final Set<String> deadSourceHandles = new HashSet<>();
-    final ArrayBlockingQueue<String> nextNodes = new ArrayBlockingQueue<>(64);
-    int runningNodeCount = 0;
+    transient Map<String, Map> notifyData = new HashMap<>();
+    transient ArrayBlockingQueue<String> nextNodes = new ArrayBlockingQueue<>(64);
+    transient int runningNodeCount = 0;
 
     @Getter
     @Setter
@@ -52,7 +63,7 @@ public class WorkflowRunState {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public WorkflowRunState(Map variablePoolMap) {
-        this.variablePoolMap.putAll(variablePoolMap);
+        this.variablePool.putAll(variablePoolMap);
     }
 
     synchronized boolean isEmpty() {
@@ -69,23 +80,23 @@ public class WorkflowRunState {
 
     @SuppressWarnings("rawtypes")
     public synchronized void putNotifyData(Map<String, Map> data) {
-        notifyDataMap.clear();
-        notifyDataMap.putAll(data);
+        notifyData.clear();
+        notifyData.putAll(data);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public synchronized void putVariable(String nodeId, String key, Object value) {
-        Map variables = this.variablePoolMap.get(nodeId);
+        Map variables = this.variablePool.get(nodeId);
         if(variables == null) {
             variables = new HashMap();
         }
         variables.put(key, value);
-        variablePoolMap.put(nodeId, variables);
+        variablePool.put(nodeId, variables);
     }
 
     @SuppressWarnings({ "rawtypes" })
     public synchronized Object getVariable(String nodeId, String key) {
-        Map variables = this.variablePoolMap.get(nodeId);
+        Map variables = this.variablePool.get(nodeId);
         if(variables == null) {
             variables = new HashMap();
         }
@@ -102,15 +113,15 @@ public class WorkflowRunState {
 
     @SuppressWarnings("rawtypes")
     public synchronized Map getVariablePool() {
-        return Collections.unmodifiableMap(variablePoolMap);
+        return Collections.unmodifiableMap(variablePool);
     }
 
     public synchronized Object getVariableValue(List<String> selector) {
-        return Variables.getValue(variablePoolMap, selector);
+        return Variables.getValue(variablePool, selector);
     }
 
     public synchronized void putVariableValue(List<String> selector, Object value) {
-        Variables.putValue(variablePoolMap, selector, value);
+        Variables.putValue(variablePool, selector, value);
     }
 
     public synchronized NodeRunResult getNodeState(String nodeId) {
@@ -119,12 +130,12 @@ public class WorkflowRunState {
     }
 
     public synchronized boolean isResume(String nodeId) {
-        return notifyDataMap.containsKey(nodeId);
+        return notifyData.containsKey(nodeId);
     }
 
     @SuppressWarnings("rawtypes")
     public synchronized Map getNotifyData(String nodeId) {
-        return notifyDataMap.get(nodeId);
+        return notifyData.get(nodeId);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -142,7 +153,7 @@ public class WorkflowRunState {
         } else {
             nodeWaitingStates.remove(nodeId);
             if(s == NodeRunResult.Status.succeeded) {
-                Map variables = variablePoolMap.get(nodeId);
+                Map variables = variablePool.get(nodeId);
                 if(variables == null) {
                     variables = new HashMap();
                 }
@@ -152,7 +163,7 @@ public class WorkflowRunState {
                 if(state.outputs != null) {
                     variables.putAll(state.outputs);
                 }
-                variablePoolMap.put(nodeId, variables);
+                variablePool.put(nodeId, variables);
                 nodeCompletedStates.put(nodeId, state);
                 state.activatedSourceHandles
                         .forEach(h -> activatedSourceHandles.add(String.format("%s/%s", nodeId, h)));
@@ -187,7 +198,7 @@ public class WorkflowRunState {
         }
     }
 
-    synchronized void putNextNodes(List<String> nodeIds) {
+    synchronized void putNextNodes(Collection<String> nodeIds) {
         nextNodes.addAll(nodeIds);
     }
 
@@ -204,6 +215,7 @@ public class WorkflowRunState {
 
     @Data
     @SuperBuilder
+    @NoArgsConstructor
     @SuppressWarnings("rawtypes")
     public static class NodeRunResult {
         public enum Status {

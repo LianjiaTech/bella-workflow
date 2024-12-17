@@ -45,7 +45,7 @@ const Avatar = ({
         className={cn(textClassName, 'text-center text-white scale-[0.4]')}
         style={style}
       >
-        {name[0].toLocaleUpperCase()}
+        {name[0]?.toLocaleUpperCase()}
       </div>
     </div>
   )

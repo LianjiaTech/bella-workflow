@@ -53,11 +53,15 @@ public class WorkflowRunCountUpdator {
     }
 
     public void trySharding() {
-        WorkflowRunShardingDB sharding = repo.queryLatestWorkflowRunSharding();
-        if(sharding.getCount().longValue() >= sharding.getMaxCount().longValue()) {
+        try {
+            WorkflowRunShardingDB sharding = repo.queryLatestWorkflowRunSharding();
+            if(sharding.getCount().longValue() >= sharding.getMaxCount().longValue()) {
 
-            LOGGER.info("new workflow_run sharding, last_key: {}", sharding.getKey());
-            TaskExecutor.submit(() -> repo.newShardingTable(sharding.getKey()));
+                LOGGER.info("new workflow_run sharding, last_key: {}", sharding.getKey());
+                TaskExecutor.submit(() -> repo.newShardingTable(sharding.getKey()));
+            }
+        } catch (Throwable t) {
+            LOGGER.info("trySharding error, t: ", t);
         }
     }
 }

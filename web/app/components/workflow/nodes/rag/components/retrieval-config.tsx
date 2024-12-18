@@ -3,7 +3,7 @@ import type { FC } from 'react'
 import React, { useCallback, useState } from 'react'
 import { RiEqualizer2Line } from '@remixicon/react'
 import { useTranslation } from 'react-i18next'
-import type { MultipleRetrievalConfig, SingleRetrievalConfig } from '../types'
+import type { MultipleRetrievalConfig } from '../types'
 import type { ModelConfig } from '../../../types'
 import cn from '@/utils/classnames'
 import {
@@ -12,7 +12,6 @@ import {
   PortalToFollowElemTrigger,
 } from '@/app/components/base/portal-to-follow-elem'
 import ConfigRetrievalContent from '@/app/components/app/configuration/dataset-config/params-config/config-content'
-import { RETRIEVE_TYPE } from '@/types/app'
 import { DATASET_DEFAULT } from '@/config'
 import {
   useModelListAndDefaultModelAndCurrentProviderAndModel,
@@ -24,11 +23,8 @@ import type { DataSet } from '@/models/datasets'
 
 type Props = {
   payload: {
-    retrieval_mode: RETRIEVE_TYPE
     multiple_retrieval_config?: MultipleRetrievalConfig
-    single_retrieval_config?: SingleRetrievalConfig
   }
-  onRetrievalModeChange: (mode: RETRIEVE_TYPE) => void
   onMultipleRetrievalConfigChange: (config: MultipleRetrievalConfig) => void
   singleRetrievalModelConfig?: ModelConfig
   onSingleRetrievalModelChange?: (config: ModelConfig) => void
@@ -41,11 +37,7 @@ type Props = {
 
 const RetrievalConfig: FC<Props> = ({
   payload,
-  onRetrievalModeChange,
   onMultipleRetrievalConfigChange,
-  singleRetrievalModelConfig,
-  onSingleRetrievalModelChange,
-  onSingleRetrievalModelParamsChange,
   readonly,
   openFromProps,
   onOpenFromPropsChange,
@@ -65,31 +57,26 @@ const RetrievalConfig: FC<Props> = ({
   } = useModelListAndDefaultModelAndCurrentProviderAndModel(ModelTypeEnum.rerank)
 
   const { multiple_retrieval_config } = payload
-  const handleChange = useCallback((configs: DatasetConfigs, isRetrievalModeChange?: boolean) => {
-    if (isRetrievalModeChange) {
-      onRetrievalModeChange(configs.retrieval_model)
-      return
-    }
-
+  const handleChange = useCallback((configs: DatasetConfigs) => {
     onMultipleRetrievalConfigChange({
+      retrieval_mode: configs.retrieval_mode ? configs.retrieval_mode : DATASET_DEFAULT.retrieval_mode,
       top_k: configs.top_k,
       score_threshold: configs.score_threshold_enabled ? (configs.score_threshold || DATASET_DEFAULT.score_threshold) : null,
-      reranking_model: payload.retrieval_mode === RETRIEVE_TYPE.oneWay
-        ? undefined
-        : (!configs.reranking_model?.reranking_provider_name
-          ? {
-            provider: rerankDefaultModel?.provider?.provider || '',
-            model: rerankDefaultModel?.model || '',
-          }
-          : {
-            provider: configs.reranking_model?.reranking_provider_name,
-            model: configs.reranking_model?.reranking_model_name,
-          }),
+      background: configs.background || false,
+      reranking_model: (!configs.reranking_model?.reranking_provider_name
+        ? {
+          provider: rerankDefaultModel?.provider?.provider || '',
+          model: rerankDefaultModel?.model || '',
+        }
+        : {
+          provider: configs.reranking_model?.reranking_provider_name,
+          model: configs.reranking_model?.reranking_model_name,
+        }),
       reranking_mode: configs.reranking_mode,
       weights: configs.weights as any,
       reranking_enable: configs.reranking_enable,
     })
-  }, [onMultipleRetrievalConfigChange, payload.retrieval_mode, rerankDefaultModel?.provider?.provider, rerankDefaultModel?.model, onRetrievalModeChange])
+  }, [onMultipleRetrievalConfigChange, rerankDefaultModel?.provider?.provider, rerankDefaultModel?.model])
 
   return (
     <PortalToFollowElem
@@ -122,7 +109,7 @@ const RetrievalConfig: FC<Props> = ({
           <ConfigRetrievalContent
             datasetConfigs={
               {
-                retrieval_model: payload.retrieval_mode,
+                retrieval_mode: multiple_retrieval_config?.retrieval_mode || DATASET_DEFAULT.retrieval_mode,
                 reranking_model: multiple_retrieval_config?.reranking_model?.provider
                   ? {
                     reranking_provider_name: multiple_retrieval_config.reranking_model?.provider,
@@ -135,6 +122,7 @@ const RetrievalConfig: FC<Props> = ({
                 top_k: multiple_retrieval_config?.top_k || DATASET_DEFAULT.top_k,
                 score_threshold_enabled: !(multiple_retrieval_config?.score_threshold === undefined || multiple_retrieval_config.score_threshold === null),
                 score_threshold: multiple_retrieval_config?.score_threshold,
+                background: multiple_retrieval_config?.background || false,
                 datasets: {
                   datasets: [],
                 },
@@ -145,9 +133,6 @@ const RetrievalConfig: FC<Props> = ({
             }
             onChange={handleChange}
             isInWorkflow
-            singleRetrievalModelConfig={singleRetrievalModelConfig}
-            onSingleRetrievalModelChange={onSingleRetrievalModelChange}
-            onSingleRetrievalModelParamsChange={onSingleRetrievalModelParamsChange}
             selectedDatasets={selectedDatasets}
           />
         </div>

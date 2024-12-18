@@ -27,6 +27,7 @@ import {
   useModelListAndDefaultModelAndCurrentProviderAndModel,
 } from '@/app/components/header/account-setting/model-provider-page/hooks'
 import { ModelTypeEnum } from '@/app/components/header/account-setting/model-provider-page/declarations'
+import type { RetrievalMode } from '@/app/components/workflow/nodes/rag/types'
 
 const useConfig = (id: string, payload: KnowledgeRetrievalNodeType) => {
   const { nodesReadOnly: readOnly } = useNodesReadOnly()
@@ -136,9 +137,11 @@ const useConfig = (id: string, payload: KnowledgeRetrievalNodeType) => {
 
       const multipleRetrievalConfig = draft.multiple_retrieval_config
       draft.multiple_retrieval_config = {
+        retrieval_mode: multipleRetrievalConfig?.retrieval_mode as RetrievalMode,
         top_k: multipleRetrievalConfig?.top_k || DATASET_DEFAULT.top_k,
         score_threshold: multipleRetrievalConfig?.score_threshold,
         reranking_model: multipleRetrievalConfig?.reranking_model,
+        background: multipleRetrievalConfig?.background as boolean,
       }
     })
     setInputs(newInput)

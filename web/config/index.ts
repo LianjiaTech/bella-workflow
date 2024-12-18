@@ -2,6 +2,7 @@
 import { InputVarType } from '@/app/components/workflow/types'
 import { AgentStrategy } from '@/types/app'
 import { PromptRole } from '@/models/debug'
+import { RetrievalMode } from '@/app/components/workflow/nodes/rag/types'
 
 export let apiPrefix = ''
 export let publicApiPrefix = ''
@@ -142,6 +143,7 @@ export const appDefaultIconBackground = '#D5F5F6'
 export const NEED_REFRESH_APP_LIST_KEY = 'needRefreshAppList'
 
 export const DATASET_DEFAULT = {
+  retrieval_mode: RetrievalMode.semantic,
   top_k: 2,
   score_threshold: 0.5,
 }

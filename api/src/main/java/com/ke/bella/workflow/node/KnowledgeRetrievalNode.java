@@ -145,7 +145,7 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         @JsonAlias("retrieval_mode")
         private String retrievalMode = "semantic";
 
-        private boolean background;
+        private boolean background = true;
     }
 
     @Getter

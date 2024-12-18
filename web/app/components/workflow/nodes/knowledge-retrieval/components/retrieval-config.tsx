@@ -59,7 +59,7 @@ const RetrievalConfig: FC<Props> = ({
       retrieval_mode: configs.retrieval_mode || DATASET_DEFAULT.retrieval_mode,
       top_k: configs.top_k,
       score_threshold: configs.score_threshold_enabled ? (configs.score_threshold || DATASET_DEFAULT.score_threshold) : null,
-      background: configs.background || false,
+      background: configs.background || true,
       reranking_model: (!configs.reranking_model?.reranking_provider_name
         ? {
           provider: rerankDefaultModel?.provider?.provider || '',
@@ -119,7 +119,7 @@ const RetrievalConfig: FC<Props> = ({
                 top_k: multiple_retrieval_config?.top_k || DATASET_DEFAULT.top_k,
                 score_threshold_enabled: !(multiple_retrieval_config?.score_threshold === undefined || multiple_retrieval_config.score_threshold === null),
                 score_threshold: multiple_retrieval_config?.score_threshold,
-                background: multiple_retrieval_config?.background || false,
+                background: multiple_retrieval_config?.background || true,
                 datasets: {
                   datasets: [],
                 },

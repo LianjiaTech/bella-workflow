@@ -21,10 +21,11 @@ import type {
 import type { ExternalDataTool } from '@/models/common'
 import type { DataSet } from '@/models/datasets'
 import type { VisionSettings } from '@/types/app'
-import { ModelModeType, RETRIEVE_TYPE, Resolution, TransferMethod } from '@/types/app'
+import { ModelModeType, Resolution, TransferMethod } from '@/types/app'
 import { ANNOTATION_DEFAULT, DEFAULT_AGENT_SETTING, DEFAULT_CHAT_PROMPT_CONFIG, DEFAULT_COMPLETION_PROMPT_CONFIG } from '@/config'
 import type { FormValue } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import type { Collection } from '@/app/components/tools/types'
+import { RetrievalMode } from '@/app/components/workflow/nodes/rag/types'
 
 type IDebugConfiguration = {
   appId: string
@@ -217,13 +218,14 @@ const DebugConfigurationContext = createContext<IDebugConfiguration>({
   showSelectDataSet: () => { },
   setDataSets: () => { },
   datasetConfigs: {
-    retrieval_model: RETRIEVE_TYPE.oneWay,
+    retrieval_mode: RetrievalMode.semantic,
     reranking_model: {
       reranking_provider_name: '',
       reranking_model_name: '',
     },
     top_k: 2,
     score_threshold_enabled: false,
+    background: false,
     score_threshold: 0.7,
     datasets: {
       datasets: [],

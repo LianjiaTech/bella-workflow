@@ -1,5 +1,4 @@
 import type { CommonNodeType, ModelConfig, ValueSelector } from '@/app/components/workflow/types'
-import type { RETRIEVE_TYPE } from '@/types/app'
 import type {
   RerankingModeEnum,
   WeightedScoreEnum,
@@ -10,8 +9,10 @@ export type GenerationConfig = {
   instruction?: string
 }
 export type MultipleRetrievalConfig = {
+  retrieval_mode: RetrievalMode
   top_k: number
   score_threshold: number | null | undefined
+  background: boolean
   reranking_model?: {
     provider: string
     model: string
@@ -38,8 +39,12 @@ export type SingleRetrievalConfig = {
 export type RagNodeType = CommonNodeType & {
   query_variable_selector: ValueSelector
   dataset_ids: string[]
-  retrieval_mode: RETRIEVE_TYPE
   generation_config?: GenerationConfig
   multiple_retrieval_config?: MultipleRetrievalConfig
-  single_retrieval_config?: SingleRetrievalConfig
+  retrieval_mode: RetrievalMode
+}
+
+export enum RetrievalMode {
+  semantic = 'semantic',
+  fusion = 'fusion',
 }

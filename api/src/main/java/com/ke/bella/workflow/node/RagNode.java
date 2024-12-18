@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.node;
 
-import static com.ke.bella.workflow.IWorkflowCallback.ProgressData.EventType.*;
+import static com.ke.bella.workflow.IWorkflowCallback.ProgressData.EventType.MESSAGE_COMPLETED;
+import static com.ke.bella.workflow.IWorkflowCallback.ProgressData.EventType.MESSAGE_DELTA;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -104,7 +105,8 @@ public class RagNode extends BaseNode<RagNode.Data> {
             }
 
             BellaRagParams params = getBellaRagParams(query, data.getDatasetIds(), data.multipleRetrievalConfig.getTopK(),
-                    data.multipleRetrievalConfig.getScoreThreshold(), data.getGenerationConfig().getModel(), instruction);
+                    data.multipleRetrievalConfig.getScoreThreshold(), data.multipleRetrievalConfig.getRetrievalMode(),
+                    data.multipleRetrievalConfig.isBackground(), data.getGenerationConfig().getModel(), instruction);
             processedData.put("params", params);
 
             List<MessageContent> contents = invokeBellaRag(params, context, callback);
@@ -234,11 +236,19 @@ public class RagNode extends BaseNode<RagNode.Data> {
         }
     }
 
-    private static BellaRagParams getBellaRagParams(String query, List<String> datasetIds, Integer topK, Float scoreThreshold, Model model,
-            String instruction) {
+    private static BellaRagParams getBellaRagParams(String query, List<String> datasetIds, Integer topK, Float scoreThreshold, String retrievalMode,
+            boolean background, Model model, String instruction) {
+
+        List<BellaRagParams.RetrievalParam.Plugin> plugins = null;
+        if(background) {
+            plugins = Collections.singletonList(contextCompletePlugin());
+        }
+
         BellaRagParams.RetrievalParam retrievalParam = BellaRagParams.RetrievalParam.builder()
                 .fileIds(datasetIds.stream().map(String::valueOf).collect(Collectors.toList()))
                 .score(scoreThreshold)
+                .retrieveMode(retrievalMode)
+                .plugins(plugins)
                 .topK(topK).build();
 
         BellaRagParams.GenerateParam generateParam = BellaRagParams.GenerateParam.generateParam(model.getCompletionParams(), model, instruction);
@@ -249,6 +259,15 @@ public class RagNode extends BaseNode<RagNode.Data> {
                 .retrieval_param(retrievalParam)
                 .generate_param(generateParam).build();
         return params;
+    }
+
+    private static BellaRagParams.RetrievalParam.Plugin contextCompletePlugin() {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("complete_mode", "context_complete");
+        return BellaRagParams.RetrievalParam.Plugin.builder()
+                .name("completer")
+                .parameters(params)
+                .build();
     }
 
     @Getter
@@ -264,6 +283,11 @@ public class RagNode extends BaseNode<RagNode.Data> {
         @Builder.Default
         @JsonAlias("score_threshold")
         private float scoreThreshold = 0;
+        @Builder.Default
+        @JsonAlias("retrieval_mode")
+        private String retrievalMode = "semantic";
+
+        private boolean background = true;
     }
 
     @Getter
@@ -331,6 +355,19 @@ public class RagNode extends BaseNode<RagNode.Data> {
             private Float score;
             @JsonProperty("top_k")
             private Integer topK;
+            @JsonProperty("retrieve_mode")
+            private String retrieveMode;
+            private List<Plugin> plugins;
+
+            @Getter
+            @Setter
+            @NoArgsConstructor
+            @AllArgsConstructor
+            @Builder
+            public static class Plugin {
+                private String name;
+                private Map parameters;
+            }
         }
 
         @Getter

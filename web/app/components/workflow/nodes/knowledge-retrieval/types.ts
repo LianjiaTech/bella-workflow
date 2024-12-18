@@ -4,9 +4,12 @@ import type {
   RerankingModeEnum,
   WeightedScoreEnum,
 } from '@/models/datasets'
+import type { RetrievalMode } from '@/app/components/workflow/nodes/rag/types'
 
 export type MultipleRetrievalConfig = {
+  retrieval_mode: RetrievalMode
   top_k: number
+  background: boolean
   score_threshold: number | null | undefined
   reranking_model?: {
     provider: string

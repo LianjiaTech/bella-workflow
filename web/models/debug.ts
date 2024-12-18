@@ -1,8 +1,9 @@
-import type { AgentStrategy, ModelModeType, RETRIEVE_TYPE, ToolItem, TtsAutoPlay } from '@/types/app'
+import type { AgentStrategy, ModelModeType, ToolItem, TtsAutoPlay } from '@/types/app'
 import type {
   RerankingModeEnum,
   WeightedScoreEnum,
 } from '@/models/datasets'
+import type { RetrievalMode } from '@/app/components/workflow/nodes/rag/types'
 export type Inputs = Record<string, string | number | object>
 
 export enum PromptMode {
@@ -141,7 +142,7 @@ export type DatasetConfigItem = {
 }
 
 export type DatasetConfigs = {
-  retrieval_model: RETRIEVE_TYPE
+  retrieval_mode: RetrievalMode
   reranking_model: {
     reranking_provider_name: string
     reranking_model_name: string
@@ -149,6 +150,7 @@ export type DatasetConfigs = {
   top_k: number
   score_threshold_enabled: boolean
   score_threshold: number | null | undefined
+  background: boolean
   datasets: {
     datasets: {
       enabled: boolean

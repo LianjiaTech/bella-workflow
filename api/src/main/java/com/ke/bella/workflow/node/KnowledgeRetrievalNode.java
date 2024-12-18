@@ -51,7 +51,8 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         }
         try {
             List<KnowledgeRetrievalResult> retrieveResult = invokeFileRetrieve(query, data.getDatasetIds(), data.multipleRetrievalConfig.getTopK(),
-                    data.multipleRetrievalConfig.getScoreThreshold());
+                    data.multipleRetrievalConfig.getScoreThreshold(), data.multipleRetrievalConfig.getRetrievalMode(),
+                    data.multipleRetrievalConfig.isBackground());
 
             Map<String, Object> outputs = Collections.singletonMap("result", retrieveResult);
             return WorkflowRunState.NodeRunResult.builder()
@@ -66,7 +67,9 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         }
     }
 
-    private List<KnowledgeRetrievalResult> invokeFileRetrieve(String query, List<String> datasetIds, Integer topK, Float scoreThreshold) {
+    private List<KnowledgeRetrievalResult> invokeFileRetrieve(String query, List<String> datasetIds, Integer topK, Float scoreThreshold,
+            String retrievalMode,
+            boolean background) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + BellaContext.getApiKey());
         Optional.ofNullable(BellaContext.getTransHeaders()).ifPresent(map -> map.forEach(headers::putIfAbsent));
@@ -77,7 +80,13 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         request.setQuery(query);
         request.setTopK(topK);
         request.setScore(scoreThreshold);
+        request.setRetrieveMode(retrievalMode);
         request.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
+
+        if(background) {
+            List<KnowledgeRetrievalRequest.Plugin> plugins = Collections.singletonList(contextCompletePlugin());
+            request.setPlugins(plugins);
+        }
 
         BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postJson(headers, fileRetrieveUrl, JsonUtils.toJson(request),
                 new TypeReference<BellaFileRetrieveResult>() {
@@ -91,6 +100,15 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
             return Collections.emptyList();
         }
         return retrieveResult.stream().map(KnowledgeRetrievalResult::transfer).collect(Collectors.toList());
+    }
+
+    private static KnowledgeRetrievalRequest.Plugin contextCompletePlugin() {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("complete_mode", "context_complete");
+        return KnowledgeRetrievalRequest.Plugin.builder()
+                .name("completer")
+                .parameters(params)
+                .build();
     }
 
     @Getter
@@ -123,6 +141,11 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         @Builder.Default
         @JsonAlias("score_threshold")
         private float scoreThreshold = 0.8f;
+
+        @JsonAlias("retrieval_mode")
+        private String retrievalMode = "semantic";
+
+        private boolean background = true;
     }
 
     @Getter
@@ -171,6 +194,19 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         private Integer topK;
         private Float score;
         private String user;
+        @JsonProperty("retrieve_mode")
+        private String retrieveMode;
+        private List<Plugin> plugins;
+
+        @Getter
+        @Setter
+        @NoArgsConstructor
+        @AllArgsConstructor
+        @Builder
+        public static class Plugin {
+            private String name;
+            private Map parameters;
+        }
     }
 
     @Getter

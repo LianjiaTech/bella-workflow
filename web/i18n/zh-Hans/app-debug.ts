@@ -126,6 +126,20 @@ const translation = {
         deleteContextVarTitle: '删除变量“{{varName}}”？',
         deleteContextVarTip: '该变量已被设置为上下文查询变量，删除该变量将影响知识库的正常使用。 如果您仍需要删除它，请在上下文部分中重新选择它。',
       },
+      retrieval: {
+        mode: {
+          title: '检索模式',
+          description: `**语义检索**：基于向量的文本相关性查询，推荐在需要理解语义的关联度和跨语言查询的场景使用
+          \n
+**混合检索**：结合全文检索与语义检索的优势，并对结果进行综合排序`,
+          semantic: '语义检索',
+          fusion: '混合检索',
+        },
+        background: {
+          title: '背景信息',
+          description: '开启后，将针对文档类知识(非QA)，分段总结文档内容，并作为索引和用户问题匹配。适合文件名包含重要信息，或者片段需要补全段落整体信息的场景',
+        },
+      },
     },
     tools: {
       title: '工具',

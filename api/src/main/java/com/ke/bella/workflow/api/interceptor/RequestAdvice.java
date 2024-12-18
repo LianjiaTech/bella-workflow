@@ -12,7 +12,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAd
 
 import com.ke.bella.workflow.api.Operator;
 import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.utils.JsonUtils;
 
 @RestControllerAdvice
 public class RequestAdvice extends RequestBodyAdviceAdapter {
@@ -27,7 +26,8 @@ public class RequestAdvice extends RequestBodyAdviceAdapter {
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType,
             Class<? extends HttpMessageConverter<?>> converterType) {
         if(body instanceof Operator) {
-            Operator oper = JsonUtils.fromJson(JsonUtils.toJson(body), Operator.class);
+            Operator oper = getPureOper((Operator) body);
+
             Optional.ofNullable(BellaContext.getOperator()).ifPresent(oldOperator -> {
                 oper.setUserId(oldOperator.getUserId());
                 oper.setUserName(oldOperator.getUserName());
@@ -42,6 +42,16 @@ public class RequestAdvice extends RequestBodyAdviceAdapter {
         }
 
         return body;
+    }
+
+    private static Operator getPureOper(Operator oper) {
+        return Operator.builder()
+                .userId(oper.getUserId())
+                .userName(oper.getUserName())
+                .email(oper.getEmail())
+                .tenantId(oper.getTenantId())
+                .spaceCode(oper.getSpaceCode())
+                .build();
     }
 
 }

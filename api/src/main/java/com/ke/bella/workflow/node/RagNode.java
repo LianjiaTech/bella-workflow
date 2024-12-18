@@ -3,7 +3,6 @@ package com.ke.bella.workflow.node;
 import static com.ke.bella.workflow.IWorkflowCallback.ProgressData.EventType.MESSAGE_COMPLETED;
 import static com.ke.bella.workflow.IWorkflowCallback.ProgressData.EventType.MESSAGE_DELTA;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -240,9 +239,9 @@ public class RagNode extends BaseNode<RagNode.Data> {
     private static BellaRagParams getBellaRagParams(String query, List<String> datasetIds, Integer topK, Float scoreThreshold, String retrievalMode,
             boolean background, Model model, String instruction) {
 
-        List<BellaRagParams.RetrievalParam.Plugin> plugins = new ArrayList<>();
+        List<BellaRagParams.RetrievalParam.Plugin> plugins = null;
         if(background) {
-            plugins.add(contextCompletePlugin());
+            plugins = Collections.singletonList(contextCompletePlugin());
         }
 
         BellaRagParams.RetrievalParam retrievalParam = BellaRagParams.RetrievalParam.builder()

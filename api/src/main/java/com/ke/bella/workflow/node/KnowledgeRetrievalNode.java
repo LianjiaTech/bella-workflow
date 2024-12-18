@@ -1,6 +1,5 @@
 package com.ke.bella.workflow.node;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -84,11 +83,10 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         request.setRetrieveMode(retrievalMode);
         request.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
 
-        List<KnowledgeRetrievalRequest.Plugin> plugins = new ArrayList<>();
         if(background) {
-            plugins.add(contextCompletePlugin());
+            List<KnowledgeRetrievalRequest.Plugin> plugins = Collections.singletonList(contextCompletePlugin());
+            request.setPlugins(plugins);
         }
-        request.setPlugins(plugins);
 
         BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postJson(headers, fileRetrieveUrl, JsonUtils.toJson(request),
                 new TypeReference<BellaFileRetrieveResult>() {

@@ -33,14 +33,14 @@ public class BellaContext {
         Map<String, Object> map = new HashMap<>();
         map.put("oper", operatorLocal.get());
         map.put("ak", apiKey.get());
-        map.put("trans_headers", transHeaders.get());
+        map.put("headers", transHeaders.get());
         return map;
     }
 
     public static void replace(Map<String, Object> map) {
         operatorLocal.set((Operator) map.get("oper"));
         apiKey.set((String) map.get("ak"));
-        transHeaders.set((Map<String, String>) map.get("trans_headers"));
+        transHeaders.set((Map<String, String>) map.get("headers"));
     }
 
     public static void replace(String json) {

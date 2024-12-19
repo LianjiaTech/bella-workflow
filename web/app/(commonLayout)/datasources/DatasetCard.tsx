@@ -102,7 +102,7 @@ const DatasetCard = ({
   }
 
   useEffect(() => {
-    setTags(dataset.tags)
+    setTags(dataset.tags || [])
   }, [dataset])
 
   return (

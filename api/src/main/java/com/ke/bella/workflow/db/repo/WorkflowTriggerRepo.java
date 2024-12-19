@@ -100,6 +100,12 @@ public class WorkflowTriggerRepo implements BaseRepo {
                 .fetchOneInto(WorkflowSchedulingDB.class);
     }
 
+    public WorkflowSchedulingDB selectWorkflowScheduling(String triggerId) {
+        return db.selectFrom(WORKFLOW_SCHEDULING)
+                .where(WORKFLOW_SCHEDULING.TRIGGER_ID.eq(triggerId))
+                .fetchOneInto(WorkflowSchedulingDB.class);
+    }
+
     public List<WorkflowSchedulingDB> listWorkflowScheduling(LocalDateTime endTime, Set<String> status, Integer limit) {
         return db.selectFrom(WORKFLOW_SCHEDULING)
                 .where(WORKFLOW_SCHEDULING.TRIGGER_NEXT_TIME.le(endTime)

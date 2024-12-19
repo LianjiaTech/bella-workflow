@@ -73,9 +73,10 @@ public class WorkflowSchedulingTest extends AbstractTest {
         Assertions.assertNotNull(wfsPage.getData().getData());
 
         // 3. 测试停止一个scheduling任务
-        WorkflowOps.WorkflowSchedulingOp wlsOp = WorkflowOps.WorkflowSchedulingOp.builder()
+        WorkflowOps.WorkflowSchedulingStatusOp wlsOp = WorkflowOps.WorkflowSchedulingStatusOp.builder()
                 .tenantId("04633c4f-8638-43a3-a02e-af23c29f821f")
                 .triggerId(wfs.getData().getTriggerId())
+                .triggerType("SCHD")
                 .userId(userIdL)
                 .build();
         MvcResult stopResult = mockMvc.perform(post("/v1/workflow/trigger/scheduling/stop")
@@ -86,7 +87,7 @@ public class WorkflowSchedulingTest extends AbstractTest {
         BellaResponse<WorkflowSchedulingDB> stopWfs = JsonUtils.fromJson(stopResp.getContentAsString(),
                 new TypeReference<BellaResponse<WorkflowSchedulingDB>>() {
                 });
-        Assertions.assertEquals(WorkflowSchedulingStatus.stopped.name(), stopWfs.getData().getRunningStatus());
+        Assertions.assertEquals(-1, (int) stopWfs.getData().getStatus());
 
         // 4. 测试重新启动
         MvcResult startResult = mockMvc.perform(post("/v1/workflow/trigger/scheduling/start")
@@ -97,7 +98,7 @@ public class WorkflowSchedulingTest extends AbstractTest {
         BellaResponse<WorkflowSchedulingDB> startWfs = JsonUtils.fromJson(startResp.getContentAsString(),
                 new TypeReference<BellaResponse<WorkflowSchedulingDB>>() {
                 });
-        Assertions.assertEquals(WorkflowSchedulingStatus.running.name(), startWfs.getData().getRunningStatus());
+        Assertions.assertEquals(0, (int) startWfs.getData().getStatus());
 
         // 5. 手动触发
         mockMvc.perform(post("/v1/workflow/trigger/scheduling/run")

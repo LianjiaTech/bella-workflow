@@ -357,6 +357,9 @@
               <includes>
                 .*
               </includes>
+              <excludes>
+                ^workflow_run_\d+.*|^workflow_node_run_\d+.*
+              </excludes>
               <unsignedTypes>false</unsignedTypes>
             </database>
             <generate>

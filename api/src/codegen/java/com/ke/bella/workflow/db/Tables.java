@@ -21,6 +21,7 @@ import com.ke.bella.workflow.db.tables.WorkflowNodeRunTemp;
 import com.ke.bella.workflow.db.tables.WorkflowRun;
 import com.ke.bella.workflow.db.tables.WorkflowRunSharding;
 import com.ke.bella.workflow.db.tables.WorkflowScheduling;
+import com.ke.bella.workflow.db.tables.WorkflowTemplate;
 import com.ke.bella.workflow.db.tables.WorkflowWebotTrigger;
 
 
@@ -114,6 +115,11 @@ public class Tables {
      * The table <code>workflow_scheduling</code>.
      */
     public static final WorkflowScheduling WORKFLOW_SCHEDULING = WorkflowScheduling.WORKFLOW_SCHEDULING;
+
+    /**
+     * The table <code>workflow_template</code>.
+     */
+    public static final WorkflowTemplate WORKFLOW_TEMPLATE = WorkflowTemplate.WORKFLOW_TEMPLATE;
 
     /**
      * The table <code>workflow_webot_trigger</code>.

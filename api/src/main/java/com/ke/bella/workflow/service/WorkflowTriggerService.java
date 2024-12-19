@@ -86,14 +86,14 @@ public class WorkflowTriggerService {
     }
 
     @Transactional
-    public WorkflowSchedulingDB stopWorkflowScheduling(WorkflowOps.WorkflowSchedulingOp op) {
-        updateWorkflowSchedulingStatus(op.getTenantId(), op.getTriggerId(), WorkflowSchedulingStatus.stopped);
+    public WorkflowSchedulingDB stopWorkflowScheduling(WorkflowOps.WorkflowSchedulingStatusOp op) {
+        deactivateWorkflowTrigger(op.getTriggerId(), op.getTriggerType());
         return repo.selectWorkflowScheduling(op.getTenantId(), op.getTriggerId());
     }
 
     @Transactional
-    public WorkflowSchedulingDB startWorkflowScheduling(WorkflowOps.WorkflowSchedulingOp op) {
-        updateWorkflowSchedulingStatus(op.getTenantId(), op.getTriggerId(), WorkflowSchedulingStatus.running);
+    public WorkflowSchedulingDB startWorkflowScheduling(WorkflowOps.WorkflowSchedulingStatusOp op) {
+        activateWorkflowTrigger(op.getTriggerId(), op.getTriggerType());
         return repo.selectWorkflowScheduling(op.getTenantId(), op.getTriggerId());
     }
 
@@ -265,6 +265,8 @@ public class WorkflowTriggerService {
             repo.activeKafkaTrigger(triggerId);
         } else if(type == TriggerType.SCHD) {
             repo.activeWorkflowScheduling(triggerId);
+            WorkflowSchedulingDB trigger = repo.selectWorkflowScheduling(triggerId);
+            refreshTriggerNextTime(trigger);
         } else if(type == TriggerType.WBOT) {
             repo.activeWebotTrigger(triggerId);
         }

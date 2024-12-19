@@ -46,16 +46,18 @@ public class TriggerController {
     }
 
     @PostMapping("/scheduling/stop")
-    public WorkflowSchedulingDB stopScheduling(@RequestBody WorkflowOps.WorkflowSchedulingOp op) {
+    public WorkflowSchedulingDB stopScheduling(@RequestBody WorkflowOps.WorkflowSchedulingStatusOp op) {
         Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.getTriggerId(), "triggerId不能为空");
+        Assert.hasText(op.getTriggerType(), "triggerType不能为空");
         return ws.stopWorkflowScheduling(op);
     }
 
     @PostMapping("/scheduling/start")
-    public WorkflowSchedulingDB startScheduling(@RequestBody WorkflowOps.WorkflowSchedulingOp op) {
+    public WorkflowSchedulingDB startScheduling(@RequestBody WorkflowOps.WorkflowSchedulingStatusOp op) {
         Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.getTriggerId(), "triggerId不能为空");
+        Assert.hasText(op.getTriggerType(), "triggerType不能为空");
         return ws.startWorkflowScheduling(op);
     }
 

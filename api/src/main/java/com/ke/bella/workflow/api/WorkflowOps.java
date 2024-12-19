@@ -249,6 +249,18 @@ public class WorkflowOps {
     @SuperBuilder
     @NoArgsConstructor
     @AllArgsConstructor
+    @SuppressWarnings("rawtypes")
+    public static class WorkflowSchedulingStatusOp extends Operator {
+        String triggerId;
+
+        String triggerType;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class WorkflowSchedulingPage extends Operator {
         String triggerId;
 

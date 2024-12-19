@@ -100,6 +100,7 @@ public class WorkflowOps {
         String desc;
         String mode;
         Integer status;
+        Long version;
     }
 
     @Getter

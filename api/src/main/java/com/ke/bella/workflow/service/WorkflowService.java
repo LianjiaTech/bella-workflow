@@ -127,16 +127,16 @@ public class WorkflowService {
 
     @Transactional(rollbackFor = Exception.class)
     public WorkflowDB newWorkflow(WorkflowSync op) {
-        WorkflowDB workflowDb = repo.addDraftWorkflow(op);
-        repo.addWorkflowAggregate(workflowDb);
-        return workflowDb;
+        WorkflowDB workflowDB = repo.addWorkflow(op);
+        repo.addWorkflowAggregate(workflowDB);
+        return workflowDB;
     }
 
     @Transactional(rollbackFor = Exception.class)
     public WorkflowDB syncWorkflow(WorkflowSync op) {
         WorkflowDB wf = repo.queryDraftWorkflow(op.getWorkflowId());
         if(wf == null) {
-            WorkflowDB workflowDb = repo.addDraftWorkflow(op);
+            WorkflowDB workflowDb = repo.addWorkflow(op);
             repo.addWorkflowAggregate(workflowDb);
         } else if(!StringUtils.equals(wf.getEnvVars(), op.getEnvVars())) {
             repo.updateDraftWorkflow(op);

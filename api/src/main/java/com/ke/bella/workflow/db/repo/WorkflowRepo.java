@@ -147,7 +147,8 @@ public class WorkflowRepo implements BaseRepo {
                 .fetchOneInto(WorkflowDB.class);
     }
 
-    public WorkflowDB addDraftWorkflow(WorkflowSync op) {
+    @Transactional(rollbackFor = Exception.class)
+    public WorkflowDB addWorkflow(WorkflowSync op) {
         WorkflowRecord rec = WORKFLOW.newRecord();
 
         rec.setTenantId(BellaContext.getOperator().getTenantId());
@@ -163,13 +164,13 @@ public class WorkflowRepo implements BaseRepo {
         if(!StringUtils.isEmpty(op.getDesc())) {
             rec.setDesc(op.getDesc());
         }
-        rec.setVersion(0L);
+        if(op.getVersion() != null) {
+            rec.setVersion(op.getVersion());
+        }
 
         fillCreatorInfo(rec);
 
-        db.insertInto(WORKFLOW).set(rec).execute();
-
-        return rec.into(WorkflowDB.class);
+        return db.insertInto(WORKFLOW).set(rec).returningResult().fetchOne().into(WorkflowDB.class);
     }
 
     public WorkflowAggregateDB addWorkflowAggregate(WorkflowDB workflowDb) {

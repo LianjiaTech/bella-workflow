@@ -104,6 +104,16 @@ public class WorkflowController {
         Assert.notNull(op.version, "version不能为空");
 
         WorkflowDB wf = ws.getWorkflow(op.workflowId, op.version);
+        if(op.getVersion() > 0) {
+            WorkflowSync sync = WorkflowSync.builder()
+                    .graph(wf.getGraph())
+                    .title(wf.getTitle())
+                    .mode(wf.getMode())
+                    .desc(wf.getDesc())
+                    .version(wf.getVersion())
+                    .build();
+            ws.newWorkflow(sync);
+        }
         WorkflowSync sync = WorkflowSync.builder()
                 .graph(wf.getGraph())
                 .title(wf.getTitle())

@@ -276,7 +276,7 @@ public class DifyController {
         // 前端当页面退出等情况，使用navigator.sendBeacon的形式发送请求，此api不支持设置header，故此处通过请求参数实现。
         initContext(op);
         Assert.hasText(workflowId, "workflowId不能为空");
-        if (schema == null) {
+        if(schema == null) {
             schema = DifyUtils.getDefaultWorkflowSchema();
         }
         List<EnvVar> vars = schema.getEnvironmentVariables();

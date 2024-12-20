@@ -2,6 +2,7 @@ package com.ke.bella.workflow.db.repo;
 
 import static com.ke.bella.workflow.db.Tables.WORKFLOW_AGGREGATE;
 import static com.ke.bella.workflow.db.Tables.WORKFLOW_AS_API;
+import static com.ke.bella.workflow.db.Tables.WORKFLOW_TEMPLATE;
 import static com.ke.bella.workflow.db.tables.Tenant.TENANT;
 import static com.ke.bella.workflow.db.tables.Workflow.WORKFLOW;
 import static com.ke.bella.workflow.db.tables.WorkflowNodeRun.WORKFLOW_NODE_RUN;
@@ -27,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
@@ -42,6 +44,7 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunShardingDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowTemplateDB;
 import com.ke.bella.workflow.db.tables.records.TenantRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowAggregateRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowAsApiRecord;
@@ -49,6 +52,7 @@ import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunShardingRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowTemplateRecord;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 
@@ -606,6 +610,57 @@ public class WorkflowRepo implements BaseRepo {
                 .where(WORKFLOW_AS_API.TENANT_ID.eq(BellaContext.getOperator().getTenantId())
                         .and(WORKFLOW_AS_API.WORKFLOW_ID.eq(workflowId)))
                 .fetchInto(WorkflowAsApiDB.class);
+    }
+
+    public List<WorkflowTemplateDB> listWorkflowTemplateDB(WorkflowPage op) {
+        return db.selectFrom(WORKFLOW_TEMPLATE)
+                .where(WORKFLOW_TEMPLATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(StringUtils.isEmpty(op.getName()) ? DSL.noCondition() : WORKFLOW_TEMPLATE.TITLE.like("%" + DSL.escape(op.getName(), '\\') + "%"))
+                .fetchInto(WorkflowTemplateDB.class);
+    }
+
+    public WorkflowTemplateDB queryWorkflowTemplate(WorkflowSync op) {
+        return db.selectFrom(WORKFLOW_TEMPLATE)
+                .where(WORKFLOW_TEMPLATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW_TEMPLATE.TEMPLATE_ID.eq(op.getTemplateId()))
+                .fetchOneInto(WorkflowTemplateDB.class);
+    }
+
+    public void increaseTemplateCopies(WorkflowSync op) {
+        WorkflowTemplateRecord rec = WORKFLOW_TEMPLATE.newRecord();
+        fillUpdatorInfo(rec);
+        int num = db.update(WORKFLOW_TEMPLATE)
+                .set(WORKFLOW_TEMPLATE.COPIES, WORKFLOW_TEMPLATE.COPIES.plus(1))
+                .where(WORKFLOW_TEMPLATE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW_TEMPLATE.TEMPLATE_ID.eq(op.getTemplateId()))
+                .execute();
+        Assert.isTrue(num == 1, "工作流模板更新失败");
+    }
+
+    @Transactional
+    public WorkflowTemplateDB addWorkflowTemplate(WorkflowDB workflowDB, WorkflowOps.WorkflowOp op) {
+        WorkflowTemplateRecord rec = WORKFLOW_TEMPLATE.newRecord();
+
+        rec.setTenantId(BellaContext.getOperator().getTenantId());
+        rec.setTemplateId(IDGenerator.newWorkflowTemplateId());
+        rec.setWorkflowId(workflowDB.getWorkflowId());
+        rec.setVersion(workflowDB.getVersion());
+        rec.setTags(JsonUtils.toJson(op.getTags()));
+        rec.setMode(workflowDB.getMode());
+
+        if(!StringUtils.isEmpty(op.getSpaceCode())) {
+            rec.setSpaceCode(BellaContext.getOperator().getSpaceCode());
+        }
+        if(!StringUtils.isEmpty(workflowDB.getTitle())) {
+            rec.setTitle(workflowDB.getTitle());
+        }
+        if(!StringUtils.isEmpty(workflowDB.getDesc())) {
+            rec.setDesc(workflowDB.getDesc());
+        }
+
+        fillCreatorInfo(rec);
+
+        return db.insertInto(WORKFLOW_TEMPLATE).set(rec).returningResult().fetchOne().into(WorkflowTemplateDB.class);
     }
 
     @SuppressWarnings("serial")

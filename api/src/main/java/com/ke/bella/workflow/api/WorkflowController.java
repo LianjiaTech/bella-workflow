@@ -105,22 +105,16 @@ public class WorkflowController {
 
         WorkflowDB wf = ws.getWorkflow(op.workflowId, op.version);
         if(op.getVersion() > 0) {
+            return ws.newWorkflowPublished(wf);
+        } else {
             WorkflowSync sync = WorkflowSync.builder()
                     .graph(wf.getGraph())
                     .title(wf.getTitle())
                     .mode(wf.getMode())
                     .desc(wf.getDesc())
-                    .version(wf.getVersion())
                     .build();
-            ws.newWorkflow(sync);
+            return ws.newWorkflow(sync);
         }
-        WorkflowSync sync = WorkflowSync.builder()
-                .graph(wf.getGraph())
-                .title(wf.getTitle())
-                .mode(wf.getMode())
-                .desc(wf.getDesc())
-                .build();
-        return ws.newWorkflow(sync);
     }
 
     @PostMapping("/workflow/draft/publish")

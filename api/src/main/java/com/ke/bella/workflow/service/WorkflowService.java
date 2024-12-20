@@ -133,6 +133,31 @@ public class WorkflowService {
     }
 
     @Transactional(rollbackFor = Exception.class)
+    public WorkflowDB newWorkflowPublished(WorkflowDB wf) {
+        // 添加一个published以及agg
+        WorkflowSync sync = WorkflowSync.builder()
+                .graph(wf.getGraph())
+                .title(wf.getTitle())
+                .mode(wf.getMode())
+                .desc(wf.getDesc())
+                .version(wf.getVersion())
+                .build();
+        WorkflowDB published = newWorkflow(sync);
+
+        // 添加一份draft，保证画布可打开
+        WorkflowSync draftSync = WorkflowSync.builder()
+                .workflowId(published.getWorkflowId())
+                .graph(published.getGraph())
+                .title(published.getTitle())
+                .mode(published.getMode())
+                .desc(published.getDesc())
+                .build();
+        repo.addWorkflow(draftSync);
+
+        return published;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     public WorkflowDB syncWorkflow(WorkflowSync op) {
         WorkflowDB wf = repo.queryDraftWorkflow(op.getWorkflowId());
         if(wf == null) {

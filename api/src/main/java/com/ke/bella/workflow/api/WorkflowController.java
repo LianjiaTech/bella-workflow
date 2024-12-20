@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.WorkflowTemplate;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TenantCreate;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
@@ -302,5 +303,36 @@ public class WorkflowController {
             @PathVariable String workflowRunId) {
         List<WorkflowNodeRunDB> nodeRuns = ws.getNodeRuns(workflowRunId);
         return DifyController.DifyNodeExecution.builder().data(DifyUtils.transfer(nodeRuns)).build();
+    }
+
+    @PostMapping("/workflow/templates/page")
+    public Page<WorkflowTemplate> pageTemplates(@RequestBody WorkflowOps.WorkflowPage op) {
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
+        return ws.pageWorkflowTemplates(op);
+    }
+
+    @PostMapping("/workflow/create/from-template")
+    public WorkflowDB fromTemplate(@RequestBody WorkflowSync op) {
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
+        Assert.hasText(op.getTemplateId(), "templateId不能为空");
+
+        WorkflowTemplate template = ws.getWorkflowTemplate(op);
+
+        if(StringUtils.isEmpty(op.getTitle())) {
+            op.setTitle(template.getTitle());
+        }
+        if(StringUtils.isEmpty(op.getDesc())) {
+            op.setDesc(template.getDesc());
+        }
+        return ws.newWorkflowFromTemplate(op);
+    }
+
+    @PostMapping("/workflow/publish-as-templates")
+    public WorkflowTemplate publishAsTemplate(@RequestBody WorkflowOp op) {
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
+        Assert.hasText(op.getWorkflowId(), "workflowId不能为空");
+        Assert.notNull(op.getVersion(), "version不能为空");
+
+        return ws.publishAsTemplate(op);
     }
 }

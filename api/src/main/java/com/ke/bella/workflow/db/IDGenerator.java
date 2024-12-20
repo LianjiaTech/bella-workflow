@@ -88,6 +88,10 @@ public class IDGenerator {
         return "MSG-" + UUID.randomUUID().toString();
     }
 
+    public static String newWorkflowTemplateId() {
+        return "TMPL-" + UUID.randomUUID().toString();
+    }
+
     public static String timeStrFromCode(String code) {
         int index = code.indexOf('-') + 1;
         String str = code.substring(index, index + 12);

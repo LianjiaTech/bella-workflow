@@ -118,10 +118,10 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
         onProgress(node, newMessageId(), text);
     }
 
-    public void sendImageDelta(String id, String url) {
+    public void sendImageDelta(String id, String url, int imageProgress) {
         Delta delta = Delta.builder()
                 .name(node.getNodeData().getMessageRoleName())
-                .content(Delta.fromImageDelta(id, url))
+                .content(Delta.fromImageDelta(id, url, imageProgress))
                 .messageId((String) get("message_id"))
                 .build();
 

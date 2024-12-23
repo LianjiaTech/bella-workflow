@@ -82,11 +82,12 @@ public interface IWorkflowCallback {
             return ret;
         }
 
-        public static List<DeltaContentX> fromImageDelta(String id, String url) {
+        public static List<DeltaContentX> fromImageDelta(String id, String url, int progress) {
             DeltaContentX c = DeltaContentX.builder()
                     .imageDelta(ImageDelta.builder()
                             .id(id)
                             .url(url)
+                            .progress(progress)
                             .build())
                     .build();
             c.setType("image_delta");
@@ -103,6 +104,8 @@ public interface IWorkflowCallback {
         private String url;
 
         private String id;
+
+        private int progress;
 
         public ImageDelta(String url) {
             this.url = url;

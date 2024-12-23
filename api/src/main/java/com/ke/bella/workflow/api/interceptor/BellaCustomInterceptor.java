@@ -1,11 +1,15 @@
 package com.ke.bella.workflow.api.interceptor;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.auth.AuthenticationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.ke.bella.workflow.api.Operator;
@@ -23,7 +27,10 @@ public class BellaCustomInterceptor extends HandlerInterceptorAdapter {
         String apiKey = request.getHeader(HttpHeaders.AUTHORIZATION);
         String tenantId = request.getHeader(X_BELLA_TENANT_ID);
         String operatorId = request.getHeader(X_BELLA_OPERATOR_ID);
-        String operatorName = request.getHeader(X_BELLA_OPERATOR_NAME);
+        String operatorName = "";
+        if(!StringUtils.isEmpty(request.getHeader(X_BELLA_OPERATOR_NAME))) {
+            operatorName = URLDecoder.decode(request.getHeader(X_BELLA_OPERATOR_NAME), StandardCharsets.UTF_8.name());
+        }
         String operatorSpace = request.getHeader(X_BELLA_OPERATOR_SPACE);
         if(apiKey == null || tenantId == null || operatorId == null || operatorName == null) {
             throw new AuthenticationException("missing required headers");

@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
 import com.ke.bella.workflow.api.WorkflowOps.DomainAdd;
 import com.ke.bella.workflow.api.model.DifyModelResponse;
 import com.ke.bella.workflow.api.model.ModelInfoService;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.db.tables.pojos.DomainDB;
 import com.ke.bella.workflow.service.DataSourceService;
 import com.ke.bella.workflow.space.BellaSpaceService;
@@ -76,7 +76,7 @@ public class DifyWorkspacesController {
 
     @GetMapping("/current/models/model-types/{model_type}")
     public DifyModelResponse llmModel(@PathVariable("model_type") String modelType) {
-        String apikey = BellaContext.getApiKey();
+        String apikey = BellaContext.getApikey().getApikey();
         return DifyModelResponse.builder()
                 .data(modelInfoService.fetchModels(modelType, apikey))
                 .build();
@@ -86,7 +86,7 @@ public class DifyWorkspacesController {
     public DifyModelResponse llmModelParams(@PathVariable("provider") String provider,
             @RequestParam("model") String model,
             @RequestParam(value = "modelType", defaultValue = "llm") String modelType) {
-        String apikey = BellaContext.getApiKey();
+        String apikey = BellaContext.getApikey().getApikey();
         return DifyModelResponse.builder()
                 .data(modelInfoService.fetchParameterRules(model, modelType, provider, apikey))
                 .build();

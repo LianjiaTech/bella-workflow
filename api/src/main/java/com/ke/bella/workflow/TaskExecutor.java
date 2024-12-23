@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.RandomUtils;
 
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.Utils;
 

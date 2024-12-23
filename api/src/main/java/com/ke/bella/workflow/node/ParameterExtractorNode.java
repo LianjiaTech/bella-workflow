@@ -27,7 +27,7 @@ import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData.Authorization;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData.Model;

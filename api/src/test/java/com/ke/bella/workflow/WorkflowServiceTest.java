@@ -3,6 +3,8 @@ package com.ke.bella.workflow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.Operator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +18,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.workflow.api.BellaResponse;
-import com.ke.bella.workflow.api.Operator;
 import com.ke.bella.workflow.api.WorkflowOps;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.service.WorkflowService;

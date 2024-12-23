@@ -81,9 +81,6 @@ bella:
     client-host: http://example.com
     client-index-url: http://example.com/
 
-openapi:
-  host: http://example.com
-
 spring:
   redis:
     host: redis.example.com

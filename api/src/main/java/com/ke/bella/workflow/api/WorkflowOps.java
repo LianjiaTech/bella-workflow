@@ -10,6 +10,7 @@ import java.util.Set;
 import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.utils.JsonUtils;
+import com.ke.bella.openapi.Operator;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

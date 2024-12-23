@@ -19,7 +19,7 @@ import com.ke.bella.workflow.api.DataSourceOps.KafkaDataSourceAdd;
 import com.ke.bella.workflow.api.DataSourceOps.RdbDataSourceAdd;
 import com.ke.bella.workflow.api.DataSourceOps.RedisDataSourceAdd;
 import com.ke.bella.workflow.api.WorkflowOps.DomainAdd;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
 import static com.ke.bella.workflow.db.tables.Domain.*;
 import static com.ke.bella.workflow.db.tables.RdbDatasource.*;

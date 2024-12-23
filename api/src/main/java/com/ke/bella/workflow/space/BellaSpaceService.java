@@ -5,25 +5,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.ke.bella.workflow.service.Configs;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.BellaResponse;
 import com.ke.bella.openapi.space.RoleWithSpace;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.utils.HttpUtils;
 
 @Component
 public class BellaSpaceService {
-    @Value("${openapi.host:http://example.com}")
-    private String openapiHost;
+    private final String openapiHost = Configs.OPEN_API_HOST;
     private static final String USER_SPACES_ROLES = "/v1/space/member/role";
 
     public RoleWithSpace userSpaceRoles() {
 
-        Map<String, String> header = ImmutableMap.of("Authorization", "Bearer " + BellaContext.getApiKey());
+        Map<String, String> header = ImmutableMap.of("Authorization", "Bearer " + BellaContext.getApikey().getApikey());
 
         Map<String, String> params = new HashMap<>();
         params.put("memberUid", String.valueOf(BellaContext.getOperator().getUserId()));
@@ -39,7 +39,7 @@ public class BellaSpaceService {
     }
 
     public List<RoleWithSpace> listSpace() {
-        Map<String, String> header = ImmutableMap.of("Authorization", "Bearer " + BellaContext.getApiKey());
+        Map<String, String> header = ImmutableMap.of("Authorization", "Bearer " + BellaContext.getApikey().getApikey());
         Map<String, String> params = new HashMap<>();
         params.put("memberUid", String.valueOf(BellaContext.getOperator().getUserId()));
 

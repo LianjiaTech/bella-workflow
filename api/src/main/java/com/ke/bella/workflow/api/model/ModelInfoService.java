@@ -8,6 +8,7 @@ import com.ke.bella.openapi.BellaResponse;
 import com.ke.bella.openapi.metadata.Model;
 import com.ke.bella.openapi.protocol.completion.CompletionModelFeatures;
 import com.ke.bella.openapi.protocol.completion.CompletionModelProperties;
+import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.http.HttpHeaders;
@@ -22,8 +23,6 @@ import java.util.Map;
 
 @Component
 public class ModelInfoService {
-    @Value("${openapi.host:http://example.com}")
-    private String openapiHost;
     public Collection<ModelResponse> fetchModels(String modelType, String apikey) {
         ModelType type = ModelType.of(modelType);
         List<Model> openapiModels = listActiveModels(type.getEndpoints(), apikey);
@@ -125,7 +124,7 @@ public class ModelInfoService {
         String url = "/v1/meta/model/list";
         Map<String, String> headers = ImmutableMap.of(HttpHeaders.AUTHORIZATION, "Bearer " + apikey);
         Map<String, List<String>> query = ImmutableMap.of("endpoints", endpoints, "status", Lists.newArrayList("active"));
-        return HttpUtils.getWithMultiQuery(headers, openapiHost + url, query, new TypeReference<BellaResponse<List<Model>>>() {})
+        return HttpUtils.getWithMultiQuery(headers, Configs.OPEN_API_HOST + url, query, new TypeReference<BellaResponse<List<Model>>>() {})
                 .getData();
 
     }
@@ -134,7 +133,7 @@ public class ModelInfoService {
         String url = "/v1/meta/model/list";
         Map<String, String> headers = ImmutableMap.of(HttpHeaders.AUTHORIZATION, "Bearer " + apikey);
         Map<String, String> query = ImmutableMap.of("modelName", model, "ownerName", provider);
-        List<Model> models = HttpUtils.get(headers, openapiHost + url, query, new TypeReference<BellaResponse<List<Model>>>() {})
+        List<Model> models = HttpUtils.get(headers, Configs.OPEN_API_HOST + url, query, new TypeReference<BellaResponse<List<Model>>>() {})
                 .getData();
         if(CollectionUtils.isEmpty(models)) {
             return null;

@@ -19,7 +19,7 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.node.HttpNode;
 import com.ke.bella.workflow.node.HttpNode.Data;
 import com.ke.bella.workflow.utils.HttpUtils;
@@ -223,7 +223,7 @@ public class Requests {
         String apiKey = "";
         String authType = config.getType();
         if("bella".equals(authType)) {
-            apiKey = BellaContext.getApiKey();
+            apiKey = BellaContext.getApikey().getApikey();
         } else if("ke-IAM".equalsIgnoreCase(authType)) {
             apiKey = KeIAM.generateAuthorization(config.getApiKey(), config.getSecret(),
                     RandomStringUtils.randomNumeric(9), method.toUpperCase(), url.getPath(), url.getHost(), url.getQuery());

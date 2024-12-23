@@ -1,18 +1,7 @@
 package com.ke.bella.workflow.api;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.Operator;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowTemplate;
@@ -34,7 +23,6 @@ import com.ke.bella.workflow.api.callbacks.SingleNodeRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunStreamingCallback;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
@@ -44,6 +32,18 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.utils.DifyUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1")
@@ -72,7 +72,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/draft/info")
     public WorkflowDB draftInfo(@RequestBody WorkflowOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
         return ws.getDraftWorkflow(op.workflowId);
@@ -80,7 +80,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/info")
     public WorkflowDB info(@RequestBody WorkflowOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
         return ws.getPublishedWorkflow(op.workflowId, op.version);
@@ -88,7 +88,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/draft/sync")
     public WorkflowDB sync(@RequestBody WorkflowSync op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.graph, "graph不能为空");
 
         if(StringUtils.isEmpty(op.getWorkflowId())) {
@@ -100,7 +100,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/copy")
     public WorkflowDB copy(@RequestBody WorkflowCopy op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
         Assert.notNull(op.version, "version不能为空");
 
@@ -120,7 +120,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/draft/publish")
     public WorkflowDB publish(@RequestBody WorkflowOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
         return ws.publish(op.workflowId);
@@ -128,7 +128,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/custom/publish")
     public WorkflowAsApiDB publishAsApi(@RequestBody WorkflowAsApiPublish op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
         Assert.hasText(op.host, "host不能为空");
         Assert.hasText(op.path, "path不能为空");
@@ -180,7 +180,7 @@ public class WorkflowController {
 
     public Object run0(WorkflowRun op, String ver) {
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
         Assert.notNull(op.inputs, "inputs不能为空");
         Assert.notNull(mode, "responseMode必须为[streaming, blocking, callback]之一");
@@ -190,7 +190,7 @@ public class WorkflowController {
 
         WorkflowDB wf = ver.equals("published") ? ws.getPublishedWorkflow(op.workflowId, op.getVersion())
                 : ws.getDraftWorkflow(op.workflowId);
-        Assert.notNull(wf, String.format("没有找到对应的的工作流, %s(ver. %s), tenant: %s", op.workflowId, ver, op.tenantId));
+        Assert.notNull(wf, String.format("没有找到对应的的工作流, %s(ver. %s), tenant: %s", op.workflowId, ver, op.getTenantId()));
 
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op);
 
@@ -221,7 +221,7 @@ public class WorkflowController {
     @PostMapping("/workflow/draft/node/run")
     public Object runSingleNode(@RequestBody WorkflowNodeRun op) {
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
         Assert.hasText(op.nodeId, "nodeId不能为空");
         Assert.notNull(op.inputs, "inputs不能为空");
@@ -262,7 +262,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/run/page")
     public Page<WorkflowRunDB> listWorkflowRun(@RequestBody WorkflowRunPage op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
         return ws.listWorkflowRun(op);

@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -13,7 +14,7 @@ import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.assistants.message.MessageRequest;
@@ -35,13 +36,15 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public WorkflowRunCallback(WorkflowService service, IWorkflowCallback delegate) {
         this.service = service;
         this.delegate = delegate;
-        this.openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
+        this.openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApikey().getApikey());
         this.resultBufferMap = new ConcurrentHashMap<>();
     }
 
     @Override
     public void onWorkflowRunStarted(WorkflowContext ctx) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunStarted");
         runLog.setTenantId(ctx.getTenantId());
         runLog.setWorkflowId(ctx.getWorkflowId());
@@ -69,6 +72,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowRunSucceeded(WorkflowContext ctx) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunSucceeded");
         runLog.setTenantId(ctx.getTenantId());
         runLog.setWorkflowId(ctx.getWorkflowId());
@@ -77,7 +82,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
-        service.markWorkflowRunSuccessed(ctx, ctx.getWorkflowRunResult().getOutputs());
+        service.markWorkflowRunSuccessed(ctx, Optional.ofNullable(ctx.getWorkflowRunResult()).map(NodeRunResult::getOutputs).orElse(null));
 
         delegate.onWorkflowRunSucceeded(ctx);
 
@@ -93,6 +98,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowRunSuspended(WorkflowContext context) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunSuspended");
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
@@ -109,6 +116,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowRunStopped(WorkflowContext context) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunStopped");
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
@@ -124,6 +133,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowRunResumed(WorkflowContext context) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunResumed");
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
@@ -139,6 +150,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowRunFailed(WorkflowContext context, String error, Throwable t) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunResumed");
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
@@ -155,6 +168,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowNodeRunStarted(WorkflowContext context, String nodeId, String nodeRunId) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowNodeRunStarted");
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
@@ -192,6 +207,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowNodeRunWaited(WorkflowContext context, String nodeId, String nodeRunId) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowNodeRunWaited");
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
@@ -218,6 +235,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowNodeRunSucceeded(WorkflowContext ctx, String nodeId, String nodeRunId) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowNodeRunSucceeded");
         runLog.setTenantId(ctx.getTenantId());
         runLog.setWorkflowId(ctx.getWorkflowId());
@@ -245,6 +264,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowNodeRunFailed");
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
@@ -272,6 +293,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowIterationStarted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowIterationStarted");
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
@@ -291,6 +314,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Override
     public void onWorkflowIterationCompleted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
         WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowIterationCompleted");
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
@@ -315,6 +340,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     @Data
     @NoArgsConstructor
     public static class WorkflowRunLog {
+        private String bellaTraceId;
+        private String akCode;
         private String event;
         private String tenantId;
         private String workflowId;

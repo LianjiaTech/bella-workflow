@@ -28,7 +28,6 @@ import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.assistants.message.MessageContent;
@@ -52,6 +51,7 @@ import okhttp3.internal.sse.RealEventSource;
 import okhttp3.logging.HttpLoggingInterceptor;
 import okhttp3.sse.EventSource;
 import okhttp3.sse.EventSourceListener;
+import com.ke.bella.openapi.BellaContext;
 
 @Slf4j
 public class RagNode extends BaseNode<RagNode.Data> {
@@ -138,9 +138,9 @@ public class RagNode extends BaseNode<RagNode.Data> {
         try {
 
             HashMap<String, String> headers = new HashMap<>();
-            headers.put("Authorization", "Bearer " + BellaContext.getApiKey());
+            headers.put("Authorization", "Bearer " + BellaContext.getApikey().getApikey());
             headers.put(X_BELLA_REQUEST_ID, nodeRunId);
-            Optional.ofNullable(BellaContext.getTransHeaders()).ifPresent(map -> map.forEach(headers::putIfAbsent));
+            Optional.ofNullable(BellaContext.getHeaders()).ifPresent(map -> map.forEach(headers::putIfAbsent));
 
             Request request = new Request.Builder()
                     .url(Configs.OPEN_API_BASE + RAG_PATH)

@@ -1,15 +1,15 @@
 package com.ke.bella.workflow.api.interceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.Operator;
+import com.ke.bella.openapi.apikey.ApikeyInfo;
 import org.apache.http.auth.AuthenticationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.ke.bella.workflow.api.Operator;
-import com.ke.bella.workflow.db.BellaContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @Component
 public class BellaCustomInterceptor extends HandlerInterceptorAdapter {
@@ -21,10 +21,13 @@ public class BellaCustomInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String apiKey = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String tenantId = request.getHeader(X_BELLA_TENANT_ID);
-        String operatorId = request.getHeader(X_BELLA_OPERATOR_ID);
-        String operatorName = request.getHeader(X_BELLA_OPERATOR_NAME);
-        String operatorSpace = request.getHeader(X_BELLA_OPERATOR_SPACE);
+        if (apiKey != null && apiKey.startsWith("Bearer ")) {
+            apiKey = apiKey.substring(7);
+        }
+        String tenantId = BellaContext.getHeader(X_BELLA_TENANT_ID);
+        String operatorId = BellaContext.getHeader(X_BELLA_OPERATOR_ID);
+        String operatorName = BellaContext.getHeader(X_BELLA_OPERATOR_NAME);
+        String operatorSpace = BellaContext.getHeader(X_BELLA_OPERATOR_SPACE);
         if(apiKey == null || tenantId == null || operatorId == null || operatorName == null) {
             throw new AuthenticationException("missing required headers");
         }
@@ -34,7 +37,7 @@ public class BellaCustomInterceptor extends HandlerInterceptorAdapter {
                 .userName(operatorName)
                 .spaceCode(operatorSpace)
                 .tenantId(tenantId).build());
-        BellaContext.setApiKey(apiKey);
+        BellaContext.setApikey(ApikeyInfo.builder().apikey(apiKey).build());
 
         return true;
     }

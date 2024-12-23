@@ -37,7 +37,7 @@ public class TriggerController {
 
     @PostMapping("/scheduling/create")
     public WorkflowSchedulingDB createScheduling(@RequestBody WorkflowOps.WorkflowScheduling op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
         Assert.hasText(op.cronExpression, "cronExpression不能为空");
 

@@ -21,7 +21,7 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowNodeRunException;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 
 import lombok.AllArgsConstructor;
@@ -345,7 +345,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
 
             public String getToken() {
                 if(apiKey == null) {
-                    apiKey = BellaContext.getApiKey();
+                    apiKey = BellaContext.getApikey().getApikey();
                 }
                 return String.format("Bearer %s", apiKey);
             }

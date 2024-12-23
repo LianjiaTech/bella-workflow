@@ -1,20 +1,19 @@
 package com.ke.bella.workflow.api.interceptor;
 
-import static com.ke.bella.workflow.api.interceptor.ConcurrentStartInterceptor.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.Operator;
+import com.ke.bella.openapi.apikey.ApikeyInfo;
+import com.ke.bella.workflow.service.WorkflowService;
 import org.apache.http.auth.AuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.ke.bella.openapi.login.context.ConsoleContext;
-import com.ke.bella.workflow.api.Operator;
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.service.WorkflowService;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import static com.ke.bella.workflow.api.interceptor.ConcurrentStartInterceptor.ASYNC_REQUEST_MARKER;
 
 /**
  * Unified processing request from bella, transfer header info to operator
@@ -34,17 +33,17 @@ public class DifyRequestInterceptor extends HandlerInterceptorAdapter {
             return true;
         }
 
-        if(BellaContext.getApiKey() != null) {
+        if(BellaContext.getApikeyIgnoreNull() != null) {
             return true;
         }
 
-        com.ke.bella.openapi.Operator operator = ConsoleContext.getOperatorIgnoreNull();
+        Operator operator = BellaContext.getOperatorIgnoreNull();
         if(operator == null) {
             throw new AuthenticationException("认证失败");
         }
 
-        String tenantId = request.getHeader("X-BELLA-TENANT-ID");
-        String spaceCode = request.getHeader("X-BELLA-OPERATOR-SPACE");
+        String tenantId = BellaContext.getHeader("X-BELLA-TENANT-ID");
+        String spaceCode = BellaContext.getHeader("X-BELLA-OPERATOR-SPACE");
         BellaContext.setOperator(Operator.builder()
                 .userId(operator.getUserId())
                 .userName(operator.getUserName())
@@ -53,8 +52,8 @@ public class DifyRequestInterceptor extends HandlerInterceptorAdapter {
                 .spaceCode(spaceCode)
                 .build());
 
-        if(BellaContext.getApiKey() == null) {
-            BellaContext.setApiKey(ws.getTenantApiKey(tenantId));
+        if(BellaContext.getApikeyIgnoreNull() == null) {
+            BellaContext.setApikey(ApikeyInfo.builder().apikey(ws.getTenantApiKey(tenantId)).build());
         }
 
         return true;

@@ -367,7 +367,7 @@ public class ApiTool implements ITool {
         @Data
         @AllArgsConstructor
         @NoArgsConstructor
-        @SuperBuilder(toBuilder = true)
+        @Builder(toBuilder = true)
         public static class ToolParameter {
             private String name;
             private String description;
@@ -385,7 +385,7 @@ public class ApiTool implements ITool {
             @Data
             @AllArgsConstructor
             @NoArgsConstructor
-            @SuperBuilder(toBuilder = true)
+            @Builder(toBuilder = true)
             public static class Options {
                 private String value;
                 private String label;

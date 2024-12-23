@@ -1,11 +1,9 @@
 package com.ke.bella.workflow.api.interceptor;
 
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.service.ApikeyService;
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.apikey.ApikeyInfo;
 import org.apache.http.auth.AuthenticationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -16,8 +14,6 @@ import static com.ke.bella.workflow.api.interceptor.ConcurrentStartInterceptor.A
 
 @Component
 public class ApikeyInterceptor extends HandlerInterceptorAdapter {
-    @Autowired
-    private ApikeyService apikeyService;
     @Value("${spring.profiles.active}")
     private String profile;
     @Override
@@ -25,22 +21,10 @@ public class ApikeyInterceptor extends HandlerInterceptorAdapter {
         if(Boolean.TRUE.equals(request.getAttribute(ASYNC_REQUEST_MARKER))) {
             return true;
         }
-        String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if(auth != null && auth.startsWith("Bearer ")) {
-            String apikey = auth.substring(7);
-            if(apikeyService.isValid(apikey)) {
-                BellaContext.setApiKey(apikey);
-                return true;
-            }
-        }
-        if(profile.contains("junit")) {
+        ApikeyInfo apikeyInfo = BellaContext.getApikeyIgnoreNull();
+        if(apikeyInfo != null || profile.contains("junit")) {
             return true;
         }
         throw new AuthenticationException("invalid api key");
-    }
-
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        BellaContext.clearAll();
     }
 }

@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.ke.bella.workflow.IWorkflowCallback.Delta;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.service.CustomKafkaProducer;
 import com.ke.bella.workflow.service.CustomRdb;
@@ -144,7 +144,7 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
             throw new IllegalArgumentException("arg's type should be ChatCompletionRequest or map.");
         }
 
-        OpenAiService service = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey(), 30, TimeUnit.SECONDS);
+        OpenAiService service = OpenAiUtils.defaultOpenAiService(BellaContext.getApikey().getApikey(), 30, TimeUnit.SECONDS);
         if(request.getStream() != null && request.getStream().booleanValue()) {
             Flowable<ChatCompletionChunk> rs = service.streamChatCompletion(request);
             return rs.blockingIterable();

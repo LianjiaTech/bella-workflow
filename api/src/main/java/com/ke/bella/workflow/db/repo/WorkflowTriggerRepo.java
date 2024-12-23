@@ -16,12 +16,12 @@ import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.KafkaTriggerCreate;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerType;
 import com.ke.bella.workflow.api.WorkflowOps.WebotTriggerCreate;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowScheduling;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;

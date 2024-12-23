@@ -38,7 +38,7 @@ public class BellaCustomController {
 
     @PostMapping("/delete")
     public void delete(@RequestBody WorkflowOps.WorkflowOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
         ws.deleteWorkflowAggregate(op.workflowId);

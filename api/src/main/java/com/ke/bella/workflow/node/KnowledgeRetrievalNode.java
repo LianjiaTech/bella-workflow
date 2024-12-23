@@ -20,7 +20,7 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -71,8 +71,8 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
             String retrievalMode,
             boolean background) {
         HashMap<String, String> headers = new HashMap<>();
-        headers.put("Authorization", "Bearer " + BellaContext.getApiKey());
-        Optional.ofNullable(BellaContext.getTransHeaders()).ifPresent(map -> map.forEach(headers::putIfAbsent));
+        headers.put("Authorization", "Bearer " + BellaContext.getApikey().getApikey());
+        Optional.ofNullable(BellaContext.getHeaders()).ifPresent(map -> map.forEach(headers::putIfAbsent));
         String fileRetrieveUrl = Configs.OPEN_API_BASE + FILES_RETRIEVE;
 
         KnowledgeRetrievalRequest request = new KnowledgeRetrievalRequest();

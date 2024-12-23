@@ -1,18 +1,12 @@
 package com.ke.bella.workflow.utils;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.request.BellaInterceptor;
 import com.ke.bella.workflow.service.Configs;
 import com.theokanning.openai.client.AuthenticationInterceptor;
 import com.theokanning.openai.client.OpenAiApi;
 import com.theokanning.openai.service.OpenAiService;
-
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
@@ -21,6 +15,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class OpenAiUtils {
@@ -42,7 +40,6 @@ public class OpenAiUtils {
 
     public static OpenAiService defaultOpenAiService(String token, long readTimeout, TimeUnit unit) {
         ObjectMapper mapper = OpenAiService.defaultObjectMapper();
-        Map<String, String> transHeaders = BellaContext.getTransHeaders();
 
         OkHttpClient curClient = client.newBuilder()
                 .addInterceptor(new AuthenticationInterceptor(token) {
@@ -55,11 +52,7 @@ public class OpenAiUtils {
                         return chain.proceed(request);
                     }
                 })
-                .addInterceptor(chain -> {
-                    Request.Builder requestBuilder = chain.request().newBuilder();
-                    Optional.ofNullable(transHeaders).ifPresent(map -> map.forEach(requestBuilder::addHeader));
-                    return chain.proceed(requestBuilder.build());
-                })
+                .addInterceptor(new BellaInterceptor(BellaContext.snapshot()))
                 .readTimeout(readTimeout, unit).build();
 
         Retrofit retrofit = OpenAiService.defaultRetrofit(curClient, mapper, Configs.OPEN_API_BASE);

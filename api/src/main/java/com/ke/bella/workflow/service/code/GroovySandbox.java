@@ -52,7 +52,7 @@ import org.codehaus.groovy.transform.GroovyASTTransformation;
 
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSys;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.Utils;

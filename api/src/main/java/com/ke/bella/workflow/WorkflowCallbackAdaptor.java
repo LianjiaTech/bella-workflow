@@ -1,6 +1,7 @@
 package com.ke.bella.workflow;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class WorkflowCallbackAdaptor implements IWorkflowCallback {
 
@@ -16,7 +17,7 @@ public class WorkflowCallbackAdaptor implements IWorkflowCallback {
     }
 
     protected void responseWorkflowOutputs(WorkflowContext context, Map<String, Object> data) {
-        data.put("outputs", context.getWorkflowRunResult().getOutputs());
+        data.put("outputs", Optional.ofNullable(context.getWorkflowRunResult()).map(WorkflowRunState.NodeRunResult::getOutputs).orElse(null));
     }
 
     protected void responseWorkflowError(WorkflowContext context, Map<String, Object> data, String error) {

@@ -1,0 +1,11 @@
+.logTable td {
+  padding: 10px 12px;
+}
+
+.logTable td:first-child {
+  padding-left: 24px;
+}
+
+.logTable td:last-child {
+  padding-right: 24px;
+}

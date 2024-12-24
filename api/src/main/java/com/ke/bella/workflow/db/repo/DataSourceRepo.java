@@ -48,6 +48,8 @@ public class DataSourceRepo implements BaseRepo {
     public KafkaDatasourceDB addKafkaDs(KafkaDataSourceAdd op) {
         KafkaDatasourceRecord rec = KAFKA_DATASOURCE.newRecord();
         rec.from(op);
+        rec.setTenantId(BellaContext.getOperator().getTenantId());
+        rec.setSpaceCode(BellaContext.getOperator().getSpaceCode());
         rec.setDatasourceId(IDGenerator.newDataSourceId("kafka"));
         if(!StringUtils.hasText(op.getMsgSchema())) {
             rec.setMsgSchema("");
@@ -77,11 +79,10 @@ public class DataSourceRepo implements BaseRepo {
                 .fetchInto(KafkaDatasourceDB.class);
     }
 
-    public List<KafkaDatasourceDB> listTenantAllActiveKafkaDs() {
+    public List<KafkaDatasourceDB> listTenantAllKafkaDs() {
         return db.selectFrom(KAFKA_DATASOURCE)
                 .where(KAFKA_DATASOURCE.TENANT_ID.eq(BellaContext.getOperator().getTenantId())
-                        .and(KAFKA_DATASOURCE.SPACE_CODE.eq(BellaContext.getOperator().getSpaceCode()))
-                        .and(KAFKA_DATASOURCE.STATUS.eq(0)))
+                        .and(KAFKA_DATASOURCE.SPACE_CODE.eq(BellaContext.getOperator().getSpaceCode())))
                 .fetchInto(KafkaDatasourceDB.class);
     }
 
@@ -120,8 +121,8 @@ public class DataSourceRepo implements BaseRepo {
         RdbDatasourceRecord rec = RDB_DATASOURCE.newRecord();
 
         rec.setDatasourceId(IDGenerator.newDataSourceId(op.getDbType()));
-        rec.setTenantId(op.getTenantId());
-        rec.setSpaceCode(op.getSpaceCode());
+        rec.setTenantId(BellaContext.getOperator().getTenantId());
+        rec.setSpaceCode(BellaContext.getOperator().getSpaceCode());
         rec.setHost(op.getHost());
         rec.setPort(op.getPort());
         rec.setDb(op.getDb());
@@ -163,12 +164,20 @@ public class DataSourceRepo implements BaseRepo {
                 .fetchInto(RdbDatasourceDB.class);
     }
 
+    public List<RedisDatasourceDB> listSpaceRedisDatasource() {
+        return db.selectFrom(REDIS_DATASOURCE)
+                .where(REDIS_DATASOURCE.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(REDIS_DATASOURCE.SPACE_CODE.eq(BellaContext.getOperator().getSpaceCode()))
+                .fetchInto(RedisDatasourceDB.class);
+    }
+
     public RedisDatasourceDB addRedisDataSource(RedisDataSourceAdd op) {
         RedisDatasourceRecord rec = REDIS_DATASOURCE.newRecord();
 
         rec.from(op);
         rec.setDatasourceId(IDGenerator.newDataSourceId("redis"));
-
+        rec.setTenantId(BellaContext.getOperator().getTenantId());
+        rec.setSpaceCode(BellaContext.getOperator().getSpaceCode());
         fillCreatorInfo(rec);
 
         db.insertInto(REDIS_DATASOURCE).set(rec).execute();
@@ -215,6 +224,54 @@ public class DataSourceRepo implements BaseRepo {
         db.update(RDB_DATASOURCE)
                 .set(rec)
                 .where(RDB_DATASOURCE.DATASOURCE_ID.eq(id))
+                .execute();
+
+    }
+
+    public void activateRedis(String id) {
+        RedisDatasourceRecord rec = REDIS_DATASOURCE.newRecord();
+        rec.setStatus(0);
+        fillUpdatorInfo(rec);
+
+        db.update(REDIS_DATASOURCE)
+                .set(rec)
+                .where(REDIS_DATASOURCE.DATASOURCE_ID.eq(id))
+                .execute();
+
+    }
+
+    public void deactivateRedis(String id) {
+        RedisDatasourceRecord rec = REDIS_DATASOURCE.newRecord();
+        rec.setStatus(-1);
+        fillUpdatorInfo(rec);
+
+        db.update(REDIS_DATASOURCE)
+                .set(rec)
+                .where(REDIS_DATASOURCE.DATASOURCE_ID.eq(id))
+                .execute();
+
+    }
+
+    public void activateKafka(String id) {
+        KafkaDatasourceRecord rec = KAFKA_DATASOURCE.newRecord();
+        rec.setStatus(0);
+        fillUpdatorInfo(rec);
+
+        db.update(KAFKA_DATASOURCE)
+                .set(rec)
+                .where(KAFKA_DATASOURCE.DATASOURCE_ID.eq(id))
+                .execute();
+
+    }
+
+    public void deactivateKafka(String id) {
+        KafkaDatasourceRecord rec = KAFKA_DATASOURCE.newRecord();
+        rec.setStatus(-1);
+        fillUpdatorInfo(rec);
+
+        db.update(KAFKA_DATASOURCE)
+                .set(rec)
+                .where(KAFKA_DATASOURCE.DATASOURCE_ID.eq(id))
                 .execute();
 
     }

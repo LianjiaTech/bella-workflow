@@ -1,0 +1,49 @@
+.logTable {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.logTable thead td {
+  padding: 10px 12px;
+  color: #667085;
+  font-weight: 500;
+  background-color: #F9FAFB;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.logTable thead td:first-child {
+  padding-left: 24px;
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
+.logTable thead td:last-child {
+  padding-right: 24px;
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.logTable tbody td {
+  padding: 12px;
+  border-bottom: 1px solid #EAECF0;
+  color: #344054;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.logTable tbody td:first-child {
+  padding-left: 24px;
+}
+
+.logTable tbody td:last-child {
+  padding-right: 24px;
+}
+
+.logTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.logTable tbody tr:hover {
+  background-color: #F9FAFB;
+}

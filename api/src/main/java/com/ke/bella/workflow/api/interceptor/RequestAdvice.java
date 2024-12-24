@@ -25,18 +25,9 @@ public class RequestAdvice extends RequestBodyAdviceAdapter {
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType,
             Class<? extends HttpMessageConverter<?>> converterType) {
         if(body instanceof Operator) {
-            Operator oper = getPureOper((Operator) body);
-            Optional.ofNullable(BellaContext.getOperatorIgnoreNull()).ifPresent(oldOperator -> {
-                oper.setUserId(oldOperator.getUserId());
-                oper.setUserName(oldOperator.getUserName());
-                if(StringUtils.isNotEmpty(oldOperator.getTenantId())) {
-                    oper.setTenantId(oldOperator.getTenantId());
-                }
-                if(StringUtils.isNotEmpty(oldOperator.getSpaceCode())) {
-                    oper.setSpaceCode(oldOperator.getSpaceCode());
-                }
-            });
-            BellaContext.setOperator(oper);
+            if(BellaContext.getOperatorIgnoreNull() == null) {
+                BellaContext.setOperator(getPureOper((Operator) body));
+            }
         }
 
         return body;

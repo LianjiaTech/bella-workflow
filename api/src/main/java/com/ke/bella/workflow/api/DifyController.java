@@ -544,7 +544,7 @@ public class DifyController {
     @RequestMapping("/{workflowId}/chat-messages")
     public Page<DifyChatFlowRun> pageChatFlowRuns(@PathVariable String workflowId,
             @RequestParam(value = "conversation_id", required = false) String threadId) {
-        OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
+        OpenAiService openAiService = OpenAiUtils.defaultOpenAiService("Bearer " + BellaContext.getApiKey());
 
         List<Message> messages = openAiService.listMessages(threadId, new MessageListSearchParameters()).getData();
         Collections.reverse(messages);

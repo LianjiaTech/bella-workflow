@@ -13,13 +13,14 @@ import org.junit.jupiter.api.BeforeAll;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.JsonUtils;
+import org.junit.jupiter.api.BeforeEach;
 
 import static com.ke.bella.openapi.BellaContext.BELLA_TRACE_HEADER;
 
 public abstract class CommonNodeTest {
 
-    @BeforeAll
-    public static void initBellaContext() {
+    @BeforeEach
+    public void initBellaContext() {
         Configs.API_BASE = "https://example.com/v1/";
         Configs.OPEN_API_BASE = "https://example.com/v1/";
         Configs.BELLA_TOOL_API_BASE = "http://example.com";

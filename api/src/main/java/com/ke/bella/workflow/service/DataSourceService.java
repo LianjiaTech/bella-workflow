@@ -103,7 +103,12 @@ public class DataSourceService implements ApplicationContextAware {
         case "rdb":
             repo.activateRdb(id);
             break;
-
+        case "redis":
+            repo.activateRedis(id);
+            break;
+        case "kafka":
+            repo.activateKafka(id);
+            break;
         default:
             break;
         }
@@ -116,7 +121,12 @@ public class DataSourceService implements ApplicationContextAware {
         case "rdb":
             repo.deactivateRdb(id);
             break;
-
+        case "redis":
+            repo.deactivateRedis(id);
+            break;
+        case "kafka":
+            repo.deactivateKafka(id);
+            break;
         default:
             break;
         }
@@ -131,12 +141,18 @@ public class DataSourceService implements ApplicationContextAware {
     }
 
     public Object listDataSources(String type) {
-        if("kafka".equals(type)) {
-            return repo.listTenantAllActiveKafkaDs();
-        } else if("rdb".equals(type)) {
+        switch (type) {
+        case "kafka":
+            return repo.listTenantAllKafkaDs();
+        case "redis":
+            List<RedisDatasourceDB> redisDss = repo.listSpaceRedisDatasource();
+            redisDss.forEach(it -> it.setPassword("******"));
+            return redisDss;
+        case "rdb":
             List<RdbDatasourceDB> dss = repo.listSpaceRdbDatasource();
             dss.forEach(it -> it.setPassword("******"));
             return dss;
+        default:
         }
         return null;
     }

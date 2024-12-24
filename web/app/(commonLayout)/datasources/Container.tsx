@@ -12,6 +12,8 @@ import TabSliderNew from '@/app/components/base/tab-slider-new'
 import SearchInput from '@/app/components/base/search-input'
 import TagFilter from '@/app/components/base/tag-management/filter'
 import RDBPage from '@/app/components/rdb'
+import RedisPage from '@/app/components/redis'
+import KafkaPage from '@/app/components/kafka'
 
 // Services
 
@@ -87,6 +89,8 @@ const Container = () => {
       )}
 
       {activeTab === 'rdb' && <RDBPage />}
+      {activeTab === 'redis' && <RedisPage />}
+      {activeTab === 'kafka' && <KafkaPage />}
     </div>
 
   )

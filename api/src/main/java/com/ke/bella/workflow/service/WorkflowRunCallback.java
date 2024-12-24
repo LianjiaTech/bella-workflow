@@ -35,7 +35,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public WorkflowRunCallback(WorkflowService service, IWorkflowCallback delegate) {
         this.service = service;
         this.delegate = delegate;
-        this.openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApiKey());
+        this.openAiService = OpenAiUtils.defaultOpenAiService("Bearer " + BellaContext.getApiKey());
         this.resultBufferMap = new ConcurrentHashMap<>();
     }
 

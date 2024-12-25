@@ -5,15 +5,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import com.ke.bella.workflow.utils.OpenAiUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.Delta;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
@@ -22,9 +21,8 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.openapi.BellaContext;
-import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.utils.JsonUtils;
+import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.completion.chat.AssistantMessage;
 import com.theokanning.openai.completion.chat.ChatCompletionChunk;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
@@ -151,10 +149,8 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     private Flowable<ChatCompletionChunk> invokeLlm(List<ChatMessage> chatMessages) {
         OpenAiService service = OpenAiUtils.defaultOpenAiService(data.getAuthorization().getToken(), data.getTimeout().getReadSeconds(),
                 TimeUnit.SECONDS);
-        ChatCompletionRequest chatCompletionRequest = Optional.ofNullable(JsonUtils.fromJson(JsonUtils.toJson(data.getModel().getCompletionParams()),
-                ChatCompletionRequest.class)).orElse(new ChatCompletionRequest());
+        ChatCompletionRequest chatCompletionRequest = data.getModel().getTemplateCompletionParams();
         chatCompletionRequest.setMessages(chatMessages);
-        chatCompletionRequest.setModel(data.getModel().getName());
         chatCompletionRequest.setStreamOptions(StreamOption.INCLUDE);
         chatCompletionRequest.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
         this.ttftStart = System.nanoTime();
@@ -220,7 +216,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class Data extends BaseNodeData {
+    public static class Data extends BaseNode.BaseNodeData {
         private String title;
         private String desc;
         private Model model;

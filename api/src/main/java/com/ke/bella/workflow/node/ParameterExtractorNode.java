@@ -1,6 +1,5 @@
 package com.ke.bella.workflow.node;
 
-import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +12,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.ke.bella.workflow.utils.OpenAiUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -22,16 +20,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.openapi.BellaContext;
-import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
-import com.ke.bella.workflow.node.BaseNode.BaseNodeData.Authorization;
-import com.ke.bella.workflow.node.BaseNode.BaseNodeData.Model;
 import com.ke.bella.workflow.utils.JsonUtils;
+import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.assistants.run.Function;
 import com.theokanning.openai.assistants.run.ToolChoice;
 import com.theokanning.openai.completion.chat.AssistantMessage;
@@ -40,7 +36,6 @@ import com.theokanning.openai.completion.chat.ChatFunctionCall;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.ChatTool;
 import com.theokanning.openai.completion.chat.ChatToolCall;
-import com.theokanning.openai.completion.chat.StreamOption;
 import com.theokanning.openai.completion.chat.SystemMessage;
 import com.theokanning.openai.completion.chat.ToolMessage;
 import com.theokanning.openai.completion.chat.UserMessage;
@@ -304,10 +299,8 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
     private AssistantMessage invokeLlm(List<ChatMessage> chatMessages, ChatTool tool) {
         OpenAiService service = OpenAiUtils.defaultOpenAiService(data.getAuthorization().getToken(), data.getTimeout().getReadSeconds(),
                 TimeUnit.SECONDS);
-        ChatCompletionRequest chatCompletionRequest = Optional.ofNullable(JsonUtils.fromJson(JsonUtils.toJson(data.getModel().getCompletionParams()),
-                ChatCompletionRequest.class)).orElse(new ChatCompletionRequest());
+        ChatCompletionRequest chatCompletionRequest = data.getModel().getTemplateCompletionParams();
         chatCompletionRequest.setMessages(chatMessages);
-        chatCompletionRequest.setModel(data.getModel().getName());
         if(Objects.nonNull(tool)) {
             chatCompletionRequest.setTools(Collections.singletonList(tool));
 
@@ -352,7 +345,7 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
         ChatToolCall chatToolCall = new ChatToolCall(1, id1, "function", chatFunctionCall);
         AssistantMessage assistantMessage1Before = new AssistantMessage(
                 "I need always call the function with the correct parameters. in this case, I need to call the function with the location parameter.",
-                null, Collections.singletonList(chatToolCall), null);
+                null, Collections.singletonList(chatToolCall), null, null, null);
         ToolMessage toolMessage1 = new ToolMessage("Great! You have called the function with the correct parameters.", id1);
         AssistantMessage assistantMessage1After = new AssistantMessage("I have extracted the parameters, let\\'s move on.");
 
@@ -362,7 +355,7 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
         AssistantMessage assistantMessage2Before = new AssistantMessage(
                 "I need always call the function with the correct parameters. in this case, I need to call the function with the food parameter.",
                 null, Collections.singletonList(new ChatToolCall(1, id2, "function", new ChatFunctionCall(FUNCTION_CALLING_EXTRACTOR_NAME, params2))),
-                null);
+                null, null, null);
         ToolMessage toolMessage2 = new ToolMessage("Great! You have called the function with the correct parameters.", id2);
         AssistantMessage assistantMessage2After = new AssistantMessage("I have extracted the parameters, let\\'s move on.");
 
@@ -494,7 +487,7 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class Data extends BaseNodeData {
+    public static class Data extends BaseNode.BaseNodeData {
         private Model model;
         private List<String> query;
         private List<ParameterConfig> parameters;

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Maps;
+import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.node.QuestionClassifierNode;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -55,9 +56,9 @@ public class QuestionClassifierNodeTest extends CommonNodeTest {
         // 构造一个 QuestionClassifierNode
         QuestionClassifierNode.Data data = QuestionClassifierNode.Data.builder()
                 .queryVariableSelector(Lists.newArrayList("start", "query"))
-                .model(QuestionClassifierNode.Data.ModelConfig.builder()
+                .model(BaseNode.BaseNodeData.Model.builder()
                         .name("c4ai-command-r-plus")
-                        .param(QuestionClassifierNode.Data.CompletionParam.builder()
+                        .fontCompletionParams(BaseNode.BaseNodeData.Model.FontCompletionParams.builder()
                                 .presencePenalty(1d)
                                 .frequencyPenalty(1d)
                                 .maxTokens(512)

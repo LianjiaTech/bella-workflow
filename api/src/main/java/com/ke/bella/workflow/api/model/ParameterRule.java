@@ -188,7 +188,7 @@ public class ParameterRule {
         PARAMETER_RULE_TEMPLATE.put(ParameterName.JSON_SCHEMA, new ParameterRule(
                 "json_schema",
                 "json_schema",
-                new I18nObject("JSON结构", "JSON Schema"),
+                new I18nObject("JSON Schema", "JSON Schema"),
                 ParameterType.TEXT.getValue(),
                 new I18nObject(
                         "设置返回的json schema，llm将按照它返回",

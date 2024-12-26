@@ -348,7 +348,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
 
         String ext = HttpUtils.getExtensionFromMimeType(contentType);
         String filename = String.format("%s.%s", UUID.randomUUID().toString(), ext);
-        OpenAiService service = OpenAiUtils.defaultOpenAiService(BellaContext.getApikey().getApikey(), 0, TimeUnit.SECONDS);
+        OpenAiService service = OpenAiUtils.defaultOpenAiService("Bearer " + BellaContext.getApikey().getApikey(), 0, TimeUnit.SECONDS);
         com.theokanning.openai.file.File file = service.uploadFile("assistants", new ByteArrayInputStream(bytes), filename);
         files.add(File.builder()
                 .fileId(file.getId())

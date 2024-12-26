@@ -93,6 +93,8 @@ public class Iteration extends BaseNode<Iteration.Data> {
 
         IterationCallback cb = new IterationCallback(index, context, callback);
         WorkflowContext subContext = WorkflowContext.builder()
+                .tenantId(context.getTenantId())
+                .workflowId(context.getWorkflowId())
                 .runId(context.getRunId())
                 .graph(graph)
                 .state(state)

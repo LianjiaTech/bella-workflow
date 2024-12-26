@@ -1,9 +1,7 @@
 package com.ke.bella.workflow.node;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -11,14 +9,12 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema.Node;
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
-import com.ke.bella.workflow.node.BaseNode.BaseNodeData.Authorization;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.completion.chat.AssistantMessage;
@@ -50,7 +46,7 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
             List<ChatMessage> chatMessages = getChatTemplate(context.getState().getVariablePool(), this.data, String.valueOf(query));
 
             // 构造参数请求LLM
-            ChatCompletionResult compResult = invokeOpenAPILlm(data.getAuthorization(), data.getModel(), chatMessages);
+            ChatCompletionResult compResult = invokeOpenAPILlm(data.getAuthorization(), chatMessages);
             Data.ClassConfig resultClass = parseAndCheckJsonMarkdown(compResult.getChoices().get(0).getMessage().getContent(),
                     Data.ClassConfig.class);
 
@@ -88,13 +84,12 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
 
     }
 
-    private ChatCompletionResult invokeOpenAPILlm(Data.Authorization authorization, Data.ModelConfig modelConfig, List<ChatMessage> chatMessages) {
+    private ChatCompletionResult invokeOpenAPILlm(Data.Authorization authorization, List<ChatMessage> chatMessages) {
         OpenAiService service = OpenAiUtils.defaultOpenAiService(authorization.getToken(), this.data.getTimeout().getRead(), TimeUnit.SECONDS);
-        return service.createChatCompletion(
-                ChatCompletionRequest.builder().model(modelConfig.getName()).frequencyPenalty(modelConfig.getParam().getFrequencyPenalty())
-                        .presencePenalty(modelConfig.getParam().getPresencePenalty()).topP(modelConfig.getParam().getTopP())
-                        .maxTokens(modelConfig.getParam().getMaxTokens()).messages(chatMessages)
-                        .user(String.valueOf(BellaContext.getOperator().getUserId())).build());
+        ChatCompletionRequest req = data.getModel().getTemplateCompletionParams();
+        req.setMessages(chatMessages);
+        req.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
+        return service.createChatCompletion(req);
     }
 
     private List<Map<String, String>> chatTemplateToSaving(List<ChatMessage> chatMessages) {
@@ -161,12 +156,12 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
     @lombok.Builder
     @lombok.NoArgsConstructor
     @lombok.AllArgsConstructor
-    public static class Data extends BaseNodeData {
+    public static class Data extends BaseNode.BaseNodeData {
 
         @JsonAlias("query_variable_selector")
         List<String> queryVariableSelector;
         String type;
-        ModelConfig model;
+        Model model;
         List<ClassConfig> classes;
         String instruction = "";
         @Builder.Default
@@ -184,36 +179,6 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
         @lombok.Setter
         public static class Timeout {
             int read = 600;
-        }
-
-        @lombok.Getter
-        @lombok.Setter
-        @lombok.Builder
-        @lombok.NoArgsConstructor
-        @lombok.AllArgsConstructor
-        public static class ModelConfig {
-            String provider;
-            String name;
-            String mode;
-            @JsonAlias("completion_params")
-            CompletionParam param;
-        }
-
-        @lombok.Getter
-        @lombok.Setter
-        @lombok.Builder
-        @lombok.NoArgsConstructor
-        @lombok.AllArgsConstructor
-        public static class CompletionParam {
-            @JsonAlias("max_tokens")
-            Integer maxTokens;
-            Double temperature;
-            @JsonAlias("top_p")
-            Double topP;
-            @JsonAlias("frequency_penalty")
-            Double frequencyPenalty;
-            @JsonAlias("presence_penalty")
-            Double presencePenalty;
         }
 
         @lombok.Getter

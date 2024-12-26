@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.api;
 
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.Operator;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +15,7 @@ public class UserInfoController {
             .email("ai-arch@example.com").build();
     @GetMapping
     public Operator getUserInfo() {
-        Operator operator = BellaContext.getOperator();
+        Operator operator = BellaContext.getOperatorIgnoreNull();
         return operator == null ? EMPTY : operator;
     }
 }

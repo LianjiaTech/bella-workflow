@@ -58,6 +58,7 @@ datasource:
       password: ${DATASOURCE_POOL_SLAVE_PASSWORD}
 
 bella:
+  openapiHost: ${BELLA_OPENAPI_HOST:https://example.com}
   apiBase: ${BELLA_API_BASE:https://example.com/v1/}
   openApiBase: ${BELLA_OPEN_API_BASE:https://example.com/v1/}
   toolApiBase: ${BELLA_TOOL_API_BASE:http://example.com}

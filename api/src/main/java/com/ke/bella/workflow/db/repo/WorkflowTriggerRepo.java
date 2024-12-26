@@ -16,12 +16,12 @@ import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.KafkaTriggerCreate;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerType;
 import com.ke.bella.workflow.api.WorkflowOps.WebotTriggerCreate;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowScheduling;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.tables.WorkflowKafkaTrigger;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;
@@ -97,6 +97,12 @@ public class WorkflowTriggerRepo implements BaseRepo {
         return db.selectFrom(WORKFLOW_SCHEDULING)
                 .where(WORKFLOW_SCHEDULING.TENANT_ID.eq(tenantId)
                         .and(WORKFLOW_SCHEDULING.TRIGGER_ID.eq(triggerId)))
+                .fetchOneInto(WorkflowSchedulingDB.class);
+    }
+
+    public WorkflowSchedulingDB selectWorkflowScheduling(String triggerId) {
+        return db.selectFrom(WORKFLOW_SCHEDULING)
+                .where(WORKFLOW_SCHEDULING.TRIGGER_ID.eq(triggerId))
                 .fetchOneInto(WorkflowSchedulingDB.class);
     }
 

@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,14 +16,19 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowNodeRunException;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.service.Configs;
+import com.ke.bella.workflow.utils.JsonUtils;
+import com.theokanning.openai.completion.chat.ChatCompletionRequest;
+import com.theokanning.openai.completion.chat.ChatResponseFormat;
+import com.theokanning.openai.completion.chat.ResponseJsonSchema;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -234,7 +240,6 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         }
     }
 
-
     public String getCallbackUrl(String tenantId, String workflowId, String runId) {
         return String.format("%s/workflow/callback/%s/%s/%s/%s/%s",
                 Configs.API_BASE,
@@ -345,9 +350,9 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
 
             public String getToken() {
                 if(apiKey == null) {
-                    apiKey = BellaContext.getApiKey();
+                    apiKey = BellaContext.getApikey().getApikey();
                 }
-                return String.format("Bearer %s", apiKey);
+                return apiKey;
             }
 
             public String getApiBaseUrl() {
@@ -358,12 +363,69 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         @lombok.Data
         @AllArgsConstructor
         @NoArgsConstructor
+        @Builder
         public static class Model {
             private String provider;
             private String name;
             private String mode;
             @JsonAlias("completion_params")
-            private Map<String, Object> completionParams;
+            private FontCompletionParams fontCompletionParams;
+
+            @SuppressWarnings("all")
+            public ChatCompletionRequest getTemplateCompletionParams() {
+                ChatCompletionRequest req = ChatCompletionRequest.builder()
+                        .temperature(fontCompletionParams.getTemperature())
+                        .topP(fontCompletionParams.getTopP())
+                        .presencePenalty(fontCompletionParams.getPresencePenalty())
+                        .frequencyPenalty(fontCompletionParams.getFrequencyPenalty())
+                        .maxTokens(fontCompletionParams.getMaxTokens())
+                        .stop(fontCompletionParams.getStop())
+                        .build();
+
+                String typeOfResponseFormat = Optional.ofNullable(fontCompletionParams.getResponseFormat()).map(String::valueOf).orElse(null);
+                Object jsonSchemaOfResponseFormat = Optional.ofNullable(fontCompletionParams.getJsonSchema())
+                        .map(e -> JsonUtils.fromJson((String) e, new TypeReference<Map>() {
+                        })).orElse(null);
+
+                if(typeOfResponseFormat != null || jsonSchemaOfResponseFormat != null) {
+                    ChatResponseFormat responseFormat = new ChatResponseFormat();
+                    responseFormat.setType(typeOfResponseFormat);
+                    responseFormat.setJsonSchema(
+                            ResponseJsonSchema.builder()
+                                    .name("schema")
+                                    .schemaDefinition(JsonUtils.fromJson(fontCompletionParams.getJsonSchema(), Object.class))
+                                    .build());
+                    req.setResponseFormat(responseFormat);
+                }
+
+                req.setModel(getName());
+
+                return req;
+            }
+
+            @AllArgsConstructor
+            @NoArgsConstructor
+            @Data
+            @Builder
+            public static class FontCompletionParams {
+                @JsonAlias("temperature")
+                private Double temperature;
+                @JsonAlias("top_p")
+                private Double topP;
+                @JsonAlias("presence_penalty")
+                private Double presencePenalty;
+                @JsonAlias("frequency_penalty")
+                private Double frequencyPenalty;
+                @JsonAlias("max_tokens")
+                private Integer maxTokens;
+                @JsonAlias("stop")
+                private List<String> stop;
+                @JsonAlias("response_format")
+                private String responseFormat;
+                @JsonAlias("json_schema")
+                private String jsonSchema;
+            }
+
         }
     }
 

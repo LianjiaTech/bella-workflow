@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 import org.springframework.util.StringUtils;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.utils.HttpUtils;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.enums.StatusEnum;
 import com.ke.bella.workflow.api.ops.GroupOps;
 import com.ke.bella.workflow.db.tables.pojos.*;

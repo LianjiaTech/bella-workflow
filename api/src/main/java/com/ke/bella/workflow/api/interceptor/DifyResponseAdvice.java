@@ -6,7 +6,7 @@ import java.io.StringWriter;
 import com.ke.bella.workflow.api.BellaResponse;
 import com.ke.bella.workflow.api.DataSourceController;
 import com.ke.bella.workflow.api.DifyController;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import org.apache.http.auth.AuthenticationException;
 import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataIntegrityViolationException;

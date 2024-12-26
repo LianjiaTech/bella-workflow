@@ -34,6 +34,8 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.Operator;
 import com.ke.bella.openapi.space.RoleWithSpace;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.File;
@@ -53,7 +55,6 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowTrigger;
 import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
@@ -103,10 +104,10 @@ public class DifyController {
     }
 
     public static boolean contextOperatorInvalid() {
-        return Objects.isNull(BellaContext.getOperator()) ||
-                !StringUtils.hasText(BellaContext.getOperator().getTenantId()) ||
-                !StringUtils.hasText(BellaContext.getOperator().getUserName()) ||
-                Objects.isNull(BellaContext.getOperator().getUserId());
+        return Objects.isNull(BellaContext.getOperatorIgnoreNull()) ||
+                !StringUtils.hasText(BellaContext.getOperatorIgnoreNull().getTenantId()) ||
+                !StringUtils.hasText(BellaContext.getOperatorIgnoreNull().getUserName()) ||
+                Objects.isNull(BellaContext.getOperatorIgnoreNull().getUserId());
     }
 
     @GetMapping
@@ -276,7 +277,7 @@ public class DifyController {
         // 前端当页面退出等情况，使用navigator.sendBeacon的形式发送请求，此api不支持设置header，故此处通过请求参数实现。
         initContext(op);
         Assert.hasText(workflowId, "workflowId不能为空");
-        if (schema == null) {
+        if(schema == null) {
             schema = DifyUtils.getDefaultWorkflowSchema();
         }
         List<EnvVar> vars = schema.getEnvironmentVariables();
@@ -544,7 +545,7 @@ public class DifyController {
     @RequestMapping("/{workflowId}/chat-messages")
     public Page<DifyChatFlowRun> pageChatFlowRuns(@PathVariable String workflowId,
             @RequestParam(value = "conversation_id", required = false) String threadId) {
-        OpenAiService openAiService = OpenAiUtils.defaultOpenAiService("Bearer " + BellaContext.getApiKey());
+        OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApikey().getApikey());
 
         List<Message> messages = openAiService.listMessages(threadId, new MessageListSearchParameters()).getData();
         Collections.reverse(messages);

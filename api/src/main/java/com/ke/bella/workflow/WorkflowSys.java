@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback.Delta;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.service.CustomKafkaProducer;
 import com.ke.bella.workflow.service.CustomRdb;
@@ -118,10 +118,10 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
         onProgress(node, newMessageId(), text);
     }
 
-    public void sendImageDelta(String id, String url) {
+    public void sendImageDelta(String id, String url, int imageProgress) {
         Delta delta = Delta.builder()
                 .name(node.getNodeData().getMessageRoleName())
-                .content(Delta.fromImageDelta(id, url))
+                .content(Delta.fromImageDelta(id, url, imageProgress))
                 .messageId((String) get("message_id"))
                 .build();
 
@@ -144,7 +144,7 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
             throw new IllegalArgumentException("arg's type should be ChatCompletionRequest or map.");
         }
 
-        OpenAiService service = OpenAiUtils.defaultOpenAiService("Bearer " + BellaContext.getApiKey(), 30, TimeUnit.SECONDS);
+        OpenAiService service = OpenAiUtils.defaultOpenAiService(BellaContext.getApikey().getApikey(), 30, TimeUnit.SECONDS);
         if(request.getStream() != null && request.getStream().booleanValue()) {
             Flowable<ChatCompletionChunk> rs = service.streamChatCompletion(request);
             return rs.blockingIterable();

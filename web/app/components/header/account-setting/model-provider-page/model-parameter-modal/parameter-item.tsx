@@ -1,8 +1,6 @@
 import type { FC } from 'react'
 import { useEffect, useRef, useState } from 'react'
-import {
-  RiQuestionLine,
-} from '@remixicon/react'
+import { RiQuestionLine } from '@remixicon/react'
 import type { ModelParameterRule } from '../declarations'
 import { useLanguage } from '../hooks'
 import { isNullOrUndefined } from '../utils'
@@ -41,7 +39,7 @@ const ParameterItem: FC<ParameterItemProps> = ({
 
     if (parameterRule.type === 'int' || parameterRule.type === 'float')
       defaultValue = isNullOrUndefined(parameterRule.default) ? (parameterRule.min || 0) : parameterRule.default
-    else if (parameterRule.type === 'string')
+    else if (parameterRule.type === 'string' || parameterRule.type === 'text')
       defaultValue = parameterRule.options?.length ? (parameterRule.default || '') : (parameterRule.default || '')
     else if (parameterRule.type === 'boolean')
       defaultValue = !isNullOrUndefined(parameterRule.default) ? parameterRule.default : false
@@ -56,7 +54,7 @@ const ParameterItem: FC<ParameterItemProps> = ({
   const handleInputChange = (newValue: ParameterValue) => {
     setLocalValue(newValue)
 
-    if (onChange && (parameterRule.name === 'stop' || !isNullOrUndefined(value)))
+    if (onChange && (parameterRule.name === 'stop' || !isNullOrUndefined(value) || parameterRule.required))
       onChange(newValue)
   }
 
@@ -100,7 +98,7 @@ const ParameterItem: FC<ParameterItemProps> = ({
     handleInputChange(v === 1)
   }
 
-  const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleStringInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     handleInputChange(e.target.value)
   }
 
@@ -184,6 +182,16 @@ const ParameterItem: FC<ParameterItemProps> = ({
       return (
         <input
           className={cn(isInWorkflow ? 'w-[200px]' : 'w-full', 'ml-4 flex items-center px-3 h-8 appearance-none outline-none rounded-lg bg-gray-100 text-[13px] text-gra-900')}
+          value={renderValue as string}
+          onChange={handleStringInputChange}
+        />
+      )
+    }
+
+    if (parameterRule.type === 'text') {
+      return (
+        <textarea
+          className='w-full h-20 ml-4 px-1 rounded-lg bg-gray-100 outline-none text-[12px] text-gray-900'
           value={renderValue as string}
           onChange={handleStringInputChange}
         />

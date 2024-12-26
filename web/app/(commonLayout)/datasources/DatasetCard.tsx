@@ -34,7 +34,7 @@ const DatasetCard = ({
   const { t } = useTranslation()
   const { notify } = useContext(ToastContext)
   const { isCurrentWorkspaceDatasetOperator } = useAppContext()
-  const [tags, setTags] = useState<Tag[]>(dataset.tags)
+  const [tags, setTags] = useState<Tag[]>(dataset.tags || [])
 
   const [showRenameModal, setShowRenameModal] = useState(false)
   const [showConfirmDelete, setShowConfirmDelete] = useState(false)
@@ -102,7 +102,7 @@ const DatasetCard = ({
   }
 
   useEffect(() => {
-    setTags(dataset.tags)
+    setTags(dataset.tags || [])
   }, [dataset])
 
   return (

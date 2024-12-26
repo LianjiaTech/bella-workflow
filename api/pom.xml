@@ -22,6 +22,7 @@
     <spring-cloud.version>Greenwich.SR3</spring-cloud.version>
     <ke-infrastructure.version>2.1.28</ke-infrastructure.version>
     <jooq.version>3.14.15</jooq.version>
+    <jackson.version>2.14.2</jackson.version>
   </properties>
 
   <dependencies>
@@ -87,21 +88,25 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
       <groupId>com.fasterxml.jackson.dataformat</groupId>
       <artifactId>jackson-dataformat-xml</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
@@ -137,7 +142,7 @@
     <dependency>
       <groupId>io.github.lambdua</groupId>
       <artifactId>service</artifactId>
-      <version>0.20.8</version>
+      <version>0.22.8</version>
     </dependency>
     <dependency>
       <groupId>org.jooq</groupId>
@@ -171,18 +176,6 @@
       <artifactId>guava</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-jsr310</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <optional>true</optional>
@@ -210,7 +203,7 @@
     <dependency>
       <groupId>com.ke.bella.openapi</groupId>
       <artifactId>auth</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
@@ -357,6 +350,9 @@
               <includes>
                 .*
               </includes>
+              <excludes>
+                ^workflow_run_\d+.*|^workflow_node_run_\d+.*
+              </excludes>
               <unsignedTypes>false</unsignedTypes>
             </database>
             <generate>

@@ -5,8 +5,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Resource;
 
-import com.ke.bella.workflow.api.Operator;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.Operator;
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.apikey.ApikeyInfo;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ public class DifyWorkSpacesControllerTest extends AbstractTest {
 	public void initBellaContext() {
 		BellaContext.setOperator(
 			Operator.builder().userId(userIdL).tenantId("04633c4f-8638-43a3-a02e-af23c29f821f").userName("mock").build());
-		BellaContext.setApiKey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8");
+		BellaContext.setApikey(ApikeyInfo.builder().apikey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8").build());
 	}
 
     @Test

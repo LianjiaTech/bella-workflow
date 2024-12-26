@@ -25,7 +25,7 @@ public class WecomGroupController {
 
     @PostMapping("/create")
     public WecomGroupInfoDB createGroupInfo(@RequestBody GroupOps.GroupAddOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.getGroupAlias(), "groupAlias不能为空");
         Assert.hasText(op.getSpaceCode(), "spaceCode不能为空");
         Assert.notNull(op.getUserId(), "userId 不能为空");
@@ -36,7 +36,7 @@ public class WecomGroupController {
 
     @PostMapping("/update")
     public WecomGroupInfoDB updateGroupInfo(@RequestBody GroupOps.GroupUpdateOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.getSpaceCode(), "spaceCode不能为空");
         Assert.hasText(op.getGroupCode(), "groupCode不能为空");
         Assert.notNull(op.getUserId(), "userId 不能为空");
@@ -47,7 +47,7 @@ public class WecomGroupController {
 
     @PostMapping("/delete")
     public Boolean deleteGroupInfo(@RequestBody GroupOps.GroupDeleteOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.getSpaceCode(), "spaceCode不能为空");
         Assert.notEmpty(op.getGroupCodes(), "groupCodes不能为空");
         Assert.notNull(op.getUserId(), "userId 不能为空");
@@ -58,7 +58,7 @@ public class WecomGroupController {
 
     @PostMapping("/page")
     public Page<WecomGroupInfoDB> pageGroupInfo(@RequestBody GroupOps.GroupQueryOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.notNull(op.getUserId(), "userId 不能为空");
         Assert.hasText(op.getUserName(), "userName 不能为空");
 
@@ -67,7 +67,7 @@ public class WecomGroupController {
 
     @GetMapping("/userId")
     public WecomGroupInfoDB queryGroupInfoByUserId(GroupOps.GroupQueryByUserOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.getSpaceCode(), "spaceCode不能为空");
         Assert.hasText(op.getScene(), "scene不能为空");
         Assert.notNull(op.getUserId(), "userId 不能为空");
@@ -78,7 +78,7 @@ public class WecomGroupController {
 
     @GetMapping("/groupId")
     public WecomGroupInfoDB queryGroupInfoByGroupId(GroupOps.GroupQueryByGroupOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.getGroupId(), "groupId不能为空");
         Assert.hasText(op.getScene(), "scene不能为空");
 
@@ -87,7 +87,7 @@ public class WecomGroupController {
 
     @PostMapping("member/create")
     public WecomGroupMemberDB createGroupMember(@RequestBody GroupOps.GroupMemberOp op) {
-        Assert.hasText(op.tenantId, "tenantId 不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId 不能为空");
         Assert.hasText(op.getSpaceCode(), "spaceCode 不能为空");
         Assert.hasText(op.getGroupCode(), "groupCode 不能为空");
         Assert.notNull(op.getUserId(), "userId 不能为空");
@@ -99,7 +99,7 @@ public class WecomGroupController {
 
     @PostMapping("member/update")
     public WecomGroupMemberDB updateGroupMember(@RequestBody GroupOps.GroupMemberOp op) {
-        Assert.hasText(op.tenantId, "tenantId 不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId 不能为空");
         Assert.hasText(op.getSpaceCode(), "spaceCode 不能为空");
         Assert.hasText(op.getGroupCode(), "groupCode 不能为空");
         Assert.notNull(op.getUserId(), "userId 不能为空");
@@ -111,7 +111,7 @@ public class WecomGroupController {
 
     @PostMapping("member/delete")
     public Boolean deleteGroupMember(@RequestBody GroupOps.GroupMemberOp op) {
-        Assert.hasText(op.tenantId, "tenantId 不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId 不能为空");
         Assert.hasText(op.getSpaceCode(), "spaceCode 不能为空");
         Assert.hasText(op.getGroupCode(), "groupCode 不能为空");
         Assert.notNull(op.getUserId(), "userId 不能为空");
@@ -123,7 +123,7 @@ public class WecomGroupController {
 
     @PostMapping("member/page")
     public Page<WecomGroupMemberDB> pageGroupMemberInfo(@RequestBody GroupOps.GroupMemberQueryOp op) {
-        Assert.hasText(op.tenantId, "tenantId 不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId 不能为空");
         Assert.hasText(op.getSpaceCode(), "spaceCode 不能为空");
         Assert.hasText(op.getGroupCode(), "groupCode 不能为空");
         Assert.notNull(op.getUserId(), "userId 不能为空");

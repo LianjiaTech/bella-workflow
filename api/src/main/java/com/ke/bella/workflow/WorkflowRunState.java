@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 
 import lombok.Builder;
 import lombok.Data;
@@ -52,7 +52,7 @@ public class WorkflowRunState implements Serializable {
     WorkflowRunStatus status;
 
     public WorkflowRunState() {
-        if(BellaContext.getOperator() != null) {
+        if(BellaContext.getOperatorIgnoreNull() != null) {
             putVariable("sys", "user_id", String.valueOf(BellaContext.getOperator().getUserId()));
             putVariable("sys", "user_name", BellaContext.getOperator().getUserName());
         }

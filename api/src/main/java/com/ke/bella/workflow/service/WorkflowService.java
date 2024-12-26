@@ -1,24 +1,7 @@
 package com.ke.bella.workflow.service;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.amazonaws.services.s3.model.S3Object;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.RedisMesh;
 import com.ke.bella.workflow.RedisMesh.Event;
@@ -33,6 +16,7 @@ import com.ke.bella.workflow.WorkflowRunner;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.EnvVar;
 import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.WorkflowTemplate;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
@@ -42,7 +26,6 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunCancel;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
@@ -52,13 +35,33 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowTemplateDB;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.jodah.expiringmap.ExpirationListener;
 import net.jodah.expiringmap.ExpiringMap;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -80,6 +83,60 @@ public class WorkflowService {
 
     public static final String EVENT_INTERRUPT = "interruptWorkflowRun";
     public static final String EVENT_NOTIFY = "notifyWorkflowRun";
+
+    public Page<WorkflowTemplate> pageWorkflowTemplates(WorkflowPage op) {
+        List<WorkflowTemplateDB> workflowTemplates = repo.listWorkflowTemplateDB(op);
+        Set<String> tags = op.getTags();
+
+        List<WorkflowTemplate> datas = null;
+        if(!CollectionUtils.isEmpty(tags)) {
+            datas = workflowTemplates.stream().map(WorkflowTemplate::from)
+                    .filter(e -> Optional.ofNullable(e.getTags()).map(ts -> ts.containsAll(tags)).orElse(false)).collect(Collectors.toList());
+        } else {
+            datas = workflowTemplates.stream().map(WorkflowTemplate::from).collect(Collectors.toList());
+        }
+
+        int totalSize = datas.size();
+
+        int fromIndex = (op.getPage() - 1) * op.getPageSize();
+        int toIndex = Math.min(fromIndex + op.getPageSize(), totalSize);
+
+        List<WorkflowTemplate> resultData = datas.subList(fromIndex, toIndex);
+
+        int currentPage = op.getPage();
+        int currentPageSize = resultData.size();
+
+        return Page.<WorkflowTemplate>from(currentPage, currentPageSize).list(resultData).total(totalSize);
+    }
+
+    public WorkflowTemplate getWorkflowTemplate(WorkflowSync op) {
+        WorkflowTemplateDB workflowTemplate = repo.queryWorkflowTemplate(op);
+        return WorkflowTemplate.from(workflowTemplate);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public WorkflowDB newWorkflowFromTemplate(WorkflowSync op) {
+        repo.increaseTemplateCopies(op);
+
+        WorkflowTemplateDB workflowTemplate = repo.queryWorkflowTemplate(op);
+        WorkflowDB wf = repo.queryWorkflow(workflowTemplate.getWorkflowId(), workflowTemplate.getVersion());
+
+        WorkflowSync sync = WorkflowSync.builder()
+                .graph(wf.getGraph())
+                .title(wf.getTitle())
+                .mode(wf.getMode())
+                .desc(wf.getDesc())
+                .build();
+
+        return newWorkflow(sync);
+    }
+
+    public WorkflowTemplate publishAsTemplate(WorkflowOps.WorkflowOp op) {
+        WorkflowDB db = getPublishedWorkflow(op.getWorkflowId(), op.getVersion());
+        Assert.notNull(db, "workflow not found");
+        WorkflowTemplateDB templateDB = repo.addWorkflowTemplate(db, op);
+        return WorkflowTemplate.from(templateDB);
+    }
 
     @AllArgsConstructor
     public static class WaitingWorkflowRun {
@@ -127,16 +184,41 @@ public class WorkflowService {
 
     @Transactional(rollbackFor = Exception.class)
     public WorkflowDB newWorkflow(WorkflowSync op) {
-        WorkflowDB workflowDb = repo.addDraftWorkflow(op);
-        repo.addWorkflowAggregate(workflowDb);
-        return workflowDb;
+        WorkflowDB workflowDB = repo.addWorkflow(op);
+        repo.addWorkflowAggregate(workflowDB);
+        return workflowDB;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public WorkflowDB newWorkflowPublished(WorkflowDB wf) {
+        // 添加一个published以及agg
+        WorkflowSync sync = WorkflowSync.builder()
+                .graph(wf.getGraph())
+                .title(wf.getTitle())
+                .mode(wf.getMode())
+                .desc(wf.getDesc())
+                .version(wf.getVersion())
+                .build();
+        WorkflowDB published = newWorkflow(sync);
+
+        // 添加一份draft，保证画布可打开
+        WorkflowSync draftSync = WorkflowSync.builder()
+                .workflowId(published.getWorkflowId())
+                .graph(published.getGraph())
+                .title(published.getTitle())
+                .mode(published.getMode())
+                .desc(published.getDesc())
+                .build();
+        repo.addWorkflow(draftSync);
+
+        return published;
     }
 
     @Transactional(rollbackFor = Exception.class)
     public WorkflowDB syncWorkflow(WorkflowSync op) {
         WorkflowDB wf = repo.queryDraftWorkflow(op.getWorkflowId());
         if(wf == null) {
-            WorkflowDB workflowDb = repo.addDraftWorkflow(op);
+            WorkflowDB workflowDb = repo.addWorkflow(op);
             repo.addWorkflowAggregate(workflowDb);
         } else if(!StringUtils.equals(wf.getEnvVars(), op.getEnvVars())) {
             repo.updateDraftWorkflow(op);

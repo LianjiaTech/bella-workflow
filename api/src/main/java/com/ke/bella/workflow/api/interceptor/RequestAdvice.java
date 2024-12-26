@@ -1,17 +1,15 @@
 package com.ke.bella.workflow.api.interceptor;
 
-import java.lang.reflect.Type;
-import java.util.Optional;
-
-import org.apache.commons.lang3.StringUtils;
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.Operator;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdviceAdapter;
 
-import com.ke.bella.workflow.api.Operator;
-import com.ke.bella.workflow.db.BellaContext;
+import java.lang.reflect.Type;
+
 
 @RestControllerAdvice
 public class RequestAdvice extends RequestBodyAdviceAdapter {
@@ -26,19 +24,9 @@ public class RequestAdvice extends RequestBodyAdviceAdapter {
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter, Type targetType,
             Class<? extends HttpMessageConverter<?>> converterType) {
         if(body instanceof Operator) {
-            Operator oper = getPureOper((Operator) body);
-
-            Optional.ofNullable(BellaContext.getOperator()).ifPresent(oldOperator -> {
-                oper.setUserId(oldOperator.getUserId());
-                oper.setUserName(oldOperator.getUserName());
-                if(StringUtils.isNotEmpty(oldOperator.getTenantId())) {
-                    oper.setTenantId(oldOperator.getTenantId());
-                }
-                if(StringUtils.isNotEmpty(oldOperator.getSpaceCode())) {
-                    oper.setSpaceCode(oldOperator.getSpaceCode());
-                }
-            });
-            BellaContext.setOperator(oper);
+            if(BellaContext.getOperatorIgnoreNull() == null) {
+                BellaContext.setOperator(getPureOper((Operator) body));
+            }
         }
 
         return body;

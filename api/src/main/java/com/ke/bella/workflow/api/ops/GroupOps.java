@@ -3,7 +3,7 @@ package com.ke.bella.workflow.api.ops;
 import lombok.*;
 import java.util.List;
 import java.util.ArrayList;
-import com.ke.bella.workflow.api.Operator;
+import com.ke.bella.openapi.Operator;
 import io.swagger.annotations.ApiModelProperty;
 
 @Data

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowCApiRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.service.WorkflowService;
 

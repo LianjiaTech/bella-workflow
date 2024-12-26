@@ -11,7 +11,7 @@ import BellaHeader from '@/app/(commonLayout)/bella/components/header'
 import { EventEmitterContextProvider } from '@/context/event-emitter'
 import { ProviderContextProvider } from '@/context/provider-context'
 import { ModalContextProvider } from '@/context/modal-context'
-import { getQueryParams, setTenantId } from '@/utils/getQueryParams'
+import { getQueryParams, getTenantId, setTenantId } from '@/utils/getQueryParams'
 
 const Layout = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname()
@@ -19,7 +19,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
   const isHuiting = pathname.startsWith('/huiting')
 
   useEffect(() => {
-    let tenantId = getQueryParams('tenant') || 'test'
+    let tenantId = getQueryParams('tenant') || getTenantId() || 'test'
     if (pathname.startsWith('/bella'))
       tenantId = '04633c4f-8638-43a3-a02e-af23c29f821f'
     else if (pathname.startsWith('/huiting'))

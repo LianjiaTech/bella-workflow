@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
@@ -36,8 +37,6 @@ import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult.NodeRunResultBuilder;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
-import com.ke.bella.workflow.db.BellaContext;
-import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.KeIAM;
@@ -348,7 +347,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
 
         String ext = HttpUtils.getExtensionFromMimeType(contentType);
         String filename = String.format("%s.%s", UUID.randomUUID().toString(), ext);
-        OpenAiService service = OpenAiUtils.defaultOpenAiService("Bearer " + BellaContext.getApiKey(), 0, TimeUnit.SECONDS);
+        OpenAiService service = OpenAiUtils.defaultOpenAiService(BellaContext.getApikey().getApikey(), 0, TimeUnit.SECONDS);
         com.theokanning.openai.file.File file = service.uploadFile("assistants", new ByteArrayInputStream(bytes), filename);
         files.add(File.builder()
                 .fileId(file.getId())
@@ -423,7 +422,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
         if("api-key".equals(authType)) {
             authType = config.getType();
             if("bella".equals(authType)) {
-                apiKey = BellaContext.getApiKey();
+                apiKey = BellaContext.getApikey().getApikey();
             } else if("ke-IAM".equalsIgnoreCase(authType)) {
                 URL url = buildUrl(context).toURL();
                 apiKey = KeIAM.generateAuthorization(config.getApiKey(), config.getSecret(),
@@ -508,7 +507,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class Data extends BaseNodeData {
+    public static class Data extends BaseNode.BaseNodeData {
         Body body;
         String url;
         String params;

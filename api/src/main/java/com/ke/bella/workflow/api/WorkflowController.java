@@ -1,20 +1,10 @@
 package com.ke.bella.workflow.api;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.Operator;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.WorkflowTemplate;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.TenantCreate;
 import com.ke.bella.workflow.api.WorkflowOps.TriggerFrom;
@@ -33,7 +23,6 @@ import com.ke.bella.workflow.api.callbacks.SingleNodeRunStreamingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunBlockingCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunStreamingCallback;
-import com.ke.bella.workflow.db.BellaContext;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
@@ -43,6 +32,18 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.utils.DifyUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/v1")
@@ -71,7 +72,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/draft/info")
     public WorkflowDB draftInfo(@RequestBody WorkflowOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
         return ws.getDraftWorkflow(op.workflowId);
@@ -79,7 +80,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/info")
     public WorkflowDB info(@RequestBody WorkflowOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
         return ws.getPublishedWorkflow(op.workflowId, op.version);
@@ -87,7 +88,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/draft/sync")
     public WorkflowDB sync(@RequestBody WorkflowSync op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.graph, "graph不能为空");
 
         if(StringUtils.isEmpty(op.getWorkflowId())) {
@@ -99,23 +100,27 @@ public class WorkflowController {
 
     @PostMapping("/workflow/copy")
     public WorkflowDB copy(@RequestBody WorkflowCopy op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
         Assert.notNull(op.version, "version不能为空");
 
         WorkflowDB wf = ws.getWorkflow(op.workflowId, op.version);
-        WorkflowSync sync = WorkflowSync.builder()
-                .graph(wf.getGraph())
-                .title(wf.getTitle())
-                .mode(wf.getMode())
-                .desc(wf.getDesc())
-                .build();
-        return ws.newWorkflow(sync);
+        if(op.getVersion() > 0) {
+            return ws.newWorkflowPublished(wf);
+        } else {
+            WorkflowSync sync = WorkflowSync.builder()
+                    .graph(wf.getGraph())
+                    .title(wf.getTitle())
+                    .mode(wf.getMode())
+                    .desc(wf.getDesc())
+                    .build();
+            return ws.newWorkflow(sync);
+        }
     }
 
     @PostMapping("/workflow/draft/publish")
     public WorkflowDB publish(@RequestBody WorkflowOp op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
         return ws.publish(op.workflowId);
@@ -123,7 +128,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/custom/publish")
     public WorkflowAsApiDB publishAsApi(@RequestBody WorkflowAsApiPublish op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
         Assert.hasText(op.host, "host不能为空");
         Assert.hasText(op.path, "path不能为空");
@@ -175,7 +180,7 @@ public class WorkflowController {
 
     public Object run0(WorkflowRun op, String ver) {
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
         Assert.notNull(op.inputs, "inputs不能为空");
         Assert.notNull(mode, "responseMode必须为[streaming, blocking, callback]之一");
@@ -185,7 +190,7 @@ public class WorkflowController {
 
         WorkflowDB wf = ver.equals("published") ? ws.getPublishedWorkflow(op.workflowId, op.getVersion())
                 : ws.getDraftWorkflow(op.workflowId);
-        Assert.notNull(wf, String.format("没有找到对应的的工作流, %s(ver. %s), tenant: %s", op.workflowId, ver, op.tenantId));
+        Assert.notNull(wf, String.format("没有找到对应的的工作流, %s(ver. %s), tenant: %s", op.workflowId, ver, op.getTenantId()));
 
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op);
 
@@ -216,7 +221,7 @@ public class WorkflowController {
     @PostMapping("/workflow/draft/node/run")
     public Object runSingleNode(@RequestBody WorkflowNodeRun op) {
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
         Assert.hasText(op.nodeId, "nodeId不能为空");
         Assert.notNull(op.inputs, "inputs不能为空");
@@ -257,7 +262,7 @@ public class WorkflowController {
 
     @PostMapping("/workflow/run/page")
     public Page<WorkflowRunDB> listWorkflowRun(@RequestBody WorkflowRunPage op) {
-        Assert.hasText(op.tenantId, "tenantId不能为空");
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
         return ws.listWorkflowRun(op);
@@ -298,5 +303,36 @@ public class WorkflowController {
             @PathVariable String workflowRunId) {
         List<WorkflowNodeRunDB> nodeRuns = ws.getNodeRuns(workflowRunId);
         return DifyController.DifyNodeExecution.builder().data(DifyUtils.transfer(nodeRuns)).build();
+    }
+
+    @PostMapping("/workflow/templates/page")
+    public Page<WorkflowTemplate> pageTemplates(@RequestBody WorkflowOps.WorkflowPage op) {
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
+        return ws.pageWorkflowTemplates(op);
+    }
+
+    @PostMapping("/workflow/create/from-template")
+    public WorkflowDB fromTemplate(@RequestBody WorkflowSync op) {
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
+        Assert.hasText(op.getTemplateId(), "templateId不能为空");
+
+        WorkflowTemplate template = ws.getWorkflowTemplate(op);
+
+        if(StringUtils.isEmpty(op.getTitle())) {
+            op.setTitle(template.getTitle());
+        }
+        if(StringUtils.isEmpty(op.getDesc())) {
+            op.setDesc(template.getDesc());
+        }
+        return ws.newWorkflowFromTemplate(op);
+    }
+
+    @PostMapping("/workflow/publish-as-templates")
+    public WorkflowTemplate publishAsTemplate(@RequestBody WorkflowOp op) {
+        Assert.hasText(op.getTenantId(), "tenantId不能为空");
+        Assert.hasText(op.getWorkflowId(), "workflowId不能为空");
+        Assert.notNull(op.getVersion(), "version不能为空");
+
+        return ws.publishAsTemplate(op);
     }
 }

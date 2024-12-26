@@ -10,11 +10,11 @@ import org.jooq.SelectLimitStep;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import com.ke.bella.workflow.db.BellaContext;
+import com.ke.bella.openapi.BellaContext;
 
 public interface BaseRepo {
     default void fillCreatorInfo(Operator db) {
-        com.ke.bella.workflow.api.Operator oper = BellaContext.getOperator();
+        com.ke.bella.openapi.Operator oper = BellaContext.getOperatorIgnoreNull();
         if(oper != null) {
             if(oper.getUserId() != null) {
                 db.setCuid(oper.getUserId());
@@ -29,7 +29,7 @@ public interface BaseRepo {
     }
 
     default void fillUpdatorInfo(Operator db) {
-        com.ke.bella.workflow.api.Operator oper = BellaContext.getOperator();
+        com.ke.bella.openapi.Operator oper = BellaContext.getOperatorIgnoreNull();
         if(oper != null) {
             if(oper.getUserId() != null) {
                 db.setMuid(oper.getUserId());
@@ -53,9 +53,9 @@ public interface BaseRepo {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public default <T> Page<T> queryPage(DSLContext db, SelectLimitStep scs, int page, int pageSize, Class<T> clazz) {
+    default <T> Page<T> queryPage(DSLContext db, SelectLimitStep scs, int page, int pageSize, Class<T> clazz) {
         if(scs == null) {
-            return (Page<T>) Page.from(page, pageSize);
+            return Page.from(page, pageSize);
         }
         return Page.from(page, pageSize)
                 .total(db.fetchCount(scs))

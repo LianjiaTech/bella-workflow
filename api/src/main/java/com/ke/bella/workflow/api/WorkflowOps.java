@@ -1,13 +1,16 @@
 package com.ke.bella.workflow.api;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.utils.JsonUtils;
+import com.ke.bella.openapi.Operator;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,6 +50,8 @@ public class WorkflowOps {
     public static class WorkflowOp extends Operator {
         String workflowId;
         Long version;
+        @Builder.Default
+        List<String> tags = new ArrayList<>();
     }
 
     @Getter
@@ -77,6 +82,8 @@ public class WorkflowOps {
         String name;
 
         String workflowId;
+
+        Set<String> tags;
     }
 
     @Getter
@@ -100,6 +107,8 @@ public class WorkflowOps {
         String desc;
         String mode;
         Integer status;
+        String templateId;
+        Long version;
     }
 
     @Getter
@@ -242,6 +251,18 @@ public class WorkflowOps {
         String triggerId;
 
         Map inputs;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @SuppressWarnings("rawtypes")
+    public static class WorkflowSchedulingStatusOp extends Operator {
+        String triggerId;
+
+        String triggerType;
     }
 
     @Getter

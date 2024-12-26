@@ -5,6 +5,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Configs {
+    public static String SERVICE_NAME = "workflow";
+
+    public static String OPEN_API_HOST;
 
     public static String OPEN_API_BASE;
 
@@ -28,6 +31,10 @@ public class Configs {
 
     public static Integer TASK_THREAD_NUMS = 1000;
 
+    @Value("${bella.openapiHost}")
+    public void setOpenApiHost(String openApiHost) {
+        OPEN_API_HOST = openApiHost;
+    }
     @Value("${bella.apiBase}")
     public void setApiBase(String apiBase) {
         API_BASE = apiBase;

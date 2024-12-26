@@ -352,7 +352,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 if(apiKey == null) {
                     apiKey = BellaContext.getApikey().getApikey();
                 }
-                return String.format("Bearer %s", apiKey);
+                return apiKey;
             }
 
             public String getApiBaseUrl() {

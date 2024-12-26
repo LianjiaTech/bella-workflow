@@ -1,5 +1,8 @@
 package com.ke.bella.workflow.utils;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.request.BellaInterceptor;
@@ -7,18 +10,13 @@ import com.ke.bella.workflow.service.Configs;
 import com.theokanning.openai.client.AuthenticationInterceptor;
 import com.theokanning.openai.client.OpenAiApi;
 import com.theokanning.openai.service.OpenAiService;
+
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class OpenAiUtils {
@@ -42,16 +40,7 @@ public class OpenAiUtils {
         ObjectMapper mapper = OpenAiService.defaultObjectMapper();
 
         OkHttpClient curClient = client.newBuilder()
-                .addInterceptor(new AuthenticationInterceptor(token) {
-                    @Override
-                    public Response intercept(Chain chain) throws IOException {
-                        Request request = chain.request()
-                                .newBuilder()
-                                .header("Authorization", token)
-                                .build();
-                        return chain.proceed(request);
-                    }
-                })
+                .addInterceptor(new AuthenticationInterceptor(token))
                 .addInterceptor(new BellaInterceptor(BellaContext.snapshot()))
                 .readTimeout(readTimeout, unit).build();
 

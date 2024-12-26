@@ -8,12 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
-import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.assistants.message.MessageRequest;
@@ -35,7 +35,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     public WorkflowRunCallback(WorkflowService service, IWorkflowCallback delegate) {
         this.service = service;
         this.delegate = delegate;
-        this.openAiService = OpenAiUtils.defaultOpenAiService("Bearer " + BellaContext.getApikey().getApikey());
+        this.openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApikey().getApikey());
         this.resultBufferMap = new ConcurrentHashMap<>();
     }
 

@@ -37,7 +37,6 @@ import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult.NodeRunResultBuilder;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
-import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.KeIAM;
@@ -508,7 +507,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
     @Getter
     @Setter
     @NoArgsConstructor
-    public static class Data extends BaseNodeData {
+    public static class Data extends BaseNode.BaseNodeData {
         Body body;
         String url;
         String params;

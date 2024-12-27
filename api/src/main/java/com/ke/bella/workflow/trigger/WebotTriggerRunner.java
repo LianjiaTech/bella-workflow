@@ -40,17 +40,9 @@ public class WebotTriggerRunner {
         }
 
         if(StringUtils.hasText(db.getExpression())) {
-            Map env = new HashMap();
-            env.put("event", event);
-
-            Object res = AviatorEvaluator.execute(db.getId().toString(), db.getExpression(), env, true);
-            return res instanceof Boolean && (Boolean) res;
+            return ExpressionHelper.canTrigger(db.getExpressionType(), db.getId().toString(), db.getExpression(), event);
         }
 
         return true;
-    }
-
-    public static void validate(String expression) {
-        AviatorEvaluator.compile(expression);
     }
 }

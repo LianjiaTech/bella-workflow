@@ -1,16 +1,12 @@
 package com.ke.bella.workflow.trigger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-
+import com.ke.bella.workflow.TaskExecutor;
+import com.ke.bella.workflow.db.repo.DataSourceRepo;
+import com.ke.bella.workflow.db.repo.WorkflowTriggerRepo;
+import com.ke.bella.workflow.db.tables.pojos.KafkaDatasourceDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;
+import com.ke.bella.workflow.utils.JsonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -25,15 +21,15 @@ import org.springframework.kafka.listener.MessageListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.googlecode.aviator.AviatorEvaluator;
-import com.ke.bella.workflow.TaskExecutor;
-import com.ke.bella.workflow.db.repo.DataSourceRepo;
-import com.ke.bella.workflow.db.repo.WorkflowTriggerRepo;
-import com.ke.bella.workflow.db.tables.pojos.KafkaDatasourceDB;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;
-import com.ke.bella.workflow.utils.JsonUtils;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -158,15 +154,7 @@ public class KafkaEventConsumers {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     boolean canTrigger(WorkflowKafkaTriggerDB db, Object value) {
-        Map env = new HashMap();
-        env.put("event", value);
-
-        Object res = AviatorEvaluator.execute(db.getId().toString(), db.getExpression(), env, true);
-        return res instanceof Boolean && (Boolean) res;
-    }
-
-    public static void validate(String expression) {
-        AviatorEvaluator.compile(expression);
+        return ExpressionHelper.canTrigger(db.getExpressionType(), db.getId().toString(), db.getExpression(), value);
     }
 
     class EventListener implements MessageListener<String, String> {

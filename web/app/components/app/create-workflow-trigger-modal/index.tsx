@@ -43,6 +43,7 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
   const [name, setName] = useState('')
   const [cronExpression, setCronExpression] = useState('0 10 * * *')
   const [kafkaExpression, setKafkaExpression] = useState('')
+  const [kafkaExpressionType, setKafkaExpressionType] = useState('Groovy')
   const [datasourceId, setDatasourceId] = useState('')
   const [inputs, setInputs] = useState('{}')
 
@@ -53,6 +54,13 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
       return kafkaExpression
 
     return cronExpression
+  }
+
+  const getExpressionType = () => {
+    if (triggerType === 'KFKA')
+      return kafkaExpressionType
+
+    return ''
   }
 
   const isCreatingRef = useRef(false)
@@ -83,6 +91,7 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
       const trigger = await createSchedulingTrigger({
         name,
         expression: getExpression(),
+        expressionType: getExpressionType(),
         inputs,
         workflowId,
         triggerType,
@@ -195,11 +204,26 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
 
       {triggerType === 'KFKA' && (
         <div className='pt-2 px-8'>
+          <div className='py-2 text-sm font-medium leading-[20px] text-gray-900'>{t('workflow.trigger.datasource')}</div>
+          <div className='flex items-center justify-between space-x-2'>
+            <SimpleSelect
+              wrapperClassName='grow h-10 px-3 text-sm font-normal bg-gray-100 rounded-lg border border-transparent outline-none appearance-none caret-primary-600 placeholder:text-gray-400 hover:bg-gray-50 hover:border hover:border-gray-300 focus:bg-gray-50 focus:border focus:border-gray-300 focus:shadow-xs'
+              onSelect={(item) => { setKafkaExpressionType(item.value.toString()) }}
+              items={[{ value: 'Aviator', name: 'Aviator' }, { value: 'Groovy', name: 'Groovy' }]}
+              placeholder='请选择脚本语言类型'
+              defaultValue='Groovy'
+            />
+          </div>
+        </div>
+      )}
+
+      {triggerType === 'KFKA' && (
+        <div className='pt-2 px-8'>
           <div className='py-2 text-sm font-medium leading-[20px] text-gray-900'>{t('workflow.trigger.expression')}</div>
           <Editor
             width="800"
             height="120px"
-            language="javascript"
+            language={kafkaExpressionType === 'Groovy' ? 'groovy' : 'javascript'}
             theme="vs-dark"
             value={kafkaExpression}
             options={{

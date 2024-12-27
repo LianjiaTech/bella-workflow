@@ -27,6 +27,7 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
     private String        chatId;
     private String        robotId;
     private String        expression;
+    private String        expressionType;
     private String        workflowId;
     private String        inputs;
     private String        inputkey;
@@ -50,6 +51,7 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
         this.chatId = value.chatId;
         this.robotId = value.robotId;
         this.expression = value.expression;
+        this.expressionType = value.expressionType;
         this.workflowId = value.workflowId;
         this.inputs = value.inputs;
         this.inputkey = value.inputkey;
@@ -72,6 +74,7 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
         String        chatId,
         String        robotId,
         String        expression,
+        String        expressionType,
         String        workflowId,
         String        inputs,
         String        inputkey,
@@ -92,6 +95,7 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
         this.chatId = chatId;
         this.robotId = robotId;
         this.expression = expression;
+        this.expressionType = expressionType;
         this.workflowId = workflowId;
         this.inputs = inputs;
         this.inputkey = inputkey;
@@ -228,6 +232,20 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
      */
     public void setExpression(String expression) {
         this.expression = expression;
+    }
+
+    /**
+     * Getter for <code>workflow_webot_trigger.expression_type</code>. 表达式脚本语言类型
+     */
+    public String getExpressionType() {
+        return this.expressionType;
+    }
+
+    /**
+     * Setter for <code>workflow_webot_trigger.expression_type</code>. 表达式脚本语言类型
+     */
+    public void setExpressionType(String expressionType) {
+        this.expressionType = expressionType;
     }
 
     /**
@@ -383,6 +401,7 @@ public class WorkflowWebotTriggerDB implements Operator, Serializable {
         sb.append(", ").append(chatId);
         sb.append(", ").append(robotId);
         sb.append(", ").append(expression);
+        sb.append(", ").append(expressionType);
         sb.append(", ").append(workflowId);
         sb.append(", ").append(inputs);
         sb.append(", ").append(inputkey);

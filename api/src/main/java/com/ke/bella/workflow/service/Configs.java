@@ -21,7 +21,7 @@ public class Configs {
 
     public static long MAX_EXE_TIME = 600; // 600s
 
-    public static boolean GROOVY_SANDBOX_ENABLE = false;
+    public static boolean GROOVY_SANDBOX_ENABLE = true;
 
     public static boolean isThreadAllocatedMemorySupported = false;
 

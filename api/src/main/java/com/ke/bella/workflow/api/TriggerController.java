@@ -2,6 +2,7 @@ package com.ke.bella.workflow.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -94,6 +95,7 @@ public class TriggerController {
         Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.getDatasourceId(), "datasourceId不能为空");
         Assert.hasText(op.getExpression(), "expression不能为空");
+        Assert.hasText(op.getExpressionType(), "expression不能为空");
         Assert.hasText(op.getInputkey(), "inputKey不能为空");
 
         return ws.createKafkaTrigger(op);
@@ -122,7 +124,7 @@ public class TriggerController {
         Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.getRobotId(), "robotId不能为空");
         Assert.hasText(op.getInputkey(), "inputKey不能为空");
-
+        Assert.isTrue(!StringUtils.hasText(op.getExpression()) || StringUtils.hasText(op.getExpressionType()), "expressionType不能为空");
         return ws.createWebotTrigger(op);
     }
 

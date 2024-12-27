@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row19;
+import org.jooq.Row20;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -95,6 +95,11 @@ public class WorkflowWebotTrigger extends TableImpl<WorkflowWebotTriggerRecord> 
      * The column <code>workflow_webot_trigger.expression</code>.
      */
     public final TableField<WorkflowWebotTriggerRecord, String> EXPRESSION = createField(DSL.name("expression"), SQLDataType.CLOB.nullable(false), this, "");
+
+    /**
+     * The column <code>workflow_webot_trigger.expression_type</code>. 表达式脚本语言类型
+     */
+    public final TableField<WorkflowWebotTriggerRecord, String> EXPRESSION_TYPE = createField(DSL.name("expression_type"), SQLDataType.VARCHAR(16).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "表达式脚本语言类型");
 
     /**
      * The column <code>workflow_webot_trigger.workflow_id</code>.
@@ -231,11 +236,11 @@ public class WorkflowWebotTrigger extends TableImpl<WorkflowWebotTriggerRecord> 
     }
 
     // -------------------------------------------------------------------------
-    // Row19 type methods
+    // Row20 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row19<Long, String, String, String, String, String, String, String, String, String, String, String, Integer, Long, Long, String, String, LocalDateTime, LocalDateTime> fieldsRow() {
-        return (Row19) super.fieldsRow();
+    public Row20<Long, String, String, String, String, String, String, String, String, String, String, String, String, Integer, Long, Long, String, String, LocalDateTime, LocalDateTime> fieldsRow() {
+        return (Row20) super.fieldsRow();
     }
 }

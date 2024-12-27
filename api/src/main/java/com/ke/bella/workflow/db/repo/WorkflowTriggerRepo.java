@@ -161,6 +161,7 @@ public class WorkflowTriggerRepo implements BaseRepo {
         }
         if(StringUtils.hasText(op.getExpression())) {
             rec.setExpression(op.getExpression());
+            rec.setExpressionType(op.getExpressionType());
         }
         rec.setWorkflowId(op.getWorkflowId());
         if(StringUtils.hasText(op.getInputkey())) {
@@ -214,6 +215,9 @@ public class WorkflowTriggerRepo implements BaseRepo {
         }
         rec.setInputs(JsonUtils.toJson(op.getInputs()));
         rec.setExpression(op.getExpression());
+        if(StringUtils.hasText(op.getExpressionType())) {
+            rec.setExpressionType(op.getExpressionType());
+        }
         rec.setWorkflowId(op.getWorkflowId());
         rec.setInputkey(op.getInputkey());
 

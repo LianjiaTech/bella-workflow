@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.springframework.util.CollectionUtils;
@@ -14,13 +15,12 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
-import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
-import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -30,9 +30,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import okhttp3.OkHttpClient;
 
 public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data> {
     private static final String FILES_RETRIEVE = "api/rag/retrieval";
+    private static final long DEFAULT_READ_TIMEOUT_SECONDS = 60 * 5L;
+    private static final TimeUnit DEFAULT_READ_TIMEOUT_UNIT = TimeUnit.SECONDS;
+    private static final OkHttpClient client;
+
+    static {
+        client = HttpUtils.newClient(DEFAULT_READ_TIMEOUT_SECONDS, DEFAULT_READ_TIMEOUT_UNIT);
+    }
 
     public KnowledgeRetrievalNode(WorkflowSchema.Node meta) {
         super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
@@ -88,7 +96,7 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
             request.setPlugins(plugins);
         }
 
-        BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postJson(headers, fileRetrieveUrl, JsonUtils.toJson(request),
+        BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postJson(client, headers, fileRetrieveUrl, JsonUtils.toJson(request),
                 new TypeReference<BellaFileRetrieveResult>() {
                 });
         if(Objects.isNull(bellaFileRetrieveResult) || StringUtils.hasText(bellaFileRetrieveResult.getErrno())) {
@@ -116,7 +124,7 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class Data extends BaseNodeData {
+    public static class Data extends BaseNode.BaseNodeData {
         @JsonAlias("query_variable_selector")
         private List<String> queryVariableSelector;
 

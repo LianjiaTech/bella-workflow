@@ -17,7 +17,6 @@ import Select from '@/app/components/base/select'
 import { DEFAULT_VALUE_MAX_LEN } from '@/config'
 import Button from '@/app/components/base/button'
 import Tooltip from '@/app/components/base/tooltip-plus'
-import TextGenerationImageUploader from '@/app/components/base/image-uploader/text-generation-image-uploader'
 import type { VisionFile, VisionSettings } from '@/types/app'
 
 export type IPromptValuePanelProps = {
@@ -169,7 +168,7 @@ const PromptValuePanel: FC<IPromptValuePanelProps> = ({
                   <div className='text-xs text-gray-500'>{t('appDebug.inputs.noVar')}</div>
                 )
             }
-            {
+            {/* {
               appType === AppType.completion && visionConfig?.enabled && (
                 <div className="mt-3 xl:flex justify-between">
                   <div className="mr-1 py-2 shrink-0 w-[120px] text-sm text-gray-900">{t('common.imageUploader.imageUpload')}</div>
@@ -180,13 +179,13 @@ const PromptValuePanel: FC<IPromptValuePanelProps> = ({
                         type: 'image',
                         transfer_method: fileItem.type,
                         url: fileItem.url,
-                        upload_file_id: fileItem.fileId,
+                        file_id: fileItem.file_id,
                       })))}
                     />
                   </div>
                 </div>
               )
-            }
+            } */}
           </>
         )
         }

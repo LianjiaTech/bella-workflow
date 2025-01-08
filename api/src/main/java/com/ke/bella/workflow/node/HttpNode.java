@@ -28,8 +28,9 @@ import org.springframework.util.StringUtils;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.client.OpenapiClient;
+import com.ke.bella.openapi.protocol.files.File;
 import com.ke.bella.workflow.IWorkflowCallback;
-import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
 import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
@@ -41,7 +42,6 @@ import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.KeIAM;
 import com.ke.bella.workflow.utils.OpenAiUtils;
-import com.theokanning.openai.service.OpenAiService;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -347,15 +347,9 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
 
         String ext = HttpUtils.getExtensionFromMimeType(contentType);
         String filename = String.format("%s.%s", UUID.randomUUID().toString(), ext);
-        OpenAiService service = OpenAiUtils.defaultOpenAiService(BellaContext.getApikey().getApikey(), 0, TimeUnit.SECONDS);
-        com.theokanning.openai.file.File file = service.uploadFile("assistants", new ByteArrayInputStream(bytes), filename);
-        files.add(File.builder()
-                .fileId(file.getId())
-                .filename(file.getFilename())
-                .extension(ext)
-                .type(HttpUtils.getFileType(contentType))
-                .mimeType(contentType.toString())
-                .build());
+        OpenapiClient client = OpenAiUtils.defaultOpenApiClient();
+        File file = client.uploadFile(BellaContext.getApikey().getApikey(), "assistants", new ByteArrayInputStream(bytes), filename);
+        files.add(file);
         return files;
     }
 
@@ -430,7 +424,8 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
             } else {
                 apiKey = data.getAuthorization().getConfig().apiKey;
             }
-            builder.add(Variables.format(config.header(), context.getState().getVariablePool()), Variables.format(config.prefix() + apiKey, context.getState().getVariablePool()));
+            builder.add(Variables.format(config.header(), context.getState().getVariablePool()),
+                    Variables.format(config.prefix() + apiKey, context.getState().getVariablePool()));
         }
 
         return builder.build();

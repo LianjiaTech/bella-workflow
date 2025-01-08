@@ -115,7 +115,7 @@ const Result: FC<IResultProps> = ({
 
     const prompt_variables = promptConfig?.prompt_variables
     if (!prompt_variables || prompt_variables?.length === 0) {
-      if (completionFiles.find(item => item.transfer_method === TransferMethod.local_file && !item.upload_file_id)) {
+      if (completionFiles.find(item => item.transfer_method === TransferMethod.local_file && !item.id)) {
         notify({ type: 'info', message: t('appDebug.errorMessage.waitForImgUpload') })
         return false
       }
@@ -140,7 +140,7 @@ const Result: FC<IResultProps> = ({
       return false
     }
 
-    if (completionFiles.find(item => item.transfer_method === TransferMethod.local_file && !item.upload_file_id)) {
+    if (completionFiles.find(item => item.transfer_method === TransferMethod.local_file && !item.id)) {
       notify({ type: 'info', message: t('appDebug.errorMessage.waitForImgUpload') })
       return false
     }

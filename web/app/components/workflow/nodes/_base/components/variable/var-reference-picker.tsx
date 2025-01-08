@@ -5,10 +5,14 @@ import { useTranslation } from 'react-i18next'
 import {
   RiArrowDownSLine,
   RiCloseLine,
+  RiErrorWarningFill,
 } from '@remixicon/react'
+import produce from 'immer'
 import { useStoreApi } from 'reactflow'
+import RemoveButton from '../remove-button'
+import useAvailableVarList from '../../hooks/use-available-var-list'
 import VarReferencePopup from './var-reference-popup'
-import { getNodeInfoById, isENV, isSystemVar } from './utils'
+import { getNodeInfoById, isConversationVar, isENV, isSystemVar } from './utils'
 import ConstantField from './constant-field'
 import cn from '@/utils/classnames'
 import type { Node, NodeOutPutVar, ValueSelector, Var } from '@/app/components/workflow/types'
@@ -16,7 +20,7 @@ import type { CredentialFormSchema } from '@/app/components/header/account-setti
 import { BlockEnum } from '@/app/components/workflow/types'
 import { VarBlockIcon } from '@/app/components/workflow/block-icon'
 import { Line3 } from '@/app/components/base/icons/src/public/common'
-import { Env } from '@/app/components/base/icons/src/vender/line/others'
+import { BubbleX, Env } from '@/app/components/base/icons/src/vender/line/others'
 import { Variable02 } from '@/app/components/base/icons/src/vender/solid/development'
 import {
   PortalToFollowElem,
@@ -25,18 +29,20 @@ import {
 } from '@/app/components/base/portal-to-follow-elem'
 import {
   useIsChatMode,
-  useWorkflow,
   useWorkflowVariables,
 } from '@/app/components/workflow/hooks'
 import { VarType as VarKindType } from '@/app/components/workflow/nodes/tool/types'
 import TypeSelector from '@/app/components/workflow/nodes/_base/components/selector'
 import AddButton from '@/app/components/base/button/add-button'
+/* import Badge from '@/app/components/base/badge' */
+import Tooltip from '@/app/components/base/tooltip/new'
+
 const TRIGGER_DEFAULT_WIDTH = 227
 
 type Props = {
   className?: string
   nodeId: string
-  isShowNodeName: boolean
+  isShowNodeName?: boolean
   readonly: boolean
   value: ValueSelector | string
   onChange: (value: ValueSelector | string, varKindType: VarKindType, varInfo?: Var) => void
@@ -48,15 +54,23 @@ type Props = {
   availableNodes?: Node[]
   availableVars?: NodeOutPutVar[]
   isAddBtnTrigger?: boolean
-  schema?: CredentialFormSchema
+  schema?: Partial<CredentialFormSchema>
+  valueTypePlaceHolder?: string
+  isInTable?: boolean
+  onRemove?: () => void
+  typePlaceHolder?: string
+  isSupportFileVar?: boolean
+  placeholder?: string
+  minWidth?: number
+  popupFor?: 'assigned' | 'toAssigned'
 }
 
 const VarReferencePicker: FC<Props> = ({
   nodeId,
   readonly,
   className,
-  isShowNodeName,
-  value,
+  isShowNodeName = true,
+  value = [],
   onOpen = () => { },
   onChange,
   isSupportConstantValue,
@@ -64,9 +78,17 @@ const VarReferencePicker: FC<Props> = ({
   onlyLeafNodeVar,
   filterVar = () => true,
   availableNodes: passedInAvailableNodes,
-  availableVars,
+  availableVars: passedInAvailableVars,
   isAddBtnTrigger,
   schema,
+  valueTypePlaceHolder,
+  isInTable,
+  onRemove,
+  typePlaceHolder,
+  isSupportFileVar = true,
+  placeholder,
+  minWidth,
+  popupFor,
 }) => {
   const { t } = useTranslation()
   const store = useStoreApi()
@@ -75,11 +97,12 @@ const VarReferencePicker: FC<Props> = ({
   } = store.getState()
   const isChatMode = useIsChatMode()
 
-  const { getTreeLeafNodes, getBeforeNodesInSameBranch } = useWorkflow()
-  const { getCurrentVariableType, getNodeAvailableVars } = useWorkflowVariables()
-  const availableNodes = useMemo(() => {
-    return passedInAvailableNodes || (onlyLeafNodeVar ? getTreeLeafNodes(nodeId) : getBeforeNodesInSameBranch(nodeId))
-  }, [getBeforeNodesInSameBranch, getTreeLeafNodes, nodeId, onlyLeafNodeVar, passedInAvailableNodes])
+  const { getCurrentVariableType } = useWorkflowVariables()
+  const { availableNodes, availableVars } = useAvailableVarList(nodeId, {
+    onlyLeafNodeVar,
+    passedInAvailableNodes,
+    filterVar,
+  })
   const startNode = availableNodes.find((node: any) => {
     return node.data.type === BlockEnum.Start
   })
@@ -99,20 +122,7 @@ const VarReferencePicker: FC<Props> = ({
   const [varKindType, setVarKindType] = useState<VarKindType>(defaultVarKindType)
   const isConstant = isSupportConstantValue && varKindType === VarKindType.constant
 
-  const outputVars = useMemo(() => {
-    if (availableVars)
-      return availableVars
-
-    const vars = getNodeAvailableVars({
-      parentNode: iterationNode,
-      beforeNodes: availableNodes,
-      isChatMode,
-      filterVar,
-      currentNode: node,
-    })
-
-    return vars
-  }, [iterationNode, availableNodes, isChatMode, filterVar, availableVars, getNodeAvailableVars])
+  const outputVars = useMemo(() => (passedInAvailableVars || availableVars), [passedInAvailableVars, availableVars])
 
   const [open, setOpen] = useState(false)
   useEffect(() => {
@@ -146,7 +156,10 @@ const VarReferencePicker: FC<Props> = ({
   const varName = useMemo(() => {
     if (hasValue) {
       const isSystem = isSystemVar(value as ValueSelector)
-      const varName = value.length >= 3 ? (value as ValueSelector).slice(-2).join('.') : value[value.length - 1]
+      let varName = ''
+      if (Array.isArray(value))
+        varName = value.length >= 3 ? (value as ValueSelector).slice(-2).join('.') : value[value.length - 1]
+
       return `${isSystem ? 'sys.' : ''}${varName}`
     }
     return ''
@@ -183,7 +196,16 @@ const VarReferencePicker: FC<Props> = ({
 
   const handleVarReferenceChange = useCallback((value: ValueSelector, varInfo: Var) => {
     // sys var not passed to backend
-    onChange(value, varKindType, varInfo)
+    const newValue = produce(value, (draft) => {
+      if (draft[1] && draft[1].startsWith('sys.')) {
+        draft.shift()
+        const paths = draft[0].split('.')
+        paths.forEach((p, i) => {
+          draft[i] = p
+        })
+      }
+    })
+    onChange(newValue, varKindType, varInfo)
     setOpen(false)
   }, [onChange, varKindType])
 
@@ -202,7 +224,16 @@ const VarReferencePicker: FC<Props> = ({
     isConstant: !!isConstant,
   })
 
-  const isEnv = isENV(value as ValueSelector)
+  const { isEnv, isChatVar, isValidVar } = useMemo(() => {
+    const isEnv = isENV(value as ValueSelector)
+    const isChatVar = isConversationVar(value as ValueSelector)
+    const isValidVar = Boolean(outputVarNode) || isEnv || isChatVar
+    return {
+      isEnv,
+      isChatVar,
+      isValidVar,
+    }
+  }, [value, outputVarNode])
 
   // 8(left/right-padding) + 14(icon) + 4 + 14 + 2 = 42 + 17 buff
   const availableWidth = triggerWidth - 56
@@ -215,6 +246,8 @@ const VarReferencePicker: FC<Props> = ({
     return [maxNodeNameWidth, maxVarNameWidth, maxTypeWidth]
   })()
 
+  const WrapElem = isSupportConstantValue ? 'div' : PortalToFollowElemTrigger
+  const VarPickerWrap = !isSupportConstantValue ? 'div' : PortalToFollowElemTrigger
   return (
     <div className={cn(className, !readonly && 'cursor-pointer')}>
       <PortalToFollowElem
@@ -222,97 +255,142 @@ const VarReferencePicker: FC<Props> = ({
         onOpenChange={setOpen}
         placement={isAddBtnTrigger ? 'bottom-end' : 'bottom-start'}
       >
-        <PortalToFollowElemTrigger onClick={() => {
+        <WrapElem onClick={() => {
           if (readonly)
             return
           !isConstant ? setOpen(!open) : setControlFocus(Date.now())
-        }} className='!flex'>
-          {isAddBtnTrigger
-            ? (
-              <div>
-                <AddButton onClick={() => { }}></AddButton>
-              </div>
-            )
-            : (<div ref={triggerRef} className={cn((open || isFocus) ? 'border-gray-300' : 'border-gray-100', 'relative group/wrap flex items-center w-full h-8 p-1 rounded-lg bg-gray-100 border')}>
-              {isSupportConstantValue
-                ? <div onClick={(e) => {
-                  e.stopPropagation()
-                  setOpen(false)
-                  setControlFocus(Date.now())
-                }} className='mr-1 flex items-center space-x-1'>
-                  <TypeSelector
-                    noLeft
-                    triggerClassName='!text-xs'
-                    readonly={readonly}
-                    DropDownIcon={RiArrowDownSLine}
-                    value={varKindType}
-                    options={varKindTypes}
-                    onChange={handleVarKindTypeChange}
-                  />
-                  <div className='h-4 w-px bg-black/5'></div>
+        }} className='!flex group/picker-trigger-wrap relative'>
+          <>
+            {isAddBtnTrigger
+              ? (
+                <div>
+                  <AddButton onClick={() => { }}></AddButton>
                 </div>
-                : (!hasValue && <div className='ml-1.5 mr-1'>
-                  <Variable02 className='w-3.5 h-3.5 text-gray-400' />
-                </div>)}
-              {isConstant
-                ? (
-                  <ConstantField
-                    value={value as string}
-                    onChange={onChange as ((value: string | number, varKindType: VarKindType, varInfo?: Var) => void)}
-                    schema={schema as CredentialFormSchema}
-                    readonly={readonly}
-                  />
-                )
-                : (
-                  <div className={cn('inline-flex h-full items-center px-1.5 rounded-[5px]', hasValue && 'bg-white')}>
-                    {hasValue
-                      ? (
-                        <>
-                          {isShowNodeName && !isEnv && (
-                            <div className='flex items-center'>
-                              <div className='p-[1px]'>
-                                <VarBlockIcon
-                                  className='!text-gray-900'
-                                  type={outputVarNode?.type || BlockEnum.Start}
-                                />
-                              </div>
-                              <div className='mx-0.5 text-xs font-medium text-gray-700 truncate' title={outputVarNode?.title} style={{
-                                maxWidth: maxNodeNameWidth,
-                              }}>{outputVarNode?.title}</div>
-                              <Line3 className='mr-0.5'></Line3>
-                            </div>
-                          )}
-                          <div className='flex items-center text-primary-600'>
-                            {!hasValue && <Variable02 className='w-3.5 h-3.5' />}
-                            {isEnv && <Env className='w-3.5 h-3.5 text-util-colors-violet-violet-600' />}
-                            <div className={cn('ml-0.5 text-xs font-medium truncate', isEnv && '!text-gray-900')} title={varName} style={{
-                              maxWidth: maxVarNameWidth,
-                            }}>{varName}</div>
-                          </div>
-                          <div className='ml-0.5 text-xs font-normal text-gray-500 capitalize truncate' title={type} style={{
-                            maxWidth: maxTypeWidth,
-                          }}>{type}</div>
-                        </>
-                      )
-                      : <div className='text-[13px] font-normal text-gray-400'>{t('workflow.common.setVarValuePlaceholder')}</div>}
+              )
+              : (<div ref={!isSupportConstantValue ? triggerRef : null} className={cn((open || isFocus) ? 'border-gray-300' : 'border-gray-100', 'relative group/wrap flex items-center w-full h-8', !isSupportConstantValue && 'p-1 rounded-lg bg-gray-100 border', isInTable && 'bg-transparent border-none', readonly && 'bg-components-input-bg-disabled')}>
+                {isSupportConstantValue
+                  ? <div onClick={(e) => {
+                    e.stopPropagation()
+                    setOpen(false)
+                    setControlFocus(Date.now())
+                  }} className='h-full mr-1 flex items-center space-x-1'>
+                    <TypeSelector
+                      noLeft
+                      trigger={
+                        <div className='flex items-center h-8 px-2 radius-md bg-components-input-bg-normal'>
+                          <div className='mr-1 system-sm-regular text-components-input-text-filled'>{varKindTypes.find(item => item.value === varKindType)?.label}</div>
+                          <RiArrowDownSLine className='w-4 h-4 text-text-quaternary' />
+                        </div>
+                      }
+                      popupClassName='top-8'
+                      readonly={readonly}
+                      value={varKindType}
+                      options={varKindTypes}
+                      onChange={handleVarKindTypeChange}
+                      showChecked
+                    />
                   </div>
-                )}
-              {(hasValue && !readonly) && (<div
-                className='invisible group-hover/wrap:visible absolute h-5 right-1 top-[50%] translate-y-[-50%] group p-1 rounded-md hover:bg-black/5 cursor-pointer'
-                onClick={handleClearVar}
-              >
-                <RiCloseLine className='w-3.5 h-3.5 text-gray-500 group-hover:text-gray-800' />
+                  : (!hasValue && <div className='ml-1.5 mr-1'>
+                    <Variable02 className={`w-4 h-4 ${readonly ? 'text-components-input-text-disabled' : 'text-components-input-text-placeholder'}`} />
+                  </div>)}
+                {isConstant
+                  ? (
+                    <ConstantField
+                      value={value as string}
+                      onChange={onChange as ((value: string | number, varKindType: VarKindType, varInfo?: Var) => void)}
+                      schema={schema as CredentialFormSchema}
+                      readonly={readonly}
+                    />
+                  )
+                  : (
+                    <VarPickerWrap
+                      onClick={() => {
+                        if (readonly)
+                          return
+                        !isConstant ? setOpen(!open) : setControlFocus(Date.now())
+                      }}
+                      className='grow h-full'
+                    >
+                      <div ref={isSupportConstantValue ? triggerRef : null} className={cn('h-full', isSupportConstantValue && 'flex items-center pl-1 py-1 rounded-lg bg-gray-100')}>
+                        <Tooltip popupContent={!isValidVar && hasValue && t('workflow.errorMsg.invalidVariable')}>
+                          <div className={cn('h-full items-center px-1.5 rounded-[5px]', hasValue ? 'bg-white inline-flex' : 'flex')}>
+                            {hasValue
+                              ? (
+                                <>
+                                  {isShowNodeName && !isEnv && !isChatVar && (
+                                    <div className='flex items-center'>
+                                      <div className='px-[1px] h-3'>
+                                        {outputVarNode?.type && <VarBlockIcon
+                                          className='!text-gray-900'
+                                          type={outputVarNode.type}
+                                        />}
+                                      </div>
+                                      <div className='mx-0.5 text-xs font-medium text-gray-700 truncate' title={outputVarNode?.title} style={{
+                                        maxWidth: maxNodeNameWidth,
+                                      }}>{outputVarNode?.title}</div>
+                                      <Line3 className='mr-0.5'></Line3>
+                                    </div>
+                                  )}
+                                  <div className='flex items-center text-primary-600'>
+                                    {!hasValue && <Variable02 className='w-3.5 h-3.5' />}
+                                    {isEnv && <Env className='w-3.5 h-3.5 text-util-colors-violet-violet-600' />}
+                                    {isChatVar && <BubbleX className='w-3.5 h-3.5 text-util-colors-teal-teal-700' />}
+                                    <div className={cn('ml-0.5 text-xs font-medium truncate', isEnv && '!text-text-secondary', isChatVar && 'text-util-colors-teal-teal-700', false && 'text-text-warning')} title={varName} style={{
+                                      maxWidth: maxVarNameWidth,
+                                    }}>{varName}</div>
+                                  </div>
+                                  <div className='ml-0.5 capitalize truncate text-text-tertiary text-center system-xs-regular' title={type} style={{
+                                    maxWidth: maxTypeWidth,
+                                  }}>{type}</div>
+                                  {!isValidVar && <RiErrorWarningFill className='ml-0.5 w-3 h-3 text-[#D92D20]' />}
+                                </>
+                              )
+                              : <div className={`overflow-hidden ${readonly ? 'text-components-input-text-disabled' : 'text-components-input-text-placeholder'} text-ellipsis system-sm-regular`}>{placeholder ?? t('workflow.common.setVarValuePlaceholder')}</div>}
+                          </div>
+                        </Tooltip>
+                      </div>
+
+                    </VarPickerWrap>
+                  )}
+                {(hasValue && !readonly && !isInTable) && (<div
+                  className='invisible group-hover/wrap:visible absolute h-5 right-1 top-[50%] translate-y-[-50%] group p-1 rounded-md hover:bg-black/5 cursor-pointer'
+                  onClick={handleClearVar}
+                >
+                  <RiCloseLine className='w-3.5 h-3.5 text-gray-500 group-hover:text-gray-800' />
+                </div>)}
+                {/* {!hasValue && valueTypePlaceHolder && (
+                  <Badge
+                    className=' absolute right-1 top-[50%] translate-y-[-50%] capitalize'
+                    text={valueTypePlaceHolder}
+                    uppercase={false}
+                  />
+                )} */}
               </div>)}
-            </div>)}
-        </PortalToFollowElemTrigger>
+            {!readonly && isInTable && (
+              <RemoveButton
+                className='group-hover/picker-trigger-wrap:block hidden absolute right-1 top-0.5'
+                onClick={() => onRemove?.()}
+              />
+            )}
+
+            {/* {!hasValue && typePlaceHolder && (
+              <Badge
+                className='absolute right-2 top-1.5'
+                text={typePlaceHolder}
+                uppercase={false}
+              />
+            )} */}
+          </>
+        </WrapElem>
         <PortalToFollowElemContent style={{
           zIndex: 100,
-        }}>
+        }} className='mt-1'>
           {!isConstant && (
             <VarReferencePopup
               vars={outputVars}
               onChange={handleVarReferenceChange}
-              itemWidth={isAddBtnTrigger ? 260 : triggerWidth}
+              itemWidth={isAddBtnTrigger ? 260 : (minWidth || triggerWidth)}
+              isSupportFileVar={isSupportFileVar}
             />
           )}
         </PortalToFollowElemContent>

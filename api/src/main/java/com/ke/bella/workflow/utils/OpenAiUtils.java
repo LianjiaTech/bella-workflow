@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.client.OpenapiClient;
 import com.ke.bella.openapi.request.BellaInterceptor;
 import com.ke.bella.workflow.service.Configs;
 import com.theokanning.openai.client.AuthenticationInterceptor;
@@ -24,6 +25,7 @@ public class OpenAiUtils {
     static long DEFAULT_READ_TIMEOUT_SECONDS = 60 * 5L;
     static TimeUnit DEFAULT_READ_TIMEOUT_UNIT = TimeUnit.SECONDS;
     static OkHttpClient client;
+    static OpenapiClient openApiClient;
     static {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequests(Configs.TASK_THREAD_NUMS);
@@ -34,6 +36,12 @@ public class OpenAiUtils {
                 .dispatcher(dispatcher)
                 .connectionPool(new ConnectionPool(Configs.TASK_THREAD_NUMS, 60, TimeUnit.SECONDS))
                 .build();
+
+        openApiClient = new OpenapiClient(Configs.OPEN_API_HOST);
+    }
+
+    public static OpenapiClient defaultOpenApiClient() {
+        return openApiClient;
     }
 
     public static OpenAiService defaultOpenAiService(String token, long readTimeout, TimeUnit unit) {

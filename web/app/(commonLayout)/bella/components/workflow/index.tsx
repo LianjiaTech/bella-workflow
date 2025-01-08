@@ -1,19 +1,10 @@
 'use client'
 
 import type { FC } from 'react'
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { setAutoFreeze } from 'immer'
-import {
-  useEventListener,
-  useKeyPress,
-} from 'ahooks'
+import { useEventListener, useKeyPress } from 'ahooks'
+import type { Viewport } from 'reactflow'
 import ReactFlow, {
   Background,
   ReactFlowProvider,
@@ -24,16 +15,13 @@ import ReactFlow, {
   useReactFlow,
   useStoreApi,
 } from 'reactflow'
-import type {
-  Viewport,
-} from 'reactflow'
 import 'reactflow/dist/style.css'
 import '@/app/components/workflow/style.css'
-import type {
-  Edge,
-  EnvironmentVariable,
-  Node,
+import useSWR from 'swr'
+import {
+  SupportUploadFileTypes,
 } from '@/app/components/workflow/types'
+import type { Edge, EnvironmentVariable, Node } from '@/app/components/workflow/types'
 import { WorkflowContextProvider } from '@/app/components/workflow/context'
 import {
   useDSL,
@@ -65,10 +53,7 @@ import NodeContextmenu from '@/app/components/workflow/node-contextmenu'
 import SyncingDataModal from '@/app/components/workflow/syncing-data-modal'
 import UpdateDSLModal from '@/app/components/workflow/update-dsl-modal'
 import DSLExportConfirmModal from '@/app/components/workflow/dsl-export-confirm-modal'
-import {
-  useStore,
-  useWorkflowStore,
-} from '@/app/components/workflow/store'
+import { useStore, useWorkflowStore } from '@/app/components/workflow/store'
 import {
   getKeyboardKeyCodeBySystem,
   initialEdges,
@@ -88,6 +73,8 @@ import type { Features as FeaturesData } from '@/app/components/base/features/ty
 import { useFeaturesStore } from '@/app/components/base/features/hooks'
 import { useEventEmitterContextContext } from '@/context/event-emitter'
 import Confirm from '@/app/components/base/confirm/common'
+import { fetchFileUploadConfig } from '@/service/common'
+import { TransferMethod } from '@/types/app'
 
 const nodeTypes = {
   [CUSTOM_NODE]: CustomNode,
@@ -408,6 +395,7 @@ const WorkflowWrap = memo(() => {
     data,
     isLoading,
   } = useWorkflowInit()
+  const { data: fileUploadConfigResponse } = useSWR({ url: '/files/upload/configs' }, fetchFileUploadConfig)
 
   const nodesData = useMemo(() => {
     if (data)
@@ -433,11 +421,11 @@ const WorkflowWrap = memo(() => {
   const features = data.features || {}
   const initialFeatures: FeaturesData = {
     file: {
-      image: {
-        enabled: !!features.file_upload?.image.enabled,
-        number_limits: features.file_upload?.image.number_limits || 3,
-        transfer_methods: features.file_upload?.image.transfer_methods || ['local_file', 'remote_url'],
-      },
+      enabled: true,
+      allowed_file_types: Object.values(SupportUploadFileTypes),
+      allowed_file_upload_methods: [TransferMethod.local_file],
+      number_limits: fileUploadConfigResponse?.workflow_file_upload_limit || 3,
+      fileUploadConfig: fileUploadConfigResponse,
     },
     opening: {
       enabled: !!features.opening_statement,

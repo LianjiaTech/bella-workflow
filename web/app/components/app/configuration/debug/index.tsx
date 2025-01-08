@@ -91,7 +91,7 @@ const Debug: FC<IDebug> = ({
   } = useContext(ConfigContext)
   const { eventEmitter } = useEventEmitterContextContext()
   const { data: text2speechDefaultModel } = useDefaultModel(ModelTypeEnum.textEmbedding)
-  const { data: fileUploadConfigResponse } = useSWR({ url: '/files/upload' }, fetchFileUploadConfig)
+  const { data: fileUploadConfigResponse } = useSWR({ url: '/files/upload/configs' }, fetchFileUploadConfig)
   useEffect(() => {
     setAutoFreeze(false)
     return () => {
@@ -174,7 +174,7 @@ const Debug: FC<IDebug> = ({
       return false
     }
 
-    if (completionFiles.find(item => item.transfer_method === TransferMethod.local_file && !item.upload_file_id)) {
+    if (completionFiles.find(item => item.transfer_method === TransferMethod.local_file && !item.id)) {
       notify({ type: 'info', message: t('appDebug.errorMessage.waitForImgUpload') })
       return false
     }

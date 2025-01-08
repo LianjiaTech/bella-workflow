@@ -1,9 +1,9 @@
 package com.ke.bella.workflow.api.model;
 
-import lombok.Getter;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.Getter;
 
 public enum ModelFeature {
     TOOL_CALL("tool-call"),
@@ -31,12 +31,10 @@ public enum ModelFeature {
         if(agentThought) {
             features.add(AGENT_THOUGHT.value);
         }
-        /**
-         * 暂时都不支持vision
-         * if(vision) {
-         *             features.add(VISION.value);
-         *         }
-         */
+
+        if(vision) {
+            features.add(VISION.value);
+        }
 
         if(streamToolCall) {
             features.add(STREAM_TOOL_CALL.value);

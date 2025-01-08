@@ -293,6 +293,8 @@ export type SiteConfig = {
   show_workflow_steps: boolean
 }
 
+export type AppIconType = 'image' | 'emoji'
+
 /**
  * App
  */
@@ -380,7 +382,7 @@ export type VisionSettings = {
 export type ImageFile = {
   type: TransferMethod
   _id: string
-  fileId: string
+  id: string
   file?: File
   progress: number
   url: string
@@ -389,11 +391,11 @@ export type ImageFile = {
 }
 
 export type VisionFile = {
-  id?: string
+  created_by?: string
   type: string
   transfer_method: TransferMethod
   url: string
-  upload_file_id: string
+  id: string
   belongs_to?: string
 }
 

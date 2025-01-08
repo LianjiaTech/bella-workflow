@@ -98,6 +98,7 @@ type IDebugConfiguration = {
   isShowVisionConfig: boolean
   visionConfig: VisionSettings
   setVisionConfig: (visionConfig: VisionSettings, noNotice?: boolean) => void
+  isAllowVideoUpload: boolean
 }
 
 const DebugConfigurationContext = createContext<IDebugConfiguration>({
@@ -241,6 +242,7 @@ const DebugConfigurationContext = createContext<IDebugConfiguration>({
     transfer_methods: [TransferMethod.remote_url],
   },
   setVisionConfig: () => { },
+  isAllowVideoUpload: false,
 })
 
 export const useDebugConfigurationContext = () => useContext(DebugConfigurationContext)

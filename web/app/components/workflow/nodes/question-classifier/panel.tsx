@@ -2,6 +2,7 @@ import type { FC } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import VarReferencePicker from '../_base/components/variable/var-reference-picker'
+import ConfigVision from '../_base/components/config-vision'
 import useConfig from './use-config'
 import ClassList from './components/class-list'
 import AdvancedSetting from './components/advanced-setting'
@@ -39,6 +40,9 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
     varInputs,
     setInputVarValues,
     handleMemoryChange,
+    isVisionModel,
+    handleVisionResolutionChange,
+    handleVisionResolutionEnabledChange,
     isShowSingleRun,
     hideSingleRun,
     runningStatus,
@@ -53,18 +57,6 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
   return (
     <div className='mt-2'>
       <div className='px-4 pb-4 space-y-4'>
-        <Field
-          title={t(`${i18nPrefix}.inputVars`)}
-        >
-          <VarReferencePicker
-            readonly={readOnly}
-            isShowNodeName
-            nodeId={id}
-            value={inputs.query_variable_selector}
-            onChange={handleQueryVarChange}
-            filterVar={filterVar}
-          />
-        </Field>
         <Field
           title={t(`${i18nPrefix}.model`)}
         >
@@ -84,6 +76,28 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
           />
         </Field>
         <Field
+          title={t(`${i18nPrefix}.inputVars`)}
+        >
+          <VarReferencePicker
+            readonly={readOnly}
+            isShowNodeName
+            nodeId={id}
+            value={inputs.query_variable_selector}
+            onChange={handleQueryVarChange}
+            filterVar={filterVar}
+          />
+        </Field>
+        <Split/>
+        <ConfigVision
+          nodeId={id}
+          readOnly={readOnly}
+          isVisionModel={isVisionModel}
+          enabled={inputs.vision?.enabled}
+          onEnabledChange={handleVisionResolutionEnabledChange}
+          config={inputs.vision?.configs}
+          onConfigChange={handleVisionResolutionChange}
+        />
+        <Field
           title={t(`${i18nPrefix}.class`)}
         >
           <ClassList
@@ -93,6 +107,7 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
             readonly={readOnly}
           />
         </Field>
+        <Split/>
         <Field
           title={t(`${i18nPrefix}.advancedSetting`)}
           supportFold
@@ -112,7 +127,7 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
           />
         </Field>
       </div>
-      <Split />
+      <Split/>
       <div className='px-4 pt-4 pb-2'>
         <OutputVars>
           <>
@@ -144,7 +159,7 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
           runningStatus={runningStatus}
           onRun={handleRun}
           onStop={handleStop}
-          result={<ResultPanel {...runResult} showSteps={false} />}
+          result={<ResultPanel {...runResult} showSteps={false}/>}
         />
       )}
     </div>

@@ -12,23 +12,34 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.client.OpenapiClient;
+import com.ke.bella.openapi.protocol.files.File;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.IWorkflowCallback.ProgressData;
+import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowNodeRunException;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.JsonUtils;
+import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
+import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.ChatResponseFormat;
+import com.theokanning.openai.completion.chat.ImageUrl;
+import com.theokanning.openai.completion.chat.InputAudio;
+import com.theokanning.openai.completion.chat.MultiMediaContent;
 import com.theokanning.openai.completion.chat.ResponseJsonSchema;
+import com.theokanning.openai.completion.chat.UserMessage;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -466,5 +477,77 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 sb.delete(0, sb.length());
             }
         }
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class Vision {
+        boolean enabled = false;
+        private ConfigOption configs;
+
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Builder
+        @lombok.Data
+        static class ConfigOption {
+            @JsonAlias("variable_selector")
+            @Builder.Default
+            private List<String> variableSelector = Lists.newArrayList("sys", "files");
+            private String detail;
+        }
+    }
+
+    @SuppressWarnings("all")
+    public static List<ChatMessage> appendVisionMessages(List<ChatMessage> messages, Vision vision, Map variablePool) {
+        ArrayList<ChatMessage> duplicates = new ArrayList<>(messages);
+
+        List<MultiMediaContent> multiMediaContents = fetchMultiMediaContent(vision, variablePool);
+        if(!CollectionUtils.isEmpty(multiMediaContents)) {
+            // 如果result的最后一个是userMessage则加入到这个MessageContents中
+            if(duplicates.isEmpty() || !(duplicates.get(duplicates.size() - 1) instanceof UserMessage)) {
+                UserMessage userMessage = new UserMessage(multiMediaContents, null);
+                duplicates.add(userMessage);
+                // 如果不是则创建一个新的userMessage在最后
+            } else {
+                UserMessage userMessage = (UserMessage) duplicates.get(duplicates.size() - 1);
+                Object content = userMessage.getContent();
+                if(content instanceof List) {
+                    ((List) content).addAll(multiMediaContents);
+                } else {
+                    List<MultiMediaContent> contents = new ArrayList<>();
+                    contents.add(new MultiMediaContent((String) content));
+                    contents.addAll(multiMediaContents);
+                    userMessage.setContent(contents);
+                }
+            }
+        }
+        return duplicates;
+    }
+
+    @SuppressWarnings("all")
+    public static List<MultiMediaContent> fetchMultiMediaContent(Vision vision, Map variablePool) {
+        List<MultiMediaContent> multiMediaContents = new ArrayList<>();
+        List<String> variableSelector = vision.getConfigs().getVariableSelector();
+        List<File> files = (List<File>) Variables.getValue(variablePool, variableSelector);
+        OpenapiClient client = OpenAiUtils.defaultOpenApiClient();
+        for (File file : files) {
+            if("image".equals(file.getType())) {
+                String url = client.getFileUrl(BellaContext.getApikey().getApikey(), file.getId()).getUrl();
+                ImageUrl imageUrl = new ImageUrl(url);
+                Optional.ofNullable(vision.getConfigs()).map(Vision.ConfigOption::getDetail).orElse(null);
+                MultiMediaContent multiMediaContent = new MultiMediaContent(imageUrl);
+                multiMediaContents.add(multiMediaContent);
+
+            } else if("audio".equals(file.getType())) {
+                byte[] bytesContent = client.retrieveFileContent(BellaContext.getApikey().getApikey(), file.getId());
+                byte[] bytes = Base64.encodeBase64(bytesContent);
+
+                InputAudio inputAudio = new InputAudio(bytes.toString(), file.getExtension());
+                MultiMediaContent multiMediaContent = new MultiMediaContent(inputAudio);
+                multiMediaContents.add(multiMediaContent);
+            }
+        }
+        return multiMediaContents;
     }
 }

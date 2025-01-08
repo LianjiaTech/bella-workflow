@@ -29,11 +29,13 @@ import type {
 } from 'reactflow'
 import 'reactflow/dist/style.css'
 import './style.css'
+import useSWR from 'swr'
 import type {
   Edge,
   EnvironmentVariable,
   Node,
 } from './types'
+import { SupportUploadFileTypes } from './types'
 import { WorkflowContextProvider } from './context'
 import {
   useDSL,
@@ -88,6 +90,8 @@ import type { Features as FeaturesData } from '@/app/components/base/features/ty
 import { useFeaturesStore } from '@/app/components/base/features/hooks'
 import { useEventEmitterContextContext } from '@/context/event-emitter'
 import Confirm from '@/app/components/base/confirm/common'
+import { TransferMethod } from '@/types/app'
+import { fetchFileUploadConfig } from '@/service/common'
 
 const nodeTypes = {
   [CUSTOM_NODE]: CustomNode,
@@ -408,6 +412,7 @@ const WorkflowWrap = memo(() => {
     data,
     isLoading,
   } = useWorkflowInit()
+  const { data: fileUploadConfigResponse } = useSWR({ url: '/files/upload/configs' }, fetchFileUploadConfig)
 
   const nodesData = useMemo(() => {
     if (data)
@@ -433,11 +438,11 @@ const WorkflowWrap = memo(() => {
   const features = data.features || {}
   const initialFeatures: FeaturesData = {
     file: {
-      image: {
-        enabled: !!features.file_upload?.image.enabled,
-        number_limits: features.file_upload?.image.number_limits || 3,
-        transfer_methods: features.file_upload?.image.transfer_methods || ['local_file', 'remote_url'],
-      },
+      enabled: true,
+      allowed_file_types: Object.values(SupportUploadFileTypes),
+      allowed_file_upload_methods: [TransferMethod.local_file],
+      number_limits: fileUploadConfigResponse?.workflow_file_upload_limit || 3,
+      fileUploadConfig: fileUploadConfigResponse,
     },
     opening: {
       enabled: !!features.opening_statement,

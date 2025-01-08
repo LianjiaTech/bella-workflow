@@ -1,26 +1,23 @@
 import type { FC } from 'react'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { RiQuestionLine } from '@remixicon/react'
+import ConfigVision from '../_base/components/config-vision'
 import useConfig from './use-config'
-import ResolutionPicker from './components/resolution-picker'
 import type { LLMNodeType } from './types'
 import ConfigPrompt from './components/config-prompt'
-import DirectlyAnswerConfig from '@/app/components/workflow/nodes/_base/components/directly-answer-config'
 import VarList from '@/app/components/workflow/nodes/_base/components/variable/var-list'
 import AddButton2 from '@/app/components/base/button/add-button'
 import Field from '@/app/components/workflow/nodes/_base/components/field'
 import Split from '@/app/components/workflow/nodes/_base/components/split'
 import ModelParameterModal from '@/app/components/header/account-setting/model-provider-page/model-parameter-modal'
 import OutputVars, { VarItem } from '@/app/components/workflow/nodes/_base/components/output-vars'
-import { Resolution } from '@/types/app'
 import { InputVarType, type NodePanelProps } from '@/app/components/workflow/types'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import type { Props as FormProps } from '@/app/components/workflow/nodes/_base/components/before-run-form/form'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
-import TooltipPlus from '@/app/components/base/tooltip-plus'
+import Tooltip from '@/app/components/base/tooltip/new'
 import Editor from '@/app/components/workflow/nodes/_base/components/prompt/editor'
-import Switch from '@/app/components/base/switch'
+
 const i18nPrefix = 'workflow.nodes.llm'
 
 const Panel: FC<NodePanelProps<LLMNodeType>> = ({
@@ -36,7 +33,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
     isChatMode,
     isCompletionModel,
     shouldShowContextTip,
-    isShowVisionConfig,
+    isVisionModel,
     handleModelChanged,
     hasSetBlockStatus,
     handleCompletionParamsChange,
@@ -68,8 +65,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
     handleStop,
     varInputs,
     runResult,
-    handleDeltaChange,
-    handleNewMessageChange,
+    filterJinjia2InputVar,
   } = useConfig(id, data)
 
   const model = inputs.model
@@ -104,12 +100,13 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
       )
     }
 
-    if (isShowVisionConfig) {
+    if (isVisionModel) {
+      const variableName = data.vision.configs?.variable_selector?.[1] || t(`${i18nPrefix}.files`)!
       forms.push(
         {
           label: t(`${i18nPrefix}.vision`)!,
           inputs: [{
-            label: t(`${i18nPrefix}.files`)!,
+            label: variableName!,
             variable: '#files#',
             type: InputVarType.files,
             required: false,
@@ -173,7 +170,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
             filterVar={filterInputVar}
             isChatModel={isChatModel}
             isChatApp={isChatMode}
-            isShowContext={false}
+            isShowContext
             payload={inputs.prompt_template}
             onChange={handlePromptChange}
             hasSetBlockStatus={hasSetBlockStatus}
@@ -196,7 +193,8 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
               list={inputs.prompt_config?.jinja2_variables || []}
               onChange={handleVarListChange}
               onVarNameChange={handleVarNameChange}
-              filterVar={filterVar}
+              filterVar={filterJinjia2InputVar}
+              isSupportFileVar={false}
             />
           </Field>
         )}
@@ -207,11 +205,10 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
             <div className='flex justify-between items-center h-8 pl-3 pr-2 rounded-lg bg-gray-100'>
               <div className='flex items-center space-x-1'>
                 <div className='text-xs font-semibold text-gray-700 uppercase'>{t('workflow.nodes.common.memories.title')}</div>
-                <TooltipPlus
+                <Tooltip
                   popupContent={t('workflow.nodes.common.memories.tip')}
-                >
-                  <RiQuestionLine className='w-3.5 h-3.5 text-gray-400' />
-                </TooltipPlus>
+                  triggerClassName='w-4 h-4'
+                />
               </div>
               <div className='flex items-center h-[18px] px-1 rounded-[5px] border border-black/8 text-xs font-semibold text-gray-500 uppercase'>{t('workflow.nodes.common.memories.builtIn')}</div>
             </div>
@@ -220,13 +217,12 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
               <Editor
                 title={<div className='flex items-center space-x-1'>
                   <div className='text-xs font-semibold text-gray-700 uppercase'>user</div>
-                  <TooltipPlus
+                  <Tooltip
                     popupContent={
                       <div className='max-w-[180px]'>{t('workflow.nodes.llm.roleDescription.user')}</div>
                     }
-                  >
-                    <RiQuestionLine className='w-3.5 h-3.5 text-gray-400' />
-                  </TooltipPlus>
+                    triggerClassName='w-4 h-4'
+                  />
                 </div>}
                 value={inputs.memory.query_prompt_template || '{{#sys.query#}}'}
                 onChange={handleSyeQueryChange}
@@ -234,7 +230,6 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
                 isShowContext={false}
                 isChatApp
                 isChatModel
-                isShowVariable
                 hasSetBlockStatus={hasSetBlockStatus}
                 nodesOutputVars={availableVars}
                 availableNodes={availableNodesWithParent}
@@ -248,48 +243,28 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
         )}
 
         {/* Memory */}
-        {isChatMode && (
+        {/* {isChatMode && (
           <>
             <Split />
-            {/* <MemoryConfig
+            <MemoryConfig
               readonly={readOnly}
               config={{ data: inputs.memory }}
               onChange={handleMemoryChange}
               canSetRoleName={isCompletionModel}
-            /> */}
-            <DirectlyAnswerConfig
-              readonly={readOnly}
-              generateDeltaContent={inputs.generateDeltaContent || false}
-              generateNewMessage={inputs.generateNewMessage}
-              onChange={handleDeltaChange}
-              onNewMessageChange={handleNewMessageChange}
             />
           </>
-        )}
+        )} */}
 
         {/* Vision: GPT4-vision and so on */}
-        {isShowVisionConfig && (
-          <>
-            <Split />
-            <Field
-              title={t(`${i18nPrefix}.vision`)}
-              tooltip={t('appDebug.vision.description')!}
-              operations={
-                <Switch size='md' defaultValue={inputs.vision.enabled} onChange={handleVisionResolutionEnabledChange} />
-              }
-            >
-              {inputs.vision.enabled
-                ? (
-                  <ResolutionPicker
-                    value={inputs.vision.configs?.detail || Resolution.high}
-                    onChange={handleVisionResolutionChange}
-                  />
-                )
-                : null}
-
-            </Field>
-          </>
-        )}
+        <ConfigVision
+          nodeId={id}
+          readOnly={readOnly}
+          isVisionModel={isVisionModel}
+          enabled={inputs.vision?.enabled}
+          onEnabledChange={handleVisionResolutionEnabledChange}
+          config={inputs.vision?.configs}
+          onConfigChange={handleVisionResolutionChange}
+        />
       </div>
       <Split />
       <div className='px-4 pt-4 pb-2'>

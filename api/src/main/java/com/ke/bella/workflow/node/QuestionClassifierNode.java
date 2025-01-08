@@ -45,6 +45,10 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
             Object query = context.getState().getVariableValue(data.getQueryVariableSelector());
             List<ChatMessage> chatMessages = getChatTemplate(context.getState().getVariablePool(), this.data, String.valueOf(query));
 
+            if(data.getVision().isEnabled()) {
+                chatMessages = appendVisionMessages(chatMessages, data.getVision(), context.getState().getVariablePool());
+            }
+
             // 构造参数请求LLM
             ChatCompletionResult compResult = invokeOpenAPILlm(data.getAuthorization(), chatMessages);
             Data.ClassConfig resultClass = parseAndCheckJsonMarkdown(compResult.getChoices().get(0).getMessage().getContent(),
@@ -162,6 +166,8 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
         List<String> queryVariableSelector;
         String type;
         Model model;
+        @Builder.Default
+        Vision vision = new Vision();
         List<ClassConfig> classes;
         String instruction = "";
         @Builder.Default

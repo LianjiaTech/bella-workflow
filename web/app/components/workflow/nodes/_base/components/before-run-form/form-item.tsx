@@ -12,8 +12,6 @@ import CodeEditor from '../editor/code-editor'
 import { CodeLanguage } from '../../../code/types'
 import TextEditor from '../editor/text-editor'
 import Select from '@/app/components/base/select'
-import TextGenerationImageUploader from '@/app/components/base/image-uploader/text-generation-image-uploader'
-import { Resolution } from '@/types/app'
 import { useFeatures } from '@/app/components/base/features/hooks'
 import { VarBlockIcon } from '@/app/components/workflow/block-icon'
 import { Line3 } from '@/app/components/base/icons/src/public/common'
@@ -145,23 +143,6 @@ const FormItem: FC<Props> = ({
               title={<span>JSON</span>}
               language={CodeLanguage.json}
               onChange={onChange}
-            />
-          )
-        }
-
-        {
-          type === InputVarType.files && (
-            <TextGenerationImageUploader
-              settings={{
-                ...fileSettings?.image,
-                detail: Resolution.high,
-              } as any}
-              onFilesChange={files => onChange(files.filter(file => file.progress !== -1).map(fileItem => ({
-                type: 'image',
-                transfer_method: fileItem.type,
-                url: fileItem.url,
-                upload_file_id: fileItem.fileId,
-              })))}
             />
           )
         }

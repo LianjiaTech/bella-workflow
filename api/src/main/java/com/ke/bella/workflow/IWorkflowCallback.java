@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.assistants.message.MessageContent;
 import com.theokanning.openai.assistants.message.content.DeltaContent;
@@ -149,19 +148,6 @@ public interface IWorkflowCallback {
             }
             return ret;
         }
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class File {
-        @JsonAlias("related_id")
-        String fileId;
-        String filename;
-        String extension;
-        String mimeType;
-        String type;
     }
 
     void onWorkflowRunStarted(WorkflowContext context);

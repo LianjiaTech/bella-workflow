@@ -18,7 +18,7 @@ export const addFileInfos = (list: ThoughtItem[], messageFiles: VisionFile[]) =>
     if (item.files && item.files?.length > 0) {
       return {
         ...item,
-        message_files: item.files.map(fileId => messageFiles.find(file => file.id === fileId)) as VisionFile[],
+        message_files: item.files.map(fileId => messageFiles.find(file => file.created_by === fileId)) as VisionFile[],
       }
     }
     return item

@@ -190,6 +190,11 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
                 result.add(new AssistantMessage(promptTemplate.getText()));
             }
         }
+
+        if(data.getVision().isEnabled()) {
+            result = appendVisionMessages(result, data.getVision(), variablePool);
+        }
+
         return result;
     }
 
@@ -225,7 +230,8 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
         @JsonAlias("prompt_config")
         private PromptConfig promptConfig;
         Context context;
-        private Vision vision;
+        @Builder.Default
+        private Vision vision = new Vision();
         // todo impl memory
         private Object memory;
         @Builder.Default
@@ -267,14 +273,5 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             @JsonAlias("variable_selector")
             private List<String> variableSelector;
         }
-
-        @Getter
-        @Setter
-        @NoArgsConstructor
-        public static class Vision {
-            boolean enabled;
-            private List<Object> configs;
-        }
     }
-
 }

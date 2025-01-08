@@ -1,5 +1,7 @@
 import type { TypeWithI18N } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import type { Annotation, MessageRating } from '@/models/log'
+import type { FileEntity } from '@/app/components/base/file-uploader/types'
+import type { InputVarType } from '@/app/components/workflow/types'
 import type { VisionFile } from '@/types/app'
 
 export type MessageMore = {
@@ -59,36 +61,33 @@ export type IChatItem = {
   content: string
   citation?: CitationItem[]
   /**
-   * Specific message type
-   */
+     * Specific message type
+     */
   isAnswer: boolean
   /**
-   * The user feedback result of this message
-   */
-  feedback?: Feedbacktype
-  /**
-   * The admin feedback result of this message
-   */
-  adminFeedback?: Feedbacktype
-  /**
-   * Whether to hide the feedback area
-   */
+     * Whether to hide the feedback area
+     */
   feedbackDisabled?: boolean
   /**
-   * More information about this message
-   */
+     * More information about this message
+     */
   more?: MessageMore
   annotation?: Annotation
   useCurrentUserAvatar?: boolean
   isOpeningStatement?: boolean
   suggestedQuestions?: string[]
-  log?: { role: string; text: string; files?: VisionFile[] }[]
+  log?: { role: string; text: string; files?: FileEntity[] }[]
   agent_thoughts?: ThoughtItem[]
-  message_files?: VisionFile[]
+  message_files?: FileEntity[]
   workflow_run_id?: string
   // for agent log
   conversationId?: string
   input?: any
+  parentMessageId?: string | null
+  siblingCount?: number
+  siblingIndex?: number
+  prevSibling?: string
+  nextSibling?: string
 }
 
 export type MessageEnd = {
@@ -119,4 +118,12 @@ export type AnnotationReply = {
   conversation_id: string
   annotation_id: string
   annotation_author_name: string
+}
+
+export type InputForm = {
+  type: InputVarType
+  label: string
+  variable: any
+  required: boolean
+  [key: string]: any
 }

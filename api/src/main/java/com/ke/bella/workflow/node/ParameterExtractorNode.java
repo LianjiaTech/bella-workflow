@@ -138,6 +138,10 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
                 chatMessages = generatePromptEngineeringPrompt(query, systemPrompt);
             }
 
+            if(data.getVision().isEnabled()) {
+                chatMessages = appendVisionMessages(chatMessages, data.getVision(), context.getState().getVariablePool());
+            }
+
             processData.put("model_mode", "chat");
             processData.put("prompts", chatMessages);
             processData.put("function", extraParamsTool);
@@ -489,6 +493,8 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
     @Builder
     public static class Data extends BaseNode.BaseNodeData {
         private Model model;
+        @Builder.Default
+        private Vision vision = new Vision();
         private List<String> query;
         private List<ParameterConfig> parameters;
         private String instruction;

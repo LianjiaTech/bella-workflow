@@ -1,7 +1,7 @@
 package com.ke.bella.workflow.api;
 
 import com.ke.bella.openapi.Operator;
-import com.ke.bella.workflow.IWorkflowCallback.File;
+import com.ke.bella.openapi.protocol.files.File;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.utils.JsonUtils;
 import lombok.AllArgsConstructor;

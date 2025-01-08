@@ -257,7 +257,6 @@ public class WorkflowOps {
     @SuperBuilder
     @NoArgsConstructor
     @AllArgsConstructor
-    @SuppressWarnings("rawtypes")
     public static class WorkflowSchedulingStatusOp extends Operator {
         String triggerId;
 

@@ -1,17 +1,16 @@
 package com.ke.bella.workflow.trigger;
 
-import com.amazonaws.services.dynamodbv2.xspec.S;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.googlecode.aviator.AviatorEvaluator;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.service.code.GroovySandbox;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class ExpressionHelper {
 
     public static boolean canTrigger(String scriptsType, String key, String expression, Object value) {
-        Map env = new HashMap();
+        Map<String, Object> env = new HashMap<>();
         env.put("event", value);
         if(scriptsType.equals(TriggerExpressionType.Aviator.name())) {
             Object res = AviatorEvaluator.execute(key, expression, env, true);
@@ -32,11 +31,5 @@ public class ExpressionHelper {
             return;
         }
         throw new IllegalArgumentException("不支持的expressionType");
-    }
-
-    public static void main(String[] args) {
-        String des = "iii = [:]\niii['a'] = '1222'\nreturn iii['a'] == '1222'";
-        validate(TriggerExpressionType.Groovy.name(), des);
-        System.out.println(GroovySandbox.execute(des, new HashMap(), 1000, 1000));
     }
 }

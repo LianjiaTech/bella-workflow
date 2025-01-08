@@ -1,15 +1,12 @@
 package com.ke.bella.workflow.trigger;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import com.googlecode.aviator.AviatorEvaluator;
 import com.ke.bella.workflow.api.WechatCallBackBody;
 import com.ke.bella.workflow.db.repo.WorkflowTriggerRepo;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowWebotTriggerDB;
@@ -33,7 +30,6 @@ public class WebotTriggerRunner {
         helper.tryWebotTrigger(ts2, body);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     boolean canTrigger(WorkflowWebotTriggerDB db, WechatCallBackBody event) {
         if(StringUtils.hasText(db.getChatId()) && !db.getChatId().equals(event.getChatId())) {
             return false;

@@ -152,7 +152,6 @@ public class KafkaEventConsumers {
         }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     boolean canTrigger(WorkflowKafkaTriggerDB db, Object value) {
         return ExpressionHelper.canTrigger(db.getExpressionType(), db.getId().toString(), db.getExpression(), value);
     }

@@ -12,7 +12,6 @@ import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.http.HttpHeaders;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

@@ -164,18 +164,8 @@ public class WorkflowController {
         Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE]之一");
         op.setTenantId(tenantId);
         op.setWorkflowId(workflowId);
-        BellaContext.setOperator(getPureOper(op));
+        BellaContext.setOperator(op);
         return run0(op, "published");
-    }
-
-    private static Operator getPureOper(Operator oper) {
-        return Operator.builder()
-                .userId(oper.getUserId())
-                .userName(oper.getUserName())
-                .email(oper.getEmail())
-                .tenantId(oper.getTenantId())
-                .spaceCode(oper.getSpaceCode())
-                .build();
     }
 
     public Object run0(WorkflowRun op, String ver) {

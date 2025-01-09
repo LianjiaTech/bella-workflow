@@ -1,7 +1,6 @@
 package com.ke.bella.workflow.api;
 
 import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
 import io.swagger.annotations.Api;
 import org.springframework.util.Assert;
 import com.ke.bella.workflow.db.repo.Page;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.ke.bella.workflow.db.tables.pojos.WecomGroupInfoDB;
 import com.ke.bella.workflow.db.tables.pojos.WecomGroupMemberDB;
 
-@Slf4j
 @RestController
 @Api(tags = "群信息管理")
 @RequestMapping("/v1/wecom/group")

@@ -83,8 +83,8 @@ export const updateWorkflowDraftFromDSL = (appId: string, data: string) => {
   return post<FetchWorkflowDraftResponse>(`apps/${appId}/workflows/draft/import`, { body: data }, { bodyStringify: false })
 }
 
-export const createSchedulingTrigger: Fetcher<WorkflowTriggerDetail, { name: string; desc?: string; expression: string; inputs: string; workflowId: string; triggerType: string; datasourceId: string }> = ({ name, desc, expression, inputs, workflowId, triggerType, datasourceId }) => {
-  return post<WorkflowTriggerDetail>(`apps/${workflowId}/trigger/create`, { body: { name, desc, expression, inputs, workflowId, triggerType, datasourceId } })
+export const createSchedulingTrigger: Fetcher<WorkflowTriggerDetail, { name: string; desc?: string; expression: string; expressionType: string; inputs: string; workflowId: string; triggerType: string; datasourceId: string }> = ({ name, desc, expression, expressionType, inputs, workflowId, triggerType, datasourceId }) => {
+  return post<WorkflowTriggerDetail>(`apps/${workflowId}/trigger/create`, { body: { name, desc, expression, expressionType, inputs, workflowId, triggerType, datasourceId } })
 }
 
 export const activateTrigger: Fetcher<WorkflowTriggerDetail, { workflowId: string; triggerId: string; triggerType: string }> = ({ workflowId, triggerId, triggerType }) => {

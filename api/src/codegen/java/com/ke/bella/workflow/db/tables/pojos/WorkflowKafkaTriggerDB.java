@@ -26,6 +26,7 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
     private String        desc;
     private String        datasourceId;
     private String        expression;
+    private String        expressionType;
     private String        workflowId;
     private String        inputs;
     private String        inputkey;
@@ -48,6 +49,7 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
         this.desc = value.desc;
         this.datasourceId = value.datasourceId;
         this.expression = value.expression;
+        this.expressionType = value.expressionType;
         this.workflowId = value.workflowId;
         this.inputs = value.inputs;
         this.inputkey = value.inputkey;
@@ -69,6 +71,7 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
         String        desc,
         String        datasourceId,
         String        expression,
+        String        expressionType,
         String        workflowId,
         String        inputs,
         String        inputkey,
@@ -88,6 +91,7 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
         this.desc = desc;
         this.datasourceId = datasourceId;
         this.expression = expression;
+        this.expressionType = expressionType;
         this.workflowId = workflowId;
         this.inputs = inputs;
         this.inputkey = inputkey;
@@ -210,6 +214,20 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
      */
     public void setExpression(String expression) {
         this.expression = expression;
+    }
+
+    /**
+     * Getter for <code>workflow_kafka_trigger.expression_type</code>. 表达式脚本语言类型
+     */
+    public String getExpressionType() {
+        return this.expressionType;
+    }
+
+    /**
+     * Setter for <code>workflow_kafka_trigger.expression_type</code>. 表达式脚本语言类型
+     */
+    public void setExpressionType(String expressionType) {
+        this.expressionType = expressionType;
     }
 
     /**
@@ -364,6 +382,7 @@ public class WorkflowKafkaTriggerDB implements Operator, Serializable {
         sb.append(", ").append(desc);
         sb.append(", ").append(datasourceId);
         sb.append(", ").append(expression);
+        sb.append(", ").append(expressionType);
         sb.append(", ").append(workflowId);
         sb.append(", ").append(inputs);
         sb.append(", ").append(inputkey);

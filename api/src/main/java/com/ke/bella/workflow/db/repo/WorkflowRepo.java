@@ -662,15 +662,4 @@ public class WorkflowRepo implements BaseRepo {
 
         return db.insertInto(WORKFLOW_TEMPLATE).set(rec).returningResult().fetchOne().into(WorkflowTemplateDB.class);
     }
-
-    @SuppressWarnings("serial")
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class WorkflowWithPublished extends WorkflowDB {
-        /**
-         * 曾经发布过
-         */
-        private Boolean hasPublished;
-    }
 }

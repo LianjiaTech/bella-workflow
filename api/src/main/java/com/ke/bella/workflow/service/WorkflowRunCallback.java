@@ -24,7 +24,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     private static final Logger WORKFLOW_RUN_LOGGER = LoggerFactory.getLogger("workflowRun");
     private final WorkflowService service;

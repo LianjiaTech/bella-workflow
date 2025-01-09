@@ -1,17 +1,9 @@
 package com.ke.bella.workflow.api;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.ke.bella.openapi.Operator;
 import com.ke.bella.workflow.IWorkflowCallback.File;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.utils.JsonUtils;
-import com.ke.bella.openapi.Operator;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +11,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class WorkflowOps {
     public enum ResponseMode {
@@ -258,7 +257,6 @@ public class WorkflowOps {
     @SuperBuilder
     @NoArgsConstructor
     @AllArgsConstructor
-    @SuppressWarnings("rawtypes")
     public static class WorkflowSchedulingStatusOp extends Operator {
         String triggerId;
 
@@ -353,6 +351,8 @@ public class WorkflowOps {
          */
         String expression;
 
+        String expressionType;
+
         /** 数据源ID */
         String datasourceId;
 
@@ -393,6 +393,8 @@ public class WorkflowOps {
          */
         String expression;
 
+        String expressionType;
+
         /** event作为inputs里的哪一个字段 */
         String inputkey;
     }
@@ -426,6 +428,7 @@ public class WorkflowOps {
         String name;
         String desc;
         String expression;
+        String expressionType;
         String datasourceId;
         String status;
         String workflowId;

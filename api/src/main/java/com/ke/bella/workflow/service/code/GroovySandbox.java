@@ -166,6 +166,12 @@ public class GroovySandbox {
         }
     }
 
+    public static Class<?> compile(String code) {
+        String key = HttpUtils.sha256(code);
+        GroovyCodeSource source = new GroovyCodeSource(code, key, GroovyShell.DEFAULT_CODE_BASE);
+        return loader.parseClass(source, false);
+    }
+
     @SuppressWarnings("unchecked")
     public static String compileMessage(MultipleCompilationErrorsException e) {
         StringWriter data = new StringWriter();

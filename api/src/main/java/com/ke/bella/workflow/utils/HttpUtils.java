@@ -17,8 +17,11 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.ke.bella.workflow.service.Configs;
 
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -33,17 +36,28 @@ import okhttp3.logging.HttpLoggingInterceptor.Level;
 @Slf4j
 public class HttpUtils {
     static HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-    static OkHttpClient client = new OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .readTimeout(60 * 2, TimeUnit.SECONDS)
-            .build();
+    static OkHttpClient client;
     static {
         logging.setLevel(Level.BASIC);
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(Configs.TASK_THREAD_NUMS);
+        dispatcher.setMaxRequestsPerHost(Configs.TASK_THREAD_NUMS);
+
+        client = new OkHttpClient.Builder()
+                .addInterceptor(logging)
+                .dispatcher(dispatcher)
+                .connectionPool(new ConnectionPool(Configs.TASK_THREAD_NUMS, 60, TimeUnit.SECONDS))
+                .build();
     }
 
     public static OkHttpClient.Builder clientBuilder() {
         return new OkHttpClient.Builder()
                 .addInterceptor(logging);
+    }
+
+    public static OkHttpClient newClient(long readTimeout, TimeUnit unit) {
+        return client.newBuilder()
+                .readTimeout(readTimeout, unit).build();
     }
 
     public static int postJson(String url, Object data) {
@@ -57,6 +71,11 @@ public class HttpUtils {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public static <T> T postJson(OkHttpClient client, Map<String, String> headers, String url, String json, TypeReference<T> typeReference) {
+        RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
+        return executePost(client, headers, url, requestBody, typeReference);
     }
 
     public static <T> T postJson(Map<String, String> headers, String url, String json, TypeReference<T> typeReference) {
@@ -94,12 +113,16 @@ public class HttpUtils {
         if(queryParams != null) {
             for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
                 entry.getValue().forEach(
-                        value -> urlBuilder.addQueryParameter(entry.getKey(), value)
-                );
+                        value -> urlBuilder.addQueryParameter(entry.getKey(), value));
             }
         }
         String finalUrl = urlBuilder.build().toString();
         return executeRequest(headers, finalUrl, null, typeReference, "GET");
+    }
+
+    private static <T> T executePost(OkHttpClient client, Map<String, String> headers, String url, RequestBody requestBody,
+            TypeReference<T> typeReference) {
+        return executeRequest(client, headers, url, requestBody, typeReference, "POST");
     }
 
     private static <T> T executePost(Map<String, String> headers, String url, RequestBody requestBody,
@@ -108,6 +131,12 @@ public class HttpUtils {
     }
 
     private static <T> T executeRequest(Map<String, String> headers, String url, RequestBody requestBody,
+            TypeReference<T> typeReference,
+            String method) {
+        return executeRequest(client, headers, url, requestBody, typeReference, method);
+    }
+
+    private static <T> T executeRequest(OkHttpClient client, Map<String, String> headers, String url, RequestBody requestBody,
             TypeReference<T> typeReference,
             String method) {
         Request.Builder requestBuilder = new Request.Builder().url(url);

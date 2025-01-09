@@ -138,7 +138,6 @@ public class WorkflowRunState implements Serializable {
         return notifyData.get(nodeId);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public synchronized void putNodeState(String nodeId, NodeRunResult state) {
         putNodeState(nodeId, state, false);
     }

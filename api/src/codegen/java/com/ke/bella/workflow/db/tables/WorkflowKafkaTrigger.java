@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row18;
+import org.jooq.Row19;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -90,6 +90,11 @@ public class WorkflowKafkaTrigger extends TableImpl<WorkflowKafkaTriggerRecord> 
      * The column <code>workflow_kafka_trigger.expression</code>.
      */
     public final TableField<WorkflowKafkaTriggerRecord, String> EXPRESSION = createField(DSL.name("expression"), SQLDataType.CLOB.nullable(false), this, "");
+
+    /**
+     * The column <code>workflow_kafka_trigger.expression_type</code>. 表达式脚本语言类型
+     */
+    public final TableField<WorkflowKafkaTriggerRecord, String> EXPRESSION_TYPE = createField(DSL.name("expression_type"), SQLDataType.VARCHAR(16).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "表达式脚本语言类型");
 
     /**
      * The column <code>workflow_kafka_trigger.workflow_id</code>.
@@ -226,11 +231,11 @@ public class WorkflowKafkaTrigger extends TableImpl<WorkflowKafkaTriggerRecord> 
     }
 
     // -------------------------------------------------------------------------
-    // Row18 type methods
+    // Row19 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row18<Long, String, String, String, String, String, String, String, String, String, String, Integer, Long, Long, String, String, LocalDateTime, LocalDateTime> fieldsRow() {
-        return (Row18) super.fieldsRow();
+    public Row19<Long, String, String, String, String, String, String, String, String, String, String, String, Integer, Long, Long, String, String, LocalDateTime, LocalDateTime> fieldsRow() {
+        return (Row19) super.fieldsRow();
     }
 }

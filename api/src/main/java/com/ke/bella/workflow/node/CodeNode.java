@@ -28,10 +28,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 public class CodeNode extends BaseNode<CodeNode.Data> {
-    private static final int MAX_DEPTH = 5;
-    private static final int MAX_NUMBER_ARRAY_LENGTH = 1000;
-    private static final int MAX_STRING_ARRAY_LENGTH = 30;
-    private static final int MAX_OBJECT_ARRAY_LENGTH = 100;
 
     public CodeNode(WorkflowSchema.Node meta) {
         super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
@@ -97,9 +93,6 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
 
     @SuppressWarnings("all")
     public Map<String, Object> transformResult(Map<String, Object> result, Map<String, Data.Output> Output, String prefix, int depth) {
-        if(depth > MAX_DEPTH) {
-            throw new IllegalArgumentException("Depth limit reached, object too deep.");
-        }
 
         Map<String, Object> transformedResult = new HashMap<>();
         if(Output == null) {
@@ -177,10 +170,6 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
                             "output " + prefix + dot + outputName + " is not an array, got " + result.get(outputName).getClass() + " instead.");
                 }
                 List<?> numberList = (List<?>) result.get(outputName);
-                if(numberList.size() > MAX_NUMBER_ARRAY_LENGTH) {
-                    throw new IllegalArgumentException("The length of output variable `" + prefix + dot + outputName + "` must be less than "
-                            + MAX_NUMBER_ARRAY_LENGTH + " elements.");
-                }
                 List<Object> checkedNumberList = new ArrayList<>();
                 for (int i = 0; i < numberList.size(); i++) {
                     checkedNumberList.add(checkNumber(numberList.get(i), prefix + dot + outputName + "[" + i + "]"));
@@ -193,10 +182,6 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
                             "output " + prefix + dot + outputName + " is not an array, got " + result.get(outputName).getClass() + " instead.");
                 }
                 List<?> stringList = (List<?>) result.get(outputName);
-                if(stringList.size() > MAX_STRING_ARRAY_LENGTH) {
-                    throw new IllegalArgumentException("The length of output variable `" + prefix + dot + outputName + "` must be less than "
-                            + MAX_STRING_ARRAY_LENGTH + " elements.");
-                }
                 List<Object> checkedStringList = new ArrayList<>();
                 for (int i = 0; i < stringList.size(); i++) {
                     checkedStringList.add(checkString(stringList.get(i), prefix + dot + outputName + "[" + i + "]"));
@@ -209,10 +194,6 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
                             "output " + prefix + dot + outputName + " is not an array, got " + result.get(outputName).getClass() + " instead.");
                 }
                 List<?> objectList = (List<?>) result.get(outputName);
-                if(objectList.size() > MAX_OBJECT_ARRAY_LENGTH) {
-                    throw new IllegalArgumentException("The length of output variable `" + prefix + dot + outputName + "` must be less than "
-                            + MAX_OBJECT_ARRAY_LENGTH + " elements.");
-                }
                 for (int i = 0; i < objectList.size(); i++) {
                     if(!(objectList.get(i) instanceof Map)) {
                         throw new IllegalArgumentException("output " + prefix + dot + outputName + "[" + i + "] is not an object, got "

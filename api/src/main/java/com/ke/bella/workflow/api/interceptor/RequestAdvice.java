@@ -25,21 +25,11 @@ public class RequestAdvice extends RequestBodyAdviceAdapter {
             Class<? extends HttpMessageConverter<?>> converterType) {
         if(body instanceof Operator) {
             if(BellaContext.getOperatorIgnoreNull() == null) {
-                BellaContext.setOperator(getPureOper((Operator) body));
+                BellaContext.setOperator((Operator) body);
             }
         }
 
         return body;
-    }
-
-    private static Operator getPureOper(Operator oper) {
-        return Operator.builder()
-                .userId(oper.getUserId())
-                .userName(oper.getUserName())
-                .email(oper.getEmail())
-                .tenantId(oper.getTenantId())
-                .spaceCode(oper.getSpaceCode())
-                .build();
     }
 
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.Operator;
 import com.ke.bella.openapi.client.OpenapiClient;
 import com.ke.bella.openapi.protocol.files.File;
 import com.ke.bella.openapi.space.RoleWithSpace;
@@ -52,6 +53,16 @@ public class DifyConsoleController {
         WorkflowAsApiDB capi = ws.getCustomApi(host, path);
         op1.setTenantId(capi.getTenantId());
         op1.setWorkflowId(capi.getWorkflowId());
+
+        Operator op = Operator.builder()
+                .tenantId(capi.getTenantId())
+                .userId(BellaContext.getOperator().getUserId())
+                .userName(BellaContext.getOperator().getUserName())
+                .email(BellaContext.getOperator().getEmail())
+                .spaceCode(BellaContext.getOperator().getSpaceCode())
+                .build();
+        BellaContext.setOperator(op);
+
         return dc.workflowRun(capi.getWorkflowId(), op1);
     }
 

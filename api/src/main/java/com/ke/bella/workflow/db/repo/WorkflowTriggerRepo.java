@@ -93,13 +93,6 @@ public class WorkflowTriggerRepo implements BaseRepo {
                 .execute();
     }
 
-    public WorkflowSchedulingDB selectWorkflowScheduling(String tenantId, String triggerId) {
-        return db.selectFrom(WORKFLOW_SCHEDULING)
-                .where(WORKFLOW_SCHEDULING.TENANT_ID.eq(tenantId)
-                        .and(WORKFLOW_SCHEDULING.TRIGGER_ID.eq(triggerId)))
-                .fetchOneInto(WorkflowSchedulingDB.class);
-    }
-
     public WorkflowSchedulingDB selectWorkflowScheduling(String triggerId) {
         return db.selectFrom(WORKFLOW_SCHEDULING)
                 .where(WORKFLOW_SCHEDULING.TRIGGER_ID.eq(triggerId))
@@ -197,6 +190,16 @@ public class WorkflowTriggerRepo implements BaseRepo {
                 .execute();
     }
 
+    public void updateKafkaTrigger(WorkflowKafkaTriggerDB kafkaTriggerDB) {
+        WorkflowKafkaTriggerRecord rec = WORKFLOW_KAFKA_TRIGGER.newRecord();
+        rec.from(kafkaTriggerDB);
+        fillUpdatorInfo(rec);
+        db.update(WORKFLOW_KAFKA_TRIGGER)
+                .set(rec)
+                .where(WORKFLOW_KAFKA_TRIGGER.TRIGGER_ID.eq(kafkaTriggerDB.getTriggerId()))
+                .execute();
+    }
+
     public WorkflowKafkaTriggerDB queryKafkaTrigger(String triggerId) {
         return db.selectFrom(WORKFLOW_KAFKA_TRIGGER)
                 .where(WORKFLOW_KAFKA_TRIGGER.TRIGGER_ID.eq(triggerId))
@@ -247,6 +250,16 @@ public class WorkflowTriggerRepo implements BaseRepo {
         db.update(WORKFLOW_WEBOT_TRIGGER)
                 .set(rec)
                 .where(WORKFLOW_WEBOT_TRIGGER.TRIGGER_ID.eq(triggerId))
+                .execute();
+    }
+
+    public void updateWebotTrigger(WorkflowWebotTriggerDB webotTriggerDB) {
+        WorkflowWebotTriggerRecord rec = WORKFLOW_WEBOT_TRIGGER.newRecord();
+        rec.from(webotTriggerDB);
+        fillUpdatorInfo(rec);
+        db.update(WORKFLOW_WEBOT_TRIGGER)
+                .set(rec)
+                .where(WORKFLOW_WEBOT_TRIGGER.TRIGGER_ID.eq(webotTriggerDB.getTriggerId()))
                 .execute();
     }
 

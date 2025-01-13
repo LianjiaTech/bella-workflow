@@ -69,6 +69,7 @@ public class WebConfig implements WebMvcConfigurer {
         FilterRegistrationBean<BellaRequestFilter> filterRegistrationBean = new FilterRegistrationBean<>();
         BellaRequestFilter bellaRequestFilter = new BellaRequestFilter(Configs.SERVICE_NAME,openapiClient);
         filterRegistrationBean.setFilter(bellaRequestFilter);
+        filterRegistrationBean.setOrder(Integer.MIN_VALUE + 1);
         return filterRegistrationBean;
     }
 }

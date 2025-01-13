@@ -47,7 +47,7 @@ public class WorkflowTriggerService {
 
     public WorkflowSchedulingDB createSchedulingTrigger(WorkflowScheduling op) {
         WorkflowSchedulingDB workflowSchedulingDB = repo.insertWorkflowScheduling(op);
-        return repo.selectWorkflowScheduling(workflowSchedulingDB.getTenantId(), workflowSchedulingDB.getTriggerId());
+        return repo.selectWorkflowScheduling(workflowSchedulingDB.getTriggerId());
     }
 
     public void refreshTriggerNextTime(WorkflowSchedulingDB trigger) {
@@ -85,13 +85,34 @@ public class WorkflowTriggerService {
     @Transactional
     public WorkflowSchedulingDB stopWorkflowScheduling(WorkflowOps.WorkflowSchedulingStatusOp op) {
         deactivateWorkflowTrigger(op.getTriggerId(), op.getTriggerType());
-        return repo.selectWorkflowScheduling(op.getTenantId(), op.getTriggerId());
+        return repo.selectWorkflowScheduling(op.getTriggerId());
     }
 
     @Transactional
     public WorkflowSchedulingDB startWorkflowScheduling(WorkflowOps.WorkflowSchedulingStatusOp op) {
         activateWorkflowTrigger(op.getTriggerId(), op.getTriggerType());
-        return repo.selectWorkflowScheduling(op.getTenantId(), op.getTriggerId());
+        return repo.selectWorkflowScheduling(op.getTriggerId());
+    }
+
+    public WorkflowSchedulingDB updateWorkflowScheduling(WorkflowOps.WorkflowSchedulingUpdateOp op) {
+        WorkflowSchedulingDB scheduling = new WorkflowSchedulingDB();
+        scheduling.setTriggerId(op.getTriggerId());
+        if(StringUtils.hasText(op.getName())) {
+            scheduling.setName(op.getName());
+        }
+        if(StringUtils.hasText(op.getDesc())) {
+            scheduling.setDesc(op.getDesc());
+        }
+        if(StringUtils.hasText(op.getCronExpression())) {
+            scheduling.setCronExpression(op.getCronExpression());
+            scheduling.setTriggerNextTime(CronUtils.nextExecution(op.getCronExpression()));
+        }
+        if(op.getInputs().size() > 0) {
+            scheduling.setInputs(JsonUtils.toJson(op.getInputs()));
+        }
+        repo.updateWorkflowScheduling(scheduling);
+
+        return repo.selectWorkflowScheduling(op.getTriggerId());
     }
 
     public void updateWorkflowSchedulingStatus(String tenantId, String triggerId, WorkflowSchedulingStatus status) {
@@ -110,7 +131,7 @@ public class WorkflowTriggerService {
     }
 
     public Page<WorkflowRunDB> pageWorkflowRuns(WorkflowOps.WorkflowSchedulingPage op) {
-        WorkflowSchedulingDB wfs = Optional.ofNullable(repo.selectWorkflowScheduling(op.getTenantId(), op.getTriggerId()))
+        WorkflowSchedulingDB wfs = Optional.ofNullable(repo.selectWorkflowScheduling(op.getTriggerId()))
                 .orElseThrow(() -> new IllegalArgumentException("workflowScheduling not found"));
         WorkflowOps.WorkflowRunPage runOp = WorkflowOps.WorkflowRunPage.builder().triggerId(wfs.getTriggerId())
                 .workflowId(wfs.getWorkflowId())
@@ -119,7 +140,7 @@ public class WorkflowTriggerService {
     }
 
     public WorkflowRunDB runWorkflowScheduling(WorkflowOps.WorkflowSchedulingOp op) {
-        WorkflowSchedulingDB wfsDb = Optional.ofNullable(repo.selectWorkflowScheduling(op.getTenantId(), op.getTriggerId()))
+        WorkflowSchedulingDB wfsDb = Optional.ofNullable(repo.selectWorkflowScheduling(op.getTriggerId()))
                 .orElseThrow(() -> new IllegalArgumentException("workflowScheduling not found"));
         TenantDB tenant = ws.listTenants(Lists.newArrayList(wfsDb.getTenantId())).stream().findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("tenant not found"));
@@ -140,6 +161,31 @@ public class WorkflowTriggerService {
         repo.deactiveKafkaTrigger(triggerId);
     }
 
+    public WorkflowKafkaTriggerDB updateKafkaTrigger(WorkflowOps.KafkaTriggerUpdateOp op) {
+        WorkflowKafkaTriggerDB kafkaTrigger = new WorkflowKafkaTriggerDB();
+        kafkaTrigger.setTriggerId(op.getTriggerId());
+        if(StringUtils.hasText(op.getName())) {
+            kafkaTrigger.setName(op.getName());
+        }
+        if(StringUtils.hasText(op.getDesc())) {
+            kafkaTrigger.setDesc(op.getDesc());
+        }
+        if(StringUtils.hasText(op.getExpression())) {
+            ExpressionHelper.validate(op.getExpressionType(), op.getExpression());
+            kafkaTrigger.setExpression(op.getExpression());
+            kafkaTrigger.setExpressionType(op.getExpressionType());
+        }
+        if(StringUtils.hasText(op.getInputkey())) {
+            kafkaTrigger.setInputkey(op.getInputkey());
+        }
+        if(op.getInputs() != null) {
+            kafkaTrigger.setInputs(JsonUtils.toJson(op.getInputs()));
+        }
+        repo.updateKafkaTrigger(kafkaTrigger);
+
+        return repo.queryKafkaTrigger(op.getTriggerId());
+    }
+
     public WorkflowKafkaTriggerDB queryKafkaTrigger(String triggerId) {
         return repo.queryKafkaTrigger(triggerId);
     }
@@ -157,6 +203,37 @@ public class WorkflowTriggerService {
 
     public WorkflowWebotTriggerDB queryWebotTrigger(String triggerId) {
         return repo.queryWebotTrigger(triggerId);
+    }
+
+    public WorkflowWebotTriggerDB updateWebotTrigger(WorkflowOps.WebotTriggerUpdateOp op) {
+        WorkflowWebotTriggerDB webotTrigger = new WorkflowWebotTriggerDB();
+        webotTrigger.setTriggerId(op.getTriggerId());
+        if(StringUtils.hasText(op.getName())) {
+            webotTrigger.setName(op.getName());
+        }
+        if(StringUtils.hasText(op.getDesc())) {
+            webotTrigger.setDesc(op.getDesc());
+        }
+        if(StringUtils.hasText(op.getExpression())) {
+            ExpressionHelper.validate(op.getExpressionType(), op.getExpression());
+            webotTrigger.setExpression(op.getExpression());
+            webotTrigger.setExpressionType(op.getExpressionType());
+        }
+        if(StringUtils.hasText(op.getInputkey())) {
+            webotTrigger.setInputkey(op.getInputkey());
+        }
+        if(op.getInputs() != null) {
+            webotTrigger.setInputs(JsonUtils.toJson(op.getInputs()));
+        }
+        if(StringUtils.hasText(op.getRobotId())) {
+            webotTrigger.setRobotId(op.getRobotId());
+        }
+        if(StringUtils.hasText(op.getChatId())) {
+            webotTrigger.setChatId(op.getChatId());
+        }
+        repo.updateWebotTrigger(webotTrigger);
+
+        return repo.queryWebotTrigger(op.getTriggerId());
     }
 
     public List<WorkflowTrigger> listWorkflowTriggers(String workflowId, TriggerType type) {

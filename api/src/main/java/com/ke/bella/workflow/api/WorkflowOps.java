@@ -290,6 +290,24 @@ public class WorkflowOps {
     public static class WorkflowSchedulingRunPage extends WorkflowSchedulingPage {
     }
 
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WorkflowSchedulingUpdateOp extends Operator {
+        String triggerId;
+
+        String name;
+
+        String desc;
+
+        String cronExpression;
+
+        @Builder.Default
+        Map inputs = new HashMap();
+    }
+
     @Data
     @SuperBuilder
     @NoArgsConstructor
@@ -369,6 +387,29 @@ public class WorkflowOps {
     @SuperBuilder
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class KafkaTriggerUpdateOp extends Operator {
+        String triggerId;
+
+        String name;
+
+        String desc;
+
+        String expression;
+
+        String expressionType;
+
+        /** event作为inputs里的哪一个字段 */
+        String inputkey;
+
+        @Builder.Default
+        Map inputs = new HashMap();
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @SuppressWarnings("rawtypes")
     public static class WebotTriggerCreate extends WorkflowOp {
         @Builder.Default
@@ -397,6 +438,46 @@ public class WorkflowOps {
 
         /** event作为inputs里的哪一个字段 */
         String inputkey;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WebotTriggerUpdateOp extends Operator {
+        String triggerId;
+
+        String name;
+
+        String desc;
+
+        /**
+         * 群机器人ID，也就是webhook url里的key
+         */
+        String robotId;
+
+        /**
+         * 群聊ID
+         */
+        String chatId;
+
+        /**
+         * 条件表达式，
+         * 默认内置event变量，代表企微群机器人收到的消息体
+         * 可以基于event进行条件判断
+         * 符合条件的情况下，才会触发工作流执行
+         * 表达式必须返回boolean
+         */
+        String expression;
+
+        String expressionType;
+
+        /** event作为inputs里的哪一个字段 */
+        String inputkey;
+
+        @Builder.Default
+        Map inputs = new HashMap();
     }
 
     @Getter

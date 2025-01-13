@@ -84,6 +84,13 @@ public class TriggerController {
         return ws.pageWorkflowRuns(op);
     }
 
+    @PostMapping("/scheduling/update")
+    public WorkflowSchedulingDB updateScheduling(@RequestBody WorkflowOps.WorkflowSchedulingUpdateOp op) {
+        Assert.hasText(op.getTriggerId(), "triggerId不能为空");
+
+        return ws.updateWorkflowScheduling(op);
+    }
+
     @PostMapping("/callback/{triggerId}")
     public void callback(@PathVariable("triggerId") String triggerId, @RequestBody Object obj) {
         // todo:
@@ -112,10 +119,16 @@ public class TriggerController {
     @PostMapping("/kafka/info")
     public Object queryKafkaTrigger(@RequestBody TriggerQuery op) {
         Assert.notNull(op, "body不能为空");
-        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.getTriggerId(), "triggerId不能为空");
 
         return ws.queryKafkaTrigger(op.getTriggerId());
+    }
+
+    @PostMapping("/kafka/update")
+    public WorkflowKafkaTriggerDB updateKafkaTrigger(@RequestBody WorkflowOps.KafkaTriggerUpdateOp op) {
+        Assert.hasText(op.getTriggerId(), "triggerId不能为空");
+
+        return ws.updateKafkaTrigger(op);
     }
 
     @PostMapping("/webot/create")
@@ -139,10 +152,16 @@ public class TriggerController {
     @PostMapping("/webot/info")
     public Object queryWebotTrigger(@RequestBody TriggerQuery op) {
         Assert.notNull(op, "body不能为空");
-        Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.getTriggerId(), "triggerId不能为空");
 
         return ws.queryWebotTrigger(op.getTriggerId());
+    }
+
+    @PostMapping("/webot/update")
+    public WorkflowWebotTriggerDB updateWebotTrigger(@RequestBody WorkflowOps.WebotTriggerUpdateOp op) {
+        Assert.hasText(op.getTriggerId(), "triggerId不能为空");
+
+        return ws.updateWebotTrigger(op);
     }
 
     @PostMapping("/webot/message/recv")

@@ -17,7 +17,7 @@ import org.springframework.util.StringUtils;
 import com.ke.bella.workflow.service.DataSourceService;
 
 @Component
-@Order(Integer.MIN_VALUE + 1)
+@Order(Integer.MIN_VALUE + 2)
 public class CustomApiFilter implements Filter {
 
     @Autowired

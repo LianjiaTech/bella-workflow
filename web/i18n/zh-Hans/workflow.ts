@@ -598,6 +598,7 @@ const translation = {
     kafkaDescription: '从 Kafka 接收消息触发工作流',
     expression: '触发条件',
     datasource: '数据源',
+    expressionTypeDesc: '触发条件类型',
     toggle: {
       activate: '触发器已激活',
       deactivate: '触发器已停用',

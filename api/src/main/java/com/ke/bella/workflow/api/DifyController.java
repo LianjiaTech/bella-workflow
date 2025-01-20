@@ -36,7 +36,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.Operator;
-import com.ke.bella.openapi.protocol.files.File;
 import com.ke.bella.openapi.space.RoleWithSpace;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.TaskExecutor;
@@ -388,7 +387,7 @@ public class DifyController {
                 .triggerFrom(op.triggerFrom)
                 .threadId(op.threadId)
                 .query(op.query)
-                .files(op.files)
+                .fileIds(op.fileIds)
                 .stateful(op.isStateful())
                 .flashMode(op.flashMode)
                 .build();
@@ -760,7 +759,8 @@ public class DifyController {
         String triggerFrom = TriggerFrom.DEBUG.name();
 
         String query;
-        List<File> files;
+        @Builder.Default
+        List<String> fileIds = new ArrayList<>();
         @JsonAlias({ "conversation_id", "thread_id" })
         String threadId;
 

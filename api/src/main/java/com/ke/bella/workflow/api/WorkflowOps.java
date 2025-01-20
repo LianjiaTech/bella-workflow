@@ -158,7 +158,8 @@ public class WorkflowOps {
 
         String threadId;
         String query;
-        List<File> files;
+        @Builder.Default
+        List<String> fileIds = new ArrayList<>();
 
         String traceId;
         int spanLev;

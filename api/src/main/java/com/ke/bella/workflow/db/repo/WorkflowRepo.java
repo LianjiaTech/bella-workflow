@@ -17,6 +17,7 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import com.ke.bella.openapi.protocol.files.File;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.DSLContext;
 import org.jooq.SelectConditionStep;
@@ -26,6 +27,7 @@ import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.ke.bella.workflow.api.WorkflowOps;
@@ -327,7 +329,7 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, WorkflowRun op) {
+    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, WorkflowRun op, List<File> files) {
         WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
 
         String runId = IDGenerator.newWorkflowRunId();
@@ -350,8 +352,9 @@ public class WorkflowRepo implements BaseRepo {
             if(op.getQuery() != null) {
                 rec.setQuery(op.getQuery());
             }
-            if(op.getFiles() != null) {
-                rec.setFiles(JsonUtils.toJson(op.getFiles()));
+
+            if(files != null) {
+                rec.setFiles(JsonUtils.toJson(files));
             }
 
             if(op.getMetadata() != null) {

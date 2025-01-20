@@ -149,6 +149,7 @@ export type InputVar = {
     nodeType: BlockEnum
     nodeName: string
     variable: string
+    isChatVar?: boolean
   }
   variable: string
   varType?: string
@@ -162,7 +163,7 @@ export type InputVar = {
   error?: string
   children?: InputVar[]
   value_selector?: ValueSelector
-}
+} & Partial<UploadFileSetting>
 
 export type ModelConfig = {
   provider: string
@@ -302,7 +303,7 @@ export type RunFile = {
   type: string
   transfer_method: TransferMethod[]
   url?: string
-  upload_file_id?: string
+  id?: string
 }
 
 export type WorkflowRunningData = {
@@ -387,6 +388,14 @@ export enum SupportUploadFileTypes {
   audio = 'audio',
   video = 'video',
   custom = 'custom',
+}
+
+export type UploadFileSetting = {
+  allowed_file_upload_methods: TransferMethod[]
+  allowed_file_types: SupportUploadFileTypes[]
+  allowed_file_extensions?: string[]
+  max_length: number
+  number_limits?: number
 }
 
 export type VisionSetting = {

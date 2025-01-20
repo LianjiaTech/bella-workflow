@@ -387,7 +387,7 @@ const translation = {
           type: 'サポートタイプ。現在は画像のみサポートされています',
           transfer_method: '転送方法。値はremote_urlまたはlocal_fileです',
           url: '画像URL',
-          upload_file_id: 'アップロードファイルID',
+          id: 'アップロードファイルID',
         },
         json: 'ツールで生成されたJSON',
       },

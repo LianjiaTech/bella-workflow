@@ -386,7 +386,7 @@ const translation = {
           type: '지원 유형. 현재는 이미지만 지원합니다',
           transfer_method: '전송 방법. 값은 remote_url 또는 local_file',
           url: '이미지 URL',
-          upload_file_id: '업로드된 파일 ID',
+          id: '업로드된 파일 ID',
         },
         json: '도구로 생성된 JSON',
       },

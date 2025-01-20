@@ -14,9 +14,8 @@ import type {
   PromptVariable,
 } from '@/app/components/base/chat/types'
 import { useToastContext } from '@/app/components/base/toast'
-import { TransferMethod } from '@/types/app'
-import type { VisionFile } from '@/types/app'
 import { replaceStringWithValues } from '@/app/components/app/configuration/prompt-value-panel'
+import type { FileEntity } from '@/app/components/base/file-uploader/types'
 
 type GetAbortController = (abortController: AbortController) => void
 type SendCallback = {
@@ -189,15 +188,10 @@ export const useChat = (
       ...params,
     }
     if (bodyParams?.files?.length) {
-      bodyParams.files = bodyParams.files.map((item: VisionFile) => {
-        if (item.transfer_method === TransferMethod.local_file) {
-          return {
-            ...item,
-            url: '',
-          }
-        }
-        return item
+      params.fileIds = bodyParams.files.map((item: FileEntity) => {
+        return item.id
       })
+      delete params.files
     }
 
     let hasSetResponseId = false

@@ -57,12 +57,12 @@ const BeforeRunForm: FC<BeforeRunFormProps> = ({
   const isRunning = runningStatus === NodeRunningStatus.Running
   const isFileLoaded = (() => {
     // system files
-    const filesForm = forms.find(item => !!item.values['#files#'])
+    const filesForm = forms.find(item => !!item.values['#sys.files#'])
     if (!filesForm)
       return true
 
-    const files = filesForm.values['#files#'] as any
-    if (files?.some((item: any) => item.transfer_method === TransferMethod.local_file && !item.upload_file_id))
+    const files = filesForm.values['#sys.files#'] as any
+    if (files?.some((item: any) => item.transfer_method === TransferMethod.local_file && !item.id))
       return false
 
     return true

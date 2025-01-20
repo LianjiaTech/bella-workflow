@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import VarReferencePicker from '../_base/components/variable/var-reference-picker'
 import ConfigVision from '../_base/components/config-vision'
@@ -14,6 +14,7 @@ import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/befo
 import ResultPanel from '@/app/components/workflow/run/result-panel'
 import Split from '@/app/components/workflow/nodes/_base/components/split'
 import OutputVars, { VarItem } from '@/app/components/workflow/nodes/_base/components/output-vars'
+import type { Props as FormProps } from '@/app/components/workflow/nodes/_base/components/before-run-form/form'
 
 const i18nPrefix = 'workflow.nodes.questionClassifiers'
 
@@ -39,6 +40,8 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
     inputVarValues,
     varInputs,
     setInputVarValues,
+    visionFiles,
+    setVisionFiles,
     handleMemoryChange,
     isVisionModel,
     handleVisionResolutionChange,
@@ -53,6 +56,40 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
   } = useConfig(id, data)
 
   const model = inputs.model
+
+  const singleRunForms = useMemo(() => {
+    const forms: FormProps[] = []
+
+    if (varInputs.length > 0) {
+      forms.push(
+        {
+          label: t(`${i18nPrefix}.singleRun.variable`)!,
+          inputs: varInputs,
+          values: inputVarValues,
+          onChange: setInputVarValues,
+        },
+      )
+    }
+
+    if (isVisionModel && inputs.vision?.enabled) {
+      const variableName = t(`${i18nPrefix}.files`)!
+      forms.push(
+        {
+          label: t(`${i18nPrefix}.vision`)!,
+          inputs: [{
+            label: variableName!,
+            variable: '#sys.files#',
+            type: InputVarType.files,
+            required: false,
+          }],
+          values: { '#sys.files#': visionFiles },
+          onChange: keyValue => setVisionFiles((keyValue as any)['#sys.files#']), // Fix: 使用正确的键名
+        },
+      )
+    }
+
+    return forms
+  }, [varInputs, isVisionModel, inputs.vision?.enabled, t, inputVarValues, setInputVarValues, visionFiles, setVisionFiles])
 
   return (
     <div className='mt-2'>
@@ -143,19 +180,7 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
         <BeforeRunForm
           nodeName={inputs.title}
           onHide={hideSingleRun}
-          forms={[
-            {
-              inputs: [{
-                label: t(`${i18nPrefix}.inputVars`)!,
-                variable: 'query',
-                type: InputVarType.paragraph,
-                required: true,
-                alias: Array.isArray(inputs.query_variable_selector) ? `#${inputs.query_variable_selector.join('.')}#` : '',
-              }, ...varInputs],
-              values: inputVarValues,
-              onChange: setInputVarValues,
-            },
-          ]}
+          forms={singleRunForms}
           runningStatus={runningStatus}
           onRun={handleRun}
           onStop={handleStop}

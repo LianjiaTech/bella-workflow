@@ -416,7 +416,7 @@ const translation = {
           transfer_method:
             'Metodo di trasferimento. Il valore è remote_url o local_file',
           url: 'URL immagine',
-          upload_file_id: 'ID file caricato',
+          id: 'ID file caricato',
         },
         json: 'json generato dallo strumento',
       },

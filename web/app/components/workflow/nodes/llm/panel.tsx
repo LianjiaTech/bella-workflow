@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import ConfigVision from '../_base/components/config-vision'
 import useConfig from './use-config'
@@ -70,7 +70,7 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
 
   const model = inputs.model
 
-  const singleRunForms = (() => {
+  const singleRunForms = useMemo(() => {
     const forms: FormProps[] = []
 
     if (varInputs.length > 0) {
@@ -100,25 +100,37 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
       )
     }
 
-    if (isVisionModel) {
-      const variableName = data.vision.configs?.variable_selector?.[1] || t(`${i18nPrefix}.files`)!
+    if (isVisionModel && inputs.vision?.enabled) {
+      const variableName = t(`${i18nPrefix}.files`)!
       forms.push(
         {
           label: t(`${i18nPrefix}.vision`)!,
           inputs: [{
             label: variableName!,
-            variable: '#files#',
+            variable: '#sys.files#',
             type: InputVarType.files,
             required: false,
           }],
-          values: { '#files#': visionFiles },
-          onChange: keyValue => setVisionFiles((keyValue as any)['#files#']),
+          values: { '#sys.files#': visionFiles },
+          onChange: keyValue => setVisionFiles((keyValue as any)['#sys.files#']), // Fix: 使用正确的键名
         },
       )
     }
 
     return forms
-  })()
+  }, [
+    t,
+    varInputs,
+    inputVarValues,
+    setInputVarValues,
+    inputs.context?.variable_selector,
+    contexts,
+    setContexts,
+    isVisionModel,
+    inputs.vision?.enabled,
+    visionFiles,
+    setVisionFiles,
+  ])
 
   return (
     <div className='mt-2'>

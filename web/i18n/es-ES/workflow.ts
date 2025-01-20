@@ -394,7 +394,7 @@ const translation = {
           type: 'Tipo de soporte. Ahora solo admite imágenes',
           transfer_method: 'Método de transferencia. El valor es remote_url o local_file',
           url: 'URL de la imagen',
-          upload_file_id: 'ID de archivo cargado',
+          id: 'ID de archivo cargado',
         },
         json: 'JSON generado por la herramienta',
       },

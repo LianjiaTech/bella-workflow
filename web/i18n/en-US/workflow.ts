@@ -416,7 +416,7 @@ const translation = {
           type: 'Support type. Now only support image',
           transfer_method: 'Transfer method.Value is  remote_url or local_file',
           url: 'Image url',
-          upload_file_id: 'Upload file id',
+          id: 'Upload file id',
         },
         json: 'tool generated json',
       },

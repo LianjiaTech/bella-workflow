@@ -419,7 +419,7 @@ const translation = {
           type: '支持类型。现在只支持图片',
           transfer_method: '传输方式。值为 remote_url 或 local_file',
           url: '图片链接',
-          upload_file_id: '上传文件ID',
+          id: '上传文件ID',
         },
         json: '工具生成的json',
       },

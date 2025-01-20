@@ -247,6 +247,14 @@ const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
     setRunInputData(newPayload)
   }, [setRunInputData])
 
+  const visionFiles = runInputData['#sys.files#']
+  const setVisionFiles = useCallback((newFiles: any[]) => {
+    setRunInputData(prevData => ({
+      ...prevData,
+      '#sys.files#': newFiles,
+    }))
+  }, [setRunInputData])
+
   return {
     readOnly,
     handleInputVarChange,
@@ -279,6 +287,8 @@ const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
     handleStop,
     runResult,
     setInputVarValues,
+    visionFiles,
+    setVisionFiles,
   }
 }
 

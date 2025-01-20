@@ -314,14 +314,14 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     data: inputs,
     defaultRunInputData: {
       '#context#': [RETRIEVAL_OUTPUT_STRUCT],
-      '#files#': [],
+      '#sys.files#': [],
     },
   })
 
   const inputVarValues = (() => {
     const vars: Record<string, any> = {}
     Object.keys(runInputData)
-      .filter(key => !['#context#', '#files#'].includes(key))
+      .filter(key => !['#context#', '#sys.files#'].includes(key))
       .forEach((key) => {
         vars[key] = runInputData[key]
       })
@@ -332,7 +332,7 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     const newVars = {
       ...newPayload,
       '#context#': runInputData['#context#'],
-      '#files#': runInputData['#files#'],
+      '#sys.files#': runInputData['#sys.files#'],
     }
     setRunInputData(newVars)
   }, [runInputData, setRunInputData])
@@ -345,13 +345,13 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     })
   }, [runInputData, setRunInputData])
 
-  const visionFiles = runInputData['#files#']
+  const visionFiles = runInputData['#sys.files#']
   const setVisionFiles = useCallback((newFiles: any[]) => {
-    setRunInputData({
-      ...runInputData,
-      '#files#': newFiles,
-    })
-  }, [runInputData, setRunInputData])
+    setRunInputData(prevData => ({
+      ...prevData,
+      '#sys.files#': newFiles,
+    }))
+  }, [setRunInputData])
 
   const allVarStrArr = (() => {
     const arr = isChatModel ? (inputs.prompt_template as PromptItem[]).filter(item => item.edition_type !== EditionType.jinja2).map(item => item.text) : [(inputs.prompt_template as PromptItem).text]

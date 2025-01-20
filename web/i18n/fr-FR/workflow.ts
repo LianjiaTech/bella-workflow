@@ -386,7 +386,7 @@ const translation = {
           type: 'Type de support. Actuellement ne prend en charge que l\'image',
           transfer_method: 'Méthode de transfert. La valeur est remote_url ou local_file',
           url: 'URL de l\'image',
-          upload_file_id: 'ID du fichier téléchargé',
+          id: 'ID du fichier téléchargé',
         },
         json: 'JSON généré par un outil',
       },

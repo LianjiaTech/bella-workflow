@@ -38,6 +38,11 @@ public class JsonUtils {
         return mapper.convertValue(source, clazz);
     }
 
+    @SuppressWarnings("rawtypes")
+    public static <T> T convertValue(Object source, TypeReference<T> clazz) {
+        return mapper.convertValue(source, clazz);
+    }
+
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {
             if(StringUtils.isEmpty(json)) {

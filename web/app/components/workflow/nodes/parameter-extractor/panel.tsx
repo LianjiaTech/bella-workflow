@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import MemoryConfig from '../_base/components/memory-config'
 import VarReferencePicker from '../_base/components/variable/var-reference-picker'
@@ -20,6 +20,7 @@ import { InputVarType, type NodePanelProps } from '@/app/components/workflow/typ
 import Tooltip from '@/app/components/base/tooltip/new'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import { VarType } from '@/app/components/workflow/types'
+import type { Props as FormProps } from '@/app/components/workflow/nodes/_base/components/before-run-form/form'
 
 const i18nPrefix = 'workflow.nodes.parameterExtractor'
 const i18nCommonPrefix = 'workflow.common'
@@ -62,9 +63,45 @@ const Panel: FC<NodePanelProps<ParameterExtractorNodeType>> = ({
     handleStop,
     runResult,
     setInputVarValues,
+    visionFiles,
+    setVisionFiles,
   } = useConfig(id, data)
 
   const model = inputs.model
+
+  const singleRunForms = useMemo(() => {
+    const forms: FormProps[] = []
+
+    if (varInputs.length > 0) {
+      forms.push(
+        {
+          label: t(`${i18nPrefix}.singleRun.variable`)!,
+          inputs: varInputs,
+          values: inputVarValues,
+          onChange: setInputVarValues,
+        },
+      )
+    }
+
+    if (isVisionModel && inputs.vision?.enabled) {
+      const variableName = t(`${i18nPrefix}.files`)!
+      forms.push(
+        {
+          label: t(`${i18nPrefix}.vision`)!,
+          inputs: [{
+            label: variableName!,
+            variable: '#sys.files#',
+            type: InputVarType.files,
+            required: false,
+          }],
+          values: { '#sys.files#': visionFiles },
+          onChange: keyValue => setVisionFiles((keyValue as any)['#sys.files#']), // Fix: 使用正确的键名
+        },
+      )
+    }
+
+    return forms
+  }, [varInputs, isVisionModel, inputs.vision?.enabled, t, inputVarValues, setInputVarValues, visionFiles, setVisionFiles])
 
   return (
     <div className='mt-2'>
@@ -217,19 +254,7 @@ const Panel: FC<NodePanelProps<ParameterExtractorNodeType>> = ({
         <BeforeRunForm
           nodeName={inputs.title}
           onHide={hideSingleRun}
-          forms={[
-            {
-              inputs: [{
-                label: t(`${i18nPrefix}.inputVar`)!,
-                variable: 'query',
-                type: InputVarType.paragraph,
-                required: true,
-                alias: Array.isArray(inputs.query) ? `#${inputs.query?.join('.')}#` : '',
-              }, ...varInputs],
-              values: inputVarValues,
-              onChange: setInputVarValues,
-            },
-          ]}
+          forms={singleRunForms}
           runningStatus={runningStatus}
           onRun={handleRun}
           onStop={handleStop}

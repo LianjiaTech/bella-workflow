@@ -199,6 +199,14 @@ const useConfig = (id: string, payload: QuestionClassifierNodeType) => {
     return varPayload.type === VarType.string
   }, [])
 
+  const visionFiles = runInputData['#sys.files#']
+  const setVisionFiles = useCallback((newFiles: any[]) => {
+    setRunInputData(prevData => ({
+      ...prevData,
+      '#sys.files#': newFiles,
+    }))
+  }, [setRunInputData])
+
   return {
     readOnly,
     inputs,
@@ -216,6 +224,8 @@ const useConfig = (id: string, payload: QuestionClassifierNodeType) => {
     varInputs,
     inputVarValues,
     setInputVarValues,
+    visionFiles,
+    setVisionFiles,
     handleMemoryChange,
     isVisionModel,
     handleVisionResolutionEnabledChange,

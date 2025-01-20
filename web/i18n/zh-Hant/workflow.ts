@@ -385,7 +385,7 @@ const translation = {
           type: '支持類型。現在只支持圖片',
           transfer_method: '傳輸方式。值為 remote_url 或 local_file',
           url: '圖片鏈接',
-          upload_file_id: '上傳文件ID',
+          id: '上傳文件ID',
         },
         json: '工具生成的JSON',
       },

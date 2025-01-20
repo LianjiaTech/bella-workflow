@@ -191,6 +191,13 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         userInputs.forEach((k, v) -> {
             if(k.startsWith("#") && k.endsWith("#")) {
                 String[] selector = k.substring(1, k.length() - 1).split("\\.");
+                // sys.files特殊处理
+                if(selector.length == 2 && "sys".equals(selector[0]) && "files".equals(selector[1])) {
+                    List<File> files = JsonUtils.convertValue(userInputs.get(k), new TypeReference<List<File>>() {
+                    });
+                    context.getState().putVariableValue(Arrays.asList(selector), files);
+                    return;
+                }
                 context.getState().putVariableValue(Arrays.asList(selector), userInputs.get(k));
             } else {
                 throw new IllegalArgumentException("用户输入的变量名不合法，需要是`#key1.key2#`格式");

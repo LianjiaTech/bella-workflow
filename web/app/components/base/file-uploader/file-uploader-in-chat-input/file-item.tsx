@@ -21,6 +21,7 @@ import PdfPreview from '@/app/components/base/file-uploader/dynamic-pdf-preview'
 import AudioPreview from '@/app/components/base/file-uploader/audio-preview'
 import TextPreview from '@/app/components/base/file-uploader/text-preview'
 import VideoPreview from '@/app/components/base/file-uploader/video-preview'
+import ImagePreview from '@/app/components/base/file-uploader/image-preview'
 
 type FileItemProps = {
   file: FileEntity
@@ -39,7 +40,6 @@ const FileItem = ({
   canPreview,
 }: FileItemProps) => {
   const { _id, filename, mime_type, type, size, progress, url, base64Url, isRemote } = file
-  console.log('chenjiakai004', mime_type, type)
   const [previewUrl, setPreviewUrl] = useState('')
   const ext = getFileExtension(filename, mime_type as string, isRemote)
   const uploadError = progress === -1
@@ -130,6 +130,15 @@ const FileItem = ({
       {
         mime_type && mime_type.split('/')[0] === 'audio' && canPreview && previewUrl && (
           <AudioPreview
+            title={filename}
+            url={previewUrl}
+            onCancel={() => setPreviewUrl('')}
+          />
+        )
+      }
+      {
+        mime_type && mime_type.split('/')[0] === 'image' && canPreview && previewUrl && (
+          <ImagePreview
             title={filename}
             url={previewUrl}
             onCancel={() => setPreviewUrl('')}

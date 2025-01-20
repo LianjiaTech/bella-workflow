@@ -120,7 +120,7 @@ const InputsPanel = ({ onRun }: Props) => {
   }
 
   const canRun = (() => {
-    if (files?.some(item => (item.transfer_method as any) === TransferMethod.local_file && !item.upload_file_id))
+    if (files?.some(item => (item.transfer_method as any) === TransferMethod.local_file && !item.id))
       return false
 
     return true

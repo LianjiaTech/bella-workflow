@@ -150,7 +150,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         WorkflowRunLog runLog = new WorkflowRunLog();
         runLog.setBellaTraceId(BellaContext.getTraceId());
         runLog.setAkCode(BellaContext.getAkCode());
-        runLog.setEvent("onWorkflowRunResumed");
+        runLog.setEvent("onWorkflowRunFailed");
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
         runLog.setWorkflowRunId(context.getRunId());

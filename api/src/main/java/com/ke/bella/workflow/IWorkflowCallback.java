@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.theokanning.openai.assistants.message.MessageContent;
 import com.theokanning.openai.assistants.message.content.DeltaContent;
@@ -55,6 +56,8 @@ public interface IWorkflowCallback {
         String role;
         String name;
         List<DeltaContentX> content;
+        @JsonProperty("reasoning_content")
+        String reasoningContent;
 
         @Override
         public String toString() {

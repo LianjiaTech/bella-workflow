@@ -121,13 +121,18 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             }
 
             if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()
-                    && chunk.getChoices().get(0).getMessage() != null && chunk.getChoices().get(0).getMessage().getContent() != null) {
+                    && chunk.getChoices().get(0).getMessage() != null &&
+                    (chunk.getChoices().get(0).getMessage().getContent() != null || chunk.getChoices().get(0).getMessage().getReasoningContent() != null)) {
                 String content = chunk.getChoices().get(0).getMessage().getContent();
-                fullText.append(content);
+                String reasoningContent = chunk.getChoices().get(0).getMessage().getReasoningContent();
+                if(StringUtils.isEmpty(reasoningContent)) {
+                    fullText.append(content);
+                }
                 if(data.isGenerateDeltaContent()) {
                     Delta delta = Delta.builder()
                             .name(data.getMessageRoleName())
-                            .content(Delta.fromText(content))
+                            .content(StringUtils.isEmpty(reasoningContent) ? Delta.fromText(content) : null)
+                            .reasoningContent(reasoningContent)
                             .messageId(messageId)
                             .build();
                     callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,

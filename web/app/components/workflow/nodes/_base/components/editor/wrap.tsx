@@ -31,7 +31,7 @@ const Wrap = ({
     if (isExpand) {
       return {
         ...style,
-        width: '60%',
+        width: '80%',
       }
     }
     return style

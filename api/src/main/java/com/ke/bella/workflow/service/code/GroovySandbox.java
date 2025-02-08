@@ -84,7 +84,7 @@ public class GroovySandbox {
                 "java.lang.Object#notifyAll",
                 "java.lang.Object#invoke",
                 "java.lang.Object#exec"));
-        secure.setMethodDefinitionAllowed(false);
+        secure.setMethodDefinitionAllowed(true);
         secure.setPackageAllowed(false);
         secure.setIndirectImportCheckEnabled(true);
         secure.setImportsBlacklist(Arrays.asList("java.lang.SecurityManager",

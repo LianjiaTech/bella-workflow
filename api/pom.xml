@@ -140,9 +140,9 @@
       <version>2.7.2</version>
     </dependency>
     <dependency>
-      <groupId>io.github.lambdua</groupId>
-      <artifactId>service</artifactId>
-      <version>0.22.8</version>
+      <groupId>io.github.ke</groupId>
+      <artifactId>openai-java</artifactId>
+      <version>0.23.1</version>
     </dependency>
     <dependency>
       <groupId>org.jooq</groupId>

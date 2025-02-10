@@ -186,6 +186,17 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                 eb.answer(String.format("![image](%s)", delta.getImageDelta().getId(), delta.getImageUrl().getUrl()));
             }
             SseHelper.sendEvent(emitter, eb.build());
+        } else if(ProgressData.ObjectType.DELTA_REASONING_CONTENT.equals(pdata.getObject()) && pdata.getData() instanceof Delta) {
+            DifyEvent.DifyEventBuilder eb = DifyEvent.builder()
+                    .messageId(((Delta) pdata.getData()).getMessageId())
+                    .id(((Delta) pdata.getData()).getMessageId() + "-think")
+                    .workflowRunId(context.getRunId())
+                    .threadId(context.getThreadId())
+                    .workflowId(context.getWorkflowId())
+                    .taskId(context.getRunId())
+                    .event("agent_thought")
+                    .thought(((Delta) pdata.getData()).getReasoningContent());
+            SseHelper.sendEvent(emitter, eb.build());
         }
     }
 
@@ -353,6 +364,10 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         private Integer status;
         private String type;
         private String url;
+
+        @JsonProperty("message_id")
+        private String messageId;
+        private String thought;
 
         @JsonProperty("conversation_id")
         public String getConversationId() {

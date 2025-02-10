@@ -45,7 +45,7 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
             Object query = context.getState().getVariableValue(data.getQueryVariableSelector());
             List<ChatMessage> chatMessages = getChatTemplate(context.getState().getVariablePool(), this.data, String.valueOf(query));
 
-            if(data.getVision().isEnabled()) {
+            if(data.getVision().enabledWithFiles()) {
                 chatMessages = appendVisionMessages(chatMessages, data.getVision(), context.getState().getVariablePool());
             }
 

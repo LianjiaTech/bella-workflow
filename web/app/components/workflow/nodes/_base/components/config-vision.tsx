@@ -48,7 +48,7 @@ const ConfigVision: FC<Props> = ({
 
   const handleVarSelectorChange = useCallback((valueSelector: ValueSelector | string) => {
     const newConfig = produce(config, (draft) => {
-      draft.variable_selector = valueSelector as ValueSelector
+      draft.variable_selector = valueSelector === '' ? undefined : valueSelector as ValueSelector
     })
     onConfigChange(newConfig)
   }, [config, onConfigChange])

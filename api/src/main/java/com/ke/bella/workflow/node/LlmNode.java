@@ -196,7 +196,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             }
         }
 
-        if(data.getVision().isEnabled()) {
+        if(data.getVision().enabledWithFiles()) {
             result = appendVisionMessages(result, data.getVision(), variablePool);
         }
 

@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.service;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,11 +40,20 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowRunStarted(WorkflowContext ctx) {
+        // 如果stateful打开且为chatflow，则视具体情况创建thread
+        String threadId = ctx.getThreadId();
+        if(ctx.isStateful() && "advanced-chat".equals(ctx.getWorkflowMode()) && !StringUtils.hasText(threadId)) {
+            threadId = openAiService.createThread(new ThreadRequest()).getId();
+            ctx.setThreadId(threadId);
+        }
+
         WorkflowRunLog runLog = new WorkflowRunLog();
         runLog.setBellaTraceId(BellaContext.getTraceId());
         runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunStarted");
         runLog.setTenantId(ctx.getTenantId());
+        runLog.setUserId(BellaContext.getOperator().getUserId());
+        runLog.setUserName(BellaContext.getOperator().getUserName());
         runLog.setWorkflowId(ctx.getWorkflowId());
         runLog.setWorkflowRunId(ctx.getRunId());
         runLog.setFlashMode(ctx.getFlashMode());
@@ -51,15 +61,12 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setStateful(ctx.isStateful());
         runLog.setSys(ctx.getState().getVariablePool().get("sys"));
         runLog.setInputs(ctx.userInputs());
+        runLog.setThreadId(ctx.getThreadId());
+        runLog.setStateful(ctx.isStateful());
+        runLog.setStatus(WorkflowRunStatus.running.name());
+        runLog.setCtime(System.currentTimeMillis());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
-
-        // 如果stateful打开且为chatflow，则视具体情况创建thread
-        String threadId = ctx.getThreadId();
-        if(ctx.isStateful() && "advanced-chat".equals(ctx.getWorkflowMode()) && !StringUtils.hasText(threadId)) {
-            threadId = openAiService.createThread(new ThreadRequest()).getId();
-            ctx.setThreadId(threadId);
-        }
 
         service.markWorkflowRunStarted(ctx);
 
@@ -68,14 +75,22 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
     @Override
     public void onWorkflowRunSucceeded(WorkflowContext ctx) {
+        LocalDateTime now = LocalDateTime.now();
         WorkflowRunLog runLog = new WorkflowRunLog();
         runLog.setBellaTraceId(BellaContext.getTraceId());
         runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunSucceeded");
         runLog.setTenantId(ctx.getTenantId());
+        runLog.setUserId(BellaContext.getOperator().getUserId());
+        runLog.setUserName(BellaContext.getOperator().getUserName());
         runLog.setWorkflowId(ctx.getWorkflowId());
         runLog.setWorkflowRunId(ctx.getRunId());
         runLog.setOutputs(Optional.ofNullable(ctx.getWorkflowRunResult()).map(NodeRunResult::getOutputs).orElse(null));
+        runLog.setThreadId(ctx.getThreadId());
+        runLog.setStateful(ctx.isStateful());
+        runLog.setStatus(WorkflowRunStatus.succeeded.name());
+        runLog.setElapsedTime(ctx.elapsedTime(now));
+        runLog.setCtime(System.currentTimeMillis());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
@@ -99,8 +114,15 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunSuspended");
         runLog.setTenantId(context.getTenantId());
+        runLog.setUserId(BellaContext.getOperator().getUserId());
+        runLog.setUserName(BellaContext.getOperator().getUserName());
         runLog.setWorkflowId(context.getWorkflowId());
         runLog.setWorkflowRunId(context.getRunId());
+        runLog.setThreadId(context.getThreadId());
+        runLog.setStateful(context.isStateful());
+        runLog.setStatus(WorkflowRunStatus.running.name());
+        runLog.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
+        runLog.setCtime(System.currentTimeMillis());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
@@ -117,8 +139,15 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunStopped");
         runLog.setTenantId(context.getTenantId());
+        runLog.setUserId(BellaContext.getOperator().getUserId());
+        runLog.setUserName(BellaContext.getOperator().getUserName());
         runLog.setWorkflowId(context.getWorkflowId());
         runLog.setWorkflowRunId(context.getRunId());
+        runLog.setThreadId(context.getThreadId());
+        runLog.setStateful(context.isStateful());
+        runLog.setStatus(WorkflowRunStatus.suspended.name());
+        runLog.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
+        runLog.setCtime(System.currentTimeMillis());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
@@ -134,8 +163,15 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunResumed");
         runLog.setTenantId(context.getTenantId());
+        runLog.setUserId(BellaContext.getOperator().getUserId());
+        runLog.setUserName(BellaContext.getOperator().getUserName());
         runLog.setWorkflowId(context.getWorkflowId());
         runLog.setWorkflowRunId(context.getRunId());
+        runLog.setThreadId(context.getThreadId());
+        runLog.setStateful(context.isStateful());
+        runLog.setStatus(WorkflowRunStatus.stopped.name());
+        runLog.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
+        runLog.setCtime(System.currentTimeMillis());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
@@ -151,9 +187,16 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setAkCode(BellaContext.getAkCode());
         runLog.setEvent("onWorkflowRunFailed");
         runLog.setTenantId(context.getTenantId());
+        runLog.setUserId(BellaContext.getOperator().getUserId());
+        runLog.setUserName(BellaContext.getOperator().getUserName());
         runLog.setWorkflowId(context.getWorkflowId());
         runLog.setWorkflowRunId(context.getRunId());
         runLog.setError(t);
+        runLog.setThreadId(context.getThreadId());
+        runLog.setStateful(context.isStateful());
+        runLog.setStatus(WorkflowRunStatus.failed.name());
+        runLog.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
+        runLog.setCtime(System.currentTimeMillis());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
@@ -176,6 +219,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setNodeRunId(nodeRunId);
         runLog.setNodeTitle(context.getGraph().node(nodeId).getTitle());
         runLog.setNodeType(context.getGraph().node(nodeId).getNodeType());
+        runLog.setCtime(System.currentTimeMillis());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
@@ -215,6 +259,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setNodeRunId(nodeRunId);
         runLog.setNodeTitle(context.getGraph().node(nodeId).getTitle());
         runLog.setNodeType(context.getGraph().node(nodeId).getNodeType());
+        runLog.setCtime(System.currentTimeMillis());
         if(context.getState().getNodeState(nodeId) != null) {
             runLog.setNodeInputs(context.getState().getNodeState(nodeId).getInputs());
             runLog.setNodeProcessData(context.getState().getNodeState(nodeId).getProcessData());
@@ -243,6 +288,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setNodeRunId(nodeRunId);
         runLog.setNodeTitle(ctx.getGraph().node(nodeId).getTitle());
         runLog.setNodeType(ctx.getGraph().node(nodeId).getNodeType());
+        runLog.setCtime(System.currentTimeMillis());
         if(ctx.getState().getNodeState(nodeId) != null) {
             runLog.setNodeInputs(ctx.getState().getNodeState(nodeId).getInputs());
             runLog.setNodeProcessData(ctx.getState().getNodeState(nodeId).getProcessData());
@@ -273,6 +319,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setNodeRunId(nodeRunId);
         runLog.setNodeTitle(context.getGraph().node(nodeId).getTitle());
         runLog.setNodeType(context.getGraph().node(nodeId).getNodeType());
+        runLog.setCtime(System.currentTimeMillis());
         if(context.getState().getNodeState(nodeId) != null) {
             runLog.setNodeInputs(context.getState().getNodeState(nodeId).getInputs());
             runLog.setNodeProcessData(context.getState().getNodeState(nodeId).getProcessData());
@@ -296,6 +343,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
         runLog.setWorkflowRunId(context.getRunId());
+        runLog.setCtime(System.currentTimeMillis());
 
         runLog.setNodeId(nodeId);
         runLog.setNodeRunId(nodeRunId);
@@ -317,6 +365,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
         runLog.setWorkflowRunId(context.getRunId());
+        runLog.setCtime(System.currentTimeMillis());
 
         runLog.setNodeId(nodeId);
         runLog.setNodeRunId(nodeRunId);
@@ -341,14 +390,20 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         private String akCode;
         private String event;
         private String tenantId;
+        private Long userId;
+        private String userName;
         private String workflowId;
         private String workflowRunId;
         private int flashMode;
         private String triggerFrom;
+        private String threadId;
         private boolean stateful;
         private Object sys;
         private Object inputs;
         private Object outputs;
+        private String status;
+        private Long ctime;
+        private Long elapsedTime;
         private String nodeId;
         private String nodeType;
         private String nodeTitle;

@@ -138,7 +138,7 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
                 chatMessages = generatePromptEngineeringPrompt(query, systemPrompt);
             }
 
-            if(data.getVision().isEnabled()) {
+            if(data.getVision().enabledWithFiles()) {
                 chatMessages = appendVisionMessages(chatMessages, data.getVision(), context.getState().getVariablePool());
             }
 

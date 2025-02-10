@@ -18,7 +18,6 @@ import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.collect.Lists;
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.client.OpenapiClient;
 import com.ke.bella.openapi.protocol.files.File;
@@ -499,9 +498,12 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         @lombok.Data
         static class ConfigOption {
             @JsonAlias("variable_selector")
-            @Builder.Default
-            private List<String> variableSelector = Lists.newArrayList("sys", "files");
+            private List<String> variableSelector;
             private String detail;
+        }
+
+        public boolean enabledWithFiles() {
+            return enabled && !CollectionUtils.isEmpty(configs.getVariableSelector());
         }
     }
 

@@ -259,6 +259,20 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     setInputs(newInputs)
   }, [inputs, setInputs])
 
+  const handleDeltaChange = useCallback((generateDeltaContent?: boolean) => {
+    const newInputs = produce(inputs, (draft) => {
+      draft.generateDeltaContent = generateDeltaContent
+    })
+    setInputs(newInputs)
+  }, [inputs, setInputs])
+
+  const handleNewMessageChange = useCallback((generateNewMessage?: boolean) => {
+    const newInputs = produce(inputs, (draft) => {
+      draft.generateNewMessage = generateNewMessage
+    })
+    setInputs(newInputs)
+  }, [inputs, setInputs])
+
   const handleSyeQueryChange = useCallback((newQuery: string) => {
     const newInputs = produce(inputs, (draft) => {
       if (!draft.memory) {
@@ -411,6 +425,8 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     handleStop,
     runResult,
     filterJinjia2InputVar,
+    handleDeltaChange,
+    handleNewMessageChange,
   }
 }
 

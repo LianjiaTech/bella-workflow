@@ -5,6 +5,7 @@ import ConfigVision from '../_base/components/config-vision'
 import useConfig from './use-config'
 import type { LLMNodeType } from './types'
 import ConfigPrompt from './components/config-prompt'
+import DirectlyAnswerConfig from '@/app/components/workflow/nodes/_base/components/directly-answer-config'
 import VarList from '@/app/components/workflow/nodes/_base/components/variable/var-list'
 import AddButton2 from '@/app/components/base/button/add-button'
 import Field from '@/app/components/workflow/nodes/_base/components/field'
@@ -66,6 +67,8 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
     varInputs,
     runResult,
     filterJinjia2InputVar,
+    handleDeltaChange,
+    handleNewMessageChange,
   } = useConfig(id, data)
 
   const model = inputs.model
@@ -255,17 +258,24 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
         )}
 
         {/* Memory */}
-        {/* {isChatMode && (
+        {isChatMode && (
           <>
             <Split />
-            <MemoryConfig
+            {/* <MemoryConfig
               readonly={readOnly}
               config={{ data: inputs.memory }}
               onChange={handleMemoryChange}
               canSetRoleName={isCompletionModel}
+            /> */}
+            <DirectlyAnswerConfig
+              readonly={readOnly}
+              generateDeltaContent={inputs.generateDeltaContent || false}
+              generateNewMessage={inputs.generateNewMessage}
+              onChange={handleDeltaChange}
+              onNewMessageChange={handleNewMessageChange}
             />
           </>
-        )} */}
+        )}
 
         {/* Vision: GPT4-vision and so on */}
         <ConfigVision

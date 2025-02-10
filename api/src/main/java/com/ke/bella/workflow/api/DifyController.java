@@ -122,7 +122,7 @@ public class DifyController {
                 .name(wf.getTitle())
                 .description(wf.getDesc())
                 .mode(wf.getMode())
-                .api_base_url(Configs.API_BASE)
+                .api_base_url(Configs.OPEN_API_BASE)
                 .cuid(wf.getCuid())
                 .build()));
 
@@ -244,7 +244,7 @@ public class DifyController {
                 .name(wf.getTitle())
                 .description(wf.getDesc())
                 .mode(wf.getMode())
-                .api_base_url(Configs.API_BASE)
+                .api_base_url(Configs.OPEN_API_BASE)
                 .cuid(wf.getCuid())
                 .space_code(wf.getSpaceCode())
                 .build();
@@ -267,7 +267,7 @@ public class DifyController {
                 .description(wf.getDesc())
                 .mode(wf.getMode())
                 .cuid(wf.getCuid())
-                .api_base_url(Configs.API_BASE)
+                .api_base_url(Configs.OPEN_API_BASE)
                 .build();
     }
 

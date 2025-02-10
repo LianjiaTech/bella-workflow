@@ -4,13 +4,13 @@ import { Row, Col, Properties, Property, Heading, SubProperty, Paragraph } from 
 # Workflow API
 
 <div>
-  ### Base URL
+  ### 基础 URL
   <CodeGroup title="Code" targetCode={props.appDetail.api_base_url}>
     ```javascript
     ```
   </CodeGroup>
 
-  ### Authentication
+  ### 鉴权
 
 Bella Workflow API 使用 `API-Key` 进行鉴权。
   <i>**强烈建议开发者把 `API-Key` 放在后端存储，而非分享或者放在客户端存储，以免 `API-Key` 泄露，导致财产损失。**</i>
@@ -43,8 +43,6 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
         工作流ID，取值看右边请求示例
       - `query` (string) Optional
         Chatflow模式必传，用户的输入/提问
-      - `files` (array) Optional
-        用户上传的文件
       - `inputs` (object) Required
         允许传入 workflow start 节点定义的各变量值。
         inputs 参数包含了多组键值对（Key/Value pairs），每组的键对应一个特定变量，每组的值则是该变量的具体值。
@@ -65,7 +63,7 @@ Bella Workflow API 使用 `API-Key` 进行鉴权。
       - `flashMode` (int) Optional
         极速模式，设置大于0的值时开启，开启后将不对执行过程持久化，响应时间会更快。默认值为2。  
         - A. 当`flashMode`为1时，工作流执行将不再保存node执行的过程数据。
-        - B. 当`flashMode`为2时，A. + 工作流将不再保存输入的query、inputs、files、metadata入参。
+        - B. 当`flashMode`为2时，A. + 工作流将不再保存输入的query、inputs、metadata入参。
         - C. 当`flashMode`为3时，B. + 工作流将不再保存输出的outputs数据。
         - D. 当`flashMode`为10时，工作流将不再保存所有数据。   
         <i>限制：与挂起不兼容，当工作流存在挂起逻辑时无效</i>

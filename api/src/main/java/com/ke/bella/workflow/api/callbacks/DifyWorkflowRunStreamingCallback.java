@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 
+import com.ke.bella.openapi.BellaContext;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -70,6 +71,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                         .createdAt(System.currentTimeMillis())
                         .finishedAt(System.currentTimeMillis())
                         .elapsedTime(context.elapsedTime(LocalDateTime.now()) / 1000d)
+                        .createdBy(BellaContext.getOperator().getUserName())
                         .build())
                 .build();
         SseHelper.sendEvent(emitter, event);
@@ -382,6 +384,8 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         private String error;
         @JsonProperty("created_at")
         private Long createdAt;
+        @JsonProperty("created_by")
+        private String createdBy;
         @JsonProperty("finished_at")
         private Long finishedAt;
         @JsonProperty("elapsed_time")

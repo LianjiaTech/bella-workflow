@@ -165,17 +165,17 @@ const Answer: FC<AnswerProps> = ({
               )
             }
             {
-              content && !hasAgentThoughts && (
-                <BasicContent item={item} />
-              )
-            }
-            {
               hasAgentThoughts && (
                 <AgentContent
                   item={item}
                   responding={responding}
                   allToolIcons={allToolIcons}
                 />
+              )
+            }
+            {
+              content && (
+                <BasicContent item={item} />
               )
             }
             {

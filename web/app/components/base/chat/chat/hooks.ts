@@ -406,7 +406,7 @@ export const useChat = (
             const lastThought = response.agent_thoughts[response.agent_thoughts.length - 1]
             // thought changed but still the same thought, so update.
             if (lastThought.id === thought.id) {
-              thought.thought = lastThought.thought
+              thought.thought = lastThought.thought + thought.thought
               thought.message_files = lastThought.message_files
               responseItem.agent_thoughts![response.agent_thoughts.length - 1] = thought
             }

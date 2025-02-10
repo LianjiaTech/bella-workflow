@@ -100,7 +100,7 @@ const Chat: FC<ChatProps> = ({
   themeBuilder,
   switchSibling,
   onFeatureBarClick,
-  noSpacing,
+  noSpacing = true,
 }) => {
   const { t } = useTranslation()
   const { currentLogItem, setCurrentLogItem, showPromptLogModal, setShowPromptLogModal, showAgentLogModal, setShowAgentLogModal } = useAppStore(useShallow(state => ({

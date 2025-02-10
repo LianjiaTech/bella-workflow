@@ -138,7 +138,8 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
                     callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
                             ProgressData.builder()
                                     .data(delta)
-                                    .object(ProgressData.ObjectType.DELTA_CONTENT)
+                                    .object(StringUtils.isEmpty(reasoningContent) ? ProgressData.ObjectType.DELTA_CONTENT
+                                            : ProgressData.ObjectType.DELTA_REASONING_CONTENT)
                                     .build());
                 } else {
                     callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,

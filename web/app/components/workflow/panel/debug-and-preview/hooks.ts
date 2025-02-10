@@ -16,6 +16,7 @@ import type {
 import { useToastContext } from '@/app/components/base/toast'
 import { replaceStringWithValues } from '@/app/components/app/configuration/prompt-value-panel'
 import type { FileEntity } from '@/app/components/base/file-uploader/types'
+import type { ThoughtItem } from '@/app/components/base/chat/chat/type'
 
 type GetAbortController = (abortController: AbortController) => void
 type SendCallback = {
@@ -217,6 +218,32 @@ export const useChat = (
           if (messageId)
             responseItem.id = messageId
 
+          updateCurrentQA({
+            responseItem,
+            questionId,
+            placeholderAnswerId,
+            questionItem,
+          })
+        },
+        onThought: (thought: ThoughtItem) => {
+          const response = responseItem as any
+          if (thought.message_id && !hasSetResponseId)
+            response.id = thought.message_id
+          if (response.agent_thoughts.length === 0) {
+            response.agent_thoughts.push(thought)
+          }
+          else {
+            const lastThought = response.agent_thoughts[response.agent_thoughts.length - 1]
+            // thought changed but still the same thought, so update.
+            if (lastThought.id === thought.id) {
+              thought.thought = lastThought.thought + thought.thought
+              thought.message_files = lastThought.message_files
+              responseItem.agent_thoughts![response.agent_thoughts.length - 1] = thought
+            }
+            else {
+              responseItem.agent_thoughts!.push(thought)
+            }
+          }
           updateCurrentQA({
             responseItem,
             questionId,

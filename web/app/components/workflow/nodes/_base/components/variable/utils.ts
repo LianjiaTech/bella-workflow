@@ -39,6 +39,10 @@ export const isENV = (valueSelector: ValueSelector) => {
   return valueSelector[0] === 'env'
 }
 
+export const isConversationVar = (valueSelector: ValueSelector) => {
+  return valueSelector[0] === 'conversation'
+}
+
 const inputVarTypeToVarType = (type: InputVarType, varType: string): VarType => {
   if (!type && varType) {
     switch (varType) {

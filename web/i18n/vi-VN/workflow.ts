@@ -386,7 +386,7 @@ const translation = {
           type: 'Loại hỗ trợ. Hiện tại chỉ hỗ trợ hình ảnh',
           transfer_method: 'Phương pháp truyền. Giá trị là remote_url hoặc local_file',
           url: 'URL hình ảnh',
-          upload_file_id: 'ID tệp đã tải lên',
+          id: 'ID tệp đã tải lên',
         },
         json: 'JSON được tạo bởi công cụ',
       },

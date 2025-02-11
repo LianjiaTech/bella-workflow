@@ -34,14 +34,6 @@ const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getRe
   const [runDetail, setRunDetail] = useState<WorkflowRunDetailResponse>()
   const [list, setList] = useState<NodeTracing[]>([])
 
-  const executor = useMemo(() => {
-    if (runDetail?.created_by_role === 'account')
-      return runDetail.created_by_account?.name || ''
-    if (runDetail?.created_by_role === 'end_user')
-      return runDetail.created_by_end_user?.session_id || ''
-    return 'N/A'
-  }, [runDetail])
-
   const getResult = useCallback(async (appID: string, runID: string) => {
     try {
       const res = await fetchRunDetail({
@@ -245,7 +237,7 @@ const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getRe
             elapsed_time={runDetail.elapsed_time}
             total_tokens={runDetail.total_tokens}
             created_at={runDetail.created_at}
-            created_by={executor}
+            created_by={runDetail.created_by}
             steps={runDetail.total_steps}
           />
         )}

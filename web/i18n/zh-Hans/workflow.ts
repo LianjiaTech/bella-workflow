@@ -476,7 +476,7 @@ const translation = {
           type: '支持类型。现在只支持图片',
           transfer_method: '传输方式。值为 remote_url 或 local_file',
           url: '图片链接',
-          upload_file_id: '上传文件ID',
+          id: '上传文件ID',
         },
         json: '工具生成的json',
       },
@@ -499,6 +499,8 @@ const translation = {
       instruction: '指令',
       instructionTip: '你可以输入额外的附加指令，帮助问题分类器更好的理解如何分类',
       instructionPlaceholder: '在这里输入你的指令',
+      files: '文件',
+      vision: '视觉',
     },
     parameterExtractor: {
       inputVar: '输入变量',
@@ -523,6 +525,8 @@ const translation = {
       reasoningModeTip: '你可以根据模型对于 Function calling 或 Prompt 的指令响应能力选择合适的推理模式',
       isSuccess: '是否成功。成功时值为 1，失败时值为 0。',
       errorReason: '错误原因',
+      files: '文件',
+      vision: '视觉',
     },
     iteration: {
       deleteTitle: '删除迭代节点？',
@@ -598,6 +602,7 @@ const translation = {
     kafkaDescription: '从 Kafka 接收消息触发工作流',
     expression: '触发条件',
     datasource: '数据源',
+    expressionTypeDesc: '触发条件类型',
     toggle: {
       activate: '触发器已激活',
       deactivate: '触发器已停用',

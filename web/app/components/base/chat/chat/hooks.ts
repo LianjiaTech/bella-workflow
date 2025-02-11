@@ -13,9 +13,7 @@ import type {
   ChatItem,
   Inputs,
   PromptVariable,
-  VisionFile,
 } from '../types'
-import { TransferMethod } from '@/types/app'
 import { useToastContext } from '@/app/components/base/toast'
 import { ssePost } from '@/service/base'
 import { replaceStringWithValues } from '@/app/components/app/configuration/prompt-value-panel'
@@ -23,6 +21,7 @@ import type { Annotation } from '@/models/log'
 import { WorkflowRunningStatus } from '@/app/components/workflow/types'
 import useTimestamp from '@/hooks/use-timestamp'
 import { AudioPlayerManager } from '@/app/components/base/audio-btn/audio.player.manager'
+import type { FileEntity } from '@/app/components/base/file-uploader/types'
 
 type GetAbortController = (abortController: AbortController) => void
 type SendCallback = {
@@ -252,15 +251,10 @@ export const useChat = (
       ...data,
     }
     if (bodyParams?.files?.length) {
-      bodyParams.files = bodyParams.files.map((item: VisionFile) => {
-        if (item.transfer_method === TransferMethod.local_file) {
-          return {
-            ...item,
-            url: '',
-          }
-        }
-        return item
+      params.fileIds = bodyParams.files.map((item: FileEntity) => {
+        return item.id
       })
+      delete params.files
     }
 
     let isAgentMode = false
@@ -412,7 +406,7 @@ export const useChat = (
             const lastThought = response.agent_thoughts[response.agent_thoughts.length - 1]
             // thought changed but still the same thought, so update.
             if (lastThought.id === thought.id) {
-              thought.thought = lastThought.thought
+              thought.thought = lastThought.thought + thought.thought
               thought.message_files = lastThought.message_files
               responseItem.agent_thoughts![response.agent_thoughts.length - 1] = thought
             }

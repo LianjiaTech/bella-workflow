@@ -7,7 +7,7 @@ import {
   useNodeDataUpdate,
   useWorkflow,
 } from '@/app/components/workflow/hooks'
-import { getNodeInfoById, isENV, isSystemVar, toNodeOutputVars } from '@/app/components/workflow/nodes/_base/components/variable/utils'
+import { getNodeInfoById, isConversationVar, isENV, isSystemVar, toNodeOutputVars } from '@/app/components/workflow/nodes/_base/components/variable/utils'
 
 import type { CommonNodeType, InputVar, ValueSelector, Var, Variable } from '@/app/components/workflow/types'
 import { BlockEnum, InputVarType, NodeRunningStatus, VarType } from '@/app/components/workflow/types'
@@ -17,7 +17,6 @@ import { getIterationSingleNodeRunUrl, singleNodeRun } from '@/service/workflow'
 import Toast from '@/app/components/base/toast'
 import LLMDefault from '@/app/components/workflow/nodes/llm/default'
 import KnowledgeRetrievalDefault from '@/app/components/workflow/nodes/knowledge-retrieval/default'
-import RagDefault from '@/app/components/workflow/nodes/rag/default'
 import IfElseDefault from '@/app/components/workflow/nodes/if-else/default'
 import CodeDefault from '@/app/components/workflow/nodes/code/default'
 import TemplateTransformDefault from '@/app/components/workflow/nodes/template-transform/default'
@@ -33,7 +32,6 @@ import { getInputVars as doGetInputVars } from '@/app/components/base/prompt-edi
 import type { NodeTracing } from '@/types/workflow'
 const { checkValid: checkLLMValid } = LLMDefault
 const { checkValid: checkKnowledgeRetrievalValid } = KnowledgeRetrievalDefault
-const { checkValid: checkRagValid } = RagDefault
 const { checkValid: checkIfElseValid } = IfElseDefault
 const { checkValid: checkCodeValid } = CodeDefault
 const { checkValid: checkTemplateTransformValid } = TemplateTransformDefault
@@ -47,14 +45,12 @@ const { checkValid: checkIterationValid } = IterationDefault
 const checkValidFns: Record<BlockEnum, Function> = {
   [BlockEnum.LLM]: checkLLMValid,
   [BlockEnum.KnowledgeRetrieval]: checkKnowledgeRetrievalValid,
-  [BlockEnum.Rag]: checkRagValid,
   [BlockEnum.IfElse]: checkIfElseValid,
   [BlockEnum.Code]: checkCodeValid,
   [BlockEnum.TemplateTransform]: checkTemplateTransformValid,
   [BlockEnum.QuestionClassifier]: checkQuestionClassifyValid,
   [BlockEnum.HttpRequest]: checkHttpValid,
   [BlockEnum.Tool]: checkToolValid,
-  [BlockEnum.VariableAssigner]: checkVariableAssignerValid,
   [BlockEnum.VariableAggregator]: checkVariableAssignerValid,
   [BlockEnum.ParameterExtractor]: checkParameterExtractorValid,
   [BlockEnum.Iteration]: checkIterationValid,
@@ -83,8 +79,10 @@ const varTypeToInputVarType = (type: VarType, {
     return InputVarType.number
   if ([VarType.object, VarType.array, VarType.arrayNumber, VarType.arrayString, VarType.arrayObject].includes(type))
     return InputVarType.json
+  if (type === VarType.file)
+    return InputVarType.singleFile
   if (type === VarType.arrayFile)
-    return InputVarType.files
+    return InputVarType.multiFiles
 
   return InputVarType.textInput
 }
@@ -103,33 +101,31 @@ const useOneStepRun = <T>({
 
   const availableNodes = getBeforeNodesInSameBranch(id)
   const availableNodesIncludeParent = getBeforeNodesInSameBranchIncludeParent(id)
-  const allOutputVars = toNodeOutputVars(availableNodes, isChatMode)
+  const allOutputVars = toNodeOutputVars(availableNodes, isChatMode, undefined, undefined)
   const getVar = (valueSelector: ValueSelector): Var | undefined => {
-    let res: Var | undefined
     const isSystem = valueSelector[0] === 'sys'
-    const targetVar = isSystem ? allOutputVars.find(item => !!item.isStartNode) : allOutputVars.find(v => v.nodeId === valueSelector[0])
+    const targetVar = allOutputVars.find(item => isSystem ? !!item.isStartNode : item.nodeId === valueSelector[0])
     if (!targetVar)
       return undefined
+
     if (isSystem)
       return targetVar.vars.find(item => item.variable.split('.')[1] === valueSelector[1])
 
     let curr: any = targetVar.vars
-    if (!curr)
-      return
+    for (let i = 1; i < valueSelector.length; i++) {
+      const key = valueSelector[i]
+      const isLast = i === valueSelector.length - 1
 
-    valueSelector.slice(1).forEach((key, i) => {
-      const isLast = i === valueSelector.length - 2
-      curr = curr?.find ? curr?.find((v: any) => v.variable === key) : null
-      if (isLast) {
-        res = curr
-      }
-      else {
-        if (curr?.type === VarType.object)
-          curr = curr.children
-      }
-    })
+      if (Array.isArray(curr))
+        curr = curr.find((v: any) => v.variable.replace('conversation.', '') === key)
 
-    return res
+      if (isLast)
+        return curr
+      else if (curr?.type === VarType.object || curr?.type === VarType.file)
+        curr = curr.children
+    }
+
+    return undefined
   }
 
   const checkValid = checkValidFns[data.type]
@@ -166,7 +162,7 @@ const useOneStepRun = <T>({
         })
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data._isSingleRun])
 
   const workflowStore = useWorkflowStore()
@@ -337,7 +333,6 @@ const useOneStepRun = <T>({
       if (!originalVar) {
         return {
           label: item.label || item.variable,
-          alias: Array.isArray(item.value_selector) ? `#${item.value_selector.join('.')}#` : '',
           variable: item.variable,
           type: InputVarType.textInput,
           required: true,
@@ -346,7 +341,6 @@ const useOneStepRun = <T>({
       }
       return {
         label: item.label || item.variable,
-        alias: Array.isArray(item.value_selector) ? `#${item.value_selector.join('.')}#` : '',
         variable: item.variable,
         type: varTypeToInputVarType(originalVar.type, {
           isSelect: !!originalVar.isSelect,
@@ -354,7 +348,6 @@ const useOneStepRun = <T>({
         }),
         required: item.required !== false,
         options: originalVar.options,
-        value_selector: item.value_selector,
       }
     })
 
@@ -375,6 +368,7 @@ const useOneStepRun = <T>({
           nodeType: varInfo?.type,
           nodeName: varInfo?.title || availableNodesIncludeParent[0]?.data.title, // default start node title
           variable: isSystemVar(item) ? item.join('.') : item[item.length - 1],
+          isChatVar: isConversationVar(item),
         },
         variable: `#${item.join('.')}#`,
         value_selector: item,

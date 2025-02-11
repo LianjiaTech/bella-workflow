@@ -435,28 +435,15 @@ const baseFetch = <T>(
 
 export const upload = (options: any, isPublicAPI?: boolean, url?: string, searchParams?: string): Promise<any> => {
   const urlPrefix = isPublicAPI ? PUBLIC_API_PREFIX : API_PREFIX
-  let token = ''
-  if (isPublicAPI) {
-    const sharedToken = globalThis.location.pathname.split('/').slice(-1)[0]
-    const accessToken = localStorage.getItem('token') || JSON.stringify({ [sharedToken]: '' })
-    let accessTokenJson = { [sharedToken]: '' }
-    try {
-      accessTokenJson = JSON.parse(accessToken)
-    }
-    catch (e) {
-
-    }
-    token = accessTokenJson[sharedToken]
-  }
-  else {
-    const accessToken = localStorage.getItem('console_token') || ''
-    token = accessToken
-  }
+  const { userName, ucid, tenantId, spaceCode } = getUserInfo()
   const defaultOptions = {
     method: 'POST',
     url: (url ? `${urlPrefix}${url}` : `${urlPrefix}/files/upload`) + (searchParams || ''),
     headers: {
-      Authorization: `Bearer ${token}`,
+      'X-BELLA-OPERATOR-NAME': userName,
+      'X-BELLA-OPERATOR-ID': ucid,
+      'X-BELLA-TENANT-ID': tenantId,
+      'X-BELLA-SPACE-CODE': spaceCode,
     },
     data: {},
   }
@@ -475,7 +462,7 @@ export const upload = (options: any, isPublicAPI?: boolean, url?: string, search
     xhr.responseType = 'json'
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
-        if (xhr.status === 201)
+        if (xhr.status === 200)
           resolve(xhr.response)
         else
           reject(xhr)

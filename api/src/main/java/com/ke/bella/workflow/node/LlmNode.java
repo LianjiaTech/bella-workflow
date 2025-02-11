@@ -121,19 +121,25 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             }
 
             if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()
-                    && chunk.getChoices().get(0).getMessage() != null && chunk.getChoices().get(0).getMessage().getContent() != null) {
+                    && chunk.getChoices().get(0).getMessage() != null &&
+                    (chunk.getChoices().get(0).getMessage().getContent() != null || chunk.getChoices().get(0).getMessage().getReasoningContent() != null)) {
                 String content = chunk.getChoices().get(0).getMessage().getContent();
-                fullText.append(content);
+                String reasoningContent = chunk.getChoices().get(0).getMessage().getReasoningContent();
+                if(StringUtils.isEmpty(reasoningContent)) {
+                    fullText.append(content);
+                }
                 if(data.isGenerateDeltaContent()) {
                     Delta delta = Delta.builder()
                             .name(data.getMessageRoleName())
-                            .content(Delta.fromText(content))
+                            .content(StringUtils.isEmpty(reasoningContent) ? Delta.fromText(content) : null)
+                            .reasoningContent(reasoningContent)
                             .messageId(messageId)
                             .build();
                     callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
                             ProgressData.builder()
                                     .data(delta)
-                                    .object(ProgressData.ObjectType.DELTA_CONTENT)
+                                    .object(StringUtils.isEmpty(reasoningContent) ? ProgressData.ObjectType.DELTA_CONTENT
+                                            : ProgressData.ObjectType.DELTA_REASONING_CONTENT)
                                     .build());
                 } else {
                     callback.onWorkflowNodeRunProgress(context, meta.getId(), nodeRunId,
@@ -190,6 +196,11 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
                 result.add(new AssistantMessage(promptTemplate.getText()));
             }
         }
+
+        if(data.getVision().enabledWithFiles()) {
+            result = appendVisionMessages(result, data.getVision(), variablePool);
+        }
+
         return result;
     }
 
@@ -225,7 +236,8 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
         @JsonAlias("prompt_config")
         private PromptConfig promptConfig;
         Context context;
-        private Vision vision;
+        @Builder.Default
+        private Vision vision = new Vision();
         // todo impl memory
         private Object memory;
         @Builder.Default
@@ -267,14 +279,5 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             @JsonAlias("variable_selector")
             private List<String> variableSelector;
         }
-
-        @Getter
-        @Setter
-        @NoArgsConstructor
-        public static class Vision {
-            boolean enabled;
-            private List<Object> configs;
-        }
     }
-
 }

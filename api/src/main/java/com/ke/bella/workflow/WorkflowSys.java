@@ -110,6 +110,20 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
         callback.onWorkflowNodeRunProgress(context, self.getNodeId(), self.getNodeRunId(), progress);
     }
 
+    public void sendReasoning(String text) {
+        Delta delta = Delta.builder()
+                .name(node.getNodeData().getMessageRoleName())
+                .reasoningContent(text)
+                .messageId((String) get("message_id"))
+                .build();
+
+        ProgressData progress = ProgressData.builder()
+                .object(ProgressData.ObjectType.DELTA_REASONING_CONTENT)
+                .data(delta)
+                .build();
+        callback.onWorkflowNodeRunProgress(context, node.getNodeId(), node.getNodeRunId(), progress);
+    }
+
     public void sendMessage(String text) {
         onProgress(node, (String) get("message_id"), text);
     }

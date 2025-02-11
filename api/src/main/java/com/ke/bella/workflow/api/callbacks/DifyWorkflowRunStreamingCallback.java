@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Objects;
 
+import com.ke.bella.openapi.BellaContext;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -70,6 +71,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                         .createdAt(System.currentTimeMillis())
                         .finishedAt(System.currentTimeMillis())
                         .elapsedTime(context.elapsedTime(LocalDateTime.now()) / 1000d)
+                        .createdBy(BellaContext.getOperator().getUserName())
                         .build())
                 .build();
         SseHelper.sendEvent(emitter, event);
@@ -183,6 +185,17 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
             } else if(delta.getImageUrl() != null) {
                 eb.answer(String.format("![image](%s)", delta.getImageDelta().getId(), delta.getImageUrl().getUrl()));
             }
+            SseHelper.sendEvent(emitter, eb.build());
+        } else if(ProgressData.ObjectType.DELTA_REASONING_CONTENT.equals(pdata.getObject()) && pdata.getData() instanceof Delta) {
+            DifyEvent.DifyEventBuilder eb = DifyEvent.builder()
+                    .messageId(((Delta) pdata.getData()).getMessageId())
+                    .id(((Delta) pdata.getData()).getMessageId() + "-think")
+                    .workflowRunId(context.getRunId())
+                    .threadId(context.getThreadId())
+                    .workflowId(context.getWorkflowId())
+                    .taskId(context.getRunId())
+                    .event("agent_thought")
+                    .thought(((Delta) pdata.getData()).getReasoningContent());
             SseHelper.sendEvent(emitter, eb.build());
         }
     }
@@ -352,6 +365,10 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         private String type;
         private String url;
 
+        @JsonProperty("message_id")
+        private String messageId;
+        private String thought;
+
         @JsonProperty("conversation_id")
         public String getConversationId() {
             return threadId;
@@ -382,6 +399,8 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         private String error;
         @JsonProperty("created_at")
         private Long createdAt;
+        @JsonProperty("created_by")
+        private String createdBy;
         @JsonProperty("finished_at")
         private Long finishedAt;
         @JsonProperty("elapsed_time")

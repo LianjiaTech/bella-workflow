@@ -7,13 +7,13 @@ import {
   RiDeleteBinLine,
 } from '@remixicon/react'
 import type { InputVar } from '../../../../types'
-import { BlockEnum, InputVarType } from '../../../../types'
+import { BlockEnum, InputVarType, SupportUploadFileTypes } from '../../../../types'
 import CodeEditor from '../editor/code-editor'
 import { CodeLanguage } from '../../../code/types'
 import TextEditor from '../editor/text-editor'
 import Select from '@/app/components/base/select'
-import TextGenerationImageUploader from '@/app/components/base/image-uploader/text-generation-image-uploader'
-import { Resolution } from '@/types/app'
+import { FileUploaderInAttachmentWrapper } from '@/app/components/base/file-uploader'
+import { TransferMethod } from '@/types/app'
 import { useFeatures } from '@/app/components/base/features/hooks'
 import { VarBlockIcon } from '@/app/components/workflow/block-icon'
 import { Line3 } from '@/app/components/base/icons/src/public/common'
@@ -148,23 +148,18 @@ const FormItem: FC<Props> = ({
             />
           )
         }
-
-        {
-          type === InputVarType.files && (
-            <TextGenerationImageUploader
-              settings={{
-                ...fileSettings?.image,
-                detail: Resolution.high,
-              } as any}
-              onFilesChange={files => onChange(files.filter(file => file.progress !== -1).map(fileItem => ({
-                type: 'image',
-                transfer_method: fileItem.type,
-                url: fileItem.url,
-                upload_file_id: fileItem.fileId,
-              })))}
-            />
-          )
-        }
+        {([InputVarType.singleFile, InputVarType.multiFiles, InputVarType.files].includes(type)) && (
+          <FileUploaderInAttachmentWrapper
+            value={value}
+            onChange={files => onChange(files)}
+            fileConfig={{
+              allowed_file_types: Object.values(SupportUploadFileTypes),
+              allowed_file_upload_methods: [TransferMethod.local_file],
+              number_limits: fileSettings?.number_limits || 3,
+              fileUploadConfig: fileSettings?.fileUploadConfig,
+            }}
+          />
+        )}
 
         {
           isContext && (

@@ -1,5 +1,12 @@
-import type { Resolution } from '@/types/app'
-import type { CommonNodeType, Memory, ModelConfig, PromptItem, ValueSelector, Variable } from '@/app/components/workflow/types'
+import type {
+  CommonNodeType,
+  Memory,
+  ModelConfig,
+  PromptItem,
+  ValueSelector,
+  Variable,
+  VisionSetting,
+} from '@/app/components/workflow/types'
 
 export type LLMNodeType = CommonNodeType & {
   model: ModelConfig
@@ -14,8 +21,6 @@ export type LLMNodeType = CommonNodeType & {
   }
   vision: {
     enabled: boolean
-    configs?: {
-      detail: Resolution
-    }
+    configs?: VisionSetting
   }
 }

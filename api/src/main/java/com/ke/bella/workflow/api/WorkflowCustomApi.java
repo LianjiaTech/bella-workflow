@@ -60,7 +60,7 @@ public class WorkflowCustomApi {
                 .spanLev(op1.getSpanLev())
                 .metadata(op1.getMetadata())
                 .query(op1.getQuery())
-                .files(op1.getFiles())
+                .fileIds(op1.getFileIds())
                 .threadId(op1.getThreadId())
                 .userId(op1.getUserId())
                 .userName(op1.getUserName())

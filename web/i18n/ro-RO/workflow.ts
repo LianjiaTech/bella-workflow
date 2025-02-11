@@ -386,7 +386,7 @@ const translation = {
           type: 'Tip de suport. Acum acceptă doar imagine',
           transfer_method: 'Metodă de transfer. Valoarea este remote_url sau local_file',
           url: 'URL imagine',
-          upload_file_id: 'ID fișier încărcat',
+          id: 'ID fișier încărcat',
         },
         json: 'JSON generat de instrument',
       },

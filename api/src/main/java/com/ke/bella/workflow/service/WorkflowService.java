@@ -1,7 +1,9 @@
 package com.ke.bella.workflow.service;
 
 import com.amazonaws.services.s3.model.S3Object;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.protocol.files.File;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.RedisMesh;
 import com.ke.bella.workflow.RedisMesh.Event;
@@ -38,6 +40,7 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowTemplateDB;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
+import com.ke.bella.workflow.utils.OpenAiUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.jodah.expiringmap.ExpirationListener;
@@ -52,6 +55,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -306,7 +310,8 @@ public class WorkflowService {
         WorkflowGraph graph = new WorkflowGraph(meta);
         WorkflowRunState state = new WorkflowRunState();
         state.putVariable("sys", "query", op.getQuery());
-        state.putVariable("sys", "files", op.getFiles());
+        state.putVariable("sys", "files", Optional.ofNullable(JsonUtils.fromJson(wr.getFiles(), new TypeReference<List<File>>() {
+        })).orElse(Collections.emptyList()));
         state.putVariable("sys", "message_id", IDGenerator.newMessageId());
         state.putVariable("sys", "thread_id", op.getThreadId());
         state.putVariable("sys", "metadata", op.getMetadata());
@@ -392,7 +397,12 @@ public class WorkflowService {
     }
 
     public WorkflowRunDB newWorkflowRun(WorkflowDB wf, WorkflowRun op) {
-        final WorkflowRunDB wr = repo.addWorkflowRun(wf, op);
+        List<File> files = Collections.emptyList();
+        if(!CollectionUtils.isEmpty(op.getFileIds())) {
+            files = OpenAiUtils.defaultOpenApiClient().listFiles(BellaContext.getApikey().getApikey(), op.getFileIds());
+        }
+
+        final WorkflowRunDB wr = repo.addWorkflowRun(wf, op, files);
         if(wr.getId() != null) {
             TaskExecutor.submit(() -> counter.increase(wr));
         }

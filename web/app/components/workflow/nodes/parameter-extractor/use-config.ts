@@ -9,8 +9,8 @@ import {
   useWorkflow,
 } from '../../hooks'
 import useOneStepRun from '../_base/hooks/use-one-step-run'
-import { ReasoningModeType } from './types'
-import type { Param, ParameterExtractorNodeType } from './types'
+import useConfigVision from '../../hooks/use-config-vision'
+import type { Param, ParameterExtractorNodeType, ReasoningModeType } from './types'
 import { useModelListAndDefaultModelAndCurrentProviderAndModel, useTextGenerationCurrentProviderAndModelAndModelList } from '@/app/components/header/account-setting/model-provider-page/hooks'
 import {
   ModelFeatureEnum,
@@ -85,8 +85,22 @@ const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
   }
   const modelMode = inputs.model?.mode
   const isChatModel = modelMode === 'chat'
-
   const isCompletionModel = !isChatModel
+
+  const {
+    isVisionModel,
+    handleVisionResolutionEnabledChange,
+    handleVisionResolutionChange,
+    handleModelChanged: handleVisionConfigAfterModelChanged,
+  } = useConfigVision(model, {
+    payload: inputs.vision,
+    onChange: (newPayload) => {
+      const newInputs = produce(inputs, (draft) => {
+        draft.vision = newPayload
+      })
+      setInputs(newInputs)
+    },
+  })
 
   const appendDefaultPromptConfig = useCallback((draft: ParameterExtractorNodeType, defaultConfig: any, _passInIsChatMode?: boolean) => {
     const promptTemplates = defaultConfig.prompt_templates
@@ -98,7 +112,7 @@ const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
     }
   }, [isChatModel])
 
-  // const [modelChanged, setModelChanged] = useState(false)
+  const [modelChanged, setModelChanged] = useState(false)
   const {
     currentProvider,
     currentModel,
@@ -114,7 +128,7 @@ const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
         appendDefaultPromptConfig(draft, defaultConfig, model.mode === 'chat')
     })
     setInputs(newInputs)
-    // setModelChanged(true)
+    setModelChanged(true)
   }, [setInputs, defaultConfig, appendDefaultPromptConfig])
 
   useEffect(() => {
@@ -126,6 +140,15 @@ const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
       })
     }
   }, [model?.provider, currentProvider, currentModel, handleModelChanged])
+
+  // change to vision model to set vision enabled, else disabled
+  useEffect(() => {
+    if (!modelChanged)
+      return
+    setModelChanged(false)
+    handleVisionConfigAfterModelChanged()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisionModel, modelChanged])
 
   const {
     currentModel: currModel,
@@ -184,11 +207,6 @@ const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
     setInputs(newInputs)
   }, [inputs, setInputs])
 
-  useEffect(() => {
-    if (isSupportFunctionCall)
-      handleReasoningModeChange(ReasoningModeType.functionCall)
-  }, [isSupportFunctionCall])
-
   const handleImportFromTool = useCallback((params: Param[]) => {
     const newInputs = produce(inputs, (draft) => {
       draft.parameters = params
@@ -229,6 +247,14 @@ const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
     setRunInputData(newPayload)
   }, [setRunInputData])
 
+  const visionFiles = runInputData['#sys.files#']
+  const setVisionFiles = useCallback((newFiles: any[]) => {
+    setRunInputData(prevData => ({
+      ...prevData,
+      '#sys.files#': newFiles,
+    }))
+  }, [setRunInputData])
+
   return {
     readOnly,
     handleInputVarChange,
@@ -251,6 +277,9 @@ const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
     handleMemoryChange,
     varInputs,
     inputVarValues,
+    isVisionModel,
+    handleVisionResolutionEnabledChange,
+    handleVisionResolutionChange,
     isShowSingleRun,
     hideSingleRun,
     runningStatus,
@@ -258,6 +287,8 @@ const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
     handleStop,
     runResult,
     setInputVarValues,
+    visionFiles,
+    setVisionFiles,
   }
 }
 

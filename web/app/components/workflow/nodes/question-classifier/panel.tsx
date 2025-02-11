@@ -1,7 +1,8 @@
 import type { FC } from 'react'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import VarReferencePicker from '../_base/components/variable/var-reference-picker'
+import ConfigVision from '../_base/components/config-vision'
 import useConfig from './use-config'
 import ClassList from './components/class-list'
 import AdvancedSetting from './components/advanced-setting'
@@ -13,6 +14,7 @@ import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/befo
 import ResultPanel from '@/app/components/workflow/run/result-panel'
 import Split from '@/app/components/workflow/nodes/_base/components/split'
 import OutputVars, { VarItem } from '@/app/components/workflow/nodes/_base/components/output-vars'
+import type { Props as FormProps } from '@/app/components/workflow/nodes/_base/components/before-run-form/form'
 
 const i18nPrefix = 'workflow.nodes.questionClassifiers'
 
@@ -38,7 +40,12 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
     inputVarValues,
     varInputs,
     setInputVarValues,
+    visionFiles,
+    setVisionFiles,
     handleMemoryChange,
+    isVisionModel,
+    handleVisionResolutionChange,
+    handleVisionResolutionEnabledChange,
     isShowSingleRun,
     hideSingleRun,
     runningStatus,
@@ -50,21 +57,43 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
 
   const model = inputs.model
 
+  const singleRunForms = useMemo(() => {
+    const forms: FormProps[] = []
+
+    if (varInputs.length > 0) {
+      forms.push(
+        {
+          label: t(`${i18nPrefix}.singleRun.variable`)!,
+          inputs: varInputs,
+          values: inputVarValues,
+          onChange: setInputVarValues,
+        },
+      )
+    }
+
+    if (isVisionModel && inputs.vision?.enabled) {
+      const variableName = t(`${i18nPrefix}.files`)!
+      forms.push(
+        {
+          label: t(`${i18nPrefix}.vision`)!,
+          inputs: [{
+            label: variableName!,
+            variable: '#sys.files#',
+            type: InputVarType.files,
+            required: false,
+          }],
+          values: { '#sys.files#': visionFiles },
+          onChange: keyValue => setVisionFiles((keyValue as any)['#sys.files#']), // Fix: 使用正确的键名
+        },
+      )
+    }
+
+    return forms
+  }, [varInputs, isVisionModel, inputs.vision?.enabled, t, inputVarValues, setInputVarValues, visionFiles, setVisionFiles])
+
   return (
     <div className='mt-2'>
       <div className='px-4 pb-4 space-y-4'>
-        <Field
-          title={t(`${i18nPrefix}.inputVars`)}
-        >
-          <VarReferencePicker
-            readonly={readOnly}
-            isShowNodeName
-            nodeId={id}
-            value={inputs.query_variable_selector}
-            onChange={handleQueryVarChange}
-            filterVar={filterVar}
-          />
-        </Field>
         <Field
           title={t(`${i18nPrefix}.model`)}
         >
@@ -84,6 +113,28 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
           />
         </Field>
         <Field
+          title={t(`${i18nPrefix}.inputVars`)}
+        >
+          <VarReferencePicker
+            readonly={readOnly}
+            isShowNodeName
+            nodeId={id}
+            value={inputs.query_variable_selector}
+            onChange={handleQueryVarChange}
+            filterVar={filterVar}
+          />
+        </Field>
+        <Split/>
+        <ConfigVision
+          nodeId={id}
+          readOnly={readOnly}
+          isVisionModel={isVisionModel}
+          enabled={inputs.vision?.enabled}
+          onEnabledChange={handleVisionResolutionEnabledChange}
+          config={inputs.vision?.configs}
+          onConfigChange={handleVisionResolutionChange}
+        />
+        <Field
           title={t(`${i18nPrefix}.class`)}
         >
           <ClassList
@@ -93,6 +144,7 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
             readonly={readOnly}
           />
         </Field>
+        <Split/>
         <Field
           title={t(`${i18nPrefix}.advancedSetting`)}
           supportFold
@@ -112,7 +164,7 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
           />
         </Field>
       </div>
-      <Split />
+      <Split/>
       <div className='px-4 pt-4 pb-2'>
         <OutputVars>
           <>
@@ -128,23 +180,11 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
         <BeforeRunForm
           nodeName={inputs.title}
           onHide={hideSingleRun}
-          forms={[
-            {
-              inputs: [{
-                label: t(`${i18nPrefix}.inputVars`)!,
-                variable: 'query',
-                type: InputVarType.paragraph,
-                required: true,
-                alias: Array.isArray(inputs.query_variable_selector) ? `#${inputs.query_variable_selector.join('.')}#` : '',
-              }, ...varInputs],
-              values: inputVarValues,
-              onChange: setInputVarValues,
-            },
-          ]}
+          forms={singleRunForms}
           runningStatus={runningStatus}
           onRun={handleRun}
           onStop={handleStop}
-          result={<ResultPanel {...runResult} showSteps={false} />}
+          result={<ResultPanel {...runResult} showSteps={false}/>}
         />
       )}
     </div>

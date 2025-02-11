@@ -12,7 +12,6 @@ import { MessageDotsCircle } from '@/app/components/base/icons/src/vender/solid/
 import { ImagePlus } from '@/app/components/base/icons/src/vender/line/images'
 import { useProviderContext } from '@/context/provider-context'
 import { Plan } from '@/app/components/billing/type'
-import { imageUpload } from '@/app/components/base/image-uploader/utils'
 import { useToastContext } from '@/app/components/base/toast'
 import {
   updateCurrentWorkspace,
@@ -45,25 +44,8 @@ const CustomWebAppBrand = () => {
     if (!file)
       return
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024)
       notify({ type: 'error', message: t('common.imageUploader.uploadFromComputerLimit', { size: 5 }) })
-      return
-    }
-
-    imageUpload({
-      file,
-      onProgressCallback: (progress) => {
-        setUploadProgress(progress)
-      },
-      onSuccessCallback: (res) => {
-        setUploadProgress(100)
-        setFileId(res.id)
-      },
-      onErrorCallback: () => {
-        notify({ type: 'error', message: t('common.imageUploader.uploadFromComputerUploadError') })
-        setUploadProgress(-1)
-      },
-    }, false, '/workspaces/custom-config/webapp-logo/upload')
   }
 
   const handleApply = async () => {

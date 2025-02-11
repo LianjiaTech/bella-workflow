@@ -1,9 +1,13 @@
 import type { CSSProperties } from 'react'
 import { memo, useMemo } from 'react'
-import ReactECharts from 'echarts-for-react'
+import dynamic from 'next/dynamic'
 import type { EChartsOption } from 'echarts'
 import style from './index.module.css'
 import classNames from '@/utils/classnames'
+
+const ReactECharts = dynamic(() => import('echarts-for-react'), {
+  ssr: false,
+})
 
 export type SimplePieChartProps = {
   percentage?: number

@@ -4,6 +4,7 @@ import type {
   ChatItem,
   VisionFile,
 } from '../../types'
+import Accordion from '../../../accordion'
 import { Markdown } from '@/app/components/base/markdown'
 import Thought from '@/app/components/base/chat/chat/thought'
 import ImageGallery from '@/app/components/base/image-gallery'
@@ -38,7 +39,9 @@ const AgentContent: FC<AgentContentProps> = ({
       {agent_thoughts?.map((thought, index) => (
         <div key={index}>
           {thought.thought && (
-            <Markdown content={thought.thought} />
+            <Accordion title="thinking" expand={true}>
+              <Markdown content={thought.thought} />
+            </Accordion>
           )}
           {/* {item.tool} */}
           {/* perhaps not use tool */}

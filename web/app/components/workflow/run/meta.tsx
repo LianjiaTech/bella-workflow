@@ -23,7 +23,7 @@ const MetaData: FC<Props> = ({
   showSteps = true,
 }) => {
   const { t } = useTranslation()
-  const { formatTime } = useTimestamp()
+  const { formatMilliseconds } = useTimestamp()
 
   return (
     <div className='relative'>
@@ -64,7 +64,7 @@ const MetaData: FC<Props> = ({
               <div className='my-[5px] w-[72px] h-2 rounded-sm bg-[rgba(0,0,0,0.05)]'/>
             )}
             {status !== 'running' && (
-              <span>{formatTime(startTime, t('appLog.dateTimeFormat') as string)}</span>
+              <span>{formatMilliseconds(startTime, t('appLog.dateTimeFormat') as string)}</span>
             )}
           </div>
         </div>
@@ -79,7 +79,7 @@ const MetaData: FC<Props> = ({
             )}
           </div>
         </div>
-        <div className='flex'>
+        {/* <div className='flex'>
           <div className='shrink-0 w-[104px] px-2 py-[5px] text-gray-500 text-xs leading-[18px] truncate'>{t('runLog.meta.tokens')}</div>
           <div className='grow px-2 py-[5px] text-gray-900 text-xs leading-[18px]'>
             {status === 'running' && (
@@ -102,7 +102,7 @@ const MetaData: FC<Props> = ({
               )}
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   )

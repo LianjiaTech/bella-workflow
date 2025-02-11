@@ -3,11 +3,12 @@ import type {
   Node as ReactFlowNode,
   Viewport,
 } from 'reactflow'
-import type { TransferMethod } from '@/types/app'
+import type { Resolution, TransferMethod } from '@/types/app'
 import type { ToolDefaultValue } from '@/app/components/workflow/block-selector/types'
 import type { VarType as VarKindType } from '@/app/components/workflow/nodes/tool/types'
 import type { NodeTracing } from '@/types/workflow'
 import type { Collection, Tool } from '@/app/components/tools/types'
+import type { ChatVarType } from '@/app/components/workflow/panel/chat-variable-panel/type'
 
 export enum BlockEnum {
   Start = 'start',
@@ -114,6 +115,14 @@ export type EnvironmentVariable = {
   value_type: 'string' | 'number' | 'secret'
 }
 
+export type ConversationVariable = {
+  id: string
+  name: string
+  value_type: ChatVarType
+  value: any
+  description: string
+}
+
 export type VariableWithValue = {
   key: string
   value: string
@@ -129,6 +138,8 @@ export enum InputVarType {
   json = 'json', // obj, array
   contexts = 'contexts', // knowledge retrieval
   iterator = 'iterator', // iteration input
+  singleFile = 'file',
+  multiFiles = 'file-list',
 }
 
 export type InputVar = {
@@ -138,6 +149,7 @@ export type InputVar = {
     nodeType: BlockEnum
     nodeName: string
     variable: string
+    isChatVar?: boolean
   }
   variable: string
   varType?: string
@@ -151,7 +163,7 @@ export type InputVar = {
   error?: string
   children?: InputVar[]
   value_selector?: ValueSelector
-}
+} & Partial<UploadFileSetting>
 
 export type ModelConfig = {
   provider: string
@@ -204,6 +216,7 @@ export enum VarType {
   secret = 'secret',
   boolean = 'boolean',
   object = 'object',
+  file = 'file',
   array = 'array',
   arrayString = 'array[string]',
   arrayNumber = 'array[number]',
@@ -224,6 +237,7 @@ export type Var = {
   isSelect?: boolean
   options?: string[]
   required?: boolean
+  des?: string
 }
 
 export type NodeOutPutVar = {
@@ -289,7 +303,7 @@ export type RunFile = {
   type: string
   transfer_method: TransferMethod[]
   url?: string
-  upload_file_id?: string
+  id?: string
 }
 
 export type WorkflowRunningData = {
@@ -366,6 +380,27 @@ export type MoreInfo = {
 
 export type ToolWithProvider = Collection & {
   tools: Tool[]
+}
+
+export enum SupportUploadFileTypes {
+  image = 'image',
+  document = 'document',
+  audio = 'audio',
+  video = 'video',
+  custom = 'custom',
+}
+
+export type UploadFileSetting = {
+  allowed_file_upload_methods: TransferMethod[]
+  allowed_file_types: SupportUploadFileTypes[]
+  allowed_file_extensions?: string[]
+  max_length: number
+  number_limits?: number
+}
+
+export type VisionSetting = {
+  variable_selector?: ValueSelector
+  detail: Resolution
 }
 
 export enum ResponseType {

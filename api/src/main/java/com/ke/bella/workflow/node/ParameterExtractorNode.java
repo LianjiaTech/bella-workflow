@@ -138,6 +138,10 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
                 chatMessages = generatePromptEngineeringPrompt(query, systemPrompt);
             }
 
+            if(data.getVision().enabledWithFiles()) {
+                chatMessages = appendVisionMessages(chatMessages, data.getVision(), context.getState().getVariablePool());
+            }
+
             processData.put("model_mode", "chat");
             processData.put("prompts", chatMessages);
             processData.put("function", extraParamsTool);
@@ -345,7 +349,7 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
         ChatToolCall chatToolCall = new ChatToolCall(1, id1, "function", chatFunctionCall);
         AssistantMessage assistantMessage1Before = new AssistantMessage(
                 "I need always call the function with the correct parameters. in this case, I need to call the function with the location parameter.",
-                null, Collections.singletonList(chatToolCall), null, null, null);
+                "", null, Collections.singletonList(chatToolCall), null, null, null);
         ToolMessage toolMessage1 = new ToolMessage("Great! You have called the function with the correct parameters.", id1);
         AssistantMessage assistantMessage1After = new AssistantMessage("I have extracted the parameters, let\\'s move on.");
 
@@ -353,7 +357,7 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
         UserMessage user2 = new UserMessage("I want to eat some apple pie");
         ObjectNode params2 = JsonNodeFactory.instance.objectNode().put("food", "apple pie");
         AssistantMessage assistantMessage2Before = new AssistantMessage(
-                "I need always call the function with the correct parameters. in this case, I need to call the function with the food parameter.",
+                "I need always call the function with the correct parameters. in this case, I need to call the function with the food parameter.", null,
                 null, Collections.singletonList(new ChatToolCall(1, id2, "function", new ChatFunctionCall(FUNCTION_CALLING_EXTRACTOR_NAME, params2))),
                 null, null, null);
         ToolMessage toolMessage2 = new ToolMessage("Great! You have called the function with the correct parameters.", id2);
@@ -489,6 +493,8 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
     @Builder
     public static class Data extends BaseNode.BaseNodeData {
         private Model model;
+        @Builder.Default
+        private Vision vision = new Vision();
         private List<String> query;
         private List<ParameterConfig> parameters;
         private String instruction;

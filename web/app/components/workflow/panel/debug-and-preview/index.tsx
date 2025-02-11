@@ -40,7 +40,7 @@ const DebugAndPreview = () => {
   return (
     <div
       className={cn(
-        'flex flex-col w-[400px] rounded-l-2xl h-full border border-black/2',
+        'flex flex-col w-[400px] rounded-l-2xl h-full border border-black/2 z-10',
       )}
       style={{
         background: 'linear-gradient(156deg, rgba(242, 244, 247, 0.80) 0%, rgba(242, 244, 247, 0.00) 99.43%), var(--white, #FFF)',

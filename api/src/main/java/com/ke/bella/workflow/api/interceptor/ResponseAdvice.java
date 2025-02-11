@@ -3,10 +3,6 @@ package com.ke.bella.workflow.api.interceptor;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import com.ke.bella.workflow.api.BellaResponse;
-import com.ke.bella.workflow.api.TriggerController;
-import com.ke.bella.workflow.api.WorkflowController;
-import com.ke.bella.workflow.api.WorkflowCustomApi;
 import org.apache.http.auth.AuthenticationException;
 import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -19,9 +15,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.workflow.api.BellaResponse;
+import com.ke.bella.workflow.api.TriggerController;
+import com.ke.bella.workflow.api.WorkflowController;
+import com.ke.bella.workflow.api.WorkflowCustomApi;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -69,12 +70,17 @@ public class ResponseAdvice implements ResponseBodyAdvice<Object> {
         String msg = e.getLocalizedMessage();
         if(e instanceof IllegalArgumentException
                 || e instanceof DataIntegrityViolationException
-                || e instanceof MethodArgumentNotValidException) {
+                || e instanceof MethodArgumentNotValidException
+                || e instanceof MaxUploadSizeExceededException) {
             code = 400;
         }
 
         if(e instanceof DataIntegrityViolationException) {
             msg = "非法的数据";
+        }
+
+        if(e instanceof MaxUploadSizeExceededException) {
+            msg = e.getMessage();
         }
 
         if(e instanceof AuthenticationException) {

@@ -57,7 +57,7 @@ Workflow applications offers non-session support and is ideal for translation, a
           - `type` (string) Supported type: `image` (currently only supports image type)
           - `transfer_method` (string) Transfer method, `remote_url` for image URL / `local_file` for file upload
           - `url` (string) Image URL (when the transfer method is `remote_url`)
-          - `upload_file_id` (string) Uploaded file ID, which must be obtained by uploading through the File Upload API in advance (when the transfer method is `local_file`)
+          - `id` (string) Uploaded file ID, which must be obtained by uploading through the File Upload API in advance (when the transfer method is `local_file`)
 
     ### Response
     When `response_mode` is `blocking`, return a CompletionResponse object.

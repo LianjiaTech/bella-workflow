@@ -20,7 +20,7 @@ const useToggleExpend = ({ ref, hasFooter = true, isInNode }: Params) => {
       return ''
 
     if (isInNode)
-      return 'fixed z-10  right-[9px] top-[70px] bottom-[8px]  p-4 bg-white rounded-xl'
+      return 'fixed z-10  right-[9px] top-[80px] bottom-[8px]  p-4 bg-white rounded-xl'
 
     return 'absolute z-10 left-4 right-6 top-[52px] bottom-0 pb-4 bg-white'
   })()

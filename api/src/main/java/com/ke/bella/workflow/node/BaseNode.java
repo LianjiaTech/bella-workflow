@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -35,7 +34,6 @@ import com.theokanning.openai.completion.chat.ChatCompletionRequest;
 import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.ChatResponseFormat;
 import com.theokanning.openai.completion.chat.ImageUrl;
-import com.theokanning.openai.completion.chat.InputAudio;
 import com.theokanning.openai.completion.chat.MultiMediaContent;
 import com.theokanning.openai.completion.chat.ResponseJsonSchema;
 import com.theokanning.openai.completion.chat.UserMessage;
@@ -543,17 +541,9 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         for (File file : files) {
             if("image".equals(file.getType())) {
                 String url = client.getFileUrl(BellaContext.getApikey().getApikey(), file.getId()).getUrl();
-                ImageUrl imageUrl = new ImageUrl(url);
-                Optional.ofNullable(vision.getConfigs()).map(Vision.ConfigOption::getDetail).orElse(null);
+                String detail = Optional.ofNullable(vision.getConfigs()).map(Vision.ConfigOption::getDetail).orElse(null);
+                ImageUrl imageUrl = new ImageUrl(url, detail);
                 MultiMediaContent multiMediaContent = new MultiMediaContent(imageUrl);
-                multiMediaContents.add(multiMediaContent);
-
-            } else if("audio".equals(file.getType())) {
-                byte[] bytesContent = client.retrieveFileContent(BellaContext.getApikey().getApikey(), file.getId());
-                byte[] bytes = Base64.encodeBase64(bytesContent);
-
-                InputAudio inputAudio = new InputAudio(bytes.toString(), file.getExtension());
-                MultiMediaContent multiMediaContent = new MultiMediaContent(inputAudio);
                 multiMediaContents.add(multiMediaContent);
             }
         }

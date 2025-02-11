@@ -1,7 +1,29 @@
 package com.ke.bella.workflow.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
+
 import com.amazonaws.services.s3.model.S3Object;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.protocol.files.File;
 import com.ke.bella.workflow.IWorkflowCallback;
@@ -41,31 +63,11 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowTemplateDB;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.jodah.expiringmap.ExpirationListener;
 import net.jodah.expiringmap.ExpiringMap;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -305,13 +307,18 @@ public class WorkflowService {
         // 校验工作流是否合法
         WorkflowDB wf = getWorkflow(wr.getWorkflowId(), wr.getWorkflowVersion());
 
+        // 获取文件
+        List<File> files = new ArrayList<>();
+        if(!CollectionUtils.isEmpty(op.getFileIds())) {
+            files = OpenAiUtils.defaultOpenApiClient().listFiles(BellaContext.getApikey().getApikey(), op.getFileIds());
+        }
+
         // 构建执行上下文
         WorkflowSchema meta = WorkflowSchema.fromWorkflowDB(wf);
         WorkflowGraph graph = new WorkflowGraph(meta);
         WorkflowRunState state = new WorkflowRunState();
         state.putVariable("sys", "query", op.getQuery());
-        state.putVariable("sys", "files", Optional.ofNullable(JsonUtils.fromJson(wr.getFiles(), new TypeReference<List<File>>() {
-        })).orElse(Collections.emptyList()));
+        state.putVariable("sys", "files", files);
         state.putVariable("sys", "message_id", IDGenerator.newMessageId());
         state.putVariable("sys", "thread_id", op.getThreadId());
         state.putVariable("sys", "metadata", op.getMetadata());
@@ -397,12 +404,7 @@ public class WorkflowService {
     }
 
     public WorkflowRunDB newWorkflowRun(WorkflowDB wf, WorkflowRun op) {
-        List<File> files = Collections.emptyList();
-        if(!CollectionUtils.isEmpty(op.getFileIds())) {
-            files = OpenAiUtils.defaultOpenApiClient().listFiles(BellaContext.getApikey().getApikey(), op.getFileIds());
-        }
-
-        final WorkflowRunDB wr = repo.addWorkflowRun(wf, op, files);
+        final WorkflowRunDB wr = repo.addWorkflowRun(wf, op);
         if(wr.getId() != null) {
             TaskExecutor.submit(() -> counter.increase(wr));
         }

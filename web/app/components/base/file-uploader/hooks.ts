@@ -256,11 +256,10 @@ export const useFile = (fileConfig: FileUpload) => {
           base64Url: isImage ? reader.result as string : '',
         }
         handleAddFile(uploadingFile)
+        startProgressTimer(uploadingFile._id)
         fileUpload({
           file: uploadingFile.originalFile,
-          onProgressCallback: (progress) => {
-            handleUpdateFile({ ...uploadingFile, progress })
-          },
+          onProgressCallback: () => {},
           onSuccessCallback: (res) => {
             handleUpdateFile({ ...uploadingFile, id: res.id, purpose: res.purpose, mime_type: res.mime_type, type: res.type, progress: 100 })
           },
@@ -280,7 +279,7 @@ export const useFile = (fileConfig: FileUpload) => {
       false,
     )
     reader.readAsDataURL(file)
-  }, [checkSizeLimit, notify, t, handleAddFile, handleUpdateFile, params.token, fileConfig?.allowed_file_types, fileConfig?.allowed_file_extensions])
+  }, [checkSizeLimit, notify, t, handleAddFile, handleUpdateFile, startProgressTimer, params.token, fileConfig?.allowed_file_types, fileConfig?.allowed_file_extensions])
 
   const handleClipboardPasteFile = useCallback((e: ClipboardEvent<HTMLTextAreaElement>) => {
     const file = e.clipboardData?.files[0]

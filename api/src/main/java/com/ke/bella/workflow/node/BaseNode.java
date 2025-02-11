@@ -552,7 +552,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 byte[] bytesContent = client.retrieveFileContent(BellaContext.getApikey().getApikey(), file.getId());
                 byte[] bytes = Base64.encodeBase64(bytesContent);
 
-                InputAudio inputAudio = new InputAudio(bytes.toString(), file.getExtension());
+                InputAudio inputAudio = new InputAudio(new String(bytes), file.getExtension());
                 MultiMediaContent multiMediaContent = new MultiMediaContent(inputAudio);
                 multiMediaContents.add(multiMediaContent);
             }

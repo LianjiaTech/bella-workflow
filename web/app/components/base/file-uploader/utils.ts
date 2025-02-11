@@ -131,11 +131,14 @@ export const isAllowedFileExtension = (fileName: string, fileMimetype: string, a
 }
 
 export const fileIsUploaded = (file: FileEntity) => {
-  if (file._id)
+  // Check if file has server id (meaning it's successfully uploaded)
+  if (file.id)
     return true
+  // For local files, check if upload is complete
+  if (file.transferMethod === TransferMethod.local_file)
+    return file.progress === 100
 
-  if (file.transferMethod === TransferMethod.remote_url && file.progress === 100)
-    return true
+  return false
 }
 
 export const downloadFile = (url: string, filename: string) => {

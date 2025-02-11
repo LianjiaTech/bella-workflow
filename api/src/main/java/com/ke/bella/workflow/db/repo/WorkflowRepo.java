@@ -29,7 +29,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.ke.bella.openapi.BellaContext;
-import com.ke.bella.openapi.protocol.files.File;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
@@ -324,7 +323,7 @@ public class WorkflowRepo implements BaseRepo {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, WorkflowRun op, List<File> files) {
+    public WorkflowRunDB addWorkflowRun(WorkflowDB wf, WorkflowRun op) {
         WorkflowRunRecord rec = WORKFLOW_RUN.newRecord();
 
         String runId = IDGenerator.newWorkflowRunId();
@@ -348,8 +347,8 @@ public class WorkflowRepo implements BaseRepo {
                 rec.setQuery(op.getQuery());
             }
 
-            if(files != null) {
-                rec.setFiles(JsonUtils.toJson(files));
+            if(op.getFileIds() != null) {
+                rec.setFiles(JsonUtils.toJson(op.getFileIds()));
             }
 
             if(op.getMetadata() != null) {

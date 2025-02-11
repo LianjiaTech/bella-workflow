@@ -231,7 +231,7 @@ import { Row, Col, Properties, Property, Heading, SubProperty, Paragraph } from 
 ---
 
 <Heading
-    url='/files/upload'
+    url='/files'
     method='POST'
     title='上传文件'
     name='#files-upload'
@@ -241,6 +241,8 @@ import { Row, Col, Properties, Property, Heading, SubProperty, Paragraph } from 
         上传文件并在发送消息时使用，可实现图文多模态理解。
         支持任何格式，大小限制为 512MB
         <i>上传的文件仅供当前终端用户使用。</i>
+
+        **重要提示：请求体中`file`字段除指定文件引用外，还必需指定Content-type (参考右侧curl)**
 
         **更具体、详细指导请参考：[OpenAPI File-API](https://oq8cjme170.feishu.cn/docx/GeT0deG8eoM7BexxkJUc4yglnud)**
 
@@ -268,13 +270,13 @@ import { Row, Col, Properties, Property, Heading, SubProperty, Paragraph } from 
     </Col>
     <Col sticky>
 
-        <CodeGroup title="Request" tag="POST" label="/files/upload" targetCode={`curl -X POST '${props.appDetail.api_base_url}/files/upload' \\\n--header 'Authorization: Bearer {api_key}' \\\n--form 'file=@localfile;type=image/[png|jpeg|jpg|webp|gif|...] \\\n--form 'purpose={purpose}'`}>
+        <CodeGroup title="Request" tag="POST" label="/files" targetCode={`curl -X POST '${props.appDetail.api_base_url}/files' \\\n--header 'Authorization: Bearer {api_key}' \\\n--form 'file=@localfile;type=image/[png|jpeg|jpg|webp|gif|...]' \\\n--form 'purpose={openapi_file_purpose}'`}>
 
             ```bash {{ title: 'cURL' }}
-            curl -X POST '${props.appDetail.api_base_url}/files/upload' \
+            curl -X POST '${props.appDetail.api_base_url}/files' \
             --header 'Authorization: Bearer {api_key}' \
             --form 'file={@localfile;type=image/[png|jpeg|jpg|webp|gif|...]}'
-            --form 'purpose={openapi_file_purpose}"'
+            --form 'purpose={openapi_file_purpose}'
             ```
 
         </CodeGroup>

@@ -1,5 +1,6 @@
 import {
   useCallback,
+  useEffect,
   useRef,
   useState,
 } from 'react'
@@ -63,6 +64,26 @@ const ChatInputArea = ({
   const [query, setQuery] = useState('')
   const [showVoiceInput, setShowVoiceInput] = useState(false)
   const filesStore = useFileStore()
+  const [, setFileState] = useState<any>(null)
+
+  useEffect(() => {
+    const unsubscribe = filesStore?.subscribe((state) => {
+      setFileState(state)
+    })
+    return () => unsubscribe?.()
+  }, [filesStore])
+
+  const noNeedOrAllUploaded = useCallback(() => {
+    const state = filesStore?.getState()
+    const currentFiles = state?.files
+    return !currentFiles || !currentFiles.some(file =>
+      file?.transferMethod === TransferMethod.local_file
+      && typeof file?.progress === 'number'
+      && file.progress < 100
+      && !file?.id,
+    )
+  }, [filesStore])
+
   const {
     handleDragFileEnter,
     handleDragFileLeave,
@@ -135,6 +156,7 @@ const ChatInputArea = ({
       fileConfig={visionConfig}
       onSend={handleSend}
       theme={theme}
+      disabled={!noNeedOrAllUploaded()}
     />
   )
 

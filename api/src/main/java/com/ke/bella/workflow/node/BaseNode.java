@@ -536,7 +536,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
     public static List<MultiMediaContent> fetchMultiMediaContent(Vision vision, Map variablePool) {
         List<MultiMediaContent> multiMediaContents = new ArrayList<>();
         List<String> variableSelector = vision.getConfigs().getVariableSelector();
-        List<File> files = (List<File>) Variables.getValue(variablePool, variableSelector);
+        List<File> files = (List<File>) Optional.ofNullable(Variables.getValue(variablePool, variableSelector)).orElse(Collections.emptyList());
         OpenapiClient client = OpenAiUtils.defaultOpenApiClient();
         for (File file : files) {
             if("image".equals(file.getType())) {

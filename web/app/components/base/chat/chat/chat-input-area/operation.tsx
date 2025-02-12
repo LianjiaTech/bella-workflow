@@ -15,11 +15,13 @@ type OperationProps = {
   fileConfig?: FileUpload
   onSend: () => void
   theme?: Theme | null
+  disabled?: boolean
 }
 const Operation = forwardRef<HTMLDivElement, OperationProps>(({
   fileConfig,
   onSend,
   theme,
+  disabled,
 }, ref) => {
   return (
     <div
@@ -45,6 +47,7 @@ const Operation = forwardRef<HTMLDivElement, OperationProps>(({
               }
               : {}
           }
+          disabled={disabled}
         >
           <RiSendPlane2Fill className='w-4 h-4' />
         </Button>

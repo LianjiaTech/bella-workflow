@@ -440,7 +440,7 @@ export const upload = (options: any, isPublicAPI?: boolean, url?: string, search
     method: 'POST',
     url: (url ? `${urlPrefix}${url}` : `${urlPrefix}/files/upload`) + (searchParams || ''),
     headers: {
-      'X-BELLA-OPERATOR-NAME': userName,
+      'X-BELLA-OPERATOR-NAME': encodeURI(userName),
       'X-BELLA-OPERATOR-ID': ucid,
       'X-BELLA-TENANT-ID': tenantId,
       'X-BELLA-SPACE-CODE': spaceCode,

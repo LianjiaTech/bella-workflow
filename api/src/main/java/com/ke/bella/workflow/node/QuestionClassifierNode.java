@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.node;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -71,7 +72,11 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
 
             Map<String, Object> processData = Maps.newHashMap();
             processData.put("model_mode", data.getModel().getMode());
-            processData.put("prompts", this.chatTemplateToSaving(chatMessages));
+
+            HashMap<String, Object> prompts = new HashMap<>();
+            prompts.put("prompt_messages", chatMessages);
+            processData.put("prompts", prompts);
+
             processData.put("usage", compResult.getUsage());
 
             return NodeRunResult.builder()
@@ -94,17 +99,6 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
         req.setMessages(chatMessages);
         req.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
         return service.createChatCompletion(req);
-    }
-
-    private List<Map<String, String>> chatTemplateToSaving(List<ChatMessage> chatMessages) {
-        List<Map<String, String>> messages = Lists.newArrayList();
-        for (ChatMessage chatMessage : chatMessages) {
-            Map<String, String> prompt = Maps.newHashMap();
-            prompt.put("content", chatMessage.getTextContent());
-            prompt.put("role", chatMessage.getRole());
-            messages.add(prompt);
-        }
-        return messages;
     }
 
     private <T> T parseAndCheckJsonMarkdown(String content, Class<T> clazz) {

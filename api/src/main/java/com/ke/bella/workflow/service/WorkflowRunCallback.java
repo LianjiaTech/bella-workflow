@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import com.google.common.base.Throwables;
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.WorkflowCallbackAdaptor;
@@ -191,7 +192,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setUserName(BellaContext.getOperator().getUserName());
         runLog.setWorkflowId(context.getWorkflowId());
         runLog.setWorkflowRunId(context.getRunId());
-        runLog.setError(t);
+        runLog.setError(Throwables.getStackTraceAsString(t));
         runLog.setThreadId(context.getThreadId());
         runLog.setStateful(context.isStateful());
         runLog.setStatus(WorkflowRunStatus.failed.name());
@@ -313,7 +314,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setTenantId(context.getTenantId());
         runLog.setWorkflowId(context.getWorkflowId());
         runLog.setWorkflowRunId(context.getRunId());
-        runLog.setError(t);
+        runLog.setError(Throwables.getStackTraceAsString(t));
 
         runLog.setNodeId(nodeId);
         runLog.setNodeRunId(nodeRunId);
@@ -411,7 +412,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         private Object nodeInputs;
         private Object nodeProcessData;
         private Object nodeOutputs;
-        private Throwable error;
+        private String error;
         private boolean iteration;
         private Integer iterationIndex;
     }

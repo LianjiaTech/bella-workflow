@@ -58,18 +58,17 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
   const model = inputs.model
 
   const singleRunForms = useMemo(() => {
-    const forms: FormProps[] = []
-
-    if (varInputs.length > 0) {
-      forms.push(
-        {
-          label: t(`${i18nPrefix}.singleRun.variable`)!,
-          inputs: varInputs,
-          values: inputVarValues,
-          onChange: setInputVarValues,
-        },
-      )
-    }
+    const forms: FormProps[] = [{
+      inputs: [{
+        label: t(`${i18nPrefix}.inputVars`)!,
+        variable: 'query',
+        type: InputVarType.paragraph,
+        required: true,
+        alias: Array.isArray(inputs.query_variable_selector) ? `#${inputs.query_variable_selector?.join('.')}#` : '',
+      }, ...varInputs],
+      values: inputVarValues,
+      onChange: setInputVarValues,
+    }]
 
     if (isVisionModel && inputs.vision?.enabled) {
       const variableName = t(`${i18nPrefix}.files`)!

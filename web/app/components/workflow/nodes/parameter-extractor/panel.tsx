@@ -16,10 +16,9 @@ import Field from '@/app/components/workflow/nodes/_base/components/field'
 import Split from '@/app/components/workflow/nodes/_base/components/split'
 import ModelParameterModal from '@/app/components/header/account-setting/model-provider-page/model-parameter-modal'
 import OutputVars, { VarItem } from '@/app/components/workflow/nodes/_base/components/output-vars'
-import { InputVarType, type NodePanelProps } from '@/app/components/workflow/types'
+import { InputVarType, type NodePanelProps, VarType } from '@/app/components/workflow/types'
 import Tooltip from '@/app/components/base/tooltip/new'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
-import { VarType } from '@/app/components/workflow/types'
 import type { Props as FormProps } from '@/app/components/workflow/nodes/_base/components/before-run-form/form'
 
 const i18nPrefix = 'workflow.nodes.parameterExtractor'
@@ -70,18 +69,17 @@ const Panel: FC<NodePanelProps<ParameterExtractorNodeType>> = ({
   const model = inputs.model
 
   const singleRunForms = useMemo(() => {
-    const forms: FormProps[] = []
-
-    if (varInputs.length > 0) {
-      forms.push(
-        {
-          label: t(`${i18nPrefix}.singleRun.variable`)!,
-          inputs: varInputs,
-          values: inputVarValues,
-          onChange: setInputVarValues,
-        },
-      )
-    }
+    const forms: FormProps[] = [{
+      inputs: [{
+        label: t(`${i18nPrefix}.inputVar`)!,
+        variable: 'query',
+        type: InputVarType.paragraph,
+        required: true,
+        alias: Array.isArray(inputs.query) ? `#${inputs.query?.join('.')}#` : '',
+      }, ...varInputs],
+      values: inputVarValues,
+      onChange: setInputVarValues,
+    }]
 
     if (isVisionModel && inputs.vision?.enabled) {
       const variableName = t(`${i18nPrefix}.files`)!

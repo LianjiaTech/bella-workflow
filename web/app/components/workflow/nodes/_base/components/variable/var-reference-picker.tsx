@@ -7,7 +7,6 @@ import {
   RiCloseLine,
   RiErrorWarningFill,
 } from '@remixicon/react'
-import produce from 'immer'
 import { useStoreApi } from 'reactflow'
 import RemoveButton from '../remove-button'
 import useAvailableVarList from '../../hooks/use-available-var-list'
@@ -196,16 +195,7 @@ const VarReferencePicker: FC<Props> = ({
 
   const handleVarReferenceChange = useCallback((value: ValueSelector, varInfo: Var) => {
     // sys var not passed to backend
-    const newValue = produce(value, (draft) => {
-      if (draft[1] && draft[1].startsWith('sys.')) {
-        draft.shift()
-        const paths = draft[0].split('.')
-        paths.forEach((p, i) => {
-          draft[i] = p
-        })
-      }
-    })
-    onChange(newValue, varKindType, varInfo)
+    onChange(value, varKindType, varInfo)
     setOpen(false)
   }, [onChange, varKindType])
 

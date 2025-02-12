@@ -204,7 +204,6 @@ public class HttpUtils {
 
         // Microsoft Word文档
         MIME_TO_EXTENSION.put("application/msword", "doc");
-        MIME_TO_EXTENSION.put("application/json", "json");
         MIME_TO_EXTENSION.put("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "docx");
 
         // Microsoft Excel电子表格

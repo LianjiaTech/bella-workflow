@@ -21,6 +21,7 @@ export const inputVariants = cva(
 )
 
 export type InputProps = {
+  placeholder?: string
   showLeftIcon?: boolean
   showClearIcon?: boolean
   onClear?: () => void

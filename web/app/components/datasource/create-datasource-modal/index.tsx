@@ -309,7 +309,7 @@ const CreateModal = ({ show, onSuccess, onClose, type }: CreateDialogProps) => {
             <Input
               className='!h-9'
               value={formData[field.key] || ''}
-              onChange={value => handleInputChange(field.key, value)}
+              onChange={value => handleInputChange(field.key, value.target.value)}
               placeholder={field.placeholder ? t(field.placeholder) : ''}
               type={field.type || 'text'}
             />

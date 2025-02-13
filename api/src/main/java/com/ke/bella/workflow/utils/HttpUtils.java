@@ -213,7 +213,7 @@ public class HttpUtils {
         MIME_TO_EXTENSION.put("application/vnd.ms-powerpoint", "ppt");
         MIME_TO_EXTENSION.put("application/vnd.openxmlformats-officedocument.presentationml.presentation", "pptx");
 
-        MIME_TO_EXTENSION.put("text/plain", "txt");
+        /* MIME_TO_EXTENSION.put("text/plain", "txt"); */
         MIME_TO_EXTENSION.put("text/markdown", "md");
         MIME_TO_EXTENSION.put("text/csv", "csv");
 

@@ -23,6 +23,8 @@
     <ke-infrastructure.version>2.1.28</ke-infrastructure.version>
     <jooq.version>3.14.15</jooq.version>
     <jackson.version>2.14.2</jackson.version>
+    <junit-jupiter.version>5.9.2</junit-jupiter.version>
+    <junit-platform.version>1.9.2</junit-platform.version>
   </properties>
 
   <dependencies>
@@ -68,8 +70,39 @@
       <version>1.8.0</version>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-engine</artifactId>
+      <version>${junit-platform.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
+      <version>${junit-platform.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -142,7 +175,7 @@
     <dependency>
       <groupId>io.github.ke</groupId>
       <artifactId>openai-java</artifactId>
-      <version>0.23.1</version>
+      <version>0.23.3</version>
     </dependency>
     <dependency>
       <groupId>org.jooq</groupId>

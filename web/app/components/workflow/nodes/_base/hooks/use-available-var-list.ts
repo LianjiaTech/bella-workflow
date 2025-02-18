@@ -23,7 +23,7 @@ const useAvailableVarList = (nodeId: string, {
   onlyLeafNodeVar: false,
   filterVar: () => true,
 }) => {
-  const { getTreeLeafNodes, getBeforeNodesInSameBranch } = useWorkflow()
+  const { getTreeLeafNodes, getBeforeNodesInSameBranch, getNode } = useWorkflow()
   const { getNodeAvailableVars } = useWorkflowVariables()
   const isChatMode = useIsChatMode()
 
@@ -33,6 +33,7 @@ const useAvailableVarList = (nodeId: string, {
     parentNode: iterationNode,
   } = useNodeInfo(nodeId)
 
+  const currentNode = getNode(nodeId)
   const availableVars = getNodeAvailableVars({
     parentNode: iterationNode,
     beforeNodes: availableNodes,
@@ -40,7 +41,10 @@ const useAvailableVarList = (nodeId: string, {
     filterVar,
     hideEnv,
     hideChatVar,
+    currentNode,
   })
+  if (currentNode)
+    availableNodes.unshift(currentNode)
 
   return {
     availableVars,

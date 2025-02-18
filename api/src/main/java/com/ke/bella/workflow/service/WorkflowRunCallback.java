@@ -92,6 +92,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setStatus(WorkflowRunStatus.succeeded.name());
         runLog.setElapsedTime(ctx.elapsedTime(now));
         runLog.setCtime(System.currentTimeMillis());
+        runLog.setTriggerFrom(ctx.getTriggerFrom());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
@@ -149,6 +150,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setStatus(WorkflowRunStatus.suspended.name());
         runLog.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
         runLog.setCtime(System.currentTimeMillis());
+        runLog.setTriggerFrom(context.getTriggerFrom());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 
@@ -198,6 +200,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setStatus(WorkflowRunStatus.failed.name());
         runLog.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
         runLog.setCtime(System.currentTimeMillis());
+        runLog.setTriggerFrom(context.getTriggerFrom());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
 

@@ -264,7 +264,7 @@ public class WorkflowService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public WorkflowDB publish(String workflowId) {
+    public WorkflowDB publish(String workflowId, String releaseDescription) {
         // 校验工作流配置是否合法
         WorkflowDB wf = getDraftWorkflow(workflowId);
         validateWorkflow(wf);
@@ -275,7 +275,7 @@ public class WorkflowService {
             throw new IllegalArgumentException("工作流还未调试通过，请至少完整执行成功一次");
         }
 
-        long version = repo.publishWorkflow(workflowId);
+        long version = repo.publishWorkflow(workflowId, releaseDescription);
         repo.publishWorkflowAggregate(workflowId, version);
 
         LOGGER.info("{} workflow published, version: {}", workflowId, version);

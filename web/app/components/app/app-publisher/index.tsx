@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 import { RiArrowDownSLine } from '@remixicon/react'
 import type { ModelAndParameter } from '../configuration/debug/types'
 import PublishWithMultipleModel from './publish-with-multiple-model'
+import { DescriptionInput } from '@/app/components/workflow/nodes/_base/components/title-description-input'
 import Button from '@/app/components/base/button'
 import {
   PortalToFollowElem,
@@ -38,6 +39,8 @@ export type AppPublisherProps = {
   inputs?: InputVar[]
   onRefreshData?: () => void
   onVersionHistory?: () => void
+  releaseDescription: string
+  handleDescription: (desc: string) => void
 }
 
 const AppPublisher = ({
@@ -55,6 +58,8 @@ const AppPublisher = ({
   inputs,
   onRefreshData,
   onVersionHistory,
+  releaseDescription,
+  handleDescription,
 }: AppPublisherProps) => {
   const { t } = useTranslation()
   const [published, setPublished] = useState(false)
@@ -163,18 +168,26 @@ const AppPublisher = ({
                 />
               )
               : (
-                <Button
-                  variant='primary'
-                  className='w-full mt-3'
-                  onClick={() => handlePublish()}
-                  disabled={publishDisabled || published}
-                >
-                  {
-                    published
-                      ? t('workflow.common.published')
-                      : publishedAt ? t('workflow.common.update') : t('workflow.common.publish')
-                  }
-                </Button>
+                <div>
+                  <div className="mt-3">
+                    <DescriptionInput
+                      value={releaseDescription || ''}
+                      onChange={handleDescription}
+                    />
+                  </div>
+                  <Button
+                    variant='primary'
+                    className='w-full mt-3'
+                    onClick={() => handlePublish()}
+                    disabled={publishDisabled || published}
+                  >
+                    {
+                      published
+                        ? t('workflow.common.published')
+                        : publishedAt ? t('workflow.common.update') : t('workflow.common.publish')
+                    }
+                  </Button>
+                </div>
               )
             }
           </div>

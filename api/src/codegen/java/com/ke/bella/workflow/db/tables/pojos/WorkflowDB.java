@@ -26,6 +26,7 @@ public class WorkflowDB implements Operator, Serializable {
     private String        desc;
     private String        graph;
     private Long          version;
+    private String        releaseDescription;
     private Long          cuid;
     private String        cuName;
     private LocalDateTime ctime;
@@ -45,6 +46,7 @@ public class WorkflowDB implements Operator, Serializable {
         this.desc = value.desc;
         this.graph = value.graph;
         this.version = value.version;
+        this.releaseDescription = value.releaseDescription;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
         this.ctime = value.ctime;
@@ -63,6 +65,7 @@ public class WorkflowDB implements Operator, Serializable {
         String        desc,
         String        graph,
         Long          version,
+        String        releaseDescription,
         Long          cuid,
         String        cuName,
         LocalDateTime ctime,
@@ -79,6 +82,7 @@ public class WorkflowDB implements Operator, Serializable {
         this.desc = desc;
         this.graph = graph;
         this.version = version;
+        this.releaseDescription = releaseDescription;
         this.cuid = cuid;
         this.cuName = cuName;
         this.ctime = ctime;
@@ -201,6 +205,20 @@ public class WorkflowDB implements Operator, Serializable {
     }
 
     /**
+     * Getter for <code>workflow.release_description</code>.
+     */
+    public String getReleaseDescription() {
+        return this.releaseDescription;
+    }
+
+    /**
+     * Setter for <code>workflow.release_description</code>.
+     */
+    public void setReleaseDescription(String releaseDescription) {
+        this.releaseDescription = releaseDescription;
+    }
+
+    /**
      * Getter for <code>workflow.cuid</code>.
      */
     public Long getCuid() {
@@ -310,6 +328,7 @@ public class WorkflowDB implements Operator, Serializable {
         sb.append(", ").append(desc);
         sb.append(", ").append(graph);
         sb.append(", ").append(version);
+        sb.append(", ").append(releaseDescription);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);
         sb.append(", ").append(ctime);

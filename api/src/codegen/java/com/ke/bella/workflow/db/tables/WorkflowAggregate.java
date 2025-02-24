@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row18;
+import org.jooq.Row19;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -110,6 +110,11 @@ public class WorkflowAggregate extends TableImpl<WorkflowAggregateRecord> {
      * The column <code>workflow_aggregate.status</code>. 状态（0:正常, -1:已删除）
      */
     public final TableField<WorkflowAggregateRecord, Integer> STATUS = createField(DSL.name("status"), SQLDataType.INTEGER.nullable(false).defaultValue(DSL.inline("0", SQLDataType.INTEGER)), this, "状态（0:正常, -1:已删除）");
+
+    /**
+     * The column <code>workflow_aggregate.release_description</code>. 发布描述
+     */
+    public final TableField<WorkflowAggregateRecord, String> RELEASE_DESCRIPTION = createField(DSL.name("release_description"), SQLDataType.VARCHAR(1024).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "发布描述");
 
     /**
      * The column <code>workflow_aggregate.cuid</code>.
@@ -226,11 +231,11 @@ public class WorkflowAggregate extends TableImpl<WorkflowAggregateRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row18 type methods
+    // Row19 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row18<Long, String, String, String, String, String, String, String, Long, Long, Long, Integer, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
-        return (Row18) super.fieldsRow();
+    public Row19<Long, String, String, String, String, String, String, String, Long, Long, Long, Integer, String, Long, String, LocalDateTime, Long, String, LocalDateTime> fieldsRow() {
+        return (Row19) super.fieldsRow();
     }
 }

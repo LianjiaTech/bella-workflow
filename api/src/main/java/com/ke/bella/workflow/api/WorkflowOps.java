@@ -104,6 +104,7 @@ public class WorkflowOps {
         String envVars = "";
         String title;
         String desc;
+        String releaseDescription;
         String mode;
         Integer status;
         String templateId;

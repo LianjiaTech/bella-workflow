@@ -350,10 +350,10 @@ public class DifyController {
     }
 
     @PostMapping("/{workflowId}/workflows/publish")
-    public Object publish(@PathVariable String workflowId) {
+    public Object publish(@PathVariable String workflowId, @RequestBody DifyReleaseDescription description) {
         Assert.hasText(workflowId, "workflowId不能为空");
         try {
-            WorkflowDB wf = ws.publish(workflowId);
+            WorkflowDB wf = ws.publish(workflowId, description.getReleaseDescription());
             return DifyResponse.builder().code(200).message("发布成功").status("success")
                     .createdAt(wf.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond()).build();
         } catch (Exception e) {
@@ -776,7 +776,7 @@ public class DifyController {
     @SuperBuilder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class DifyWorkflowVersion {
+    public static class DifyWorkflowVersion extends DifyReleaseDescription {
         private Long id;
         private String tenantId;
         private String workflowId;
@@ -791,6 +791,15 @@ public class DifyController {
         private String muName;
         private Long mtime;
         private WorkflowSchema.Graph graph;
+    }
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DifyReleaseDescription {
+        private String releaseDescription;
     }
 
 }

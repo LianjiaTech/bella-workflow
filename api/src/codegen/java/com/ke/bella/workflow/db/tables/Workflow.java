@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row15;
+import org.jooq.Row16;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -90,6 +90,11 @@ public class Workflow extends TableImpl<WorkflowRecord> {
      * The column <code>workflow.version</code>. 工作流版本，0: draft, &gt;0 正式版时间戳
      */
     public final TableField<WorkflowRecord, Long> VERSION = createField(DSL.name("version"), SQLDataType.BIGINT.nullable(false).defaultValue(DSL.inline("0", SQLDataType.BIGINT)), this, "工作流版本，0: draft, >0 正式版时间戳");
+
+    /**
+     * The column <code>workflow.release_description</code>.
+     */
+    public final TableField<WorkflowRecord, String> RELEASE_DESCRIPTION = createField(DSL.name("release_description"), SQLDataType.VARCHAR(1024).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "");
 
     /**
      * The column <code>workflow.cuid</code>.
@@ -211,11 +216,11 @@ public class Workflow extends TableImpl<WorkflowRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row15 type methods
+    // Row16 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row15<Long, String, String, String, String, String, String, Long, Long, String, LocalDateTime, Long, String, LocalDateTime, String> fieldsRow() {
-        return (Row15) super.fieldsRow();
+    public Row16<Long, String, String, String, String, String, String, Long, String, Long, String, LocalDateTime, Long, String, LocalDateTime, String> fieldsRow() {
+        return (Row16) super.fieldsRow();
     }
 }

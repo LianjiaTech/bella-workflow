@@ -123,7 +123,7 @@ public class WorkflowController {
         Assert.hasText(op.getTenantId(), "tenantId不能为空");
         Assert.hasText(op.workflowId, "workflowId不能为空");
 
-        return ws.publish(op.workflowId);
+        return ws.publish(op.workflowId, "");
     }
 
     @PostMapping("/workflow/custom/publish")

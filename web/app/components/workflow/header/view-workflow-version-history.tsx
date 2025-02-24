@@ -76,11 +76,11 @@ const ViewWorkflowVersionHistory = ({
     }
     fetchData()
   }, [setDefaultVersion])
-  const handleSetState = useCallback((version: HistoryWorkflowVersion) => {
+  const handleSetState = useCallback((workflow: HistoryWorkflowVersion) => {
     const { setEdges, setNodes } = reactflowStore.getState()
-    workflowStore.setState({ historyWorkflowVersion: version })
-    setEdges(version.graph.edges)
-    setNodes(version.graph.nodes)
+    workflowStore.setState({ historyWorkflowVersion: workflow })
+    setEdges(workflow.graph.edges)
+    setNodes(workflow.graph.nodes)
   }, [reactflowStore, store])
 
   const handleRestore = useCallback((workflow: HistoryWorkflowVersion) => {
@@ -238,7 +238,7 @@ const ViewWorkflowVersionHistory = ({
                           setHoverVersion(-1)
                         }}
                       >
-                        <div>
+                        <div className={cn('w-full')}>
                           <div
                             className={cn(
                               'flex items-center text-[13px] font-medium leading-[18px]',
@@ -248,64 +248,63 @@ const ViewWorkflowVersionHistory = ({
                             第{item.id}版{item.version === defaultVersion?.defaultPublishVersion ? t('workflow.common.version.current') : ''}
                           </div>
                           <div className="flex items-center text-xs text-gray-500 leading-[18px]" >
-                            ·
+                            ·{item.releaseDescription}
                           </div>
-                          <div className="flex items-center text-xs text-gray-500 leading-[18px]">
+                          <div className="flex justify-between items-center text-xs text-gray-500 leading-[24px]">
                             {item.muName} · {formatTimeFromNow(item.version)}
+                            {
+                              (
+                                <div
+                                  className={cn(
+                                    'flex justify-between items-center text-[13px] font-medium leading-[18px] ',
+                                  )}
+                                >
+                                  {
+                                    isHoverVersion === item.version && (
+                                      <div
+                                        className="flex items-center text-xs text-gray-500 leading-[18px] px-3 h-6 rounded-lg border-[0.5px] border-gray-200 bg-white shadow-xs text-[13px] font-medium text-primary-600 cursor-pointer !bg-primary-50"
+                                        onClick={(e) => {
+                                          handleRestore(item)
+                                          e.stopPropagation()
+                                        }}
+                                      >
+                                        {t('workflow.common.version.restore')}
+                                      </div>
+                                    )
+                                  }
+                                  {
+                                    isHoverVersion === item.version && item.version !== defaultVersion?.defaultPublishVersion && (
+                                      <div
+                                        className="flex items-center text-xs text-gray-500 leading-[18px] px-3 h-6 rounded-lg border-[0.5px] border-gray-200 bg-white shadow-xs text-[13px] font-medium text-green-600 cursor-pointer !bg-green-50"
+                                        onClick={(e) => {
+                                          handleSetDefaultVersion(item)
+                                          e.stopPropagation()
+                                        }}
+                                      >
+                                        {t('workflow.common.version.default')}
+                                      </div>
+                                    )
+                                  }
+                                  {
+                                    item.version === defaultVersion?.defaultPublishVersion && (
+                                      <div
+                                        className="flex items-center text-xs text-gray-500 leading-[18px] px-3 h-6 rounded-lg border-[0.5px] border-gray-200 bg-white shadow-xs text-[13px] font-medium text-red-600 cursor-pointer !bg-red-50"
+                                        onClick={(e) => {
+                                          handleCancelDefaultVersion(item)
+                                          e.stopPropagation()
+                                        }}
+                                      >
+                                        {t('workflow.common.version.cancel')}
+                                      </div>
+                                    )
+                                  }
+
+                                </div>
+                              )
+                            }
                           </div>
                         </div>
 
-                        {
-                          (
-                            <div
-                              className={cn(
-                                'flex flex-col items-center text-[13px] font-medium leading-[18px]',
-                                item.version !== defaultVersion?.defaultPublishVersion ? 'justify-between' : 'justify-end',
-                              )}
-                            >
-                              {
-                                isHoverVersion === item.version && (
-                                  <div
-                                    className="flex items-center text-xs text-gray-500 leading-[18px] px-3 h-6 rounded-lg border-[0.5px] border-gray-200 bg-white shadow-xs text-[13px] font-medium text-primary-600 cursor-pointer !bg-primary-50"
-                                    onClick={(e) => {
-                                      handleRestore(item)
-                                      e.stopPropagation()
-                                    }}
-                                  >
-                                    {t('workflow.common.version.restore')}
-                                  </div>
-                                )
-                              }
-                              {
-                                isHoverVersion === item.version && item.version !== defaultVersion?.defaultPublishVersion && (
-                                  <div
-                                    className="flex items-center text-xs text-gray-500 leading-[18px] px-3 h-6 rounded-lg border-[0.5px] border-gray-200 bg-white shadow-xs text-[13px] font-medium text-green-600 cursor-pointer !bg-green-50"
-                                    onClick={(e) => {
-                                      handleSetDefaultVersion(item)
-                                      e.stopPropagation()
-                                    }}
-                                  >
-                                    {t('workflow.common.version.default')}
-                                  </div>
-                                )
-                              }
-                              {
-                                item.version === defaultVersion?.defaultPublishVersion && (
-                                  <div
-                                    className="flex items-center text-xs text-gray-500 leading-[18px] px-3 h-6 rounded-lg border-[0.5px] border-gray-200 bg-white shadow-xs text-[13px] font-medium text-red-600 cursor-pointer !bg-red-50"
-                                    onClick={(e) => {
-                                      handleCancelDefaultVersion(item)
-                                      e.stopPropagation()
-                                    }}
-                                  >
-                                    {t('workflow.common.version.cancel')}
-                                  </div>
-                                )
-                              }
-
-                            </div>
-                          )
-                        }
                       </div>
                     ))
                   }

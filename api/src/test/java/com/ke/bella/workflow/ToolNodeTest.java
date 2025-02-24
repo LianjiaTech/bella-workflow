@@ -16,7 +16,7 @@ public class ToolNodeTest extends CommonNodeTest {
     @Test
     public void testGet() throws IOException, InterruptedException {
         HashMap<String, Object> inputs = new HashMap<>();
-        inputs.put("model_service_name", "ali-qwen15-72b-zfy-v1-chat-20240314");
+        inputs.put("model_service_name", "ali-qwen25-72b-base-v1-chat-20250122");
         inputs.put("lianjia_cookie", "lianjia_ssid=1787e6f7-06e9-4b59-9519-edc11524e633; lianjia_uuid=12eccb7b-0906-4113-a6d1-7a458c48801e");
         WorkflowContext context = CommonNodeTest.createContext("src/test/resources/tool_node_get.json", inputs);
 

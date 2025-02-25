@@ -122,10 +122,11 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
 
             if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()
                     && chunk.getChoices().get(0).getMessage() != null &&
-                    (chunk.getChoices().get(0).getMessage().getContent() != null || chunk.getChoices().get(0).getMessage().getReasoningContent() != null)) {
+                    (chunk.getChoices().get(0).getMessage().getContent() != null
+                            || chunk.getChoices().get(0).getMessage().getReasoningContent() != null)) {
                 String content = chunk.getChoices().get(0).getMessage().getContent();
                 String reasoningContent = chunk.getChoices().get(0).getMessage().getReasoningContent();
-                if(StringUtils.isEmpty(reasoningContent)) {
+                if(StringUtils.isEmpty(reasoningContent) && StringUtils.hasText(content)) {
                     fullText.append(content);
                 }
                 if(data.isGenerateDeltaContent()) {

@@ -103,20 +103,16 @@ const ConfigPromptItem: FC<Props> = ({
       key={instanceId}
       title={
         <div className='relative left-1 flex items-center'>
-          {payload.role === PromptRole.system
-            ? (<div className='relative left-[-4px] text-xs font-semibold text-gray-700 uppercase'>
-              SYSTEM
-            </div>)
-            : (
-              <TypeSelector
-                value={payload.role as string}
-                allOptions={roleOptions}
-                options={canNotChooseSystemRole ? roleOptionsWithoutSystemRole : roleOptions}
-                onChange={handleChatModeMessageRoleChange}
-                triggerClassName='text-xs font-semibold text-gray-700 uppercase'
-                itemClassName='text-[13px] font-medium text-gray-700'
-              />
-            )}
+          {(
+            <TypeSelector
+              value={payload.role as string}
+              allOptions={roleOptions}
+              options={canNotChooseSystemRole ? roleOptionsWithoutSystemRole : roleOptions}
+              onChange={handleChatModeMessageRoleChange}
+              triggerClassName='text-xs font-semibold text-gray-700 uppercase'
+              itemClassName='text-[13px] font-medium text-gray-700'
+            />
+          )}
 
           <TooltipPlus
             popupContent={

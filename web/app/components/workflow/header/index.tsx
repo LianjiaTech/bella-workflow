@@ -137,7 +137,7 @@ const Header: FC = () => {
     else {
       throw new Error('Checklist failed')
     }
-  }, [appID, handleCheckBeforePublish, notify, t, workflowStore])
+  }, [appID, handleCheckBeforePublish, notify, releaseDescription, t, workflowStore])
 
   const onStartRestoring = useCallback(() => {
     workflowStore.setState({ isRestoring: true })

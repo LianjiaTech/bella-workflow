@@ -185,7 +185,7 @@ const ConfigPrompt: FC<Props> = ({
                           className={cn(canDrag && 'handle')}
                           headerClassName={cn(canDrag && 'cursor-grab')}
                           canNotChooseSystemRole={!canChooseSystemRole}
-                          canRemove={payload.length > 1 && !(index === 0 && item.role === PromptRole.system)}
+                          canRemove={payload.length > 1}
                           readOnly={readOnly}
                           id={item.id!}
                           handleChatModeMessageRoleChange={handleChatModeMessageRoleChange(index)}

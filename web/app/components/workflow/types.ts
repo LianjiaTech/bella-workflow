@@ -343,6 +343,7 @@ export type HistoryWorkflowVersion = {
     edges: Edge[]
     viewport: Viewport
   }
+  releaseDescription: string
   version: number
   cuid: number
   cuName: string

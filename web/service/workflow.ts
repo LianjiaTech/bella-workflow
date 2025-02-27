@@ -65,6 +65,11 @@ export const publishWorkflow = (url: string) => {
   return post<CommonResponse & { created_at: number }>(url)
 }
 
+export const publishWorkflowWithReleaseDescription = (url: string, releaseDescription: string) => {
+  console.info(releaseDescription)
+  return post<CommonResponse & { created_at: number }>(url, { body: { releaseDescription } })
+}
+
 export const fetchPublishedWorkflow: Fetcher<FetchWorkflowDraftResponse, string> = (url) => {
   return get<FetchWorkflowDraftResponse>(url)
 }

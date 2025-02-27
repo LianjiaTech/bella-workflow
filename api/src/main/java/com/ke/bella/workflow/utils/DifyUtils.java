@@ -130,6 +130,7 @@ public class DifyUtils {
                 .mode(db.getMode())
                 .desc(db.getDesc())
                 .version(db.getVersion())
+                .releaseDescription(db.getReleaseDescription())
                 .cuid(db.getCuid())
                 .cuName(db.getCuName())
                 .ctime(db.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())

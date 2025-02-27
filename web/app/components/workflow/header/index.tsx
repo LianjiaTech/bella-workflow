@@ -3,6 +3,7 @@ import {
   memo,
   useCallback,
   useMemo,
+  useState,
 } from 'react'
 import { RiApps2AddLine, RiMagicFill, RiMagicLine } from '@remixicon/react'
 import { useNodes } from 'reactflow'
@@ -34,7 +35,7 @@ import ViewHistory from './view-history'
 import EnvButton from './env-button'
 import Button from '@/app/components/base/button'
 import { useStore as useAppStore } from '@/app/components/app/store'
-import { publishWorkflow } from '@/service/workflow'
+import { publishWorkflowWithReleaseDescription } from '@/service/workflow'
 import { ArrowNarrowLeft } from '@/app/components/base/icons/src/vender/line/arrows'
 import { useFeatures } from '@/app/components/base/features/hooks'
 import ViewWorkflowVersionHistory from '@/app/components/workflow/header/view-workflow-version-history'
@@ -55,6 +56,8 @@ const Header: FC = () => {
   const startNode = nodes.find(node => node.data.type === BlockEnum.Start)
   const startVariables = startNode?.data.variables
   const fileSettings = useFeatures(s => s.features.file)
+  const [releaseDescription, setReleaseDescription] = useState('')
+
   const variables = useMemo(() => {
     const data = startVariables || []
     if (fileSettings?.image?.enabled) {
@@ -122,7 +125,7 @@ const Header: FC = () => {
 
   const onPublish = useCallback(async () => {
     if (handleCheckBeforePublish()) {
-      const res = await publishWorkflow(`/apps/${appID}/workflows/publish`)
+      const res = await publishWorkflowWithReleaseDescription(`/apps/${appID}/workflows/publish`, releaseDescription)
       if (res.code === 200) {
         notify({ type: 'success', message: t('common.api.actionSuccess') })
         workflowStore.getState().setPublishedAt(res.created_at)
@@ -134,7 +137,7 @@ const Header: FC = () => {
     else {
       throw new Error('Checklist failed')
     }
-  }, [appID, handleCheckBeforePublish, notify, t, workflowStore])
+  }, [appID, handleCheckBeforePublish, notify, releaseDescription, t, workflowStore])
 
   const onStartRestoring = useCallback(() => {
     workflowStore.setState({ isRestoring: true })
@@ -155,6 +158,10 @@ const Header: FC = () => {
   const handleToolConfigureUpdate = useCallback(() => {
     workflowStore.setState({ toolPublished: true })
   }, [workflowStore])
+
+  const handleDescription = useCallback((desc: string) => {
+    setReleaseDescription(desc)
+  }, [setReleaseDescription])
 
   const onVersionHistory = useCallback(() => {
     handleBackupDraft()
@@ -221,6 +228,8 @@ const Header: FC = () => {
                 onToggle: onPublisherToggle,
                 crossAxisOffset: 4,
                 onVersionHistory,
+                releaseDescription,
+                handleDescription,
               }}
             />
           </div>

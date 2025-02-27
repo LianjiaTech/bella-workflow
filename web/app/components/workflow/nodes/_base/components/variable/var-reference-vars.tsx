@@ -67,7 +67,7 @@ const Item: FC<ItemProps> = ({
         if (isObj) {
           setTimeout(() => {
             setIsItemHovering(false)
-          }, 100)
+          }, 300)
         }
         else {
           setIsItemHovering(false)
@@ -77,7 +77,6 @@ const Item: FC<ItemProps> = ({
   })
   const [isChildrenHovering, setIsChildrenHovering] = useState(false)
   const isHovering = isItemHovering || isChildrenHovering
-  const open = isObj && isHovering
   useEffect(() => {
     onHovering && onHovering(isHovering)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,7 +95,7 @@ const Item: FC<ItemProps> = ({
   }
   return (
     <PortalToFollowElem
-      open={open}
+      open={isObj && isHovering}
       onOpenChange={() => { }}
       placement='left-start'
     >
@@ -177,6 +176,7 @@ const ObjectChildren: FC<ObjectChildrenProps> = ({
   const currObjPath = objPath
   const itemRef = useRef(null)
   const [isItemHovering, setIsItemHovering] = useState(false)
+  const [isChildrenHovering, setIsChildrenHovering] = useState(false)
   const _ = useHover(itemRef, {
     onChange: (hovering) => {
       if (hovering) {
@@ -184,17 +184,24 @@ const ObjectChildren: FC<ObjectChildrenProps> = ({
       }
       else {
         setTimeout(() => {
-          setIsItemHovering(false)
-        }, 100)
+          if (!isChildrenHovering)
+            setIsItemHovering(false)
+        }, 300)
       }
     },
   })
-  const [isChildrenHovering, setIsChildrenHovering] = useState(false)
   const isHovering = isItemHovering || isChildrenHovering
+
+  useEffect(() => {
+    if (isChildrenHovering)
+      setIsItemHovering(true)
+  }, [isChildrenHovering])
+
   useEffect(() => {
     onHovering && onHovering(isHovering)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHovering])
+
   useEffect(() => {
     onHovering && onHovering(isItemHovering)
     // eslint-disable-next-line react-hooks/exhaustive-deps

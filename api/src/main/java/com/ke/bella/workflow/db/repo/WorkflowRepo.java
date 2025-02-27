@@ -200,6 +200,9 @@ public class WorkflowRepo implements BaseRepo {
         if(op.getStatus() != null) {
             rec.setStatus(op.getStatus());
         }
+        if(Objects.nonNull(op.getReleaseDescription())) {
+            rec.setReleaseDescription(op.getReleaseDescription());
+        }
         fillUpdatorInfo(rec);
 
         int num = db.update(WORKFLOW_AGGREGATE)
@@ -239,6 +242,9 @@ public class WorkflowRepo implements BaseRepo {
         if(!StringUtils.isEmpty(op.getDesc())) {
             rec.setDesc(op.getDesc());
         }
+        if(Objects.nonNull(op.getReleaseDescription())) {
+            rec.setReleaseDescription(op.getReleaseDescription());
+        }
         fillUpdatorInfo(rec);
 
         int num = db.update(WORKFLOW)
@@ -250,13 +256,14 @@ public class WorkflowRepo implements BaseRepo {
         Assert.isTrue(num == 1, "工作流配置更新失败，请检查工作流配置版本是否为draft");
     }
 
-    public long publishWorkflow(String workflowId) {
+    public long publishWorkflow(String workflowId, String releaseDescription) {
         WorkflowRecord rec = WORKFLOW.newRecord();
         WorkflowDB wf = queryDraftWorkflow(workflowId);
         long version = System.currentTimeMillis();
         rec.from(wf);
         rec.setId(null);
         rec.setVersion(version);
+        rec.setReleaseDescription(releaseDescription);
         fillCreatorInfo(rec);
 
         int num = db.insertInto(WORKFLOW).set(rec).execute();

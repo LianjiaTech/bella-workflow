@@ -30,6 +30,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
     private Long          latestPublishVersion;
     private Long          defaultPublishVersion;
     private Integer       status;
+    private String        releaseDescription;
     private Long          cuid;
     private String        cuName;
     private LocalDateTime ctime;
@@ -52,6 +53,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         this.latestPublishVersion = value.latestPublishVersion;
         this.defaultPublishVersion = value.defaultPublishVersion;
         this.status = value.status;
+        this.releaseDescription = value.releaseDescription;
         this.cuid = value.cuid;
         this.cuName = value.cuName;
         this.ctime = value.ctime;
@@ -73,6 +75,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         Long          latestPublishVersion,
         Long          defaultPublishVersion,
         Integer       status,
+        String        releaseDescription,
         Long          cuid,
         String        cuName,
         LocalDateTime ctime,
@@ -92,6 +95,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         this.latestPublishVersion = latestPublishVersion;
         this.defaultPublishVersion = defaultPublishVersion;
         this.status = status;
+        this.releaseDescription = releaseDescription;
         this.cuid = cuid;
         this.cuName = cuName;
         this.ctime = ctime;
@@ -269,6 +273,20 @@ public class WorkflowAggregateDB implements Operator, Serializable {
     }
 
     /**
+     * Getter for <code>workflow_aggregate.release_description</code>. 发布描述
+     */
+    public String getReleaseDescription() {
+        return this.releaseDescription;
+    }
+
+    /**
+     * Setter for <code>workflow_aggregate.release_description</code>. 发布描述
+     */
+    public void setReleaseDescription(String releaseDescription) {
+        this.releaseDescription = releaseDescription;
+    }
+
+    /**
      * Getter for <code>workflow_aggregate.cuid</code>.
      */
     public Long getCuid() {
@@ -368,6 +386,7 @@ public class WorkflowAggregateDB implements Operator, Serializable {
         sb.append(", ").append(latestPublishVersion);
         sb.append(", ").append(defaultPublishVersion);
         sb.append(", ").append(status);
+        sb.append(", ").append(releaseDescription);
         sb.append(", ").append(cuid);
         sb.append(", ").append(cuName);
         sb.append(", ").append(ctime);

@@ -403,6 +403,10 @@ const translation = {
         writeLabel: '写入超时',
         writePlaceholder: '输入写入超时（以秒为单位）',
       },
+      curl: {
+        title: '导入cURL',
+        placeholder: '粘贴 cURL 字符串',
+      },
       response: {
         placeholder: '请输入完整的JSON内容',
       },

@@ -27,6 +27,8 @@ public class KafkaDatasourceDB implements Operator, Serializable {
     private String        topic;
     private String        name;
     private String        msgSchema;
+    private String        autoOffsetReset;
+    private String        authConfig;
     private Integer       status;
     private Long          cuid;
     private Long          muid;
@@ -47,6 +49,8 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         this.topic = value.topic;
         this.name = value.name;
         this.msgSchema = value.msgSchema;
+        this.autoOffsetReset = value.autoOffsetReset;
+        this.authConfig = value.authConfig;
         this.status = value.status;
         this.cuid = value.cuid;
         this.muid = value.muid;
@@ -66,6 +70,8 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         String        topic,
         String        name,
         String        msgSchema,
+        String        autoOffsetReset,
+        String        authConfig,
         Integer       status,
         Long          cuid,
         Long          muid,
@@ -83,6 +89,8 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         this.topic = topic;
         this.name = name;
         this.msgSchema = msgSchema;
+        this.autoOffsetReset = autoOffsetReset;
+        this.authConfig = authConfig;
         this.status = status;
         this.cuid = cuid;
         this.muid = muid;
@@ -221,6 +229,34 @@ host:port
     }
 
     /**
+     * Getter for <code>kafka_datasource.auto_offset_reset</code>. 偏移量重置策略：latest, earliest，默认为latest
+     */
+    public String getAutoOffsetReset() {
+        return this.autoOffsetReset;
+    }
+
+    /**
+     * Setter for <code>kafka_datasource.auto_offset_reset</code>. 偏移量重置策略：latest, earliest，默认为latest
+     */
+    public void setAutoOffsetReset(String autoOffsetReset) {
+        this.autoOffsetReset = autoOffsetReset;
+    }
+
+    /**
+     * Getter for <code>kafka_datasource.auth_config</code>. Kafka认证配置,存储为JSON格式,不为空表示需要认证
+     */
+    public String getAuthConfig() {
+        return this.authConfig;
+    }
+
+    /**
+     * Setter for <code>kafka_datasource.auth_config</code>. Kafka认证配置,存储为JSON格式,不为空表示需要认证
+     */
+    public void setAuthConfig(String authConfig) {
+        this.authConfig = authConfig;
+    }
+
+    /**
      * Getter for <code>kafka_datasource.status</code>. 数据源状态
 -1: 无笑
 0: 生效
@@ -335,6 +371,8 @@ host:port
         sb.append(", ").append(topic);
         sb.append(", ").append(name);
         sb.append(", ").append(msgSchema);
+        sb.append(", ").append(autoOffsetReset);
+        sb.append(", ").append(authConfig);
         sb.append(", ").append(status);
         sb.append(", ").append(cuid);
         sb.append(", ").append(muid);

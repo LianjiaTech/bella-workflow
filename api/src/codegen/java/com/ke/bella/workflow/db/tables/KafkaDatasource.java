@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row16;
+import org.jooq.Row18;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -96,6 +96,16 @@ host:port
      * The column <code>kafka_datasource.msg_schema</code>. 消息体的json schema
      */
     public final TableField<KafkaDatasourceRecord, String> MSG_SCHEMA = createField(DSL.name("msg_schema"), SQLDataType.CLOB.nullable(false), this, "消息体的json schema");
+
+    /**
+     * The column <code>kafka_datasource.auto_offset_reset</code>. 偏移量重置策略：latest, earliest，默认为latest
+     */
+    public final TableField<KafkaDatasourceRecord, String> AUTO_OFFSET_RESET = createField(DSL.name("auto_offset_reset"), SQLDataType.VARCHAR(50).nullable(false).defaultValue(DSL.inline("latest", SQLDataType.VARCHAR)), this, "偏移量重置策略：latest, earliest，默认为latest");
+
+    /**
+     * The column <code>kafka_datasource.auth_config</code>. Kafka认证配置,存储为JSON格式,不为空表示需要认证
+     */
+    public final TableField<KafkaDatasourceRecord, String> AUTH_CONFIG = createField(DSL.name("auth_config"), SQLDataType.CLOB, this, "Kafka认证配置,存储为JSON格式,不为空表示需要认证");
 
     /**
      * The column <code>kafka_datasource.status</code>. 数据源状态
@@ -219,11 +229,11 @@ host:port
     }
 
     // -------------------------------------------------------------------------
-    // Row16 type methods
+    // Row18 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row16<Long, String, String, String, String, String, String, String, String, Integer, Long, Long, LocalDateTime, LocalDateTime, String, String> fieldsRow() {
-        return (Row16) super.fieldsRow();
+    public Row18<Long, String, String, String, String, String, String, String, String, String, String, Integer, Long, Long, LocalDateTime, LocalDateTime, String, String> fieldsRow() {
+        return (Row18) super.fieldsRow();
     }
 }

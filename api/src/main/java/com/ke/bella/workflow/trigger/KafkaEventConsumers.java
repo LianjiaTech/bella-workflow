@@ -137,8 +137,8 @@ public class KafkaEventConsumers {
                 Map<String, Object> authConfigMap = objectMapper.readValue(authConfig, Map.class);
                 props.putAll(authConfigMap);
             } catch (Exception e) {
-                KafkaEventConsumers.LOGGER.error("create consumer factory auth kafka consumer client error " +
-                        "bootstrapServers：{}, authConfig: {}, errorMsg: {}", bootstrapServers, authConfig, e.getMessage());
+                KafkaEventConsumers.LOGGER.error("create auth kafka consumer client error bootstrapServers：{}, " +
+                        "authConfig: {}, errorMsg: {}", bootstrapServers, authConfig, e.getMessage());
             }
         }
 

@@ -28,7 +28,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
     private String        name;
     private String        msgSchema;
     private String        autoOffsetReset;
-    private String        clientConfig;
+    private String        propsConfig;
     private Integer       status;
     private Long          cuid;
     private Long          muid;
@@ -50,7 +50,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         this.name = value.name;
         this.msgSchema = value.msgSchema;
         this.autoOffsetReset = value.autoOffsetReset;
-        this.clientConfig = value.clientConfig;
+        this.propsConfig = value.propsConfig;
         this.status = value.status;
         this.cuid = value.cuid;
         this.muid = value.muid;
@@ -71,7 +71,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         String        name,
         String        msgSchema,
         String        autoOffsetReset,
-        String        clientConfig,
+        String        propsConfig,
         Integer       status,
         Long          cuid,
         Long          muid,
@@ -90,7 +90,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         this.name = name;
         this.msgSchema = msgSchema;
         this.autoOffsetReset = autoOffsetReset;
-        this.clientConfig = clientConfig;
+        this.propsConfig = propsConfig;
         this.status = status;
         this.cuid = cuid;
         this.muid = muid;
@@ -243,17 +243,17 @@ host:port
     }
 
     /**
-     * Getter for <code>kafka_datasource.client_config</code>. Kafka客户端配置信息，存储为JSON格式，包含认证等参数
+     * Getter for <code>kafka_datasource.props_config</code>. Kafka属性配置信息，存储为JSON格式，例如：认证、超时等参数
      */
-    public String getClientConfig() {
-        return this.clientConfig;
+    public String getPropsConfig() {
+        return this.propsConfig;
     }
 
     /**
-     * Setter for <code>kafka_datasource.client_config</code>. Kafka客户端配置信息，存储为JSON格式，包含认证等参数
+     * Setter for <code>kafka_datasource.props_config</code>. Kafka属性配置信息，存储为JSON格式，例如：认证、超时等参数
      */
-    public void setClientConfig(String clientConfig) {
-        this.clientConfig = clientConfig;
+    public void setPropsConfig(String propsConfig) {
+        this.propsConfig = propsConfig;
     }
 
     /**
@@ -372,7 +372,7 @@ host:port
         sb.append(", ").append(name);
         sb.append(", ").append(msgSchema);
         sb.append(", ").append(autoOffsetReset);
-        sb.append(", ").append(clientConfig);
+        sb.append(", ").append(propsConfig);
         sb.append(", ").append(status);
         sb.append(", ").append(cuid);
         sb.append(", ").append(muid);

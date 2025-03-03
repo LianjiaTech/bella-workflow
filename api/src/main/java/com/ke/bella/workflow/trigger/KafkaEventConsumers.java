@@ -74,7 +74,7 @@ public class KafkaEventConsumers {
             } else {
                 if(ds.getStatus().intValue() == 0) {
                     try {
-                        addConsumer(ds.getServer(), ds.getTopic(), ds.getAutoOffsetReset(), ds.getClientConfig());
+                        addConsumer(ds.getServer(), ds.getTopic(), ds.getAutoOffsetReset(), ds.getPropsConfig());
 
                         Set<String> dsIdSet = new HashSet<>();
                         dsIdSet.add(ds.getDatasourceId());
@@ -103,10 +103,10 @@ public class KafkaEventConsumers {
         }
     }
 
-    void addConsumer(String server, String topic, String autoOffsetReset, String clientConfig) {
+    void addConsumer(String server, String topic, String autoOffsetReset, String propsConfig) {
         String key = serverKey(server, topic);
         ConsumerFactory<String, String> consumerFactory = createConsumerFactory(server,
-                "bella-workflow-" + profile, autoOffsetReset, clientConfig);
+                "bella-workflow-" + profile, autoOffsetReset, propsConfig);
 
         ContainerProperties containerProps = new ContainerProperties(topic);
         containerProps.setMessageListener(new EventListener(key));
@@ -127,15 +127,15 @@ public class KafkaEventConsumers {
     }
 
     ConsumerFactory<String, String> createConsumerFactory(String bootstrapServers, String groupId,
-            String autoOffsetReset, String clientConfig) {
+            String autoOffsetReset, String propsConfig) {
         Map<String, Object> props = new HashMap<>();
-        if(!StringUtils.isEmpty(clientConfig)) {
+        if(!StringUtils.isEmpty(propsConfig)) {
             try {
-                Map<String, Object> clientConfigMap = JsonUtils.fromJson(clientConfig, Map.class);
+                Map<String, Object> clientConfigMap = JsonUtils.fromJson(propsConfig, Map.class);
                 props.putAll(clientConfigMap);
             } catch (Exception e) {
                 KafkaEventConsumers.LOGGER.error("create auth kafka consumer client error bootstrapServers：{}, " +
-                        "clientConfig: {}, errorMsg: {}", bootstrapServers, clientConfig, e.getMessage());
+                        "propsConfig: {}, errorMsg: {}", bootstrapServers, propsConfig, e.getMessage());
             }
         }
 

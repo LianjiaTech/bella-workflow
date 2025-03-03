@@ -167,16 +167,16 @@ host:port
     }
 
     /**
-     * Setter for <code>kafka_datasource.client_config</code>. Kafka客户端配置信息，存储为JSON格式，包含认证等参数
+     * Setter for <code>kafka_datasource.props_config</code>. Kafka属性配置信息，存储为JSON格式，例如：认证、超时等参数
      */
-    public void setClientConfig(String value) {
+    public void setPropsConfig(String value) {
         set(10, value);
     }
 
     /**
-     * Getter for <code>kafka_datasource.client_config</code>. Kafka客户端配置信息，存储为JSON格式，包含认证等参数
+     * Getter for <code>kafka_datasource.props_config</code>. Kafka属性配置信息，存储为JSON格式，例如：认证、超时等参数
      */
-    public String getClientConfig() {
+    public String getPropsConfig() {
         return (String) get(10);
     }
 
@@ -357,7 +357,7 @@ host:port
 
     @Override
     public Field<String> field11() {
-        return KafkaDatasource.KAFKA_DATASOURCE.CLIENT_CONFIG;
+        return KafkaDatasource.KAFKA_DATASOURCE.PROPS_CONFIG;
     }
 
     @Override
@@ -447,7 +447,7 @@ host:port
 
     @Override
     public String component11() {
-        return getClientConfig();
+        return getPropsConfig();
     }
 
     @Override
@@ -537,7 +537,7 @@ host:port
 
     @Override
     public String value11() {
-        return getClientConfig();
+        return getPropsConfig();
     }
 
     @Override
@@ -637,7 +637,7 @@ host:port
 
     @Override
     public KafkaDatasourceRecord value11(String value) {
-        setClientConfig(value);
+        setPropsConfig(value);
         return this;
     }
 
@@ -720,7 +720,7 @@ host:port
     /**
      * Create a detached, initialised KafkaDatasourceRecord
      */
-    public KafkaDatasourceRecord(Long id, String tenantId, String datasourceId, String spaceCode, String type, String server, String topic, String name, String msgSchema, String autoOffsetReset, String clientConfig, Integer status, Long cuid, Long muid, LocalDateTime ctime, LocalDateTime mtime, String cuName, String muName) {
+    public KafkaDatasourceRecord(Long id, String tenantId, String datasourceId, String spaceCode, String type, String server, String topic, String name, String msgSchema, String autoOffsetReset, String propsConfig, Integer status, Long cuid, Long muid, LocalDateTime ctime, LocalDateTime mtime, String cuName, String muName) {
         super(KafkaDatasource.KAFKA_DATASOURCE);
 
         setId(id);
@@ -733,7 +733,7 @@ host:port
         setName(name);
         setMsgSchema(msgSchema);
         setAutoOffsetReset(autoOffsetReset);
-        setClientConfig(clientConfig);
+        setPropsConfig(propsConfig);
         setStatus(status);
         setCuid(cuid);
         setMuid(muid);

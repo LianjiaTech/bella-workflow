@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.trigger;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.db.repo.DataSourceRepo;
 import com.ke.bella.workflow.db.repo.WorkflowTriggerRepo;
@@ -129,13 +130,12 @@ public class KafkaEventConsumers {
     ConsumerFactory<String, String> createConsumerFactory(String bootstrapServers, String groupId,
             String autoOffsetReset, String propsConfig) {
         Map<String, Object> props = new HashMap<>();
-        if(!StringUtils.isEmpty(propsConfig)) {
-            try {
-                Map<String, Object> clientConfigMap = JsonUtils.fromJson(propsConfig, Map.class);
+        if(StringUtils.hasText(propsConfig)) {
+            Map<String, Object> clientConfigMap = JsonUtils.fromJson(propsConfig,
+                    new TypeReference<Map<String, Object>>() {
+                    });
+            if(clientConfigMap != null) {
                 props.putAll(clientConfigMap);
-            } catch (Exception e) {
-                KafkaEventConsumers.LOGGER.error("create auth kafka consumer client error bootstrapServers：{}, " +
-                        "propsConfig: {}, errorMsg: {}", bootstrapServers, propsConfig, e.getMessage());
             }
         }
 

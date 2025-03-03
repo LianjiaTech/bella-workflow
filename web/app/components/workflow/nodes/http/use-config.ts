@@ -165,6 +165,24 @@ const useConfig = (id: string, payload: HttpNodeType) => {
   const setInputVarValues = useCallback((newPayload: Record<string, any>) => {
     setRunInputData(newPayload)
   }, [setRunInputData])
+
+  // curl import panel
+  const [isShowCurlPanel, {
+    setTrue: showCurlPanel,
+    setFalse: hideCurlPanel,
+  }] = useBoolean(false)
+
+  const handleCurlImport = useCallback((newNode: HttpNodeType) => {
+    const newInputs = produce(inputs, (draft: HttpNodeType) => {
+      draft.method = newNode.method
+      draft.url = newNode.url
+      draft.headers = newNode.headers
+      draft.params = newNode.params
+      draft.body = newNode.body
+    })
+    setInputs(newInputs)
+  }, [inputs, setInputs])
+
   const convert = function (body: ResponseBody) {
     return {
       type: body.type === ResponseType.json ? VarType.object : VarType.string,
@@ -290,6 +308,10 @@ const useConfig = (id: string, payload: HttpNodeType) => {
     removeVarInNode,
     key,
     handleCallbackChange,
+    isShowCurlPanel,
+    showCurlPanel,
+    hideCurlPanel,
+    handleCurlImport,
   }
 }
 

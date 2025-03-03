@@ -19,6 +19,8 @@ import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/befo
 import ResultPanel from '@/app/components/workflow/run/result-panel'
 import ResponseBody from '@/app/components/workflow/nodes/_base/components/output-response-body'
 import RemoveEffectVarConfirm from '@/app/components/workflow/nodes/_base/components/remove-effect-var-confirm'
+import FileArrow01 from '@/app/components/base/icons/src/vender/line/files/FileArrow01'
+import CurlPanel from '@/app/components/workflow/nodes/http/components/curl-panel'
 
 const i18nPrefix = 'workflow.nodes.http'
 
@@ -63,6 +65,10 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
     removeVarInNode,
     key,
     handleCallbackChange,
+    isShowCurlPanel,
+    showCurlPanel,
+    hideCurlPanel,
+    handleCurlImport,
   } = useConfig(id, data)
 
   return (
@@ -71,14 +77,25 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
         <Field
           title={t(`${i18nPrefix}.api`)}
           operations={
-            <div
-              onClick={showAuthorization}
-              className={cn(!readOnly && 'cursor-pointer hover:bg-gray-50', 'flex items-center h-6 space-x-1 px-2 rounded-md ')}
-            >
-              {!readOnly && <Settings01 className='w-3 h-3 text-gray-500' />}
-              <div className='text-xs font-medium text-gray-500'>
-                {t(`${i18nPrefix}.authorization.authorization`)}
-                <span className='ml-1 text-gray-700'>{t(`${i18nPrefix}.authorization.${inputs.authorization.type}`)}</span>
+            <div className='flex'>
+              <div
+                onClick={showAuthorization}
+                className={cn(!readOnly && 'cursor-pointer hover:bg-gray-50', 'flex items-center h-6 space-x-1 px-2 rounded-md ')}
+              >
+                {!readOnly && <Settings01 className='w-3 h-3 text-gray-500' />}
+                <div className='text-xs font-medium text-gray-500'>
+                  {t(`${i18nPrefix}.authorization.authorization`)}
+                  <span className='ml-1 text-gray-700'>{t(`${i18nPrefix}.authorization.${inputs.authorization.type}`)}</span>
+                </div>
+              </div>
+              <div
+                onClick={showCurlPanel}
+                className={cn(!readOnly && 'cursor-pointer hover:bg-gray-50', 'flex items-center h-6 space-x-1 px-2 rounded-md ')}
+              >
+                {!readOnly && <FileArrow01 className='w-3 h-3 text-gray-500' />}
+                <div className='text-xs font-medium text-gray-500'>
+                  {t(`${i18nPrefix}.curl.title`)}
+                </div>
               </div>
             </div>
           }
@@ -207,6 +224,14 @@ const Panel: FC<NodePanelProps<HttpNodeType>> = ({
           onRun={handleRun}
           onStop={handleStop}
           result={<ResultPanel {...runResult} showSteps={false} />}
+        />
+      )}
+      {(isShowCurlPanel && !readOnly) && (
+        <CurlPanel
+          nodeId={id}
+          isShow
+          onHide={hideCurlPanel}
+          handleCurlImport={handleCurlImport}
         />
       )}
       <RemoveEffectVarConfirm

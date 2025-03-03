@@ -20,7 +20,6 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.MessageListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -75,7 +74,7 @@ public class KafkaEventConsumers {
             } else {
                 if(ds.getStatus().intValue() == 0) {
                     try {
-                        addConsumer(ds.getServer(), ds.getTopic(), ds.getAutoOffsetReset(), ds.getAuthConfig());
+                        addConsumer(ds.getServer(), ds.getTopic(), ds.getAutoOffsetReset(), ds.getClientConfig());
 
                         Set<String> dsIdSet = new HashSet<>();
                         dsIdSet.add(ds.getDatasourceId());
@@ -104,10 +103,10 @@ public class KafkaEventConsumers {
         }
     }
 
-    void addConsumer(String server, String topic, String autoOffsetReset, String authConfig) {
+    void addConsumer(String server, String topic, String autoOffsetReset, String clientConfig) {
         String key = serverKey(server, topic);
-        ConsumerFactory<String, String> consumerFactory = createConsumerFactory(server, "bella-workflow-" + profile,
-                autoOffsetReset, authConfig);
+        ConsumerFactory<String, String> consumerFactory = createConsumerFactory(server,
+                "bella-workflow-" + profile, autoOffsetReset, clientConfig);
 
         ContainerProperties containerProps = new ContainerProperties(topic);
         containerProps.setMessageListener(new EventListener(key));
@@ -128,17 +127,15 @@ public class KafkaEventConsumers {
     }
 
     ConsumerFactory<String, String> createConsumerFactory(String bootstrapServers, String groupId,
-            String autoOffsetReset, String authConfig) {
+            String autoOffsetReset, String clientConfig) {
         Map<String, Object> props = new HashMap<>();
-
-        if(!StringUtils.isEmpty(authConfig)) {
-            ObjectMapper objectMapper = new ObjectMapper();
+        if(!StringUtils.isEmpty(clientConfig)) {
             try {
-                Map<String, Object> authConfigMap = objectMapper.readValue(authConfig, Map.class);
-                props.putAll(authConfigMap);
+                Map<String, Object> clientConfigMap = JsonUtils.fromJson(clientConfig, Map.class);
+                props.putAll(clientConfigMap);
             } catch (Exception e) {
                 KafkaEventConsumers.LOGGER.error("create auth kafka consumer client error bootstrapServers：{}, " +
-                        "authConfig: {}, errorMsg: {}", bootstrapServers, authConfig, e.getMessage());
+                        "clientConfig: {}, errorMsg: {}", bootstrapServers, clientConfig, e.getMessage());
             }
         }
 

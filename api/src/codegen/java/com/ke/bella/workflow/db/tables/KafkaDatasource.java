@@ -103,9 +103,9 @@ host:port
     public final TableField<KafkaDatasourceRecord, String> AUTO_OFFSET_RESET = createField(DSL.name("auto_offset_reset"), SQLDataType.VARCHAR(50).nullable(false).defaultValue(DSL.inline("latest", SQLDataType.VARCHAR)), this, "偏移量重置策略：latest, earliest，默认为latest");
 
     /**
-     * The column <code>kafka_datasource.auth_config</code>. Kafka认证配置,存储为JSON格式,不为空表示需要认证
+     * The column <code>kafka_datasource.client_config</code>. Kafka客户端配置信息，存储为JSON格式，包含认证等参数
      */
-    public final TableField<KafkaDatasourceRecord, String> AUTH_CONFIG = createField(DSL.name("auth_config"), SQLDataType.CLOB, this, "Kafka认证配置,存储为JSON格式,不为空表示需要认证");
+    public final TableField<KafkaDatasourceRecord, String> CLIENT_CONFIG = createField(DSL.name("client_config"), SQLDataType.CLOB, this, "Kafka客户端配置信息，存储为JSON格式，包含认证等参数");
 
     /**
      * The column <code>kafka_datasource.status</code>. 数据源状态

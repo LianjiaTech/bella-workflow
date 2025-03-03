@@ -28,7 +28,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
     private String        name;
     private String        msgSchema;
     private String        autoOffsetReset;
-    private String        authConfig;
+    private String        clientConfig;
     private Integer       status;
     private Long          cuid;
     private Long          muid;
@@ -50,7 +50,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         this.name = value.name;
         this.msgSchema = value.msgSchema;
         this.autoOffsetReset = value.autoOffsetReset;
-        this.authConfig = value.authConfig;
+        this.clientConfig = value.clientConfig;
         this.status = value.status;
         this.cuid = value.cuid;
         this.muid = value.muid;
@@ -71,7 +71,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         String        name,
         String        msgSchema,
         String        autoOffsetReset,
-        String        authConfig,
+        String        clientConfig,
         Integer       status,
         Long          cuid,
         Long          muid,
@@ -90,7 +90,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         this.name = name;
         this.msgSchema = msgSchema;
         this.autoOffsetReset = autoOffsetReset;
-        this.authConfig = authConfig;
+        this.clientConfig = clientConfig;
         this.status = status;
         this.cuid = cuid;
         this.muid = muid;
@@ -243,17 +243,17 @@ host:port
     }
 
     /**
-     * Getter for <code>kafka_datasource.auth_config</code>. Kafka认证配置,存储为JSON格式,不为空表示需要认证
+     * Getter for <code>kafka_datasource.client_config</code>. Kafka客户端配置信息，存储为JSON格式，包含认证等参数
      */
-    public String getAuthConfig() {
-        return this.authConfig;
+    public String getClientConfig() {
+        return this.clientConfig;
     }
 
     /**
-     * Setter for <code>kafka_datasource.auth_config</code>. Kafka认证配置,存储为JSON格式,不为空表示需要认证
+     * Setter for <code>kafka_datasource.client_config</code>. Kafka客户端配置信息，存储为JSON格式，包含认证等参数
      */
-    public void setAuthConfig(String authConfig) {
-        this.authConfig = authConfig;
+    public void setClientConfig(String clientConfig) {
+        this.clientConfig = clientConfig;
     }
 
     /**
@@ -372,7 +372,7 @@ host:port
         sb.append(", ").append(name);
         sb.append(", ").append(msgSchema);
         sb.append(", ").append(autoOffsetReset);
-        sb.append(", ").append(authConfig);
+        sb.append(", ").append(clientConfig);
         sb.append(", ").append(status);
         sb.append(", ").append(cuid);
         sb.append(", ").append(muid);

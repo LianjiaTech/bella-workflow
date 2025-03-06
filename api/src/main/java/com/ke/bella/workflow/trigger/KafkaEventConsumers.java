@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.trigger;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.db.repo.DataSourceRepo;
 import com.ke.bella.workflow.db.repo.WorkflowTriggerRepo;
@@ -74,7 +75,7 @@ public class KafkaEventConsumers {
             } else {
                 if(ds.getStatus().intValue() == 0) {
                     try {
-                        addConsumer(ds.getServer(), ds.getTopic());
+                        addConsumer(ds.getServer(), ds.getTopic(), ds.getAutoOffsetReset(), ds.getPropsConfig());
 
                         Set<String> dsIdSet = new HashSet<>();
                         dsIdSet.add(ds.getDatasourceId());
@@ -103,9 +104,10 @@ public class KafkaEventConsumers {
         }
     }
 
-    void addConsumer(String server, String topic) {
+    void addConsumer(String server, String topic, String autoOffsetReset, String propsConfig) {
         String key = serverKey(server, topic);
-        ConsumerFactory<String, String> consumerFactory = createConsumerFactory(server, "bella-workflow-" + profile);
+        ConsumerFactory<String, String> consumerFactory = createConsumerFactory(server,
+                "bella-workflow-" + profile, autoOffsetReset, propsConfig);
 
         ContainerProperties containerProps = new ContainerProperties(topic);
         containerProps.setMessageListener(new EventListener(key));
@@ -125,13 +127,25 @@ public class KafkaEventConsumers {
         }
     }
 
-    ConsumerFactory<String, String> createConsumerFactory(String bootstrapServers, String groupId) {
+    ConsumerFactory<String, String> createConsumerFactory(String bootstrapServers, String groupId,
+            String autoOffsetReset, String propsConfig) {
         Map<String, Object> props = new HashMap<>();
+        if(StringUtils.hasText(propsConfig)) {
+            Map<String, Object> clientConfigMap = JsonUtils.fromJson(propsConfig,
+                    new TypeReference<Map<String, Object>>() {
+                    });
+            if(clientConfigMap != null) {
+                props.putAll(clientConfigMap);
+            }
+        }
+
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        String autoOffset = StringUtils.isEmpty(autoOffsetReset) ? "latest" : autoOffsetReset;
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffset);
+
         return new DefaultKafkaConsumerFactory<>(props);
     }
 

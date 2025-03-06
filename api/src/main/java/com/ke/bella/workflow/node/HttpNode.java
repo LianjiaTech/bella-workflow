@@ -419,10 +419,12 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
                 apiKey = BellaContext.getApikey().getApikey();
             } else if("ke-IAM".equalsIgnoreCase(authType)) {
                 URL url = buildUrl(context).toURL();
-                apiKey = KeIAM.generateAuthorization(config.getApiKey(), config.getSecret(),
+                String ak = Variables.format(config.getApiKey(), context.getState().getVariablePool());
+                String sk = Variables.format(config.getSecret(), context.getState().getVariablePool());
+                apiKey = KeIAM.generateAuthorization(ak, sk,
                         RandomStringUtils.randomNumeric(9), data.getMethod().toUpperCase(), url.getPath(), url.getHost(), url.getQuery());
             } else {
-                apiKey = data.getAuthorization().getConfig().apiKey;
+                apiKey = Variables.format(config.getApiKey(), context.getState().getVariablePool());
             }
             builder.add(Variables.format(config.header(), context.getState().getVariablePool()),
                     Variables.format(config.prefix() + apiKey, context.getState().getVariablePool()));

@@ -27,7 +27,7 @@ import RestoringTitle from '@/app/components/workflow/header/restoring-title'
 import ViewHistory from '@/app/components/workflow/header/view-history'
 import Button from '@/app/components/base/button'
 import { useStore as useAppStore } from '@/app/components/app/store'
-import { fetchWorkflowDraft, publishWorkflow } from '@/service/workflow'
+import { fetchWorkflowDraft, publishWorkflowWithReleaseDescription } from '@/service/workflow'
 import { ArrowNarrowLeft } from '@/app/components/base/icons/src/vender/line/arrows'
 import { exportAppConfig } from '@/service/apps'
 import UpdateDSLModal from '@/app/components/workflow/update-dsl-modal'
@@ -83,10 +83,10 @@ const Header: FC = () => {
     workflowStore.setState({ backupDraft: undefined })
     handleSyncWorkflowDraft(true)
   }, [handleSyncWorkflowDraft, workflowStore])
-
+  const [releaseDescription] = useState('')
   const onPublish = useCallback(async () => {
     if (handleCheckBeforePublish()) {
-      const res = await publishWorkflow(`/apps/${appID}/workflows/publish`)
+      const res = await publishWorkflowWithReleaseDescription(`/apps/${appID}/workflows/publish`, releaseDescription)
       if (res?.code === 200) {
         notify({ type: 'success', message: t('common.api.actionSuccess') })
         workflowStore.getState().setPublishedAt(res.created_at)

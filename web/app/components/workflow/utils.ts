@@ -507,14 +507,16 @@ export const convertJsonValueToVarType = (obj: any): VarType => {
 }
 
 export const convertObjToJsonValue = (obj: any): any => {
-  return Object.keys(obj).map((key): Var => {
-    const type: VarType = convertJsonValueToVarType(obj[key])
-    return {
-      variable: key,
-      type,
-      children: (type === VarType.object || type === VarType.array) ? convertObjToJsonValue(obj[key]) : undefined,
-    }
-  })
+  return Object.keys(obj)
+    .filter(key => obj[key] !== null)
+    .map((key): Var => {
+      const type: VarType = convertJsonValueToVarType(obj[key])
+      return {
+        variable: key,
+        type,
+        children: (type === VarType.object || type === VarType.array) ? convertObjToJsonValue(obj[key]) : undefined,
+      }
+    })
 }
 
 export const convertJsonToVariables = (json: string): Var[] | undefined => {

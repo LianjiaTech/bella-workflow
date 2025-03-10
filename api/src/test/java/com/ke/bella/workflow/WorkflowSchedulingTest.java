@@ -21,7 +21,6 @@ import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
 import com.ke.bella.workflow.trigger.WorkflowScheduler;
-import com.ke.bella.workflow.trigger.WorkflowSchedulingStatus;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 @AutoConfigureMockMvc

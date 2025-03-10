@@ -1,10 +1,13 @@
 package com.ke.bella.workflow.dify;
 
+import static com.ke.bella.openapi.BellaContext.BELLA_TRACE_HEADER;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,23 +16,21 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.andrewoma.dexx.collection.Maps;
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.Operator;
+import com.ke.bella.openapi.apikey.ApikeyInfo;
 import com.ke.bella.workflow.AbstractTest;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.api.DifyController;
 import com.ke.bella.workflow.api.DifyController.DifyWorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.callbacks.DifyWorkflowRunStreamingCallback;
-import com.ke.bella.openapi.BellaContext;
-import com.ke.bella.openapi.apikey.ApikeyInfo;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.utils.JsonUtils;
-import com.ke.bella.openapi.Operator;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import static com.ke.bella.openapi.BellaContext.BELLA_TRACE_HEADER;
 
 @SuppressWarnings("rawtypes")
 public class DifyControllerTest extends AbstractTest {
@@ -37,17 +38,16 @@ public class DifyControllerTest extends AbstractTest {
     @Autowired
     private DifyController dify;
 
-    static {
-        BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
-        BellaContext.setApikey(ApikeyInfo.builder().apikey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8").build());
-        BellaContext.getHeaders().put(BELLA_TRACE_HEADER, BellaContext.generateTraceId("workflow"));
-    }
-
     @BeforeEach
     public void initContext() {
         BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
         BellaContext.setApikey(ApikeyInfo.builder().apikey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8").build());
         BellaContext.getHeaders().put(BELLA_TRACE_HEADER, BellaContext.generateTraceId("workflow"));
+    }
+
+    @AfterEach
+    public void clearContext() {
+        BellaContext.clearAll();
     }
 
     @Test

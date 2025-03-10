@@ -1,21 +1,21 @@
 package com.ke.bella.workflow;
 
+import static com.ke.bella.openapi.BellaContext.BELLA_TRACE_HEADER;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import com.ke.bella.openapi.apikey.ApikeyInfo;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.Operator;
-import org.junit.jupiter.api.BeforeAll;
-
+import com.ke.bella.openapi.apikey.ApikeyInfo;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.JsonUtils;
-import org.junit.jupiter.api.BeforeEach;
-
-import static com.ke.bella.openapi.BellaContext.BELLA_TRACE_HEADER;
 
 public abstract class CommonNodeTest {
 
@@ -30,6 +30,11 @@ public abstract class CommonNodeTest {
         BellaContext.setOperator(Operator.builder().userId(userIdL).tenantId("test").userName("test").build());
         BellaContext.setApikey(ApikeyInfo.builder().apikey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8").build());
         BellaContext.getHeaders().put(BELLA_TRACE_HEADER, BellaContext.generateTraceId("workflow"));
+    }
+
+    @AfterEach
+    public void clearContext() {
+        BellaContext.clearAll();
     }
 
     public static WorkflowContext createContext(String caseFilePath, Map<String, Object> inputs) throws IOException {

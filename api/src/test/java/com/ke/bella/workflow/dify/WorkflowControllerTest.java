@@ -3,7 +3,7 @@ package com.ke.bella.workflow.dify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.ke.bella.openapi.BellaContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.Operator;
+import com.ke.bella.openapi.apikey.ApikeyInfo;
 import com.ke.bella.workflow.AbstractTest;
 import com.ke.bella.workflow.api.BellaResponse;
 import com.ke.bella.workflow.api.WorkflowController;
@@ -25,8 +28,6 @@ import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.utils.JsonUtils;
-import com.ke.bella.openapi.apikey.ApikeyInfo;
-import com.ke.bella.openapi.Operator;
 
 @SuppressWarnings("rawtypes")
 @Transactional
@@ -56,6 +57,11 @@ public class WorkflowControllerTest extends AbstractTest {
         BellaContext.setOperator(
                 Operator.builder().userId(userIdL).tenantId("04633c4f-8638-43a3-a02e-af23c29f821f").userName("mock").build());
         BellaContext.setApikey(ApikeyInfo.builder().apikey("8O1uNhMF5k9O8tkmmjLo1rhiPe7bbzX8").build());
+    }
+
+    @AfterEach
+    public void clearContext() {
+        BellaContext.clearAll();
     }
 
     @Test

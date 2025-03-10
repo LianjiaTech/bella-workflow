@@ -32,7 +32,8 @@ public class WorkflowOps {
         API,
         SCHEDULE,
         KAFKA,
-        CUSTOM_API;
+        CUSTOM_API,
+        BATCH;
     }
 
     public enum TriggerType {

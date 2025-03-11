@@ -62,7 +62,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
 
             // invoke llm
             Flowable<ChatCompletionChunk> llmResult = invokeLlm(chatMessages);
-            String result = handleInvokeResult(data.getTimeout(), context, llmResult, callback);
+            AssistantMessage message = handleInvokeResult(context, llmResult, callback);
 
             ProcessMetaData metadata = ProcessMetaData.builder()
                     .ttlt((System.nanoTime() - ttftStart) / 1000000L)
@@ -72,7 +72,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             processData.put("meta_data", metadata);
 
             // fill outputs
-            HashMap<String, Object> outputs = fillOutputs(result);
+            HashMap<String, Object> outputs = fillOutputs(message);
             return NodeRunResult.builder()
                     .status(NodeRunResult.Status.succeeded)
                     .inputs(nodeInputs)
@@ -88,9 +88,10 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     }
 
     @NotNull
-    private static HashMap<String, Object> fillOutputs(String result) {
+    private static HashMap<String, Object> fillOutputs(AssistantMessage result) {
         HashMap<String, Object> outputs = new HashMap<>();
-        outputs.put("text", result);
+        outputs.put("reasoning_content", result.getReasoningContent());
+        outputs.put("text", result.getContent());
         return outputs;
     }
 
@@ -105,9 +106,10 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
         return processData;
     }
 
-    private String handleInvokeResult(Data.Timeout timeout, WorkflowContext context, Flowable<ChatCompletionChunk> llmResult,
+    private AssistantMessage handleInvokeResult(WorkflowContext context, Flowable<ChatCompletionChunk> llmResult,
             IWorkflowCallback callback) {
         StringBuilder fullText = new StringBuilder();
+        StringBuilder fullReasoningContent = null;
         final String messageId = data.isGenerateNewMessage() ? context.newMessageId()
                 : (String) context.getState().getVariable("sys", "message_id");
         Iterator<ChatCompletionChunk> it = llmResult.blockingIterable().iterator();
@@ -126,6 +128,12 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
                             || chunk.getChoices().get(0).getMessage().getReasoningContent() != null)) {
                 String content = chunk.getChoices().get(0).getMessage().getContent();
                 String reasoningContent = chunk.getChoices().get(0).getMessage().getReasoningContent();
+                if(StringUtils.hasText(reasoningContent)) {
+                    if(fullReasoningContent == null) {
+                        fullReasoningContent = new StringBuilder();
+                    }
+                    fullReasoningContent.append(reasoningContent);
+                }
                 if(StringUtils.isEmpty(reasoningContent) && StringUtils.hasText(content)) {
                     fullText.append(content);
                 }
@@ -150,7 +158,13 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
                 }
             }
         }
-        return fullText.toString();
+
+        AssistantMessage result = new AssistantMessage();
+        if(fullReasoningContent != null) {
+            result.setReasoningContent(fullReasoningContent.toString());
+        }
+        result.setContent(fullText.toString());
+        return result;
     }
 
     private Flowable<ChatCompletionChunk> invokeLlm(List<ChatMessage> chatMessages) {

@@ -297,6 +297,11 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
               type='string'
               description={t(`${i18nPrefix}.outputVars.output`)}
             />
+            <VarItem
+              name='reasoning_content'
+              type='string'
+              description={t(`${i18nPrefix}.outputVars.reasoningContent`)}
+            />
           </>
         </OutputVars>
       </div>

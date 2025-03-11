@@ -316,6 +316,7 @@ const translation = {
       },
       outputVars: {
         output: '生成内容',
+        reasoningContent: '推理过程 (仅推理模型支持)',
         usage: '模型用量信息',
       },
       singleRun: {

@@ -1,7 +1,6 @@
 'use client'
 import type { FC } from 'react'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import useSWR from 'swr'
 import {
   HandThumbDownIcon,
   HandThumbUpIcon,
@@ -9,7 +8,6 @@ import {
   XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { RiEditFill } from '@remixicon/react'
-import { get } from 'lodash-es'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -17,23 +15,25 @@ import timezone from 'dayjs/plugin/timezone'
 import { createContext, useContext } from 'use-context-selector'
 import { useShallow } from 'zustand/react/shallow'
 import { useTranslation } from 'react-i18next'
-import s from './style.module.css'
 import VarPanel from './var-panel'
 import cn from '@/utils/classnames'
 import { randomString } from '@/utils'
-import type { FeedbackFunc, Feedbacktype, IChatItem, SubmitAnnotationFunc } from '@/app/components/base/chat/chat/type'
-import type { Annotation, ChatConversationFullDetailResponse, ChatConversationGeneralDetail, ChatConversationsResponse, ChatMessage, ChatMessagesRequest, CompletionConversationFullDetailResponse, CompletionConversationGeneralDetail, CompletionConversationsResponse, LogAnnotation } from '@/models/log'
+import type { FeedbackFunc, IChatItem, SubmitAnnotationFunc } from '@/app/components/base/chat/chat/type'
+import type {
+  Annotation,
+  ChatMessage,
+  ChatMessagesRequest,
+  LogAnnotation, WorkflowLogsResponse,
+  WorkflowRunLog,
+} from '@/models/log'
 import type { App } from '@/types/app'
 import Loading from '@/app/components/base/loading'
-import Drawer from '@/app/components/base/drawer'
 import Popover from '@/app/components/base/popover'
 import Chat from '@/app/components/base/chat/chat'
 import Tooltip from '@/app/components/base/tooltip'
-import { ToastContext } from '@/app/components/base/toast'
-import { fetchChatConversationDetail, fetchChatMessages, fetchCompletionConversationDetail, updateLogMessageAnnotations, updateLogMessageFeedbacks } from '@/service/log'
+import { fetchChatMessages } from '@/service/log'
 import { TONE_LIST } from '@/config'
 import ModelIcon from '@/app/components/header/account-setting/model-provider-page/model-icon'
-import { useTextGenerationCurrentProviderAndModelAndModelList } from '@/app/components/header/account-setting/model-provider-page/hooks'
 import ModelName from '@/app/components/header/account-setting/model-provider-page/model-name'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import TextGeneration from '@/app/components/app/text-generate/item'
@@ -44,12 +44,15 @@ import { useAppContext } from '@/context/app-context'
 import useTimestamp from '@/hooks/use-timestamp'
 import TooltipPlus from '@/app/components/base/tooltip-plus'
 import { CopyIcon } from '@/app/components/base/copy-icon'
+import Drawer from '@/app/components/base/drawer'
+import Indicator from '@/app/components/header/indicator'
+import { ToastContext } from '@/app/components/base/toast'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
 type IConversationList = {
-  logs?: ChatConversationsResponse | CompletionConversationsResponse
+  logs?: WorkflowLogsResponse
   appDetail: App
   onRefresh: () => void
 }
@@ -75,6 +78,49 @@ const HandThumbIconWithCount: FC<{ count: number; iconType: 'up' | 'down' }> = (
   </div>
 }
 
+const statusTdRender = (status: string) => {
+  if (status === 'succeeded') {
+    return (
+      <div className='inline-flex items-center gap-1 system-xs-semibold-uppercase'>
+        <Indicator color={'green'} />
+        <span className='text-util-colors-green-green-600'>Success</span>
+      </div>
+    )
+  }
+  if (status === 'failed') {
+    return (
+      <div className='inline-flex items-center gap-1 system-xs-semibold-uppercase'>
+        <Indicator color={'red'} />
+        <span className='text-util-colors-red-red-600'>Fail</span>
+      </div>
+    )
+  }
+  if (status === 'stopped') {
+    return (
+      <div className='inline-flex items-center gap-1 system-xs-semibold-uppercase'>
+        <Indicator color={'yellow'} />
+        <span className='text-util-colors-warning-warning-600'>Stop</span>
+      </div>
+    )
+  }
+  if (status === 'running') {
+    return (
+      <div className='inline-flex items-center gap-1 system-xs-semibold-uppercase'>
+        <Indicator color={'blue'} />
+        <span className='text-util-colors-blue-light-blue-light-600'>Running</span>
+      </div>
+    )
+  }
+  if (status === 'partial-succeeded') {
+    return (
+      <div className='inline-flex items-center gap-1 system-xs-semibold-uppercase'>
+        <Indicator color={'green'} />
+        <span className='text-util-colors-green-green-600'>Partial Success</span>
+      </div>
+    )
+  }
+}
+
 const PARAM_MAP = {
   temperature: 'Temperature',
   top_p: 'Top P',
@@ -90,62 +136,35 @@ const getFormattedChatList = (messages: ChatMessage[], conversationId: string, t
   messages.forEach((item: ChatMessage) => {
     newChatList.push({
       id: `question-${item.id}`,
-      content: item.inputs.query || item.inputs.default_input || item.query, // text generation: item.inputs.query; chat: item.query
+      content: item.query, // text generation: item.inputs.query; chat: item.query
       isAnswer: false,
-      message_files: item.message_files?.filter((file: any) => file.belongs_to === 'user') || [],
     })
     newChatList.push({
       id: item.id,
       content: item.answer,
       agent_thoughts: addFileInfos(item.agent_thoughts ? sortAgentSorts(item.agent_thoughts) : item.agent_thoughts, item.message_files),
-      feedback: item.feedbacks.find(item => item.from_source === 'user'), // user feedback
-      adminFeedback: item.feedbacks.find(item => item.from_source === 'admin'), // admin feedback
       feedbackDisabled: false,
       isAnswer: true,
-      message_files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
-      log: [
-        ...item.message,
-        ...(item.message[item.message.length - 1]?.role !== 'assistant'
-          ? [
-            {
-              role: 'assistant',
-              text: item.answer,
-              files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
-            },
-          ]
-          : []),
-      ],
+      log: item.message
+        ? [
+          ...item.message,
+          ...(item.message[item.message.length - 1]?.role !== 'assistant'
+            ? [
+              {
+                role: 'assistant',
+                text: item.answer,
+                files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
+              },
+            ]
+            : []),
+        ]
+        : [],
       workflow_run_id: item.workflow_run_id,
       conversationId,
       input: {
         inputs: item.inputs,
         query: item.query,
       },
-      more: {
-        time: dayjs.unix(item.created_at).tz(timezone).format(format),
-        tokens: item.answer_tokens + item.message_tokens,
-        latency: item.provider_response_latency.toFixed(2),
-      },
-      annotation: (() => {
-        if (item.annotation_hit_history) {
-          return {
-            id: item.annotation_hit_history.annotation_id,
-            authorName: item.annotation_hit_history.annotation_create_account?.name || 'N/A',
-            created_at: item.annotation_hit_history.created_at,
-          }
-        }
-
-        if (item.annotation) {
-          return {
-            id: item.annotation.id,
-            authorName: item.annotation.account.name,
-            logAnnotation: item.annotation,
-            created_at: 0,
-          }
-        }
-
-        return undefined
-      })(),
     })
   })
   return newChatList
@@ -156,11 +175,11 @@ const validatedParams = ['temperature', 'top_p', 'presence_penalty', 'frequency_
 
 type IDetailPanel<T> = {
   detail: any
-  onFeedback: FeedbackFunc
-  onSubmitAnnotation: SubmitAnnotationFunc
+  onFeedback?: FeedbackFunc
+  onSubmitAnnotation?: SubmitAnnotationFunc
 }
 
-function DetailPanel<T extends ChatConversationFullDetailResponse | CompletionConversationFullDetailResponse>({ detail, onFeedback }: IDetailPanel<T>) {
+function DetailPanel<T extends WorkflowRunLog>({ detail, onFeedback }: IDetailPanel<T>) {
   const { userProfile: { timezone } } = useAppContext()
   const { formatTime } = useTimestamp()
   const { onClose, appDetail } = useContext(DrawerContext)
@@ -175,12 +194,21 @@ function DetailPanel<T extends ChatConversationFullDetailResponse | CompletionCo
   const [items, setItems] = React.useState<IChatItem[]>([])
   const [hasMore, setHasMore] = useState(true)
   const [varValues, setVarValues] = useState<Record<string, string>>({})
+
+  // Reset state when detail changes
+  useEffect(() => {
+    setItems([])
+    setHasMore(true)
+    setVarValues({})
+  }, [detail.workflowRunId])
+
   const fetchData = async () => {
     try {
       if (!hasMore)
         return
       const params: ChatMessagesRequest = {
         conversation_id: detail.id,
+        workflow_run_id: detail.workflowRunId,
         limit: 10,
       }
       if (items?.[0]?.id)
@@ -201,7 +229,8 @@ function DetailPanel<T extends ChatConversationFullDetailResponse | CompletionCo
           isAnswer: true,
           isOpeningStatement: true,
           content: detail?.model_config?.configs?.introduction ?? 'hello',
-          feedbackDisabled: true,
+          feedbackDisabled: false,
+          workflow_run_id: detail.workflowRunId,
         })
       }
       setItems(newItems)
@@ -281,7 +310,7 @@ function DetailPanel<T extends ChatConversationFullDetailResponse | CompletionCo
   useEffect(() => {
     if (appDetail?.id && detail.id && appDetail?.mode !== 'completion')
       fetchData()
-  }, [appDetail?.id, detail.id, appDetail?.mode])
+  }, [appDetail?.id, detail.id, appDetail?.mode, fetchData])
 
   const isChatMode = appDetail?.mode !== 'completion'
   const isAdvanced = appDetail?.mode === 'advanced-chat'
@@ -294,15 +323,7 @@ function DetailPanel<T extends ChatConversationFullDetailResponse | CompletionCo
     return res
   })?.name ?? 'custom'
 
-  const modelName = (detail.model_config as any).model?.name
-  const provideName = (detail.model_config as any).model?.provider as any
-  const {
-    currentModel,
-    currentProvider,
-  } = useTextGenerationCurrentProviderAndModelAndModelList(
-    { provider: provideName, model: modelName },
-  )
-  const varList = (detail.model_config as any).user_input_form?.map((item: any) => {
+  const varList = (detail.model_config as any)?.user_input_form?.map((item: any) => {
     const itemContent = item[Object.keys(item)[0]]
     return {
       label: itemContent.variable,
@@ -365,11 +386,11 @@ function DetailPanel<T extends ChatConversationFullDetailResponse | CompletionCo
               >
                 <ModelIcon
                   className='!w-5 !h-5'
-                  provider={currentProvider}
-                  modelName={currentModel?.model}
+                  provider={undefined}
+                  modelName={undefined}
                 />
                 <ModelName
-                  modelItem={currentModel!}
+                  modelItem={undefined!}
                   showMode
                 />
               </div>
@@ -429,7 +450,6 @@ function DetailPanel<T extends ChatConversationFullDetailResponse | CompletionCo
             isInstalledApp={false}
             supportFeedback
             feedback={detail.message.feedbacks.find((item: any) => item.from_source === 'admin')}
-            onFeedback={feedback => onFeedback(detail.message.id, feedback)}
             supportAnnotation
             isShowTextToSpeech
             appId={appDetail?.id}
@@ -533,92 +553,9 @@ function DetailPanel<T extends ChatConversationFullDetailResponse | CompletionCo
   )
 }
 
-/**
- * Text App Conversation Detail Component
- */
-const CompletionConversationDetailComp: FC<{ appId?: string; conversationId?: string }> = ({ appId, conversationId }) => {
-  // Text Generator App Session Details Including Message List
-  const detailParams = ({ url: `/apps/${appId}/completion-conversations/${conversationId}` })
-  const { data: conversationDetail, mutate: conversationDetailMutate } = useSWR(() => (appId && conversationId) ? detailParams : null, fetchCompletionConversationDetail)
-  const { notify } = useContext(ToastContext)
-  const { t } = useTranslation()
-
-  const handleFeedback = async (mid: string, { rating }: Feedbacktype): Promise<boolean> => {
-    try {
-      await updateLogMessageFeedbacks({ url: `/apps/${appId}/feedbacks`, body: { message_id: mid, rating } })
-      conversationDetailMutate()
-      notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
-      return true
-    }
-    catch (err) {
-      notify({ type: 'error', message: t('common.actionMsg.modifiedUnsuccessfully') })
-      return false
-    }
-  }
-
-  const handleAnnotation = async (mid: string, value: string): Promise<boolean> => {
-    try {
-      await updateLogMessageAnnotations({ url: `/apps/${appId}/annotations`, body: { message_id: mid, content: value } })
-      conversationDetailMutate()
-      notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
-      return true
-    }
-    catch (err) {
-      notify({ type: 'error', message: t('common.actionMsg.modifiedUnsuccessfully') })
-      return false
-    }
-  }
-
-  if (!conversationDetail)
-    return null
-
-  return <DetailPanel<CompletionConversationFullDetailResponse>
-    detail={conversationDetail}
-    onFeedback={handleFeedback}
-    onSubmitAnnotation={handleAnnotation}
-  />
-}
-
-/**
- * Chat App Conversation Detail Component
- */
-const ChatConversationDetailComp: FC<{ appId?: string; conversationId?: string }> = ({ appId, conversationId }) => {
-  const detailParams = { url: `/apps/${appId}/chat-conversations/${conversationId}` }
-  const { data: conversationDetail } = useSWR(() => (appId && conversationId) ? detailParams : null, fetchChatConversationDetail)
-  const { notify } = useContext(ToastContext)
-  const { t } = useTranslation()
-
-  const handleFeedback = async (mid: string, { rating }: Feedbacktype): Promise<boolean> => {
-    try {
-      await updateLogMessageFeedbacks({ url: `/apps/${appId}/feedbacks`, body: { message_id: mid, rating } })
-      notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
-      return true
-    }
-    catch (err) {
-      notify({ type: 'error', message: t('common.actionMsg.modifiedUnsuccessfully') })
-      return false
-    }
-  }
-
-  const handleAnnotation = async (mid: string, value: string): Promise<boolean> => {
-    try {
-      await updateLogMessageAnnotations({ url: `/apps/${appId}/annotations`, body: { message_id: mid, content: value } })
-      notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
-      return true
-    }
-    catch (err) {
-      notify({ type: 'error', message: t('common.actionMsg.modifiedUnsuccessfully') })
-      return false
-    }
-  }
-
-  if (!conversationDetail)
-    return null
-
-  return <DetailPanel<ChatConversationFullDetailResponse>
-    detail={conversationDetail}
-    onFeedback={handleFeedback}
-    onSubmitAnnotation={handleAnnotation}
+const ChatConversationDetailComp: FC<{ appId?: string; conversationId?: string ; workflowRunId?: string }> = ({ appId, conversationId, workflowRunId }) => {
+  return <DetailPanel<WorkflowRunLog>
+    detail={{ id: conversationId, workflowRunId }}
   />
 }
 
@@ -626,14 +563,15 @@ const ChatConversationDetailComp: FC<{ appId?: string; conversationId?: string }
  * Conversation list component including basic information
  */
 const ConversationList: FC<IConversationList> = ({ logs, appDetail, onRefresh }) => {
+  const { notify } = useContext(ToastContext)
   const { t } = useTranslation()
-  const { formatTime } = useTimestamp()
+  const { formatMilliseconds } = useTimestamp()
 
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile
 
   const [showDrawer, setShowDrawer] = useState<boolean>(false) // Whether to display the chat details drawer
-  const [currentConversation, setCurrentConversation] = useState<ChatConversationGeneralDetail | CompletionConversationGeneralDetail | undefined>() // Currently selected conversation
+  const [currentConversation, setCurrentConversation] = useState<WorkflowRunLog | undefined>() // Currently selected conversation
   const isChatMode = appDetail.mode !== 'completion' // Whether the app is a chat app
 
   // Annotated data needs to be highlighted
@@ -642,7 +580,7 @@ const ConversationList: FC<IConversationList> = ({ logs, appDetail, onRefresh })
       <Tooltip
         htmlContent={
           <span className='text-xs text-gray-500 inline-flex items-center'>
-            <RiEditFill className='w-3 h-3 mr-1' />{`${t('appLog.detail.annotationTip', { user: annotation?.account?.name })} ${formatTime(annotation?.created_at || dayjs().unix(), 'MM-DD hh:mm A')}`}
+            <RiEditFill className='w-3 h-3 mr-1' />{`${t('appLog.detail.annotationTip', { user: annotation?.account?.name })} ${formatMilliseconds(annotation?.created_at || dayjs().unix(), 'MM-DD hh:mm A')}`}
           </span>
         }
         className={(isHighlight && !isChatMode) ? '' : '!hidden'}
@@ -666,56 +604,63 @@ const ConversationList: FC<IConversationList> = ({ logs, appDetail, onRefresh })
 
   return (
     <div className='overflow-x-auto'>
-      <table className={`w-full min-w-[440px] border-collapse border-0 text-sm mt-3 ${s.logTable}`}>
-        <thead className="h-8 leading-8 border-b border-gray-200 text-gray-500 font-bold">
+      <table className={cn('mt-2 w-full min-w-[440px] border-collapse border-0')}>
+        <thead className='system-xs-medium-uppercase text-text-tertiary'>
           <tr>
-            <td className='w-[1.375rem] whitespace-nowrap'></td>
-            <td className='whitespace-nowrap'>{t('appLog.table.header.time')}</td>
-            <td className='whitespace-nowrap'>{t('appLog.table.header.endUser')}</td>
-            <td className='whitespace-nowrap'>{isChatMode ? t('appLog.table.header.summary') : t('appLog.table.header.input')}</td>
-            <td className='whitespace-nowrap'>{isChatMode ? t('appLog.table.header.messageCount') : t('appLog.table.header.output')}</td>
-            <td className='whitespace-nowrap'>{t('appLog.table.header.userRate')}</td>
-            <td className='whitespace-nowrap'>{t('appLog.table.header.adminRate')}</td>
+            <td className='pl-2 pr-1 w-5 rounded-l-lg bg-background-section-burn whitespace-nowrap'></td>
+            <td
+              className='pl-3 py-1.5 bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.startTime')}</td>
+            <td
+              className='pl-3 py-1.5 bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.threadId')}</td>
+            <td
+              className='pl-3 py-1.5 bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.workflowRunId')}</td>
+            <td
+              className='pl-3 py-1.5 bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.status')}</td>
+            <td
+              className='pl-3 py-1.5 bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.runtime')}</td>
+            <td
+              className='pl-3 py-1.5 rounded-r-lg bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.user')}</td>
           </tr>
         </thead>
-        <tbody className="text-gray-500">
-          {logs.data.map((log: any) => {
-            const endUser = log.from_end_user_session_id
-            const leftValue = get(log, isChatMode ? 'name' : 'message.inputs.query') || (!isChatMode ? (get(log, 'message.query') || get(log, 'message.inputs.default_input')) : '') || ''
-            const rightValue = get(log, isChatMode ? 'message_count' : 'message.answer')
+        <tbody className="text-text-secondary system-sm-regular">
+          {logs.data.map((log: WorkflowRunLog) => {
+            const endUser = log.userName ? `${log.userName}(${log.userId})` : log.userId
             return <tr
-              key={log.id}
-              className={`border-b border-gray-200 h-8 hover:bg-gray-50 cursor-pointer ${currentConversation?.id !== log.id ? '' : 'bg-gray-50'}`}
-              onClick={() => {
-                setShowDrawer(true)
+              key={log.workflowRunId}
+              className={cn('border-b border-divider-subtle hover:bg-background-default-hover cursor-pointer select-text', currentConversation?.workflowRunId !== log.workflowRunId ? '' : 'bg-background-default-hover')}
+              onClick={(e) => {
+                // Allow text selection without triggering drawer
+                if (window.getSelection()?.toString())
+                  return
+                if (!log.threadId) {
+                  notify({ type: 'warning', message: t('appLog.error.noThreadId') })
+                  return
+                }
                 setCurrentConversation(log)
+                setShowDrawer(true)
               }}>
-              <td className='text-center align-middle'>{!log.read_at && <span className='inline-block bg-[#3F83F8] h-1.5 w-1.5 rounded'></span>}</td>
-              <td className='w-[160px]'>{formatTime(log.created_at, t('appLog.dateTimeFormat') as string)}</td>
-              <td>{renderTdValue(endUser || defaultValue, !endUser)}</td>
-              <td style={{ maxWidth: isChatMode ? 300 : 200 }}>
-                {renderTdValue(leftValue || t('appLog.table.empty.noChat'), !leftValue, isChatMode && log.annotated)}
+              <td className='h-4'>
+                {(
+                  <div className='p-3 pr-0.5 flex items-center'>
+                    <span className='inline-block bg-util-colors-blue-blue-500 h-1.5 w-1.5 rounded'></span>
+                  </div>
+                )}
               </td>
-              <td style={{ maxWidth: isChatMode ? 100 : 200 }}>
-                {renderTdValue(rightValue === 0 ? 0 : (rightValue || t('appLog.table.empty.noOutput')), !rightValue, !isChatMode && !!log.annotation?.content, log.annotation)}
+              <td
+                className='p-3 pr-2 w-[210px]'>{formatMilliseconds(log.ctime, t('appLog.dateTimeFormat') as string)}</td>
+              <td className='p-3 pr-2 w-[180px]'>{log.threadId ? log.threadId : 'N/A'}</td>
+              <td className='p-3 pr-2 w-[288px]'>{log.workflowRunId}</td>
+              <td className='p-3 pr-2'>{statusTdRender(log.status)}</td>
+              <td className='p-3 pr-2'>
+                <div className={cn(
+                  log.elapsedTime === 0 && 'text-text-quaternary',
+                )}>{`${(log.elapsedTime ? (log.elapsedTime / 1000).toFixed(3) : 'N/A ')}s`}</div>
               </td>
-              <td>
-                {(!log.user_feedback_stats.like && !log.user_feedback_stats.dislike)
-                  ? renderTdValue(defaultValue, true)
-                  : <>
-                    {!!log.user_feedback_stats.like && <HandThumbIconWithCount iconType='up' count={log.user_feedback_stats.like} />}
-                    {!!log.user_feedback_stats.dislike && <HandThumbIconWithCount iconType='down' count={log.user_feedback_stats.dislike} />}
-                  </>
-                }
-              </td>
-              <td>
-                {(!log.admin_feedback_stats.like && !log.admin_feedback_stats.dislike)
-                  ? renderTdValue(defaultValue, true)
-                  : <>
-                    {!!log.admin_feedback_stats.like && <HandThumbIconWithCount iconType='up' count={log.admin_feedback_stats.like} />}
-                    {!!log.admin_feedback_stats.dislike && <HandThumbIconWithCount iconType='down' count={log.admin_feedback_stats.dislike} />}
-                  </>
-                }
+              <td className='p-3 pr-2'>
+                <div
+                  className={cn(endUser === defaultValue ? 'text-text-quaternary' : 'text-text-secondary', 'overflow-hidden text-ellipsis whitespace-nowrap')}>
+                  {endUser}
+                </div>
               </td>
             </tr>
           })}
@@ -732,10 +677,8 @@ const ConversationList: FC<IConversationList> = ({ logs, appDetail, onRefresh })
           onClose: onCloseDrawer,
           appDetail,
         }}>
-          {isChatMode
-            ? <ChatConversationDetailComp appId={appDetail.id} conversationId={currentConversation?.id} />
-            : <CompletionConversationDetailComp appId={appDetail.id} conversationId={currentConversation?.id} />
-          }
+          <ChatConversationDetailComp appId={appDetail.id} conversationId={currentConversation?.threadId as string}
+            workflowRunId={currentConversation?.workflowRunId as string}/>
         </DrawerContext.Provider>
       </Drawer>
     </div>

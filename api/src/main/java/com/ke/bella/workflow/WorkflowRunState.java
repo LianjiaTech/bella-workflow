@@ -3,6 +3,7 @@ package com.ke.bella.workflow;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ke.bella.openapi.BellaContext;
@@ -253,6 +255,10 @@ public class WorkflowRunState implements Serializable {
         failed,
         stopped,
         suspended;
+
+        public static List<WorkflowRunStatus> all() {
+            return Arrays.stream(WorkflowRunStatus.values()).collect(Collectors.toList());
+        }
     }
 
 }

@@ -85,6 +85,9 @@ public class WorkflowService {
     @Autowired
     RedisMesh mesh;
 
+    @Autowired
+    WorkflowRunLogService ls;
+
     WorkflowRunManager manager;
 
     public static final String EVENT_INTERRUPT = "interruptWorkflowRun";

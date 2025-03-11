@@ -1,22 +1,24 @@
 package com.ke.bella.workflow.utils;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.api.DifyController;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.node.NodeType;
-
-import java.time.ZoneId;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
+import com.ke.bella.workflow.service.WorkflowRunCallback;
 
 public class DifyUtils {
     public static WorkflowSchema getDefaultWorkflowSchema() {
@@ -57,11 +59,11 @@ public class DifyUtils {
         return schema;
     }
 
-    public static List<DifyController.DifyNodeExecution.DifyNodeRun> transfer(List<WorkflowNodeRunDB> nodeRunDBs) {
+    public static List<DifyController.DifyNodeExecution.DifyNodeRun> transfer0(List<WorkflowRunCallback.WorkflowRunLog> workflowRunLogs) {
         AtomicInteger index = new AtomicInteger(1);
         AtomicReference<String> lastNodeId = new AtomicReference<>(null);
-        List<DifyController.DifyNodeExecution.DifyNodeRun> collect = nodeRunDBs.stream()
-                .sorted(Comparator.comparing(WorkflowNodeRunDB::getCtime))
+        List<DifyController.DifyNodeExecution.DifyNodeRun> collect = workflowRunLogs.stream()
+                .sorted(Comparator.comparing(WorkflowRunCallback.WorkflowRunLog::getCtime))
                 .map(nodeRunDB -> {
                     DifyController.DifyNodeExecution.DifyNodeRun nodeRun = createDifyNodeRun(nodeRunDB, index.getAndIncrement(), lastNodeId.get());
                     lastNodeId.set(nodeRunDB.getNodeId());
@@ -72,53 +74,66 @@ public class DifyUtils {
         return collect;
     }
 
-    private static DifyController.DifyNodeExecution.DifyNodeRun createDifyNodeRun(WorkflowNodeRunDB nodeRunDB, int index, String predecessorNodeId) {
+    private static DifyController.DifyNodeExecution.DifyNodeRun createDifyNodeRun(WorkflowRunCallback.WorkflowRunLog runLog, int index,
+            String predecessorNodeId) {
+        Long ctime = Optional.ofNullable(runLog.getCtime()).map(c -> Instant.ofEpochMilli(c).atZone(ZoneId.systemDefault()).toEpochSecond())
+                .orElse(0L);
+        Long elapsedTime = Optional.ofNullable(runLog.getElapsedTime()).orElse(0L);
         return DifyController.DifyNodeExecution.DifyNodeRun.builder()
-                .id(nodeRunDB.getNodeRunId())
+                .id(runLog.getNodeRunId())
                 .index(index)
                 .predecessor_node_id(predecessorNodeId)
-                .node_id(nodeRunDB.getNodeId())
-                .node_type(nodeRunDB.getNodeType())
-                .title(nodeRunDB.getTitle())
-                .inputs(JsonUtils.fromJson(nodeRunDB.getInputs(), Map.class))
-                .process_data(JsonUtils.fromJson(nodeRunDB.getProcessData(), Map.class))
-                .outputs(JsonUtils.fromJson(nodeRunDB.getOutputs(), Map.class))
-                .status(nodeRunDB.getStatus())
-                .error(nodeRunDB.getError())
-                .elapsed_time(nodeRunDB.getElapsedTime() / 1000d)
-                .created_at(nodeRunDB.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                .node_id(runLog.getNodeId())
+                .node_type(runLog.getNodeType())
+                .title(runLog.getNodeTitle())
+                .inputs((Map) runLog.getNodeInputs())
+                .process_data((Map) runLog.getNodeProcessData())
+                .outputs((Map) runLog.getNodeOutputs())
+                .status(runLog.getStatus())
+                .error(runLog.getError())
+                .elapsed_time(elapsedTime / 1000d)
+                .created_at(ctime)
                 .created_by_role("account")
-                .created_by_account(DifyController.Account.builder().id(String.valueOf(nodeRunDB.getCuid())).name(nodeRunDB.getCuName()).email("").build())
-                .finished_at(nodeRunDB.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
+                .created_by_account(
+                        DifyController.Account.builder().id(String.valueOf(runLog.getUserId())).name(runLog.getUserName()).email("").build())
+                .finished_at((ctime + elapsedTime))
                 .build();
     }
 
-    public static DifyController.DifyRunHistory transfer(WorkflowRunDB e) {
+    public static DifyController.DifyRunHistory transfer(WorkflowRunCallback.WorkflowRunLog e) {
+        Long ctime = Optional.ofNullable(e.getCtime()).map(c -> Instant.ofEpochMilli(c).atZone(ZoneId.systemDefault()).toEpochSecond())
+                .orElse(0L);
+        Long elapsedTime = Optional.ofNullable(e.getElapsedTime()).orElse(0L);
+
         return DifyController.DifyRunHistory.builder()
                 .id(e.getWorkflowRunId())
-                .version(String.valueOf(e.getWorkflowVersion()))
                 .conversation_id(String.valueOf(e.getThreadId()))
                 .status(e.getStatus())
-                .created_by_account(DifyController.Account.builder().id(String.valueOf(e.getCuid())).name(e.getCuName()).email("").build())
-                .created_at(e.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .finished_at(e.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .elapsed_time(e.getElapsedTime() / 1000d)
+                .created_by_account(DifyController.Account.builder().id(String.valueOf(e.getUserId())).name(e.getUserName()).email("").build())
+                .created_at(ctime - elapsedTime)
+                .finished_at(ctime)
+                .elapsed_time(elapsedTime / 1000d)
                 .build();
     }
 
-    public static DifyController.DifyRunHistoryDetails transfer(WorkflowRunDB wr, WorkflowDB wf) {
+    @SuppressWarnings("all")
+    public static DifyController.DifyRunHistoryDetails transfer(WorkflowRunCallback.WorkflowRunLog wrl, WorkflowDB wf) {
         WorkflowSchema workflowSchema = JsonUtils.fromJson(wf.getGraph(), WorkflowSchema.class);
+        Map difyInputs = new HashMap();
+        difyInputs.put("inputs", wrl.getInputs());
+        difyInputs.put("sys", wrl.getSys());
+
         return DifyController.DifyRunHistoryDetails.builder()
-                .id(wr.getWorkflowRunId())
-                .version(wr.getWorkflowVersion() == 0 ? "draft" : String.valueOf(wr.getWorkflowVersion()))
-                .status(wr.getStatus())
+                .id(wrl.getWorkflowRunId())
+                .version(wf.getVersion() == 0 ? "draft" : String.valueOf(wf.getVersion()))
+                .status(wrl.getStatus())
                 .created_by_account(
-                        DifyController.Account.builder().id(String.valueOf(wr.getCuid())).name(wr.getCuName()).email("").build())
-                .created_at(wr.getCtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .finished_at(wr.getMtime().atZone(ZoneId.systemDefault()).toEpochSecond())
-                .elapsed_time(wr.getElapsedTime() / 1000d)
+                        DifyController.Account.builder().id(String.valueOf(wrl.getUserId())).name(wrl.getUserName()).email("").build())
+                .created_at(wrl.getCtime())
+                .finished_at(wrl.getCtime() + wrl.getElapsedTime())
+                .elapsed_time(wrl.getElapsedTime() / 1000d)
                 .graph(workflowSchema.getGraph())
-                .inputs(JsonUtils.fromJson(wr.getInputs(), Map.class)).build();
+                .inputs(difyInputs).build();
     }
 
     public static DifyController.DifyWorkflowVersion transfer(WorkflowDB db) {

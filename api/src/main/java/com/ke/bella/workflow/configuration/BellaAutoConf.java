@@ -3,9 +3,17 @@ package com.ke.bella.workflow.configuration;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.springdoc.core.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -84,5 +92,18 @@ public class BellaAutoConf {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Bean
+    public RestHighLevelClient restHighLevelClient(@Value("${bella.workflow.run-log.elasticsearch.hosts}") String hosts,
+            @Value("${bella.workflow.run-log.elasticsearch.username}") String username,
+            @Value("${bella.workflow.run-log.elasticsearch.password}") String password) {
+        HttpHost[] hostArray = Arrays.stream(hosts.split(",")).map(HttpHost::create).toArray(HttpHost[]::new);
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(username, password));
+        return new RestHighLevelClient(
+                RestClient.builder(hostArray).setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
+                        .setDefaultCredentialsProvider(credentialsProvider)));
     }
 }

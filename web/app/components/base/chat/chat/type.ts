@@ -2,7 +2,6 @@ import type { TypeWithI18N } from '@/app/components/header/account-setting/model
 import type { Annotation, MessageRating } from '@/models/log'
 import type { FileEntity } from '@/app/components/base/file-uploader/types'
 import type { InputVarType } from '@/app/components/workflow/types'
-import type { VisionFile } from '@/types/app'
 
 export type MessageMore = {
   time: string
@@ -38,7 +37,7 @@ export type ThoughtItem = {
   observation: string
   position: number
   files?: string[]
-  message_files?: VisionFile[]
+  message_files?: FileEntity[]
 }
 
 export type CitationItem = {
@@ -58,7 +57,7 @@ export type CitationItem = {
 
 export type IChatItem = {
   id: string
-  content: string
+  content?: string
   citation?: CitationItem[]
   /**
      * Specific message type

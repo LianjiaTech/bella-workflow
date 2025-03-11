@@ -10,7 +10,6 @@ import { useChatContext } from '../context'
 import cn from '@/utils/classnames'
 import CopyBtn from '@/app/components/base/copy-btn'
 import { MessageFast } from '@/app/components/base/icons/src/vender/solid/communication'
-import AudioBtn from '@/app/components/base/audio-btn'
 import AnnotationCtrlBtn from '@/app/components/app/configuration/toolbox/annotation/annotation-ctrl-btn'
 import EditReplyModal from '@/app/components/app/annotation/edit-annotation-modal'
 import {
@@ -110,29 +109,17 @@ const Operation: FC<OperationProps> = ({
           />
         )}
 
-        {!isOpeningStatement && (showPromptLog || config?.text_to_speech?.enabled) && (
+        { item.workflow_run_id && (
           <div className='hidden group-hover:flex items-center w-max h-[28px] p-0.5 rounded-lg bg-white border-[0.5px] border-gray-100 shadow-md shrink-0'>
             {showPromptLog && (
               <>
                 <Log logItem={item} />
-                <div className='mx-1 w-[1px] h-[14px] bg-gray-200' />
-              </>
-            )}
-
-            {(config?.text_to_speech?.enabled) && (
-              <>
-                <AudioBtn
-                  id={id}
-                  value={content}
-                  noCache={false}
-                  className='hidden group-hover:block'
-                />
               </>
             )}
           </div>
         )}
 
-        {(!isOpeningStatement && config?.supportAnnotation && config.annotation_reply?.enabled) && (
+        {false && (!isOpeningStatement && config?.supportAnnotation && config.annotation_reply?.enabled) && (
           <AnnotationCtrlBtn
             appId={config?.appId || ''}
             messageId={id}

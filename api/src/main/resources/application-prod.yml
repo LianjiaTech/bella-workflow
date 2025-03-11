@@ -61,13 +61,18 @@ bella:
     hosts: example.com,example.com
     domain: http://example.com
     trigger:
-        callback-path: /v1/workflow/trigger/callback
+      callback-path: /v1/workflow/trigger/callback
     run-path: /v1/workflow/run
     redis:
-        host: 0.0.0.0
-        port: 6379
-        password: bella123
+      host: 0.0.0.0
+      port: 6379
+      password: bella123
     files-upload-configs: '{"file_size_limit":512,"batch_count_limit":5,"image_file_size_limit":512,"video_file_size_limit":100,"audio_file_size_limit":100,"workflow_file_upload_limit":10}'
+    run-log:
+      elasticsearch:
+        hosts: example.com:9200,example.com:9200,example.com:9200
+        username: bella_workflow
+        password: eKXwhnSz2l
   knowledge-file:
     search: http://example.com/api/v1/knowledge/searchNew/forWorkflow
   cas:

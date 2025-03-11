@@ -1,7 +1,10 @@
 const translation = {
   title: '日志',
-  description: '日志记录了应用的运行情况，包括用户的输入和 AI 的回复。',
+  description: '日志记录了工作流的API调用情况',
   dateTimeFormat: 'YYYY-MM-DD HH:mm:ss.SSS',
+  error: {
+    noThreadId: '不支持查看`stateful==false`或`ThreadId==null`的记录',
+  },
   table: {
     header: {
       time: '时间',
@@ -18,6 +21,8 @@ const translation = {
       tokens: 'TOKENS',
       user: '用户',
       version: '版本',
+      workflowRunId: 'WORKFLOW_RUN_ID',
+      threadId: 'THREAD_ID',
     },
     pagination: {
       previous: '上一页',
@@ -28,7 +33,7 @@ const translation = {
       noOutput: '无输出',
       element: {
         title: '这里有人吗',
-        content: '在这里观测和标注最终用户和 AI 应用程序之间的交互，以不断提高 AI 的准确性。您可以<testLink>试试</testLink> WebApp 或<shareLink>分享</shareLink>出去，然后返回此页面。',
+        content: '在这里观测最终用户和 AI 应用程序之间的交互。了解 AI 应用程序的运行情况<br/>（注意：仅记录通过 API 调用 AI 程序的记录）',
       },
     },
   },
@@ -71,7 +76,7 @@ const translation = {
     },
   },
   workflowTitle: '日志',
-  workflowSubtitle: '日志记录了应用的执行情况',
+  workflowSubtitle: '日志记录了工作流的API调用情况',
   runDetail: {
     title: '对话日志',
     workflowTitle: '日志详情',

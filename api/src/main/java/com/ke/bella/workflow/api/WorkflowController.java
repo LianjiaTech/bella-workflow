@@ -1,5 +1,18 @@
 package com.ke.bella.workflow.api;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.Assert;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.Operator;
 import com.ke.bella.workflow.TaskExecutor;
@@ -27,23 +40,12 @@ import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
+import com.ke.bella.workflow.service.WorkflowRunCallback;
+import com.ke.bella.workflow.service.WorkflowRunLogService;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.utils.DifyUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/v1")
@@ -53,6 +55,9 @@ public class WorkflowController {
 
     @Autowired
     WorkflowService ws;
+
+    @Autowired
+    WorkflowRunLogService ls;
 
     @PostMapping("/workflow")
     public WorkflowDB createApp(@RequestBody DifyController.DifyApp app) {
@@ -291,8 +296,14 @@ public class WorkflowController {
     @RequestMapping("/workflow/{workflowId}/workflow-runs/{workflowRunId}/node-executions")
     public DifyController.DifyNodeExecution getWorkflowNodeRuns(@PathVariable String workflowId,
             @PathVariable String workflowRunId) {
-        List<WorkflowNodeRunDB> nodeRuns = ws.getNodeRuns(workflowRunId);
-        return DifyController.DifyNodeExecution.builder().data(DifyUtils.transfer(nodeRuns)).build();
+        WorkflowRunLogService.QueryOps ops = WorkflowRunLogService.QueryOps.builder()
+                .workflowId(workflowId)
+                .workflowRunId(workflowRunId)
+                .events(WorkflowRunCallback.WorkflowRunEvent.nodeFinishedEvents().stream().map(Enum::name).collect(Collectors.toList()))
+                .build();
+
+        Page<WorkflowRunCallback.WorkflowRunLog> runLogs = ls.pageWorkflowRunLogs(ops);
+        return DifyController.DifyNodeExecution.builder().data(DifyUtils.transfer0(runLogs.getData())).build();
     }
 
     @PostMapping("/workflow/templates/page")

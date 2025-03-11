@@ -1,9 +1,9 @@
 import type { Viewport } from 'reactflow'
-import type { VisionFile } from '@/types/app'
 import type {
   Edge,
   Node,
 } from '@/app/components/workflow/types'
+import type { FileEntity } from '@/app/components/base/file-uploader/types'
 
 // Log type contains key:string conversation_id:string created_at:string quesiton:string answer:string
 export type Conversation = {
@@ -79,7 +79,7 @@ export type MessageContent = {
   conversation_id: string
   query: string
   inputs: Record<string, any>
-  message: { role: string; text: string; files?: VisionFile[] }[]
+  message?: { role: string; text: string; files?: FileEntity[] }[]
   message_tokens: number
   answer_tokens: number
   answer: string
@@ -101,7 +101,7 @@ export type MessageContent = {
     from_source?: 'admin' | 'user'
     from_end_user_id?: string
   }>
-  message_files: VisionFile[]
+  message_files: FileEntity[]
   agent_thoughts: any[] // TODO
   workflow_run_id: string
 }
@@ -193,6 +193,7 @@ export type ChatConversationFullDetailResponse = Omit<CompletionConversationGene
 
 export type ChatMessagesRequest = {
   conversation_id: string
+  workflow_run_id?: string
   first_id?: string
   limit: number
 }
@@ -258,8 +259,40 @@ export type WorkflowAppLogDetail = {
   created_at: number
   read_at?: number
 }
+
+export type WorkflowRunLog = {
+  bellaTraceId: string
+  akCode: string | null
+  event: string
+  tenantId: string
+  userId: number
+  userName: string
+  workflowId: string
+  workflowRunId: string
+  flashMode: number
+  triggerFrom: string
+  threadId: string | null
+  stateful: boolean
+  sys: Record<string, any>
+  inputs: Record<string, any>
+  outputs: Record<string, any> | null
+  status: 'running' | 'succeeded' | 'failed' | 'stopped'
+  ctime: number
+  elapsedTime: number | null
+  nodeId: string | null
+  nodeType: string | null
+  nodeTitle: string | null
+  nodeRunId: string | null
+  nodeInputs: Record<string, any> | null
+  nodeProcessData: Record<string, any> | null
+  nodeOutputs: Record<string, any> | null
+  error: string | null
+  iteration: boolean
+  iterationIndex: number | null
+}
+
 export type WorkflowLogsResponse = {
-  data: Array<WorkflowAppLogDetail>
+  data: Array<WorkflowRunLog>
   has_more: boolean
   limit: number
   total: number

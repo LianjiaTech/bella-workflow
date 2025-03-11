@@ -10,9 +10,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -34,11 +36,13 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.Operator;
 import com.ke.bella.openapi.space.RoleWithSpace;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.TaskExecutor;
+import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.EnvVar;
 import com.ke.bella.workflow.api.WorkflowOps.ResponseMode;
@@ -48,7 +52,6 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowAsApiPublish;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowOp;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
-import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowTrigger;
 import com.ke.bella.workflow.api.callbacks.DifySingleNodeRunBlockingCallback;
@@ -58,11 +61,13 @@ import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowNodeRunDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.service.Configs;
+import com.ke.bella.workflow.service.WorkflowRunCallback;
+import com.ke.bella.workflow.service.WorkflowRunCallback.WorkflowRunLog;
+import com.ke.bella.workflow.service.WorkflowRunLogService;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.space.BellaSpaceService;
@@ -95,6 +100,9 @@ public class DifyController {
 
     @Autowired
     BellaSpaceService ss;
+
+    @Autowired
+    WorkflowRunLogService ls;
 
     private void initContext(Operator op) {
         if(op != null && contextOperatorInvalid()) {
@@ -411,8 +419,37 @@ public class DifyController {
     }
 
     @RequestMapping("/{workflowId}/workflow-app-logs")
-    public Page<WorkflowRunDB> pageWorkflowRun(@PathVariable String workflowId) {
-        return ws.listWorkflowRun(WorkflowRunPage.builder().workflowId(workflowId).build());
+    public Page<WorkflowRunLog> pageWorkflowRunLog(@PathVariable String workflowId,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "1", required = false) int page,
+            @RequestParam(required = false) String workflowRunId,
+            @RequestParam(required = false) Long userId,
+            @RequestParam(defaultValue = "20", required = false) int limit) {
+        Assert.isTrue(page > 0, "page必须大于0");
+        Assert.isTrue(limit > 0, "limit必须大于0");
+        Assert.isTrue(page * limit <= 10000, "仅支持查看最近10000条记录");
+
+        List<WorkflowRunStatus> runStatus = null;
+        if(StringUtils.isEmpty(status) || "all".equals(status)) {
+            runStatus = WorkflowRunStatus.all();
+        } else {
+            runStatus = Stream.of(WorkflowRunStatus.valueOf(status)).collect(Collectors.toList());
+        }
+
+        List<String> status0 = runStatus.stream().map(WorkflowRunStatus::name).collect(Collectors.toList());
+
+        WorkflowRunLogService.QueryOps ops = WorkflowRunLogService.QueryOps.builder()
+                .workflowId(workflowId)
+                .triggerFroms(Lists.newArrayList(TriggerFrom.API.name(), TriggerFrom.CUSTOM_API.name()))
+                .events(WorkflowRunCallback.WorkflowRunEvent.runFinishedEvents().stream().map(Enum::name).collect(Collectors.toList()))
+                .status(status0)
+                .fromIndex((page - 1) * limit)
+                .size(limit)
+                .workflowRunId(workflowRunId)
+                .userId(userId)
+                .build();
+
+        return ls.pageWorkflowRunLogs(ops);
     }
 
     @RequestMapping("/{workflowId}/workflow-triggers")
@@ -507,25 +544,33 @@ public class DifyController {
             @RequestParam(value = "limit", defaultValue = "100") int limit) {
         Assert.isTrue(limit > 0, "limit必须大于0");
         Assert.isTrue(limit < 101, "limit必须小于100");
-        WorkflowRunPage page = WorkflowRunPage.builder().lastId(lastId).pageSize(limit).workflowId(workflowId).build();
-        Page<WorkflowRunDB> workflowRunsDbPage = ws.listWorkflowRun(page);
-        List<WorkflowRunDB> workflowRunsDb = workflowRunsDbPage.getData();
+        WorkflowRunLogService.QueryOps ops = WorkflowRunLogService.QueryOps.builder()
+                .size(limit)
+                .workflowId(workflowId)
+                .lastWorkflowRunId(lastId)
+                .triggerFroms(Lists.newArrayList(TriggerFrom.DEBUG.name()))
+                .events(WorkflowRunCallback.WorkflowRunEvent.runFinishedEvents().stream().map(Enum::name).collect(Collectors.toList()))
+                .build();
+
+        Page<WorkflowRunLog> page = ls.pageWorkflowRunLogs(ops);
+
+        List<WorkflowRunLog> dataPaged = page.getData();
         AtomicInteger counter = new AtomicInteger(1);
-        List<WorkflowRunDB> workflows = null;
+        List<WorkflowRunLog> workflows = null;
         // 如果thread_id之前已出现，则将此WorkflowRun从List中剔除
 
         // 获取请求路径，如果是advanced chat，则需要去重
         if(request.getRequestURI().contains("advanced-chat")) {
             workflows = new ArrayList<>();
             Set<String> threadIds = new HashSet<>();
-            for (WorkflowRunDB workflowRunDB : workflowRunsDb) {
+            for (WorkflowRunLog workflowRunDB : dataPaged) {
                 if(!threadIds.contains(workflowRunDB.getThreadId())) {
                     threadIds.add(workflowRunDB.getThreadId());
                     workflows.add(workflowRunDB);
                 }
             }
         } else {
-            workflows = workflowRunsDb;
+            workflows = dataPaged;
         }
 
         List<DifyRunHistory> list = workflows.stream()
@@ -536,52 +581,61 @@ public class DifyController {
         Page<DifyRunHistory> result = new Page<>();
         result.setPage(page.getPage());
         result.pageSize(page.getPageSize());
-        result.total(workflowRunsDbPage.getTotal());
+        result.total(page.getTotal());
         result.list(list);
         return result;
     }
 
     @RequestMapping("/{workflowId}/chat-messages")
     public Page<DifyChatFlowRun> pageChatFlowRuns(@PathVariable String workflowId,
-            @RequestParam(value = "conversation_id", required = false) String threadId) {
-        OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApikey().getApikey());
-
-        List<Message> messages = openAiService.listMessages(threadId, new MessageListSearchParameters()).getData();
-        Collections.reverse(messages);
-        List<List<Message>> groupedMessages = new ArrayList<>();
-        List<Message> currentGroup = null;
-
+            @RequestParam(value = "conversation_id", required = false) String threadId,
+            @RequestParam(value = "workflow_run_id", required = false) String workflowRunId) {
         List<DifyChatFlowRun> chatFlowRuns = new ArrayList<>();
+        // 兼容无状态的chatflow查询日志
+        if(!StringUtils.hasText(threadId)) {
+            DifyChatFlowRun run = DifyChatFlowRun.builder()
+                    .workflow_run_id(workflowRunId)
+                    .build();
+            chatFlowRuns = Collections.singletonList(run);
 
-        try {
-            for (Message message : messages) {
-                if(message.getRole().equals("user")) {
-                    currentGroup = new ArrayList<>();
-                    groupedMessages.add(currentGroup);
-                    currentGroup.add(message);
-                } else {
-                    if(CollectionUtils.isEmpty(currentGroup)) {
-                        continue;
+        } else {
+
+            OpenAiService openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApikey().getApikey());
+
+            List<Message> messages = openAiService.listMessages(threadId, new MessageListSearchParameters()).getData();
+            Collections.reverse(messages);
+            List<List<Message>> groupedMessages = new ArrayList<>();
+            List<Message> currentGroup = null;
+
+            try {
+                for (Message message : messages) {
+                    if(message.getRole().equals("user")) {
+                        currentGroup = new ArrayList<>();
+                        groupedMessages.add(currentGroup);
+                        currentGroup.add(message);
+                    } else {
+                        if(CollectionUtils.isEmpty(currentGroup)) {
+                            continue;
+                        }
+                        currentGroup.add(message);
                     }
-                    currentGroup.add(message);
                 }
-            }
 
-            for (List<Message> groupedMessage : groupedMessages) {
-                DifyChatFlowRun run = DifyChatFlowRun.builder()
-                        .id(groupedMessage.get(0).getId())
-                        .conversation_id(groupedMessage.get(0).getThreadId())
-                        .query(groupedMessage.get(0).getContent().get(0).getText().getValue())
-                        .answer(groupedMessage.subList(1, groupedMessage.size()).stream().map(e -> e.getContent().get(0).getText().getValue())
-                                .collect(Collectors.joining()))
-                        .created_at((long) groupedMessage.get(0).getCreatedAt())
-                        .workflow_run_id(groupedMessage.get(0).getRunId())
-                        .build();
-                chatFlowRuns.add(run);
+                for (List<Message> groupedMessage : groupedMessages) {
+                    DifyChatFlowRun run = DifyChatFlowRun.builder()
+                            .id(groupedMessage.get(0).getId())
+                            .conversation_id(groupedMessage.get(0).getThreadId())
+                            .query(groupedMessage.get(0).getContent().get(0).getText().getValue())
+                            .answer(groupedMessage.subList(1, groupedMessage.size()).stream().map(e -> e.getContent().get(0).getText().getValue())
+                                    .collect(Collectors.joining()))
+                            .created_at((long) groupedMessage.get(0).getCreatedAt())
+                            .workflow_run_id(Optional.ofNullable(groupedMessage.get(0).getMetadata()).map(e -> e.get("workflowRunId")).orElse(null))
+                            .build();
+                    chatFlowRuns.add(run);
+                }
+            } catch (Exception e) {
+                LOGGER.warn("pageChatFlowRuns error={}", Throwables.getStackTraceAsString(e));
             }
-        } catch (Exception e) {
-            LOGGER.warn("pageChatFlowRuns error={}", Throwables.getStackTraceAsString(e));
-            // fixme
         }
 
         Page<DifyChatFlowRun> result = new Page<>();
@@ -597,14 +651,22 @@ public class DifyController {
             @PathVariable String workflowRunId) {
         WorkflowRunDB wr = ws.getWorkflowRun(workflowRunId);
         WorkflowDB wf = ws.getWorkflow(workflowId, wr.getWorkflowVersion());
-        return DifyUtils.transfer(wr, wf);
+
+        WorkflowRunLog wrl = ls.getWorkflowRunLogAgg(workflowRunId);
+        return DifyUtils.transfer(wrl, wf);
     }
 
     @RequestMapping("/{workflowId}/workflow-runs/{workflowRunId}/node-executions")
     public DifyNodeExecution getWorkflowNodeRuns(@PathVariable String workflowId,
             @PathVariable String workflowRunId) {
-        List<WorkflowNodeRunDB> nodeRuns = ws.getNodeRuns(workflowRunId);
-        return DifyNodeExecution.builder().data(DifyUtils.transfer(nodeRuns)).build();
+        WorkflowRunLogService.QueryOps ops = WorkflowRunLogService.QueryOps.builder()
+                .workflowId(workflowId)
+                .events(WorkflowRunCallback.WorkflowRunEvent.nodeFinishedEvents().stream().map(Enum::name).collect(Collectors.toList()))
+                .workflowRunId(workflowRunId)
+                .build();
+
+        Page<WorkflowRunLog> runLogs = ls.pageWorkflowRunLogs(ops);
+        return DifyNodeExecution.builder().data(DifyUtils.transfer0(runLogs.getData())).build();
     }
 
     @GetMapping("/{workflowId}/workflows/default-workflow-block-configs/{blockType}")

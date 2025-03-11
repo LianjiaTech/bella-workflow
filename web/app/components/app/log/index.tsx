@@ -4,26 +4,26 @@ import React, { useState } from 'react'
 import useSWR from 'swr'
 import { usePathname } from 'next/navigation'
 import { Pagination } from 'react-headless-pagination'
-import { omit } from 'lodash-es'
-import dayjs from 'dayjs'
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 import { Trans, useTranslation } from 'react-i18next'
 import Link from 'next/link'
+import { useDebounce } from 'ahooks'
 import List from './list'
-import Filter from './filter'
 import s from './style.module.css'
 import Loading from '@/app/components/base/loading'
-import { fetchChatConversations, fetchCompletionConversations } from '@/service/log'
+import { fetchWorkflowLogs } from '@/service/log'
 import { APP_PAGE_LIMIT } from '@/config'
 import type { App, AppMode } from '@/types/app'
+import Filter from '@/app/components/app/workflow-log/filter'
 export type ILogsProps = {
   appDetail: App
 }
 
 export type QueryParam = {
-  period?: number | string
-  annotation_status?: string
+  status?: string
   keyword?: string
+  workflowRunId?: string
+  userId?: number
 }
 
 const ThreeDotsIcon = ({ className }: SVGProps<SVGElement>) => {
@@ -52,19 +52,16 @@ const EmptyElement: FC<{ appUrl: string }> = ({ appUrl }) => {
 
 const Logs: FC<ILogsProps> = ({ appDetail }) => {
   const { t } = useTranslation()
-  const [queryParams, setQueryParams] = useState<QueryParam>({ period: 7, annotation_status: 'all' })
+  const [queryParams, setQueryParams] = useState<QueryParam>({ status: 'all' })
+  const debouncedQueryParams = useDebounce(queryParams, { wait: 500 })
   const [currPage, setCurrPage] = React.useState<number>(0)
 
   const query = {
     page: currPage + 1,
     limit: APP_PAGE_LIMIT,
-    ...(queryParams.period !== 'all'
-      ? {
-        start: dayjs().subtract(queryParams.period as number, 'day').startOf('day').format('YYYY-MM-DD HH:mm'),
-        end: dayjs().format('YYYY-MM-DD HH:mm'),
-      }
-      : {}),
-    ...omit(queryParams, ['period']),
+    ...(debouncedQueryParams.status !== 'all' ? { status: debouncedQueryParams.status } : {}),
+    ...(debouncedQueryParams.workflowRunId ? { workflowRunId: debouncedQueryParams.workflowRunId } : {}),
+    ...(debouncedQueryParams.userId ? { userId: debouncedQueryParams.userId } : {}),
   }
 
   const getWebAppType = (appType: AppMode) => {
@@ -76,32 +73,22 @@ const Logs: FC<ILogsProps> = ({ appDetail }) => {
   // Get the app type first
   const isChatMode = appDetail.mode !== 'completion'
 
-  // When the details are obtained, proceed to the next request
-  const { data: chatConversations, mutate: mutateChatList } = useSWR(() => isChatMode
-    ? {
-      url: `/apps/${appDetail.id}/chat-conversations`,
-      params: query,
-    }
-    : null, fetchChatConversations)
+  const { data: workflowLogs, mutate: mutateWorkflowRunLogs } = useSWR({
+    url: `/apps/${appDetail.id}/workflow-app-logs`,
+    params: query,
+  }, fetchWorkflowLogs)
 
-  const { data: completionConversations, mutate: mutateCompletionList } = useSWR(() => !isChatMode
-    ? {
-      url: `/apps/${appDetail.id}/completion-conversations`,
-      params: query,
-    }
-    : null, fetchCompletionConversations)
-
-  const total = isChatMode ? chatConversations?.total : completionConversations?.total
+  const total = workflowLogs?.total
 
   return (
     <div className='flex flex-col h-full'>
       <p className='flex text-sm font-normal text-gray-500'>{t('appLog.description')}</p>
       <div className='flex flex-col py-4 flex-1'>
-        <Filter appId={appDetail.id} queryParams={queryParams} setQueryParams={setQueryParams} />
+        <Filter queryParams={queryParams} setQueryParams={setQueryParams} />
         {total === undefined
           ? <Loading type='app' />
           : total > 0
-            ? <List logs={isChatMode ? chatConversations : completionConversations} appDetail={appDetail} onRefresh={isChatMode ? mutateChatList : mutateCompletionList} />
+            ? <List logs={workflowLogs} appDetail={appDetail} onRefresh={mutateWorkflowRunLogs} />
             : <EmptyElement appUrl={`${appDetail.site.app_base_url}/${getWebAppType(appDetail.mode)}/${appDetail.site.access_token}`} />
         }
         {/* Show Pagination only if the total is more than the limit */}

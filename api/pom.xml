@@ -23,11 +23,17 @@
     <ke-infrastructure.version>2.1.28</ke-infrastructure.version>
     <jooq.version>3.14.15</jooq.version>
     <jackson.version>2.14.2</jackson.version>
+    <elasticsearch.version>7.7.0</elasticsearch.version>
     <junit-jupiter.version>5.9.2</junit-jupiter.version>
     <junit-platform.version>1.9.2</junit-platform.version>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.elasticsearch.client</groupId>
+      <artifactId>elasticsearch-rest-high-level-client</artifactId>
+      <version>${elasticsearch.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.lianjia.infrastructure</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>

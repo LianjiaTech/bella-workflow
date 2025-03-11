@@ -40,7 +40,6 @@ const ChatRecord = () => {
         res.push({
           id: item.id,
           content: item.answer,
-          feedback: item.feedback,
           isAnswer: true,
           citation: item.metadata?.retriever_resources,
           message_files: item.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],

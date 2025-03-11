@@ -34,7 +34,7 @@ const Log: FC<LogProps> = ({
       }}
     >
       <File02 className='mr-1 w-4 h-4' />
-      <div className='text-xs leading-4'>{runID ? t('appLog.viewLog') : isAgent ? t('appLog.agentLog') : t('appLog.promptLog')}</div>
+      <div className='text-xs leading-4'>{runID ? t('appLog.viewLog') : isAgent ? t('appLog.agentLog') : t('appLog.viewLog')}</div>
     </div>
   )
 }

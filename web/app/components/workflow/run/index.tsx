@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useContext } from 'use-context-selector'
 import { useTranslation } from 'react-i18next'
 import { useBoolean } from 'ahooks'
@@ -22,10 +22,9 @@ export type RunProps = {
   activeTab?: 'RESULT' | 'DETAIL' | 'TRACING'
   runID: string
   getResultCallback?: (result: WorkflowRunDetailResponse) => void
-  onShowIterationDetail: (detail: NodeTracing[][]) => void
 }
 
-const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getResultCallback, onShowIterationDetail }) => {
+const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getResultCallback }) => {
   const { t } = useTranslation()
   const { notify } = useContext(ToastContext)
   const [currentTab, setCurrentTab] = useState<string>(activeTab)
@@ -237,7 +236,7 @@ const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getRe
             elapsed_time={runDetail.elapsed_time}
             total_tokens={runDetail.total_tokens}
             created_at={runDetail.created_at}
-            created_by={runDetail.created_by}
+            created_by={runDetail.created_by_account?.name}
             steps={runDetail.total_steps}
           />
         )}

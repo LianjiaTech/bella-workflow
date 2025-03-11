@@ -65,15 +65,20 @@ bella:
     hosts: localhost:8080,example.com,localhost:8083
     domain: http://example.com
     trigger:
-        callback-path: /v1/workflow/trigger/callback
+      callback-path: /v1/workflow/trigger/callback
     run-path: /v1/workflow/run
     sandbox:
       groovy: true
     redis:
-        host: 0.0.0.0
-        port: 6379
-        password: scaks3askjdh
+      host: 0.0.0.0
+      port: 6379
+      password: scaks3askjdh
     files-upload-configs: '{"file_size_limit":512,"batch_count_limit":5,"image_file_size_limit":512,"video_file_size_limit":100,"audio_file_size_limit":100,"workflow_file_upload_limit":10}'
+    run-log:
+      elasticsearch:
+        hosts: 0.0.0.0:9200,0.0.0.0:9200,0.0.0.0:9200
+        username:
+        password:
   knowledge-file:
     search: http://example.com/api/v1/knowledge/searchNew/forWorkflow
   cas:

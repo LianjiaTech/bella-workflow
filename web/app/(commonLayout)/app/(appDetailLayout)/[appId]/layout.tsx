@@ -4,6 +4,8 @@ import { useUnmount } from 'ahooks'
 import React, { useCallback, useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import {
+  RiFileList3Fill,
+  RiFileList3Line,
   RiTerminalBoxFill,
   RiTerminalBoxLine,
   RiTerminalFill,
@@ -70,6 +72,15 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         icon: RiTerminalBoxLine,
         selectedIcon: RiTerminalBoxFill,
       },
+      {
+        name: t('common.appMenus.logs'),
+        /* mode !== 'workflow'
+          ? t('common.appMenus.logAndAnn')
+          : t('common.appMenus.logs'), */
+        href: `/app/${appId}/logs`,
+        icon: RiFileList3Line,
+        selectedIcon: RiFileList3Fill,
+      },
       ...(mode === 'workflow'
         ? [{
           name: t('common.appMenus.trigger'),
@@ -85,18 +96,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         icon: RiTerminalLine,
         selectedIcon: RiTerminalFill,
       },
-      /* ...(isCurrentWorkspaceEditor
-        ? [{
-          name: mode !== 'workflow'
-            ? t('common.appMenus.logAndAnn')
-            : t('common.appMenus.logs'),
-          href: `/app/${appId}/logs`,
-          icon: RiFileList3Line,
-          selectedIcon: RiFileList3Fill,
-        }]
-        : []
-      ),
-      {
+      /* {
         name: t('common.appMenus.overview'),
         href: `/app/${appId}/overview`,
         icon: RiDashboard2Line,

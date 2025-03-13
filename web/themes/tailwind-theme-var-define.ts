@@ -388,7 +388,7 @@ const vars = {
   'state-warning-hover': 'var(--color-state-warning-hover)',
   'state-warning-hover-alt': 'var(--color-state-warning-hover-alt)',
   'state-warning-active': 'var(--color-state-warning-active)',
-  'state-warning-soild': 'var(--color-state-warning-soild)',
+  'state-warning-solid': 'var(--color-state-warning-solid)',
 
   'effects-highlight': 'var(--color-effects-highlight)',
   'effects-highlight-lightmode-off': 'var(--color-effects-highlight-lightmode-off)',

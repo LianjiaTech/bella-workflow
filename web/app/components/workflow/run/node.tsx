@@ -1,8 +1,9 @@
 'use client'
 import { useTranslation } from 'react-i18next'
 import type { FC } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
+  RiAlertFill,
   RiArrowRightSLine,
   RiCheckboxCircleLine,
   RiErrorWarningLine,
@@ -104,7 +105,10 @@ const NodePanel: FC<Props> = ({
             <RiCheckboxCircleLine className='shrink-0 ml-2 w-3.5 h-3.5 text-[#12B76A]' />
           )}
           {nodeInfo.status === 'failed' && (
-            <RiErrorWarningLine className='shrink-0 ml-2 w-3.5 h-3.5 text-[#F04438]' />
+            <RiErrorWarningLine className='w-4 h-4 text-[#FBBF24]' />
+          )}
+          {nodeInfo.status === 'exception' && (
+            <RiAlertFill className="w-3.5 h-3.5 text-[#FFC107]" />
           )}
           {nodeInfo.status === 'stopped' && (
             <AlertTriangle className='shrink-0 ml-2 w-3.5 h-3.5 text-[#F79009]' />
@@ -144,6 +148,9 @@ const NodePanel: FC<Props> = ({
                 <div className='px-3 py-[10px] bg-[#fffaeb] rounded-lg border-[0.5px] border-[rbga(0,0,0,0.05)] text-xs leading-[18px] text-[#dc6803] shadow-xs'>{t('workflow.tracing.stopBy', { user: nodeInfo.created_by ? nodeInfo.created_by.name : 'N/A' })}</div>
               )}
               {nodeInfo.status === 'failed' && (
+                <div className='px-3 py-[10px] bg-[#fef3f2] rounded-lg border-[0.5px] border-[rbga(0,0,0,0.05)] text-xs leading-[18px] text-[#d92d20] shadow-xs'>{nodeInfo.error}</div>
+              )}
+              {nodeInfo.status === 'exception' && (
                 <div className='px-3 py-[10px] bg-[#fef3f2] rounded-lg border-[0.5px] border-[rbga(0,0,0,0.05)] text-xs leading-[18px] text-[#d92d20] shadow-xs'>{nodeInfo.error}</div>
               )}
             </div>

@@ -30,6 +30,7 @@ export type Props = {
   onMount?: (editor: any, monaco: any) => void
   noWrapper?: boolean
   isExpand?: boolean
+  copilot?: boolean
 }
 
 const fetchCompletion = async (params: any) => {
@@ -70,6 +71,7 @@ const CodeEditor: FC<Props> = ({
   onMount,
   noWrapper,
   isExpand,
+  copilot = false,
 }) => {
   const [isFocus, setIsFocus] = React.useState(false)
   const [isMounted, setIsMounted] = React.useState(false)
@@ -133,11 +135,13 @@ const CodeEditor: FC<Props> = ({
 
     monaco.editor.setTheme('default-theme') // Fix: sometimes not load the default theme
 
-    registerCompletion(monaco, editor, {
-      endpoint: '/capi/copilot/code/complete',
-      language: languageMap[language] || 'javascript',
-      requestHandler: fetchCompletion,
-    })
+    if (copilot) {
+      registerCompletion(monaco, editor, {
+        endpoint: '/capi/copilot/code/complete',
+        language: languageMap[language] || 'javascript',
+        requestHandler: fetchCompletion,
+      })
+    }
 
     onMount?.(editor, monaco)
     setIsMounted(true)

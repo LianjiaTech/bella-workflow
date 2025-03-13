@@ -169,7 +169,6 @@ const handleStream = (
           if (message.startsWith('data:')) {
             try {
               bufferObj = JSON.parse(message.substring(5)) as Record<string, any>// remove data: and parse as json
-              console.log(bufferObj)
             }
             catch (e) {
               // mute handle message cut off

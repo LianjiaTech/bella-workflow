@@ -2,7 +2,7 @@ import type {
   FC,
   ReactElement,
 } from 'react'
-import {
+import React, {
   cloneElement,
   memo,
   useEffect,
@@ -10,6 +10,7 @@ import {
   useRef,
 } from 'react'
 import {
+  RiAlertFill,
   RiCheckboxCircleLine,
   RiErrorWarningLine,
   RiLoader2Line,
@@ -33,6 +34,8 @@ import NodeControl from './components/node-control'
 import AddVariablePopupWithPosition from './components/add-variable-popup-with-position'
 import cn from '@/utils/classnames'
 import BlockIcon from '@/app/components/workflow/block-icon'
+import { hasErrorHandleNode } from '@/app/components/workflow/utils'
+import ErrorHandleOnNode from '@/app/components/workflow/nodes/_base/components/error-handle/error-handle-on-node'
 
 type BaseNodeProps = {
   children: ReactElement
@@ -67,11 +70,13 @@ const BaseNode: FC<BaseNodeProps> = ({
     showRunningBorder,
     showSuccessBorder,
     showFailedBorder,
+    showExceptionBorder,
   } = useMemo(() => {
     return {
       showRunningBorder: data._runningStatus === NodeRunningStatus.Running && !showSelectedBorder,
       showSuccessBorder: data._runningStatus === NodeRunningStatus.Succeeded && !showSelectedBorder,
       showFailedBorder: data._runningStatus === NodeRunningStatus.Failed && !showSelectedBorder,
+      showExceptionBorder: data._runningStatus === NodeRunningStatus.Exception && !showSelectedBorder,
     }
   }, [data._runningStatus, showSelectedBorder])
 
@@ -97,6 +102,7 @@ const BaseNode: FC<BaseNodeProps> = ({
           showRunningBorder && '!border-primary-500',
           showSuccessBorder && '!border-[#12B76A]',
           showFailedBorder && '!border-[#F04438]',
+          showExceptionBorder && '!border-state-warning-solid',
           data._isBundled && '!shadow-lg',
         )}
       >
@@ -182,6 +188,11 @@ const BaseNode: FC<BaseNodeProps> = ({
               <RiErrorWarningLine className='w-3.5 h-3.5 text-[#F04438]' />
             )
           }
+          {
+            data._runningStatus === NodeRunningStatus.Exception && (
+              <RiAlertFill className="w-3.5 h-3.5 text-[#FFC107]" />
+            )
+          }
         </div>
         {
           data.type !== BlockEnum.Iteration && (
@@ -193,6 +204,14 @@ const BaseNode: FC<BaseNodeProps> = ({
             <div className='grow pl-1 pr-1 pb-1'>
               {cloneElement(children, { id, data })}
             </div>
+          )
+        }
+        {
+          hasErrorHandleNode(data.type) && (
+            <ErrorHandleOnNode
+              id={id}
+              data={data}
+            />
           )
         }
         {

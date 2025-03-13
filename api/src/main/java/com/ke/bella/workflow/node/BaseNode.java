@@ -6,6 +6,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -154,7 +155,12 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         try {
             result.setElapsedTime((System.nanoTime() - startTime) / 1000000L);
 
-            if(result.getStatus() == NodeRunResult.Status.succeeded) {
+            // failed且配置了异常处理，则修改NodeRunResult和激活边
+            if(result.getStatus() == NodeRunResult.Status.failed && null != this.getNodeData().getError_strategy()) {
+                result = context.handleContinueOnError(this, result);
+            }
+
+            if(result.getStatus() == NodeRunResult.Status.succeeded || result.getStatus() == NodeRunResult.Status.exception) {
                 List<String> handles = data.getSourceHandles();
                 if(handles.size() == 1) {
                     result.setActivatedSourceHandles(handles);
@@ -171,6 +177,8 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                     throw e;
                 } else if(result.getStatus() == NodeRunResult.Status.waiting) {
                     callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
+                } else if(result.getStatus() == NodeRunResult.Status.exception) {
+                    callback.onWorkflowNodeRunException(context, meta.getId(), nodeRunId);
                 }
             }
 
@@ -212,7 +220,12 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                     .build();
             result = resume(context, callback, context.getState().getNotifyData(getNodeId()));
 
-            if(result.getStatus() == NodeRunResult.Status.succeeded) {
+            // failed且配置了异常处理，则修改NodeRunResult和激活边
+            if(result.getStatus() == NodeRunResult.Status.failed && null != this.getNodeData().getError_strategy()) {
+                result = context.handleContinueOnError(this, result);
+            }
+
+            if(result.getStatus() == NodeRunResult.Status.succeeded || result.getStatus() == NodeRunResult.Status.exception) {
                 List<String> handles = data.getSourceHandles();
                 if(handles.size() == 1) {
                     result.setActivatedSourceHandles(handles);
@@ -228,6 +241,8 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                     throw new IllegalStateException(result.getError().getMessage());
                 } else if(result.getStatus() == NodeRunResult.Status.waiting) {
                     callback.onWorkflowNodeRunWaited(context, meta.getId(), nodeRunId);
+                } else if(result.getStatus() == NodeRunResult.Status.exception) {
+                    callback.onWorkflowNodeRunException(context, meta.getId(), nodeRunId);
                 }
             }
 
@@ -349,6 +364,17 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
         private boolean generateNewMessage = false;
         private String messageRoleName;
         private boolean waitCallback = false;
+        private String error_strategy;
+        private List<DefaultValue> default_value;
+
+        @SuppressWarnings("all")
+        public Map defaultValueMap() {
+            HashMap result = new HashMap();
+            for (DefaultValue defaultValue : default_value) {
+                result.put(defaultValue.getKey(), defaultValue.getValue());
+            }
+            return result;
+        }
 
         public List<String> getSourceHandles() {
             return Arrays.asList("source");
@@ -442,6 +468,41 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
             }
 
         }
+    }
+
+    @Data
+    public static class DefaultValue {
+        private String value;
+        private String type;
+        private String key;
+
+        public Object getValue() {
+            if(ParameterType.number.getValue().equals(type)) {
+                return Long.valueOf(value);
+            } else if(ParameterType.bool.getValue().equals(type)) {
+                return Boolean.valueOf(value);
+            } else if(Arrays.asList(ParameterType.arrayNumber.getValue(), ParameterType.arrayString.getValue(), ParameterType.arrayObject.getValue(),
+                    ParameterType.object.getValue()).contains(type)) {
+                return JsonUtils.fromJson(value, Object.class);
+            } else {
+                return value;
+            }
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public enum ParameterType {
+        string("string"),
+        number("number"),
+        object("object"),
+        bool("bool"),
+        select("select"),
+        arrayString("array[string]"),
+        arrayNumber("array[number]"),
+        arrayObject("array[object]");
+
+        private final String value;
     }
 
     @lombok.Getter

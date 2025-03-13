@@ -184,7 +184,7 @@ const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getRe
       </div>
     )
   }
-  console.log(runDetail)
+  console.log('1sssss ', runDetail)
   return (
     <div className='grow relative flex flex-col'>
       {/* tab */}

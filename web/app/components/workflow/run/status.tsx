@@ -27,6 +27,7 @@ const StatusPanel: FC<ResultProps> = ({
         status === 'succeeded' && '!bg-[#ecfdf3]',
         status === 'failed' && '!bg-[#fef3f2]',
         status === 'stopped' && '!bg-[#fffaeb]',
+        status === 'exception' && '!bg-[#fffaeb]',
       )}
     >
       <div className='flex'>
@@ -39,6 +40,7 @@ const StatusPanel: FC<ResultProps> = ({
               status === 'succeeded' && '!text-[#039855]',
               status === 'failed' && '!text-[#d92d20]',
               status === 'stopped' && '!text-[#f79009]',
+              status === 'exception' && '!text-[#f79009]',
             )}
           >
             {status === 'running' && (
@@ -48,6 +50,12 @@ const StatusPanel: FC<ResultProps> = ({
               <>
                 <Indicator color={'green'} />
                 <span>SUCCESS</span>
+              </>
+            )}
+            {status === 'exception' && (
+              <>
+                <Indicator color={'yellow'} />
+                <span>EXCEPTION</span>
               </>
             )}
             {status === 'failed' && (

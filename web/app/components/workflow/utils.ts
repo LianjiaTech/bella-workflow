@@ -530,3 +530,7 @@ export const convertJsonToVariables = (json: string): Var[] | undefined => {
     return undefined
   }
 }
+
+export const hasErrorHandleNode = (nodeType?: BlockEnum) => {
+  return nodeType === BlockEnum.LLM || nodeType === BlockEnum.HttpRequest
+}

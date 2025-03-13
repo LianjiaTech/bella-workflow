@@ -351,6 +351,39 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     }
 
     @Override
+    public void onWorkflowNodeRunException(WorkflowContext context, String nodeId, String nodeRunId) {
+        WorkflowRunLog runLog = new WorkflowRunLog();
+        runLog.setBellaTraceId(BellaContext.getTraceId());
+        runLog.setAkCode(BellaContext.getAkCode());
+        runLog.setEvent(WorkflowRunEvent.onWorkflowNodeRunException.name());
+        runLog.setTenantId(context.getTenantId());
+        runLog.setWorkflowId(context.getWorkflowId());
+        runLog.setWorkflowRunId(context.getRunId());
+        runLog.setStatus(Status.exception.name());
+
+        runLog.setNodeId(nodeId);
+        runLog.setNodeRunId(nodeRunId);
+        runLog.setNodeTitle(context.getGraph().node(nodeId).getTitle());
+        runLog.setNodeType(context.getGraph().node(nodeId).getNodeType());
+        runLog.setCtime(System.currentTimeMillis());
+        if(context.getState().getNodeState(nodeId) != null) {
+            runLog.setNodeInputs(context.getState().getNodeState(nodeId).getInputs());
+            runLog.setNodeProcessData(context.getState().getNodeState(nodeId).getProcessData());
+            runLog.setNodeOutputs(context.getState().getNodeState(nodeId).getOutputs());
+            runLog.setElapsedTime(context.getState().getNodeState(nodeId).getElapsedTime());
+            runLog.setError(Optional.ofNullable(context.getState().getNodeState(nodeId).getError()).map(Throwable::getMessage).orElse(null));
+        }
+
+        WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+
+        if(!context.isFlashMode()) {
+            service.updateWorkflowNodeRunException(context, nodeId, nodeRunId);
+        }
+
+        delegate.onWorkflowNodeRunException(context, nodeId, nodeRunId);
+    }
+
+    @Override
     public void onWorkflowIterationStarted(WorkflowContext context, String nodeId, String nodeRunId, int index) {
         WorkflowRunLog runLog = new WorkflowRunLog();
         runLog.setBellaTraceId(BellaContext.getTraceId());
@@ -448,6 +481,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         onWorkflowNodeRunSucceeded,
         onWorkflowNodeRunFailed,
         onWorkflowNodeRunWaited,
+        onWorkflowNodeRunException,
         onWorkflowIterationStarted,
         onWorkflowIterationCompleted;
 

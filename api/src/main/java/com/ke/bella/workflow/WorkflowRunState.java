@@ -153,7 +153,7 @@ public class WorkflowRunState implements Serializable {
             nodeWaitingStates.put(nodeId, state);
         } else {
             nodeWaitingStates.remove(nodeId);
-            if(s == NodeRunResult.Status.succeeded) {
+            if(s == NodeRunResult.Status.succeeded || s == NodeRunResult.Status.exception) {
                 Map variables = variablePool.get(nodeId);
                 if(variables == null) {
                     variables = new HashMap();
@@ -225,7 +225,8 @@ public class WorkflowRunState implements Serializable {
             notified,
             succeeded,
             skipped,
-            failed;
+            failed,
+            exception
         }
 
         Map inputs;

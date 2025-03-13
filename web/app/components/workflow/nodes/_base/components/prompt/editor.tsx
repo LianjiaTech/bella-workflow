@@ -258,6 +258,7 @@ const Editor: FC<Props> = ({
                     onChange={onChange}
                     noWrapper
                     isExpand={isExpand}
+                    copilot={true}
                   />
                 </div>
               )}

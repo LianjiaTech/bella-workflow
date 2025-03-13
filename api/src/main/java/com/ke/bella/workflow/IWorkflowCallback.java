@@ -176,6 +176,8 @@ public interface IWorkflowCallback {
 
     void onWorkflowNodeRunFailed(WorkflowContext context, String nodeId, String nodeRunId, String error, Throwable t);
 
+    void onWorkflowNodeRunException(WorkflowContext context, String nodeId, String nodeRunId);
+
     void onWorkflowIterationStarted(WorkflowContext context, String nodeId, String nodeRunId, int index);
 
     void onWorkflowIterationCompleted(WorkflowContext context, String nodeId, String nodeRunId, int index);

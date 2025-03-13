@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,7 @@ import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.node.End;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.node.Start;
+import com.ke.bella.workflow.utils.Utils;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -157,7 +159,7 @@ public class WorkflowContext {
     }
 
     public synchronized void putNodeRunResult(BaseNode node, NodeRunResult result) {
-        if(result.status == NodeRunResult.Status.succeeded) {
+        if(result.status == NodeRunResult.Status.succeeded || result.status == NodeRunResult.Status.exception) {
             // 针对只有一个后继节点的边集中处理激活标记
             // 这样，只有if，switch等多后继节点才需要单独在node runner中处理
             List<Edge> edges = this.graph.outEdges(node.getNodeId());
@@ -186,6 +188,45 @@ public class WorkflowContext {
             }
         }
         skipDeadNodes(mayDeadIds);
+    }
+
+    @SuppressWarnings("all")
+    public <T extends BaseNode.BaseNodeData> NodeRunResult handleContinueOnError(BaseNode node, NodeRunResult errorResult) {
+        Map mergedOutputs = (Map) Optional.ofNullable(errorResult.getOutputs())
+                .map(HashMap::new)
+                .orElse(new HashMap<>());
+
+        Map errorOutput = new HashMap();
+        errorOutput.put("error_message", errorResult.getError() == null ? null : errorResult.getError().getMessage());
+        errorOutput.put("error_type", errorResult.getError() == null ? null : Utils.getRootCause(errorResult.getError()).getClass().getName());
+
+        NodeRunResult newResult = NodeRunResult.builder()
+                .status(NodeRunResult.Status.exception)
+                .inputs(errorResult.getInputs())
+                .processData(errorResult.getProcessData())
+                .error(errorResult.getError())
+                .elapsedTime(errorResult.getElapsedTime())
+                .build();
+
+        if("default-value".equals(node.getNodeData().getError_strategy())) {
+            Map defaults = node.getNodeData().defaultValueMap();
+
+            mergedOutputs.putAll(defaults);
+            mergedOutputs.putAll(errorOutput);
+            newResult.setOutputs(mergedOutputs);
+
+        } else if("fail-branch".equals(node.getNodeData().getError_strategy())) {
+            mergedOutputs.putAll(errorOutput);
+            newResult.setOutputs(mergedOutputs);
+
+            List<Edge> edges = this.graph.outEdges(node.getNodeId());
+            if(edges.stream().noneMatch(e -> e.getSourceHandle().equals("fail-branch"))) {
+                throw new IllegalArgumentException("异常分支处理策略缺少处理分支");
+            }
+            newResult.setActivatedSourceHandles(Arrays.asList("fail-branch"));
+        }
+
+        return newResult;
     }
 
     public void putWorkflowRunResult(NodeRunResult result) {

@@ -582,20 +582,6 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
                     throw new IllegalArgumentException("Invalid paramter name, __reason and __is_success are reserved");
                 }
             }
-
-            @Getter
-            @AllArgsConstructor
-            public enum ParameterType {
-                string("string"),
-                number("number"),
-                bool("bool"),
-                select("select"),
-                arrayString("array[string]"),
-                arrayNumber("array[number]"),
-                arrayObject("array[object]");
-
-                private final String value;
-            }
         }
     }
 }

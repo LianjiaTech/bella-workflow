@@ -550,6 +550,25 @@ public class WorkflowService {
         repo.updateWorkflowNodeRun(wnr);
     }
 
+    public void updateWorkflowNodeRunException(WorkflowContext context, String nodeId, String nodeRunId) {
+        WorkflowNodeRunDB wnr = new WorkflowNodeRunDB();
+        wnr.setTenantId(context.getTenantId());
+        wnr.setWorkflowId(context.getWorkflowId());
+        wnr.setWorkflowRunId(context.getRunId());
+        wnr.setNodeId(nodeId);
+        wnr.setNodeRunId(nodeRunId);
+        wnr.setStatus(NodeRunResult.Status.exception.name());
+
+        NodeRunResult nodeState = context.getState().getNodeState(nodeId);
+        wnr.setInputs(JsonUtils.toJson(nodeState.getInputs()));
+        wnr.setOutputs(JsonUtils.toJson(nodeState.getOutputs()));
+        wnr.setProcessData(JsonUtils.toJson(nodeState.getProcessData()));
+        wnr.setElapsedTime(nodeState.getElapsedTime());
+        wnr.setError(Optional.ofNullable(nodeState.getError()).map(Throwable::getMessage).orElse(""));
+
+        repo.updateWorkflowNodeRun(wnr);
+    }
+
     public Page<WorkflowRunDB> listWorkflowRun(WorkflowRunPage op) {
         return repo.listWorkflowRun(op);
     }

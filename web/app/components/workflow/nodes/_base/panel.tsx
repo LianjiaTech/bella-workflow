@@ -33,11 +33,13 @@ import {
   useWorkflow,
   useWorkflowHistory,
 } from '@/app/components/workflow/hooks'
-import { canRunBySingle } from '@/app/components/workflow/utils'
+import { canRunBySingle, hasErrorHandleNode } from '@/app/components/workflow/utils'
 import TooltipPlus from '@/app/components/base/tooltip-plus'
 import type { Node } from '@/app/components/workflow/types'
 import { useStore as useAppStore } from '@/app/components/app/store'
 import { useStore } from '@/app/components/workflow/store'
+import Split from '@/app/components/workflow/nodes/_base/components/split'
+import ErrorHandleOnPanel from '@/app/components/workflow/nodes/_base/components/error-handle/error-handle-on-panel'
 
 type BasePanelProps = {
   children: ReactElement
@@ -161,6 +163,15 @@ const BasePanel: FC<BasePanelProps> = ({
         <div className='py-2'>
           {cloneElement(children, { id, data })}
         </div>
+        <Split />
+        {
+          hasErrorHandleNode(data.type) && (
+            <ErrorHandleOnPanel
+              id={id}
+              data={data}
+            />
+          )
+        }
         {
           !!availableNextBlocks.length && (
             <div className='p-4 border-t-[0.5px] border-t-black/5'>

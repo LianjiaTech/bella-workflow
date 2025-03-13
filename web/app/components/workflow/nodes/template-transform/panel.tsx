@@ -95,6 +95,7 @@ const Panel: FC<NodePanelProps<TemplateTransformNodeType>> = ({
           }
           value={inputs.template}
           onChange={handleCodeChange}
+          copilot={true}
         />
       </div>
       {isChatMode && (

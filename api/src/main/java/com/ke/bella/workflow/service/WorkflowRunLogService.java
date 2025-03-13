@@ -19,6 +19,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -41,7 +42,8 @@ public class WorkflowRunLogService {
     @Autowired
     RestHighLevelClient esClient;
 
-    private static final String SEARCH_WORKFLOW_RUN_LOG_INDEX = "workflow_run_log*";
+    @Value("${bella.workflow.run-log.elasticsearch.index}")
+    private String logIndex;
 
     public WorkflowRunLog getWorkflowRunLogAgg(String workflowRunId) {
         WorkflowRunLogService.QueryOps build = QueryOps.builder()
@@ -123,27 +125,27 @@ public class WorkflowRunLogService {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
         if(!CollectionUtils.isEmpty(ops.getStatus())) {
-            boolQueryBuilder.must(QueryBuilders.termsQuery("status.keyword", ops.getStatus()));
+            boolQueryBuilder.must(QueryBuilders.termsQuery("status", ops.getStatus()));
         }
         if(!StringUtils.isEmpty(ops.getWorkflowId())) {
-            boolQueryBuilder.must(QueryBuilders.termQuery("workflowId.keyword", ops.getWorkflowId()));
+            boolQueryBuilder.must(QueryBuilders.termQuery("workflowId", ops.getWorkflowId()));
         }
         if(!StringUtils.isEmpty(ops.getWorkflowRunId())) {
-            boolQueryBuilder.must(QueryBuilders.termQuery("workflowRunId.keyword", ops.getWorkflowRunId()));
+            boolQueryBuilder.must(QueryBuilders.termQuery("workflowRunId", ops.getWorkflowRunId()));
         }
         if(ops.getUserId() != null) {
             boolQueryBuilder.must(QueryBuilders.termQuery("userId", ops.getUserId()));
         }
         if(!CollectionUtils.isEmpty(ops.getTriggerFroms())) {
-            boolQueryBuilder.must(QueryBuilders.termsQuery("triggerFrom.keyword", ops.getTriggerFroms()));
+            boolQueryBuilder.must(QueryBuilders.termsQuery("triggerFrom", ops.getTriggerFroms()));
         }
         if(!CollectionUtils.isEmpty(ops.getEvents())) {
-            boolQueryBuilder.must(QueryBuilders.termsQuery("event.keyword", ops.getEvents()));
+            boolQueryBuilder.must(QueryBuilders.termsQuery("event", ops.getEvents()));
         }
 
         SearchRequest request = new SearchRequest();
         request.searchType(SearchType.DEFAULT);
-        request.indices(SEARCH_WORKFLOW_RUN_LOG_INDEX);
+        request.indices(logIndex);
 
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 

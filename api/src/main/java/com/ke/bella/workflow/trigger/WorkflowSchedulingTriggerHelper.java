@@ -25,8 +25,8 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowSchedulingDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowWebotTriggerDB;
 import com.ke.bella.workflow.service.WorkflowClient;
-import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.service.WorkflowService;
+import com.ke.bella.workflow.service.WorkflowTriggerService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,7 +52,7 @@ public class WorkflowSchedulingTriggerHelper {
 
     public void start() {
         triggerPool = new ThreadPoolExecutor(10, 50, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(1000),
-                TRIGGER_THREAD_FACTORY);
+                TRIGGER_THREAD_FACTORY, new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     public void stop() {

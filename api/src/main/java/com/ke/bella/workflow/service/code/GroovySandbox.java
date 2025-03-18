@@ -18,6 +18,7 @@ import org.codehaus.groovy.ast.expr.BooleanExpression;
 import org.codehaus.groovy.ast.expr.ClassExpression;
 import org.codehaus.groovy.ast.expr.ClosureExpression;
 import org.codehaus.groovy.ast.expr.ConstantExpression;
+import org.codehaus.groovy.ast.expr.ConstructorCallExpression;
 import org.codehaus.groovy.ast.expr.Expression;
 import org.codehaus.groovy.ast.expr.MethodCallExpression;
 import org.codehaus.groovy.ast.expr.PropertyExpression;
@@ -34,6 +35,7 @@ import org.codehaus.groovy.ast.stmt.IfStatement;
 import org.codehaus.groovy.ast.stmt.Statement;
 import org.codehaus.groovy.ast.stmt.SwitchStatement;
 import org.codehaus.groovy.ast.stmt.SynchronizedStatement;
+import org.codehaus.groovy.ast.stmt.ThrowStatement;
 import org.codehaus.groovy.ast.stmt.TryCatchStatement;
 import org.codehaus.groovy.ast.stmt.WhileStatement;
 import org.codehaus.groovy.control.CompilePhase;
@@ -50,9 +52,9 @@ import org.codehaus.groovy.syntax.SyntaxException;
 import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 
+import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.WorkflowSys;
-import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.Utils;
@@ -236,8 +238,8 @@ public class GroovySandbox {
             } else if(statement instanceof SynchronizedStatement) {
                 SynchronizedStatement synchronizedStatement = (SynchronizedStatement) statement;
                 addInterruptChecks(synchronizedStatement.getCode());
-            } else if (statement instanceof ExpressionStatement) {
-                ExpressionStatement expressionStatement = (ExpressionStatement)statement;
+            } else if(statement instanceof ExpressionStatement) {
+                ExpressionStatement expressionStatement = (ExpressionStatement) statement;
                 Expression expression = expressionStatement.getExpression();
                 addInterruptChecks(expression);
             }
@@ -245,14 +247,104 @@ public class GroovySandbox {
 
         private void addInterruptChecks(Expression expression) {
             if(expression instanceof ClosureExpression) {
-                addInterruptChecks(((ClosureExpression) expression).getCode());
-            } else if(expression instanceof VariableExpression) {
-                expression = ((VariableExpression) expression).getInitialExpression();
-                addInterruptChecks(expression);
+                ClosureExpression closureExpression = (ClosureExpression) expression;
+                // 确保闭包内部有中断检查
+                if(closureExpression.getCode() instanceof BlockStatement) {
+                    BlockStatement closureBlock = (BlockStatement) closureExpression.getCode();
+                    BlockStatement newBlock = new BlockStatement();
+
+                    // 添加开始和结束的中断检查
+                    newBlock.addStatement(createInterruptCheckStatementByThrowStatement());
+                    closureBlock.getStatements().forEach(newBlock::addStatement);
+                    newBlock.addStatement(createInterruptCheckStatementByThrowStatement());
+
+                    closureExpression.setCode(newBlock);
+                } else {
+                    addInterruptChecks(closureExpression.getCode());
+                }
+            } else if(expression instanceof MethodCallExpression) {
+                MethodCallExpression methodCallExpression = (MethodCallExpression) expression;
+
+                // 处理方法参数
+                if(methodCallExpression.getArguments() instanceof ArgumentListExpression) {
+                    ((ArgumentListExpression) methodCallExpression.getArguments())
+                            .getExpressions().forEach(this::addInterruptChecks);
+                }
+
+                // 处理方法调用对象
+                addInterruptChecks(methodCallExpression.getObjectExpression());
+
+                // 对高开销方法调用进行特殊处理
+                if(isExpensiveMethodCall(methodCallExpression) &&
+                        methodCallExpression.getArguments() instanceof ArgumentListExpression) {
+                    ((ArgumentListExpression) methodCallExpression.getArguments())
+                            .getExpressions().stream()
+                            .filter(arg -> arg instanceof ClosureExpression)
+                            .forEach(arg -> enhanceClosureWithMoreChecks((ClosureExpression) arg));
+                }
             } else if(expression instanceof BinaryExpression) {
-                addInterruptChecks(((BinaryExpression) expression).getLeftExpression());
-                addInterruptChecks(((BinaryExpression) expression).getRightExpression());
+                BinaryExpression binaryExpression = (BinaryExpression) expression;
+                addInterruptChecks(binaryExpression.getLeftExpression());
+                addInterruptChecks(binaryExpression.getRightExpression());
+            } else if(expression instanceof PropertyExpression) {
+                PropertyExpression propertyExpression = (PropertyExpression) expression;
+                addInterruptChecks(propertyExpression.getObjectExpression());
+                addInterruptChecks(propertyExpression.getProperty());
+            } else if(expression instanceof VariableExpression) {
+                Expression initialExpression = ((VariableExpression) expression).getInitialExpression();
+                if(initialExpression != null) {
+                    addInterruptChecks(initialExpression);
+                }
             }
+        }
+
+        private void enhanceClosureWithMoreChecks(ClosureExpression closureExpression) {
+            // 检查闭包代码是否为空或不是 BlockStatement
+            if(closureExpression.getCode() == null || !(closureExpression.getCode() instanceof BlockStatement)) {
+                return;
+            }
+
+            // 在闭包内部添加更多的中断检查点
+            BlockStatement closureBlock = (BlockStatement) closureExpression.getCode();
+            for (int i = 0; i < closureBlock.getStatements().size(); i++) {
+                Statement statement = closureBlock.getStatements().get(i);
+                if(statement instanceof ExpressionStatement) {
+                    ExpressionStatement expressionStatement = (ExpressionStatement) statement;
+                    Expression expression = expressionStatement.getExpression();
+                    if(expression instanceof MethodCallExpression) {
+                        MethodCallExpression methodCallExpression = (MethodCallExpression) expression;
+                        if(isExpensiveMethodCall(methodCallExpression)) {
+                            // 在方法调用前添加中断检查
+                            BlockStatement newBlock = new BlockStatement();
+                            newBlock.addStatement(createInterruptCheckStatementByThrowStatement());
+                            newBlock.addStatement(expressionStatement);
+                            closureBlock.getStatements().set(i, newBlock);
+                        }
+                    }
+                }
+            }
+        }
+
+        private boolean isExpensiveMethodCall(MethodCallExpression methodCall) {
+            String methodName = methodCall.getMethodAsString();
+            if(methodName == null) {
+                return false;
+            }
+
+            // 识别可能导致大量内存分配或长时间运行的方法
+            return methodName.equals("each") ||
+                    methodName.equals("collect") ||
+                    methodName.equals("findAll") ||
+                    methodName.equals("sort") ||
+                    methodName.equals("join") ||
+                    methodName.equals("split") ||
+                    methodName.equals("multiply") ||
+                    methodName.equals("times") ||
+                    methodName.equals("repeat") ||
+                    methodName.equals("add") ||
+                    methodName.equals("addAll") ||
+                    methodName.equals("leftShift") || // << 操作符
+                    methodName.equals("plus"); // + 操作符
         }
 
         private Statement wrapWithInterruptCheck(Statement originalStatement) {
@@ -276,5 +368,23 @@ public class GroovySandbox {
                     new BreakStatement(),
                     EmptyStatement.INSTANCE);
         }
+
+        private Statement createInterruptCheckStatementByThrowStatement() {
+            Expression newException = new ConstructorCallExpression(
+                    new ClassNode(InterruptedException.class),
+                    new ArgumentListExpression(new ConstantExpression("Groovy Script is interrupted")));
+
+            Statement throwStatement = new ThrowStatement(newException);
+
+            return new IfStatement(
+                    new BooleanExpression(
+                            new MethodCallExpression(
+                                    new ClassExpression(new ClassNode(WorkflowSys.class)),
+                                    new ConstantExpression("isInterrupted"),
+                                    ArgumentListExpression.EMPTY_ARGUMENTS)),
+                    throwStatement,
+                    EmptyStatement.INSTANCE);
+        }
+
     }
 }

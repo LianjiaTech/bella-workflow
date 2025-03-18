@@ -79,13 +79,13 @@ public class HttpNodeTest extends CommonNodeTest {
     @Test
     public void testResponseOverLimit() throws IOException {
         Request request = new Request.Builder()
-                .url("http://example.com/bclever/bella/ali-qwen15-72b-chathome-v2-chat-20241009/healthCheck")
+                .url("http://example.com/actuator/health/liveness")
                 .method("GET", null)
                 .build();
         Response resp = client.newCall(request).execute();
         org.junit.jupiter.api.Assertions.assertThrows(IllegalStateException.class, () -> HttpUtils.readBodyWithinLimit(resp.body(), 1));
         Response resp2 = client.newCall(request).execute();
-        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> HttpUtils.readBodyWithinLimit(resp2.body(), 200));
+        org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> HttpUtils.readBodyWithinLimit(resp2.body(), 487));
 
     }
 }

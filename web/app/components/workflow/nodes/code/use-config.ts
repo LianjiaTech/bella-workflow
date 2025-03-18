@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import produce from 'immer'
 import useVarList from '../_base/hooks/use-var-list'
 import useOutputVarList from '../_base/hooks/use-output-var-list'
-import { BlockEnum, VarType } from '../../types'
+import { BlockEnum } from '../../types'
 import type { Var } from '../../types'
 import { useStore } from '../../store'
 import type { CodeNodeType, OutputVar } from './types'
@@ -103,7 +103,7 @@ const useConfig = (id: string, payload: CodeNodeType) => {
   })
 
   const filterVar = useCallback((varPayload: Var) => {
-    return [VarType.string, VarType.number, VarType.secret, VarType.object, VarType.array, VarType.arrayNumber, VarType.arrayString, VarType.arrayObject].includes(varPayload.type)
+    return true
   }, [])
 
   // single run

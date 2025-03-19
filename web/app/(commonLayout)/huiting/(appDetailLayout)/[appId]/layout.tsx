@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next'
 import { useShallow } from 'zustand/react/shallow'
 import { useContext, useContextSelector } from 'use-context-selector'
 import {
+  RiFileList3Fill,
+  RiFileList3Line,
   RiTerminalBoxFill,
   RiTerminalBoxLine, RiTerminalFill,
   RiTerminalLine,
@@ -81,6 +83,15 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         href: `/huiting/${appId}/develop`,
         icon: RiTerminalBoxLine,
         selectedIcon: RiTerminalBoxFill,
+      },
+      {
+        name: t('common.appMenus.logs'),
+        /* mode !== 'workflow'
+          ? t('common.appMenus.logAndAnn')
+          : t('common.appMenus.logs'), */
+        href: `/huiting/${appId}/logs`,
+        icon: RiFileList3Line,
+        selectedIcon: RiFileList3Fill,
       },
       ...(mode === 'workflow'
         ? [{

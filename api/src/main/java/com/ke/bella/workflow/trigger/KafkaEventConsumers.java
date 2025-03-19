@@ -1,16 +1,20 @@
 package com.ke.bella.workflow.trigger;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.ke.bella.workflow.TaskExecutor;
-import com.ke.bella.workflow.db.repo.DataSourceRepo;
-import com.ke.bella.workflow.db.repo.WorkflowTriggerRepo;
-import com.ke.bella.workflow.db.tables.pojos.KafkaDatasourceDB;
-import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;
-import com.ke.bella.workflow.utils.JsonUtils;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.StickyAssignor;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,15 +26,15 @@ import org.springframework.kafka.listener.MessageListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.ke.bella.workflow.TaskExecutor;
+import com.ke.bella.workflow.db.repo.DataSourceRepo;
+import com.ke.bella.workflow.db.repo.WorkflowTriggerRepo;
+import com.ke.bella.workflow.db.tables.pojos.KafkaDatasourceDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowKafkaTriggerDB;
+import com.ke.bella.workflow.utils.JsonUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @Slf4j
@@ -145,6 +149,8 @@ public class KafkaEventConsumers {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         String autoOffset = StringUtils.isEmpty(autoOffsetReset) ? "latest" : autoOffsetReset;
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffset);
+        props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG,
+                StickyAssignor.class);
 
         return new DefaultKafkaConsumerFactory<>(props);
     }

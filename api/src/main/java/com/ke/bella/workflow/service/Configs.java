@@ -31,10 +31,13 @@ public class Configs {
 
     public static Integer TASK_THREAD_NUMS = 1000;
 
+    public static int INTERRUPTED_INTERVAL_ROWS = 1000;
+
     @Value("${bella.openapiHost}")
     public void setOpenApiHost(String openApiHost) {
         OPEN_API_HOST = openApiHost;
     }
+
     @Value("${bella.apiBase}")
     public void setApiBase(String apiBase) {
         API_BASE = apiBase;
@@ -73,5 +76,10 @@ public class Configs {
     @Value("${bella.maxExeMemoryAlloc}")
     public void setMaxExeMemoryAlloc(long maxExeMemoryAlloc) {
         MAX_EXE_MEMORY_ALLOC = maxExeMemoryAlloc;
+    }
+
+    @Value("${bella.workflow.sandbox.rdbInterruptedIntervalRows}")
+    public void setMaxQueryRows(int rdbInterruptedIntervalRows) {
+        INTERRUPTED_INTERVAL_ROWS = rdbInterruptedIntervalRows;
     }
 }

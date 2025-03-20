@@ -1,10 +1,15 @@
 package com.ke.bella.workflow.service;
 
+import static com.ke.bella.workflow.service.Configs.INTERRUPTED_INTERVAL_ROWS;
+
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.ResultQuery;
+import org.jooq.RowCountQuery;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
@@ -110,11 +115,58 @@ public class CustomRdb implements AutoCloseable {
         }
 
         public Iterator<Record> query(String sql, Object... bindings) {
-            return dsl.resultQuery(sql, bindings).iterator();
+            try (ResultQuery<Record> records = dsl.resultQuery(sql, bindings)) {
+                records.fetchSize(Integer.MIN_VALUE);
+                org.jooq.Cursor<Record> cursor = records.fetchLazy();
+
+                return new CloseableIterator<Record>() {
+                    @Override
+                    public void close() throws Exception {
+                        if(!cursor.isClosed()) {
+                            cursor.close();
+                        }
+                    }
+
+                    private int count = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return cursor.hasNext();
+                    }
+
+                    @Override
+                    public Record next() {
+                        if(!hasNext()) {
+                            try {
+                                close();
+                            } catch (Exception e) {
+                                // ignore
+                            }
+                            throw new NoSuchElementException();
+                        }
+                        Record currentRecord = cursor.fetchNext();
+                        count++;
+                        if(count % INTERRUPTED_INTERVAL_ROWS == 0 && Thread.currentThread().isInterrupted()) {
+                            try {
+                                close();
+                            } catch (Exception e) {
+                                // ignore
+                            }
+                            throw new IllegalStateException();
+                        }
+                        return currentRecord;
+                    }
+                };
+            }
+        }
+
+        private interface CloseableIterator<T> extends Iterator<T>, AutoCloseable {
         }
 
         public int run(String sql, Object... bindings) {
-            return dsl.query(sql, bindings).execute();
+            try (RowCountQuery query = dsl.query(sql, bindings)) {
+                return query.execute();
+            }
         }
     }
 }

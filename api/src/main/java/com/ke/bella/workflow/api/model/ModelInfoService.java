@@ -70,7 +70,7 @@ public class ModelInfoService {
                     .status(ModelStatus.ACTIVE.getValue())
                     .loadBalancingEnabled(true)
                     .features(feature == null ? Lists.newArrayList() : ModelFeature.features(feature.isFunction_call(),
-                            feature.isFunction_call(), feature.isAgent_thought(), feature.isVision(),
+                            feature.isFunction_call(), feature.isReason_content(), feature.isVision(),
                             feature.isStream_function_call()))
                     .fetchFrom("predefined-model")
                     .deprecated(false)

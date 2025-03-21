@@ -4,9 +4,13 @@ import static com.ke.bella.openapi.BellaContext.BELLA_TRACE_HEADER;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.github.andrewoma.dexx.collection.Maps;
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.Operator;
 import com.ke.bella.openapi.apikey.ApikeyInfo;
@@ -71,10 +74,12 @@ public class DifyControllerTest extends AbstractTest {
         dify.saveDraftInfo(WORKFLOW_ID, source.getRequest(), null);
         WorkflowSchema target = dify.getDraftInfo(WORKFLOW_ID);
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
-
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("#1715941054541.q#", "我想要烧一个红烧肉");
+        map.put("q", "mock");
         Object response = dify.workflowRun(WORKFLOW_ID, DifyWorkflowRun.builder()
                 .responseMode(WorkflowOps.ResponseMode.blocking.name())
-                .inputs(Maps.of("#1715941054541.q#", "我想要烧一个红烧肉", "q", "mock").asMap())
+                .inputs(map)
                 .build());
         Map<String, Object> callback = (Map<String, Object>) response;
         Assertions.assertNotNull(callback);
@@ -93,7 +98,7 @@ public class DifyControllerTest extends AbstractTest {
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
 
         Object response = dify.nodeRun(WORKFLOW_ID, "1716460032513",
-                WorkflowOps.WorkflowNodeRun.builder().inputs(Maps.of("#1715941054541.q#", "我想要烧一个红烧肉").asMap()).build());
+                WorkflowOps.WorkflowNodeRun.builder().inputs(Collections.singletonMap("#1715941054541.q#", "我想要烧一个红烧肉")).build());
         Assertions.assertNotNull(response);
 
         DifyWorkflowRunStreamingCallback.DifyData data = (DifyWorkflowRunStreamingCallback.DifyData) response;
@@ -112,7 +117,7 @@ public class DifyControllerTest extends AbstractTest {
         Assertions.assertEquals(JsonUtils.toJson(source.getRequest()), JsonUtils.toJson(target));
 
         Object response = dify.workflowRun(WORKFLOW_ID, DifyWorkflowRun.builder().responseMode(WorkflowOps.ResponseMode.streaming.name())
-                .inputs(Maps.of("#1715941054541.q#", "我想要烧一个红烧肉").asMap()).build());
+                .inputs(Collections.singletonMap("#1715941054541.q#", "我想要烧一个红烧肉")).build());
         Assertions.assertNotNull(response);
 
         ResponseBodyEmitter emitter = (ResponseBodyEmitter) response;
@@ -130,7 +135,8 @@ public class DifyControllerTest extends AbstractTest {
             File file = new File(Thread.currentThread()
                     .getContextClassLoader()
                     .getResource(path).getFile());
-            return FileUtils.readFileToString(file, "UTF-8");
+            byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
+            return new String(fileBytes, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

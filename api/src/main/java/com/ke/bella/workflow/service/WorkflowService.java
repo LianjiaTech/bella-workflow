@@ -1,13 +1,7 @@
 package com.ke.bella.workflow.service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -16,6 +10,11 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import com.google.common.cache.Cache;
+import com.ke.bella.job.queue.worker.Task;
+import com.ke.bella.openapi.apikey.ApikeyInfo;
+import com.ke.bella.workflow.api.callbacks.WorkflowBatchRunCallback;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -68,6 +67,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.jodah.expiringmap.ExpirationListener;
 import net.jodah.expiringmap.ExpiringMap;
+
+import static com.ke.bella.openapi.BellaContext.BELLA_TRACE_HEADER;
 
 @Component
 @Slf4j
@@ -352,6 +353,33 @@ public class WorkflowService {
             new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
         } finally {
             manager.afterRun(context);
+        }
+    }
+
+    public void runWorkflow(Task task, Cache<String, WorkflowDB> workflowCache) {
+        try {
+            WorkflowOps.WorkflowRun payload = task.getPayload(WorkflowOps.WorkflowRun.class);
+            payload.setTriggerFrom(WorkflowOps.TriggerFrom.BATCH.name());
+            Map<String, Object> inputs = payload.getInputs();
+            String apiKey = MapUtils.getString(inputs, "apiKey");
+            String traceId = MapUtils.getString(inputs, "traceId",
+                    BellaContext.generateTraceId("workflow-batch-run"));
+            BellaContext.setOperator(payload);
+            BellaContext.setApikey(ApikeyInfo.builder().apikey(apiKey).build());
+            BellaContext.getHeaders().put(BELLA_TRACE_HEADER, traceId);
+
+            TaskExecutor.submit(() -> {
+                try {
+                    String workflowId = payload.getWorkflowId();
+					WorkflowDB workflowDB = workflowCache.get(workflowId,
+						() -> getPublishedWorkflow(workflowId, null));
+                    runWorkflow(newWorkflowRun(workflowDB, payload), payload, new WorkflowBatchRunCallback(task));
+                } catch (Exception e) {
+                    task.markFailed(e.getMessage());
+                }
+            }, e -> task.markRetryLater());
+        } finally {
+            BellaContext.clearAll();
         }
     }
 

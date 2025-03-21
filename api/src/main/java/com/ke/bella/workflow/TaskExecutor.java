@@ -2,15 +2,9 @@ package com.ke.bella.workflow;
 
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.RandomUtils;
 
@@ -23,15 +17,38 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TaskExecutor {
     static ThreadFactory tf = new NamedThreadFactory("bella-worker-", true);
-    static ScheduledExecutorService executor = Executors.newScheduledThreadPool(Configs.TASK_THREAD_NUMS, tf);
+    static ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(Configs.SCHEDULE_TASK_THREAD_NUMS, tf);
+    static ExecutorService executor = new ThreadPoolExecutor(
+            Configs.TASK_THREAD_NUMS,
+            Configs.TASK_THREAD_NUMS,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new SynchronousQueue<>(),
+            tf);
+    static ExecutorService batchExecutor = new ThreadPoolExecutor(
+            Configs.BATCH_TASK_THREAD_NUMS,
+            Configs.BATCH_TASK_THREAD_NUMS,
+            0L,
+            TimeUnit.MILLISECONDS,
+            new SynchronousQueue<>(),
+            tf);
 
-    public static void schedule(Runnable r, long delayMills) {
-        executor.schedule(new Task(r), delayMills, TimeUnit.MILLISECONDS);
+	public static void schedule(Runnable r, long delayMills) {
+        scheduledExecutor.schedule(new Task(r), delayMills, TimeUnit.MILLISECONDS);
     }
 
     public static void scheduleAtFixedRate(Runnable r, int period) {
         int initialDelay = period + RandomUtils.nextInt(1, period);
-        executor.scheduleAtFixedRate(r, initialDelay, period, TimeUnit.SECONDS);
+        scheduledExecutor.scheduleAtFixedRate(r, initialDelay, period, TimeUnit.SECONDS);
+    }
+
+    public static CompletableFuture<Void> submit(Runnable r, Consumer<RejectedExecutionException> rejectHandler) {
+        try {
+            return CompletableFuture.runAsync(new Task(r), batchExecutor);
+        } catch (RejectedExecutionException e) {
+            rejectHandler.accept(e);
+            return CompletableFuture.completedFuture(null);
+        }
     }
 
     public static CompletableFuture<Void> submit(Runnable r) {

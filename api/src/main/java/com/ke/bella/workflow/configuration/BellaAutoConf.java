@@ -4,6 +4,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
@@ -17,14 +18,18 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.springdoc.core.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.google.common.cache.CacheBuilder;
+import com.ke.bella.job.queue.worker.JobQueueWorker;
 import com.ke.bella.openapi.server.BellaServerContextHolder;
 import com.ke.bella.workflow.RedisMesh;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.repo.InstanceRepo;
 import com.ke.bella.workflow.service.Configs;
+import com.ke.bella.workflow.service.WorkflowService;
 
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -65,6 +70,20 @@ public class BellaAutoConf {
         RedisMesh mesh = new RedisMesh(profile, key, "bella-workflow", pool);
         mesh.start();
         return mesh;
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "bella.job-queue.worker.enabled", havingValue = "true")
+    public JobQueueWorker jobQueueWorker(@Value("${bella.job-queue.url}") String url,
+            @Value("${bella.job-queue.worker.endpoint}") String endpoint,
+            @Value("${bella.job-queue.worker.queueName}") String queueName, WorkflowService ws) {
+        JobQueueWorker jobQueueWorker = new JobQueueWorker(url, endpoint, queueName);
+        jobQueueWorker.setTaskHandler(task -> ws.runWorkflow(task, CacheBuilder.newBuilder()
+                .maximumSize(1000)
+                .expireAfterWrite(5, TimeUnit.MINUTES)
+                .build()));
+        jobQueueWorker.start();
+        return jobQueueWorker;
     }
 
     @PostConstruct

@@ -31,10 +31,15 @@ public class Configs {
 
     public static Integer TASK_THREAD_NUMS = 1000;
 
+    public static Integer SCHEDULE_TASK_THREAD_NUMS = 100;
+
+    public static Integer BATCH_TASK_THREAD_NUMS = 100;
+
     @Value("${bella.openapiHost}")
     public void setOpenApiHost(String openApiHost) {
         OPEN_API_HOST = openApiHost;
     }
+
     @Value("${bella.apiBase}")
     public void setApiBase(String apiBase) {
         API_BASE = apiBase;

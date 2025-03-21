@@ -37,6 +37,12 @@ bella:
     server-login-url: https://example.com/login
     client-host: http://example.com
     client-index-url: http://example.com/
+  job-queue:
+    url: http://example.com
+    worker:
+      enabled: false
+      endpoint: /v1/workflow/run
+      queueName: insight-offline-20250305
 
 spring:
   servlet:

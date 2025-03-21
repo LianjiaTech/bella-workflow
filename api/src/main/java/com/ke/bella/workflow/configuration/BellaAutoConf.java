@@ -20,12 +20,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.ke.bella.openapi.server.BellaServerContextHolder;
 import com.ke.bella.workflow.RedisMesh;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.repo.InstanceRepo;
 import com.ke.bella.workflow.service.Configs;
-import com.ke.infra.cloud.extension.boostrap.AppContext;
-import com.ke.infra.cloud.extension.boostrap.Instance;
 
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -48,9 +47,8 @@ public class BellaAutoConf {
 
     @PostConstruct
     public void registerInstance() {
-        Instance instance = AppContext.getInstance();
-        String ip = instance.getIpAddress();
-        Long id = instanceRepo.register(ip, instance.getPort());
+        String ip = BellaServerContextHolder.getIp();
+        Long id = instanceRepo.register(ip, BellaServerContextHolder.getPort());
         IDGenerator.setInstanceId(id);
     }
 
@@ -63,8 +61,7 @@ public class BellaAutoConf {
         config.setJmxNamePrefix("RedisMesh");
         JedisPool pool = new JedisPool(config, host, port, user, pwd);
 
-        Instance instance = AppContext.getInstance();
-        String key = String.format("%s:%s", instance.getIpAddress(), instance.getPort());
+        String key = String.format("%s:%s", BellaServerContextHolder.getIp(), BellaServerContextHolder.getPort());
         RedisMesh mesh = new RedisMesh(profile, key, "bella-workflow", pool);
         mesh.start();
         return mesh;

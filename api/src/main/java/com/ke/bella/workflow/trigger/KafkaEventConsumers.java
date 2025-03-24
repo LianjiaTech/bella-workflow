@@ -150,7 +150,7 @@ public class KafkaEventConsumers {
         String autoOffset = StringUtils.isEmpty(autoOffsetReset) ? "latest" : autoOffsetReset;
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffset);
         props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG,
-                StickyAssignor.class);
+                StickyAssignor.class.getName());
 
         return new DefaultKafkaConsumerFactory<>(props);
     }

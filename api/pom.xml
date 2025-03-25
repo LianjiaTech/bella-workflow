@@ -30,9 +30,15 @@
     <cron-utils.version>9.2.1</cron-utils.version>
     <pebbletemplates.version>3.2.2</pebbletemplates.version>
     <openai-java.version>0.23.3</openai-java.version>
+    <apache.commons-text.version>1.13.0</apache.commons-text.version>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-text</artifactId>
+      <version>${apache.commons-text.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-commons</artifactId>

@@ -392,7 +392,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
             values.forEach(builder::add);
             return builder.build();
         } else if("json".equals(type)) {
-            String json = Variables.format(data.getBody().data, context.getState().getVariablePool());
+            String json = Variables.formatJson(data.getBody().data, context.getState().getVariablePool());
             return RequestBody.create(json, MediaType.parse("application/json"));
         } else if("raw-text".equals(type)) {
             String text = Variables.format(data.getBody().data, context.getState().getVariablePool());

@@ -40,7 +40,8 @@ const InputVarList: FC<Props> = ({
   const { availableVars, availableNodesWithParent } = useAvailableVarList(nodeId, {
     onlyLeafNodeVar: false,
     filterVar: (varPayload: Var) => {
-      return [VarType.string, VarType.number, VarType.secret].includes(varPayload.type)
+      // allow all type
+      return true
     },
   })
   const paramType = (type: string) => {

@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 import com.hubspot.jinjava.Jinjava;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -91,12 +92,44 @@ public class Variables {
     }
 
     @SuppressWarnings("rawtypes")
+    private static final BiFunction<Object, Map, String> PLAIN_VALUE_HANDLER = (value, map) -> value == null ? ""
+            : getValueAsString(map, value.toString());
+
+    @SuppressWarnings("rawtypes")
+    private static final BiFunction<Object, Map, String> JSON_VALUE_HANDLER = (value, map) -> {
+        if(value == null) {
+            return "null";
+        }
+
+        Object actualValue = getValue(map, value.toString());
+
+        if(actualValue == null) {
+            return "null";
+        } else if(actualValue instanceof String) {
+            return JsonUtils.translateJsonString((String) actualValue);
+        } else {
+            return JsonUtils.toJson(actualValue);
+        }
+    };
+
+    @SuppressWarnings("rawtypes")
+    public static String formatJson(String jsonText, Map pool) {
+        return format(jsonText, "{{#", "#}}", pool, JSON_VALUE_HANDLER);
+    }
+
+    @SuppressWarnings("rawtypes")
     public static String format(String text, Map pool) {
-        return format(text, "{{#", "#}}", pool);
+        return format(text, "{{#", "#}}", pool, PLAIN_VALUE_HANDLER);
     }
 
     @SuppressWarnings("rawtypes")
     public static String format(String text, String openToken, String closeToken, Map map) {
+        return format(text, openToken, closeToken, map, PLAIN_VALUE_HANDLER);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static String format(String text, String openToken, String closeToken, Map map,
+            BiFunction<Object, Map, String> valueHandler) {
         if(map == null || map.size() == 0) {
             return text;
         }
@@ -147,8 +180,8 @@ public class Variables {
                     offset = src.length;
                 } else {
                     String key = text.substring(start + openToken.length(), end);
-                    String value = getValueAsString(map, key);
-                    builder.append(value == null ? "" : value);
+                    String value = valueHandler.apply(key, map);
+                    builder.append(value);
                     offset = end + closeToken.length();
                 }
             }

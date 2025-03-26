@@ -2,8 +2,14 @@ package com.ke.bella.workflow.utils;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.text.translate.AggregateTranslator;
+import org.apache.commons.text.translate.CharSequenceTranslator;
+import org.apache.commons.text.translate.EntityArrays;
+import org.apache.commons.text.translate.LookupTranslator;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -19,6 +25,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class JsonUtils {
     private static ObjectMapper mapper = new ObjectMapper();
     private static ObjectMapper mapper2 = new ObjectMapper();
+
+    private static final CharSequenceTranslator JSON_ESCAPE_TRANSLATOR;
     static {
         mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
@@ -31,6 +39,15 @@ public class JsonUtils {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(Number.class, new NumberDeserializers.BigDecimalDeserializer());
         mapper.registerModule(module);
+
+        // modify from apache.commons-text. without unicode encoding
+        final Map<CharSequence, CharSequence> escapeJsonMap = new HashMap<>();
+        escapeJsonMap.put("\"", "\\\"");
+        escapeJsonMap.put("\\", "\\\\");
+        escapeJsonMap.put("/", "\\/");
+        JSON_ESCAPE_TRANSLATOR = new AggregateTranslator(
+                new LookupTranslator(Collections.unmodifiableMap(escapeJsonMap)),
+                new LookupTranslator(EntityArrays.JAVA_CTRL_CHARS_ESCAPE));
     }
 
     @SuppressWarnings("rawtypes")
@@ -98,5 +115,9 @@ public class JsonUtils {
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    public static String translateJsonString(String origin) {
+        return JSON_ESCAPE_TRANSLATOR.translate(origin);
     }
 }

@@ -227,6 +227,7 @@ const DebugConfigurationContext = createContext<IDebugConfiguration>({
     top_k: 2,
     score_threshold_enabled: false,
     background: true,
+    imageOCR: false,
     score_threshold: 0.7,
     datasets: {
       datasets: [],

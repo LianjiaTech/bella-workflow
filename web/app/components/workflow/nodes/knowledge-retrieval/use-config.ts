@@ -142,6 +142,7 @@ const useConfig = (id: string, payload: KnowledgeRetrievalNodeType) => {
         score_threshold: multipleRetrievalConfig?.score_threshold,
         reranking_model: multipleRetrievalConfig?.reranking_model,
         background: multipleRetrievalConfig?.background as boolean,
+        imageOCR: multipleRetrievalConfig?.imageOCR as boolean,
       }
     })
     setInputs(newInput)

@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -60,7 +61,7 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         try {
             List<KnowledgeRetrievalResult> retrieveResult = invokeFileRetrieve(query, data.getDatasetIds(), data.multipleRetrievalConfig.getTopK(),
                     data.multipleRetrievalConfig.getScoreThreshold(), data.multipleRetrievalConfig.getRetrievalMode(),
-                    data.multipleRetrievalConfig.isBackground());
+                    data.multipleRetrievalConfig.isBackground(), data.multipleRetrievalConfig.isImageOCR());
 
             Map<String, Object> outputs = Collections.singletonMap("result", retrieveResult);
             return WorkflowRunState.NodeRunResult.builder()
@@ -76,8 +77,7 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
     }
 
     private List<KnowledgeRetrievalResult> invokeFileRetrieve(String query, List<String> datasetIds, Integer topK, Float scoreThreshold,
-            String retrievalMode,
-            boolean background) {
+            String retrievalMode, boolean background, boolean imageOCR) {
         HashMap<String, String> headers = new HashMap<>();
         headers.put("Authorization", "Bearer " + BellaContext.getApikey().getApikey());
         Optional.ofNullable(BellaContext.getHeaders()).ifPresent(map -> map.forEach(headers::putIfAbsent));
@@ -91,10 +91,7 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         request.setRetrieveMode(retrievalMode);
         request.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
 
-        if(background) {
-            List<KnowledgeRetrievalRequest.Plugin> plugins = Collections.singletonList(contextCompletePlugin());
-            request.setPlugins(plugins);
-        }
+        request.setPlugins(buildPlugins(background, imageOCR));
 
         BellaFileRetrieveResult bellaFileRetrieveResult = HttpUtils.postJson(client, headers, fileRetrieveUrl, JsonUtils.toJson(request),
                 new TypeReference<BellaFileRetrieveResult>() {
@@ -110,12 +107,23 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         return retrieveResult.stream().map(KnowledgeRetrievalResult::transfer).collect(Collectors.toList());
     }
 
-    private static KnowledgeRetrievalRequest.Plugin contextCompletePlugin() {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("complete_mode", "context_complete");
+    private List<KnowledgeRetrievalRequest.Plugin> buildPlugins(boolean background, boolean imageOCR) {
+        Stream.Builder<KnowledgeRetrievalRequest.Plugin> builder = Stream.builder();
+
+        if(background) {
+            builder.add(createPlugin("completer", Collections.singletonMap("complete_mode", "context_complete")));
+        }
+        if(imageOCR) {
+            builder.add(createPlugin("image_recognizer", Collections.singletonMap("image_ocr_recognize", "true")));
+        }
+
+        return builder.build().collect(Collectors.toList());
+    }
+
+    private static KnowledgeRetrievalRequest.Plugin createPlugin(String name, Map<String, Object> parameters) {
         return KnowledgeRetrievalRequest.Plugin.builder()
-                .name("completer")
-                .parameters(params)
+                .name(name)
+                .parameters(parameters)
                 .build();
     }
 
@@ -154,6 +162,8 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
         private String retrievalMode = "semantic";
 
         private boolean background = true;
+
+        private boolean imageOCR = false;
     }
 
     @Getter
@@ -186,6 +196,20 @@ public class KnowledgeRetrievalNode extends BaseNode<KnowledgeRetrievalNode.Data
             private String content;
             @JsonAlias("file_tag")
             private String fileTag;
+            @JsonAlias("rerank_score")
+            private Double rerankScore;
+            @JsonAlias("ocr_results")
+            private List<ImageOcrResult> ocrResults;
+
+            @Getter
+            @Setter
+            @NoArgsConstructor
+            public static class ImageOcrResult {
+                @JsonAlias("image_ocr_result")
+                private String imageOcrResult;
+                @JsonAlias("image_url")
+                private String imageUrl;
+            }
         }
     }
 

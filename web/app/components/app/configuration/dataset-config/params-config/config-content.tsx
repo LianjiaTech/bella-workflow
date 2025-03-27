@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import TopKItem from '@/app/components/base/param-item/top-k-item'
 import ScoreThresholdItem from '@/app/components/base/param-item/score-threshold-item'
 import RetrievalModeItem from '@/app/components/base/param-item/retrieval-mode-item'
-import BackgroundItem from '@/app/components/base/param-item/background-item'
+import SwitchItem from '@/app/components/base/param-item/switch-item'
 import type {
   DatasetConfigs,
 } from '@/models/debug'
@@ -70,6 +70,13 @@ const ConfigContent: FC<Props> = ({
     })
   }
 
+  const handleImageOCRChange = (enable: boolean) => {
+    onChange({
+      ...datasetConfigs,
+      imageOCR: enable,
+    })
+  }
+
   const showWeightedScorePanel = true
   return (
     <div>
@@ -111,9 +118,15 @@ const ConfigContent: FC<Props> = ({
               hasSwitch={true}
               onSwitchChange={handleSwitch}
             />
-            <BackgroundItem
+            <SwitchItem
               value={datasetConfigs.background}
               onChange={handleBackgroundChange}
+              type="background"
+            />
+            <SwitchItem
+              value={datasetConfigs.imageOCR}
+              onChange={handleImageOCRChange}
+              type="imageOCR"
             />
           </div>
         )

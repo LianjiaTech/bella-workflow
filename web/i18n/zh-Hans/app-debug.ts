@@ -139,6 +139,10 @@ const translation = {
           title: '背景信息',
           description: '开启后，将针对文档类知识(非QA)，分段总结文档内容，并作为索引和用户问题匹配。适合文件名包含重要信息，或者片段需要补全段落整体信息的场景',
         },
+        imageOCR: {
+          title: '图片信息',
+          description: '开启后，将对文档内图片进行OCR识别，图片的OCR的结果会用于检索和相似度排序',
+        },
       },
     },
     tools: {

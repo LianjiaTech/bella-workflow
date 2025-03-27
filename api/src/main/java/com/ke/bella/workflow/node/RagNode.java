@@ -76,6 +76,7 @@ public class RagNode extends BaseNode<RagNode.Data> {
                 .addInterceptor(logging)
                 .dispatcher(dispatcher)
                 .connectionPool(new ConnectionPool(Configs.TASK_THREAD_NUMS, 60, TimeUnit.SECONDS))
+                .readTimeout(DEFAULT_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
                 .build();
     }
 
@@ -210,10 +211,10 @@ public class RagNode extends BaseNode<RagNode.Data> {
                     ttftEnd = System.nanoTime();
                     String errMsg = null;
                     try {
-                        if(response.body() != null) {
-                            errMsg = response.body().string();
-                        } else if(t != null) {
+                        if(t != null) {
                             errMsg = t.getMessage();
+                        } else if(response != null && response.body() != null) {
+                            errMsg = response.body().string();
                         } else {
                             errMsg = "未知异常";
                         }
@@ -224,7 +225,7 @@ public class RagNode extends BaseNode<RagNode.Data> {
                             LOGGER.info("[RagNode] future is done but still onFailure, errMsg = {}", errMsg);
                         }
                     } catch (Exception e) {
-                        ragFuture.completeExceptionally(new IllegalStateException(errMsg));
+                        ragFuture.completeExceptionally(e);
                     }
                 }
             });

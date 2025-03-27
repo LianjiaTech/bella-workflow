@@ -30,6 +30,7 @@ bella:
   workflow:
     sandbox:
       groovy: false
+      rdbInterruptedIntervalRows: 1000
   login:
     # 本地环境去掉 bella.login.type 即可关闭登录的身份校验
     type: cas

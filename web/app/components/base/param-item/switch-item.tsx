@@ -11,14 +11,28 @@ type Props = {
   className?: string
   value: boolean
   onChange: (value: boolean) => void
+  type?: 'background' | 'imageOCR'
 }
 
-const BackgroundItem: FC<Props> = ({
+const SwitchItem: FC<Props> = ({
   className,
   value,
   onChange,
+  type = 'background',
 }) => {
   const { t } = useTranslation()
+
+  const getTitleKey = () => {
+    if (type === 'imageOCR')
+      return 'appDebug.feature.dataSet.retrieval.imageOCR.title'
+    return 'appDebug.feature.dataSet.retrieval.background.title'
+  }
+
+  const getDescriptionKey = () => {
+    if (type === 'imageOCR')
+      return 'appDebug.feature.dataSet.retrieval.imageOCR.description'
+    return 'appDebug.feature.dataSet.retrieval.background.description'
+  }
 
   return (
     <div className={className}>
@@ -31,9 +45,9 @@ const BackgroundItem: FC<Props> = ({
           }}
         />
         <span className="mx-1 text-gray-900 text-[13px] leading-[18px] font-medium">
-          {t('appDebug.feature.dataSet.retrieval.background.title')}
+          {t(getTitleKey())}
         </span>
-        <Tooltip popupContent={<div className="w-[200px]">{t('appDebug.feature.dataSet.retrieval.background.description')}</div>}>
+        <Tooltip popupContent={<div className="w-[200px]">{t(getDescriptionKey())}</div>}>
           <RiQuestionLine className='w-[14px] h-[14px] text-gray-400' />
         </Tooltip>
       </div>
@@ -41,4 +55,4 @@ const BackgroundItem: FC<Props> = ({
   )
 }
 
-export default React.memo(BackgroundItem)
+export default React.memo(SwitchItem)

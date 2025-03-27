@@ -151,6 +151,7 @@ export type DatasetConfigs = {
   score_threshold_enabled: boolean
   score_threshold: number | null | undefined
   background: boolean
+  imageOCR: boolean
   datasets: {
     datasets: {
       enabled: boolean

@@ -13,6 +13,7 @@ export type MultipleRetrievalConfig = {
   top_k: number
   score_threshold: number | null | undefined
   background: boolean
+  imageOCR: boolean
   reranking_model?: {
     provider: string
     model: string

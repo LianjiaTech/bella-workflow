@@ -12,7 +12,7 @@ import {
   useIsChatMode, useNodesReadOnly,
   useWorkflow,
 } from '../../hooks'
-import type { MultipleRetrievalConfig, RagNodeType } from './types'
+import type { MultipleRetrievalConfig, RagNodeType, RetrievalMode } from './types'
 import {
   getMultipleRetrievalConfig,
   getSelectedDatasetsMode,
@@ -176,22 +176,16 @@ const useConfig = (id: string, payload: RagNodeType) => {
             },
           }
         }
-
-        const hasSetRagGenerationModel = draft.generation_config?.model?.provider
-        if (!hasSetRagGenerationModel) {
-          handleRagGenerationModelChanged({
-            provider: currentProvider?.provider,
-            modelId: currentModel?.model,
-            mode: currentModel?.model_properties?.mode as string,
-          })
-        }
       }
 
       const multipleRetrievalConfig = draft.multiple_retrieval_config
       draft.multiple_retrieval_config = {
+        retrieval_mode: multipleRetrievalConfig?.retrieval_mode as RetrievalMode,
         top_k: multipleRetrievalConfig?.top_k || DATASET_DEFAULT.top_k,
         score_threshold: multipleRetrievalConfig?.score_threshold,
         reranking_model: multipleRetrievalConfig?.reranking_model,
+        background: multipleRetrievalConfig?.background as boolean,
+        imageOCR: multipleRetrievalConfig?.imageOCR as boolean,
       }
     })
     setInputs(newInput)

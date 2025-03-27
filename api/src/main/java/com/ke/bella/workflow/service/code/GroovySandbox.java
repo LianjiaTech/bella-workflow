@@ -251,12 +251,15 @@ public class GroovySandbox {
                 // 确保闭包内部有中断检查
                 if(closureExpression.getCode() instanceof BlockStatement) {
                     BlockStatement closureBlock = (BlockStatement) closureExpression.getCode();
+
+                    if(closureBlock.getStatements().isEmpty()) {
+                        return;
+                    }
+
                     BlockStatement newBlock = new BlockStatement();
 
-                    // 添加开始和结束的中断检查
                     newBlock.addStatement(createInterruptCheckStatementByThrowStatement());
-                    closureBlock.getStatements().forEach(newBlock::addStatement);
-                    newBlock.addStatement(createInterruptCheckStatementByThrowStatement());
+                    newBlock.addStatements(closureBlock.getStatements());
 
                     closureExpression.setCode(newBlock);
                 } else {

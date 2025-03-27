@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.RangeAssignor;
 import org.apache.kafka.clients.consumer.StickyAssignor;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
 import com.ke.bella.workflow.TaskExecutor;
 import com.ke.bella.workflow.db.repo.DataSourceRepo;
 import com.ke.bella.workflow.db.repo.WorkflowTriggerRepo;
@@ -150,7 +152,7 @@ public class KafkaEventConsumers {
         String autoOffset = StringUtils.isEmpty(autoOffsetReset) ? "latest" : autoOffsetReset;
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffset);
         props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG,
-                StickyAssignor.class);
+                Lists.newArrayList(StickyAssignor.class.getName(), RangeAssignor.class.getName()));
 
         return new DefaultKafkaConsumerFactory<>(props);
     }

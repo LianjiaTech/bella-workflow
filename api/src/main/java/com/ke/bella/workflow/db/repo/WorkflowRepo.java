@@ -549,6 +549,23 @@ public class WorkflowRepo implements BaseRepo {
                 .execute();
     }
 
+    public void updateWorkflowNodeRunStatusAsWaiting(WorkflowNodeRunDB wnr) {
+        WorkflowNodeRunRecord rec = WORKFLOW_NODE_RUN.newRecord();
+        rec.set(WORKFLOW_NODE_RUN.STATUS, "waiting");
+
+        fillUpdatorInfo(rec);
+        String shardKey = shardingKeyByWorkflowRunId(wnr.getWorkflowRunId());
+        db(shardKey).update(WORKFLOW_NODE_RUN)
+                .set(rec)
+                .where(WORKFLOW_NODE_RUN.TENANT_ID.eq(wnr.getTenantId()))
+                .and(WORKFLOW_NODE_RUN.WORKFLOW_ID.eq(wnr.getWorkflowId()))
+                .and(WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID.eq(wnr.getWorkflowRunId()))
+                .and((WORKFLOW_NODE_RUN.NODE_ID.eq(wnr.getNodeId())))
+                .and(WORKFLOW_NODE_RUN.NODE_RUN_ID.eq(wnr.getNodeRunId()))
+                .and(WORKFLOW_NODE_RUN.STATUS.eq("running"))
+                .execute();
+    }
+
     public List<WorkflowNodeRunDB> queryWorkflowNodeRuns(String workflowRunId, Set<String> nodeids) {
         String shardKey = shardingKeyByWorkflowRunId(workflowRunId);
         return db(shardKey).selectFrom(WORKFLOW_NODE_RUN)

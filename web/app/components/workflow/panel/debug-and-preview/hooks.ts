@@ -43,6 +43,7 @@ export const useChat = (
   const isRespondingRef = useRef(false)
   const [suggestedQuestions, setSuggestQuestions] = useState<string[]>([])
   const suggestedQuestionsAbortControllerRef = useRef<AbortController | null>(null)
+  const responseMapRef = useRef<Map<string, ChatItem>>(new Map())
 
   useEffect(() => {
     setAutoFreeze(false)
@@ -171,15 +172,6 @@ export const useChat = (
     const newList = [...chatListRef.current, questionItem, placeholderAnswerItem]
     handleUpdateChatList(newList)
 
-    // answer
-    const responseItem: ChatItem = {
-      id: placeholderAnswerId,
-      content: '',
-      agent_thoughts: [],
-      message_files: [],
-      isAnswer: true,
-    }
-
     let isInIteration = false
 
     handleResponding(true)
@@ -195,69 +187,62 @@ export const useChat = (
       delete params.files
     }
 
-    let hasSetResponseId = false
-
     handleRun(
       params,
       {
         onData: (message: string, isFirstMessage: boolean, { conversationId: newConversationId, messageId, taskId }: any) => {
-          if (messageId && messageId !== responseItem.id)
-            responseItem.content = message
-          else
-            responseItem.content = responseItem.content + message
-
-          if (messageId && !hasSetResponseId) {
-            responseItem.id = messageId
-            hasSetResponseId = true
+          let currentResponseItem: ChatItem
+          if (messageId) {
+            const existingItem = responseMapRef.current.get(messageId)
+            if (existingItem) {
+              currentResponseItem = existingItem
+              currentResponseItem.content = currentResponseItem.content + message
+            }
+            else {
+              // 如果没有则新建一个
+              currentResponseItem = {
+                id: messageId,
+                content: '',
+                agent_thoughts: [],
+                message_files: [],
+                isAnswer: true,
+              }
+              currentResponseItem.content = message
+              responseMapRef.current.set(messageId, currentResponseItem)
+            }
+          }
+          else {
+            return
           }
 
           if (isFirstMessage && newConversationId)
             connversationId.current = newConversationId
 
           taskIdRef.current = taskId
-          if (messageId)
-            responseItem.id = messageId
 
           updateCurrentQA({
-            responseItem,
+            responseItem: currentResponseItem,
             questionId,
             placeholderAnswerId,
             questionItem,
           })
         },
-        onThought: (thought: ThoughtItem) => {
-          const response = responseItem as any
-          if (thought.message_id && !hasSetResponseId)
-            response.id = thought.message_id
-          if (response.agent_thoughts.length === 0) {
-            response.agent_thoughts.push(thought)
-          }
-          else {
-            const lastThought = response.agent_thoughts[response.agent_thoughts.length - 1]
-            // thought changed but still the same thought, so update.
-            if (lastThought.id === thought.id) {
-              thought.thought = lastThought.thought + thought.thought
-              thought.message_files = lastThought.message_files
-              responseItem.agent_thoughts![response.agent_thoughts.length - 1] = thought
-            }
-            else {
-              responseItem.agent_thoughts!.push(thought)
-            }
-          }
-          updateCurrentQA({
-            responseItem,
-            questionId,
-            placeholderAnswerId,
-            questionItem,
-          })
-        },
-        async onCompleted(hasError?: boolean, errorMessage?: string) {
+        async onCompleted(hasError?: boolean, errorMessage?: string, messageId?: string) {
           handleResponding(false)
 
           if (hasError) {
-            if (errorMessage) {
+            if (errorMessage && messageId) {
+              const responseItem = responseMapRef.current.get(messageId) || {
+                id: messageId,
+                content: '',
+                isAnswer: true,
+              }
               responseItem.content = errorMessage
               responseItem.isError = true
+
+              if (!responseMapRef.current.has(messageId))
+                responseMapRef.current.set(messageId, responseItem)
+
               const newListWithAnswer = produce(
                 chatListRef.current.filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
                 (draft) => {
@@ -271,15 +256,24 @@ export const useChat = (
             return
           }
 
-          if (config?.suggested_questions_after_answer?.enabled && !hasStopResponded.current && onGetSuggestedQuestions) {
+          if (config?.suggested_questions_after_answer?.enabled && !hasStopResponded.current && onGetSuggestedQuestions && messageId) {
             const { data }: any = await onGetSuggestedQuestions(
-              responseItem.id,
+              messageId,
               newAbortController => suggestedQuestionsAbortControllerRef.current = newAbortController,
             )
             setSuggestQuestions(data)
           }
+
+          console.log('Run completed, responseMap size:', responseMapRef.current.size)
         },
-        onMessageEnd: (messageEnd) => {
+        onMessageEnd: (messageEnd, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const responseItem = responseMapRef.current.get(messageId)
+          if (!responseItem)
+            return
+
           responseItem.citation = messageEnd.metadata?.retriever_resources || []
 
           const newListWithAnswer = produce(
@@ -292,13 +286,25 @@ export const useChat = (
             })
           handleUpdateChatList(newListWithAnswer)
         },
-        onMessageReplace: (messageReplace) => {
-          responseItem.content = messageReplace.answer
+        onMessageReplace: (messageReplace, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const responseItem = responseMapRef.current.get(messageId)
+          if (responseItem)
+            responseItem.content = messageReplace.answer
         },
         onError() {
           handleResponding(false)
         },
-        onWorkflowStarted: ({ workflow_run_id, task_id }) => {
+        onWorkflowStarted: ({ workflow_run_id, task_id }, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const responseItem = responseMapRef.current.get(messageId)
+          if (!responseItem)
+            return
+
           taskIdRef.current = task_id
           responseItem.workflow_run_id = workflow_run_id
           responseItem.workflowProcess = {
@@ -307,49 +313,84 @@ export const useChat = (
           }
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
             const currentIndex = draft.findIndex(item => item.id === responseItem.id)
-            draft[currentIndex] = {
-              ...draft[currentIndex],
-              ...responseItem,
+            if (currentIndex !== -1) {
+              draft[currentIndex] = {
+                ...draft[currentIndex],
+                ...responseItem,
+              }
             }
           }))
         },
-        onWorkflowFinished: ({ data }) => {
-          responseItem.workflowProcess!.status = data.status as WorkflowRunningStatus
+        onWorkflowFinished: ({ data }, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const responseItem = responseMapRef.current.get(messageId)
+          if (!responseItem || !responseItem.workflowProcess)
+            return
+
+          responseItem.workflowProcess.status = data.status as WorkflowRunningStatus
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
             const currentIndex = draft.findIndex(item => item.id === responseItem.id)
-            draft[currentIndex] = {
-              ...draft[currentIndex],
-              ...responseItem,
+            if (currentIndex !== -1) {
+              draft[currentIndex] = {
+                ...draft[currentIndex],
+                ...responseItem,
+              }
             }
           }))
         },
-        onIterationStart: ({ data }) => {
-          responseItem.workflowProcess!.tracing!.push({
+        onIterationStart: ({ data }, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const responseItem = responseMapRef.current.get(messageId)
+          if (!responseItem || !responseItem.workflowProcess)
+            return
+
+          responseItem.workflowProcess.tracing!.push({
             ...data,
             status: NodeRunningStatus.Running,
             details: [],
           } as any)
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
             const currentIndex = draft.findIndex(item => item.id === responseItem.id)
-            draft[currentIndex] = {
-              ...draft[currentIndex],
-              ...responseItem,
+            if (currentIndex !== -1) {
+              draft[currentIndex] = {
+                ...draft[currentIndex],
+                ...responseItem,
+              }
             }
           }))
           isInIteration = true
         },
-        onIterationNext: () => {
-          const tracing = responseItem.workflowProcess!.tracing!
+        onIterationNext: (data?: any, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const responseItem = responseMapRef.current.get(messageId)
+          if (!responseItem || !responseItem.workflowProcess)
+            return
+
+          const tracing = responseItem.workflowProcess.tracing!
           const iterations = tracing[tracing.length - 1]
           iterations.details!.push([])
 
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.length - 1
-            draft[currentIndex] = responseItem
+            const currentIndex = draft.findIndex(item => item.id === responseItem.id)
+            if (currentIndex !== -1)
+              draft[currentIndex] = responseItem
           }))
         },
-        onIterationFinish: ({ data }) => {
-          const tracing = responseItem.workflowProcess!.tracing!
+        onIterationFinish: ({ data }, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const responseItem = responseMapRef.current.get(messageId)
+          if (!responseItem || !responseItem.workflowProcess)
+            return
+
+          const tracing = responseItem.workflowProcess.tracing!
           const iterations = tracing[tracing.length - 1]
           tracing[tracing.length - 1] = {
             ...iterations,
@@ -357,15 +398,23 @@ export const useChat = (
             status: NodeRunningStatus.Succeeded,
           } as any
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.length - 1
-            draft[currentIndex] = responseItem
+            const currentIndex = draft.findIndex(item => item.id === responseItem.id)
+            if (currentIndex !== -1)
+              draft[currentIndex] = responseItem
           }))
 
           isInIteration = false
         },
-        onNodeStarted: ({ data }) => {
+        onNodeStarted: ({ data }, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const responseItem = responseMapRef.current.get(messageId)
+          if (!responseItem || !responseItem.workflowProcess)
+            return
+
           if (isInIteration) {
-            const tracing = responseItem.workflowProcess!.tracing!
+            const tracing = responseItem.workflowProcess.tracing!
             const iterations = tracing[tracing.length - 1]
             const currIteration = iterations.details![iterations.details!.length - 1]
             currIteration.push({
@@ -373,27 +422,37 @@ export const useChat = (
               status: NodeRunningStatus.Running,
             } as any)
             handleUpdateChatList(produce(chatListRef.current, (draft) => {
-              const currentIndex = draft.length - 1
-              draft[currentIndex] = responseItem
+              const currentIndex = draft.findIndex(item => item.id === responseItem.id)
+              if (currentIndex !== -1)
+                draft[currentIndex] = responseItem
             }))
           }
           else {
-            responseItem.workflowProcess!.tracing!.push({
+            responseItem.workflowProcess.tracing!.push({
               ...data,
               status: NodeRunningStatus.Running,
             } as any)
             handleUpdateChatList(produce(chatListRef.current, (draft) => {
               const currentIndex = draft.findIndex(item => item.id === responseItem.id)
-              draft[currentIndex] = {
-                ...draft[currentIndex],
-                ...responseItem,
+              if (currentIndex !== -1) {
+                draft[currentIndex] = {
+                  ...draft[currentIndex],
+                  ...responseItem,
+                }
               }
             }))
           }
         },
-        onNodeFinished: ({ data }) => {
+        onNodeFinished: ({ data }, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const responseItem = responseMapRef.current.get(messageId)
+          if (!responseItem || !responseItem.workflowProcess)
+            return
+
           if (isInIteration) {
-            const tracing = responseItem.workflowProcess!.tracing!
+            const tracing = responseItem.workflowProcess.tracing!
             const iterations = tracing[tracing.length - 1]
             const currIteration = iterations.details![iterations.details!.length - 1]
             currIteration[currIteration.length - 1] = {
@@ -401,25 +460,70 @@ export const useChat = (
               status: NodeRunningStatus.Succeeded,
             } as any
             handleUpdateChatList(produce(chatListRef.current, (draft) => {
-              const currentIndex = draft.length - 1
-              draft[currentIndex] = responseItem
+              const currentIndex = draft.findIndex(item => item.id === responseItem.id)
+              if (currentIndex !== -1)
+                draft[currentIndex] = responseItem
             }))
           }
           else {
-            const currentIndex = responseItem.workflowProcess!.tracing!.findIndex(item => item.node_id === data.node_id)
-            responseItem.workflowProcess!.tracing[currentIndex] = {
-              ...(responseItem.workflowProcess!.tracing[currentIndex].extras
-                ? { extras: responseItem.workflowProcess!.tracing[currentIndex].extras }
+            const currentIndex = responseItem.workflowProcess.tracing!.findIndex(item => item.node_id === data.node_id)
+            if (currentIndex === -1)
+              return
+
+            responseItem.workflowProcess.tracing[currentIndex] = {
+              ...(responseItem.workflowProcess.tracing[currentIndex].extras
+                ? { extras: responseItem.workflowProcess.tracing[currentIndex].extras }
                 : {}),
               ...data,
             } as any
             handleUpdateChatList(produce(chatListRef.current, (draft) => {
               const currentIndex = draft.findIndex(item => item.id === responseItem.id)
-              draft[currentIndex] = {
-                ...draft[currentIndex],
-                ...responseItem,
+              if (currentIndex !== -1) {
+                draft[currentIndex] = {
+                  ...draft[currentIndex],
+                  ...responseItem,
+                }
               }
             }))
+          }
+        },
+        onThought: (thought: ThoughtItem) => {
+          let currentThought: ChatItem
+
+          if (thought.message_id) {
+            const existingMessage = responseMapRef.current.get(thought.message_id)
+            if (existingMessage) {
+              currentThought = existingMessage
+            }
+            else {
+              currentThought = {
+                id: thought.message_id,
+                content: '',
+                agent_thoughts: [],
+                message_files: [],
+                isAnswer: true,
+              }
+              responseMapRef.current.set(thought.message_id, currentThought)
+            }
+
+            if (!currentThought.agent_thoughts)
+              currentThought.agent_thoughts = []
+
+            const existingThought = currentThought.agent_thoughts.find((item: ThoughtItem) => item.id === thought.id)
+            if (existingThought) {
+              existingThought.thought = existingThought.thought + thought.thought
+              existingThought.message_files = thought.message_files || existingThought.message_files
+            }
+            else {
+              currentThought.agent_thoughts.push(thought)
+            }
+
+            updateCurrentQA({
+              responseItem: currentThought,
+              questionId,
+              placeholderAnswerId,
+              questionItem,
+            })
           }
         },
       },

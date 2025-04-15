@@ -95,6 +95,7 @@ export const useChat = (
   const checkPromptVariables = useCheckPromptVariables()
   const params = useParams()
   const pathname = usePathname()
+  const responseMapRef = useRef<Map<string, ChatItem>>(new Map())
   useEffect(() => {
     setAutoFreeze(false)
     return () => {
@@ -282,14 +283,23 @@ export const useChat = (
         isPublicAPI,
         onData: (message: string, isFirstMessage: boolean, { conversationId: newConversationId, messageId, taskId }: any) => {
           if (messageId && messageId !== responseItem.id) {
-            responseItem = {
-              id: messageId,
-              content: '',
-              agent_thoughts: [],
-              message_files: [],
-              isAnswer: true,
+            // 检查是否已经存在此消息的响应项
+            const existingItem = responseMapRef.current.get(messageId)
+            if (existingItem) {
+              responseItem = existingItem
+            }
+            else {
+              responseItem = {
+                id: messageId,
+                content: '',
+                agent_thoughts: [],
+                message_files: [],
+                isAnswer: true,
+              }
+              responseMapRef.current.set(messageId, responseItem)
             }
           }
+
           if (!isAgentMode) {
             responseItem.content = responseItem.content + message
           }
@@ -318,7 +328,7 @@ export const useChat = (
             questionItem,
           })
         },
-        async onCompleted(hasError?: boolean) {
+        onCompleted: (hasError?: boolean, messageId?: string) => {
           handleResponding(false)
 
           if (hasError)
@@ -328,107 +338,149 @@ export const useChat = (
             onConversationComplete(connversationId.current)
 
           if (connversationId.current && !hasStopResponded.current && onGetConvesationMessages) {
-            const { data }: any = await onGetConvesationMessages(
-              connversationId.current,
-              newAbortController => conversationMessagesAbortControllerRef.current = newAbortController,
-            )
-            const newResponseItem = data.find((item: any) => item.id === responseItem.id)
-            if (!newResponseItem)
-              return
+            const getMessages = async () => {
+              const { data }: any = await onGetConvesationMessages(
+                connversationId.current,
+                newAbortController => conversationMessagesAbortControllerRef.current = newAbortController,
+              )
 
-            const newChatList = produce(chatListRef.current, (draft) => {
-              const index = draft.findIndex(item => item.id === responseItem.id)
-              if (index !== -1) {
-                const requestion = draft[index - 1]
-                draft[index - 1] = {
-                  ...requestion,
-                }
-                draft[index] = {
-                  ...draft[index],
-                  content: newResponseItem.answer,
-                  log: [
-                    ...newResponseItem.message,
-                    ...(newResponseItem.message[newResponseItem.message.length - 1].role !== 'assistant'
-                      ? [
-                        {
-                          role: 'assistant',
-                          text: newResponseItem.answer,
-                          files: newResponseItem.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
-                        },
-                      ]
-                      : []),
-                  ],
-                  more: {
-                    time: formatTime(newResponseItem.created_at, 'hh:mm A'),
-                    tokens: newResponseItem.answer_tokens + newResponseItem.message_tokens,
-                    latency: newResponseItem.provider_response_latency.toFixed(2),
-                  },
-                  // for agent log
-                  conversationId: connversationId.current,
-                  input: {
-                    inputs: newResponseItem.inputs,
-                    query: newResponseItem.query,
-                  },
-                }
+              if (messageId) {
+                const newResponseItem = data.find((item: any) => item.id === messageId)
+                if (!newResponseItem)
+                  return
+
+                const newChatList = produce(chatListRef.current, (draft) => {
+                  const index = draft.findIndex(item => item.id === messageId)
+                  if (index !== -1) {
+                    const requestion = draft[index - 1]
+                    draft[index - 1] = {
+                      ...requestion,
+                    }
+                    draft[index] = {
+                      ...draft[index],
+                      content: newResponseItem.answer,
+                      log: [
+                        ...newResponseItem.message,
+                        ...(newResponseItem.message[newResponseItem.message.length - 1].role !== 'assistant'
+                          ? [
+                            {
+                              role: 'assistant',
+                              text: newResponseItem.answer,
+                              files: newResponseItem.message_files?.filter((file: any) => file.belongs_to === 'assistant') || [],
+                            },
+                          ]
+                          : []),
+                      ],
+                      more: {
+                        time: formatTime(newResponseItem.created_at, 'hh:mm A'),
+                        tokens: newResponseItem.answer_tokens + newResponseItem.message_tokens,
+                        latency: newResponseItem.provider_response_latency.toFixed(2),
+                      },
+                      // for agent log
+                      conversationId: connversationId.current,
+                      input: {
+                        inputs: newResponseItem.inputs,
+                        query: newResponseItem.query,
+                      },
+                    }
+                  }
+                })
+                handleUpdateChatList(newChatList)
               }
-            })
-            handleUpdateChatList(newChatList)
+            }
+            getMessages()
           }
-          if (config?.suggested_questions_after_answer?.enabled && !hasStopResponded.current && onGetSuggestedQuestions) {
-            const { data }: any = await onGetSuggestedQuestions(
-              responseItem.id,
-              newAbortController => suggestedQuestionsAbortControllerRef.current = newAbortController,
-            )
-            setSuggestQuestions(data)
+          if (config?.suggested_questions_after_answer?.enabled && !hasStopResponded.current && onGetSuggestedQuestions && messageId) {
+            const getSuggestions = async () => {
+              const { data }: any = await onGetSuggestedQuestions(
+                messageId,
+                newAbortController => suggestedQuestionsAbortControllerRef.current = newAbortController,
+              )
+              setSuggestQuestions(data)
+            }
+            getSuggestions()
           }
         },
-        onFile(file) {
-          const lastThought = responseItem.agent_thoughts?.[responseItem.agent_thoughts?.length - 1]
+        onFile: (file: any, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const currentResponseItem = responseMapRef.current.get(messageId) || responseItem
+          const lastThought = currentResponseItem.agent_thoughts?.[currentResponseItem.agent_thoughts?.length - 1]
           if (lastThought)
-            responseItem.agent_thoughts![responseItem.agent_thoughts!.length - 1].message_files = [...(lastThought as any).message_files, file]
+            currentResponseItem.agent_thoughts![currentResponseItem.agent_thoughts!.length - 1].message_files = [...(lastThought as any).message_files, file]
 
           updateCurrentQA({
-            responseItem,
+            responseItem: currentResponseItem,
             questionId,
             placeholderAnswerId,
             questionItem,
           })
         },
-        onThought(thought) {
+        onThought: (thought: any) => {
           isAgentMode = true
-          const response = responseItem as any
-          if (thought.message_id && !hasSetResponseId)
-            response.id = thought.message_id
-          if (response.agent_thoughts.length === 0) {
-            response.agent_thoughts.push(thought)
-          }
-          else {
-            const lastThought = response.agent_thoughts[response.agent_thoughts.length - 1]
-            // thought changed but still the same thought, so update.
-            if (lastThought.id === thought.id) {
-              thought.thought = lastThought.thought + thought.thought
-              thought.message_files = lastThought.message_files
-              responseItem.agent_thoughts![response.agent_thoughts.length - 1] = thought
+          let responseToUpdate: ChatItem
+
+          if (thought.message_id) {
+            const existingItem = responseMapRef.current.get(thought.message_id)
+            if (existingItem) {
+              responseToUpdate = existingItem
             }
             else {
-              responseItem.agent_thoughts!.push(thought)
+              responseToUpdate = {
+                id: thought.message_id,
+                content: '',
+                agent_thoughts: [],
+                message_files: [],
+                isAnswer: true,
+              }
+              responseMapRef.current.set(thought.message_id, responseToUpdate)
+              if (!hasSetResponseId) {
+                responseItem = responseToUpdate
+                hasSetResponseId = true
+              }
             }
+
+            if (!responseToUpdate.agent_thoughts)
+              responseToUpdate.agent_thoughts = []
+
+            if (responseToUpdate.agent_thoughts.length === 0) {
+              responseToUpdate.agent_thoughts.push(thought)
+            }
+            else {
+              const lastThought = responseToUpdate.agent_thoughts[responseToUpdate.agent_thoughts.length - 1]
+              // thought changed but still the same thought, so update.
+              if (lastThought.id === thought.id) {
+                thought.thought = lastThought.thought + thought.thought
+                thought.message_files = lastThought.message_files
+                responseToUpdate.agent_thoughts[responseToUpdate.agent_thoughts.length - 1] = thought
+              }
+              else {
+                responseToUpdate.agent_thoughts.push(thought)
+              }
+            }
+
+            updateCurrentQA({
+              responseItem: responseToUpdate,
+              questionId,
+              placeholderAnswerId,
+              questionItem,
+            })
           }
-          updateCurrentQA({
-            responseItem,
-            questionId,
-            placeholderAnswerId,
-            questionItem,
-          })
         },
-        onMessageEnd: (messageEnd) => {
+        onMessageEnd: (messageEnd: any, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const currentResponseItem = responseMapRef.current.get(messageId) || responseItem
+
           if (messageEnd.metadata?.annotation_reply) {
-            responseItem.id = messageEnd.id
-            responseItem.annotation = ({
+            currentResponseItem.id = messageEnd.id
+            currentResponseItem.annotation = ({
               id: messageEnd.metadata.annotation_reply.id,
               authorName: messageEnd.metadata.annotation_reply.account.name,
             })
-            const baseState = chatListRef.current.filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId)
+            const baseState = chatListRef.current.filter(item => item.id !== currentResponseItem.id && item.id !== placeholderAnswerId)
             const newListWithAnswer = produce(
               baseState,
               (draft) => {
@@ -436,75 +488,114 @@ export const useChat = (
                   draft.push({ ...questionItem })
 
                 draft.push({
-                  ...responseItem,
+                  ...currentResponseItem,
                 })
               })
             handleUpdateChatList(newListWithAnswer)
             return
           }
-          responseItem.citation = messageEnd.metadata?.retriever_resources || []
+          currentResponseItem.citation = messageEnd.metadata?.retriever_resources || []
 
           const newListWithAnswer = produce(
-            chatListRef.current.filter(item => item.id !== responseItem.id && item.id !== placeholderAnswerId),
+            chatListRef.current.filter(item => item.id !== currentResponseItem.id && item.id !== placeholderAnswerId),
             (draft) => {
               if (!draft.find(item => item.id === questionId))
                 draft.push({ ...questionItem })
 
-              draft.push({ ...responseItem })
+              draft.push({ ...currentResponseItem })
             })
           handleUpdateChatList(newListWithAnswer)
         },
-        onMessageReplace: (messageReplace) => {
-          responseItem.content = messageReplace.answer
+        onMessageReplace: (messageReplace: any, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const currentResponseItem = responseMapRef.current.get(messageId)
+          if (currentResponseItem)
+            currentResponseItem.content = messageReplace.answer
         },
-        onError() {
+        onError: () => {
           handleResponding(false)
           const newChatList = produce(chatListRef.current, (draft) => {
             draft.splice(draft.findIndex(item => item.id === placeholderAnswerId), 1)
           })
           handleUpdateChatList(newChatList)
         },
-        onWorkflowStarted: ({ workflow_run_id, task_id }) => {
+        onWorkflowStarted: ({ workflow_run_id, task_id }: any, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const currentResponseItem = responseMapRef.current.get(messageId)
+          if (!currentResponseItem)
+            return
+
           taskIdRef.current = task_id
-          responseItem.workflow_run_id = workflow_run_id
-          responseItem.workflowProcess = {
+          currentResponseItem.workflow_run_id = workflow_run_id
+          currentResponseItem.workflowProcess = {
             status: WorkflowRunningStatus.Running,
             tracing: [],
           }
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.findIndex(item => item.id === responseItem.id)
-            draft[currentIndex] = {
-              ...draft[currentIndex],
-              ...responseItem,
+            const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+            if (currentIndex !== -1) {
+              draft[currentIndex] = {
+                ...draft[currentIndex],
+                ...currentResponseItem,
+              }
             }
           }))
         },
-        onWorkflowFinished: ({ data }) => {
-          responseItem.workflowProcess!.status = data.status as WorkflowRunningStatus
+        onWorkflowFinished: ({ data }: any, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const currentResponseItem = responseMapRef.current.get(messageId)
+          if (!currentResponseItem || !currentResponseItem.workflowProcess)
+            return
+
+          currentResponseItem.workflowProcess.status = data.status as WorkflowRunningStatus
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.findIndex(item => item.id === responseItem.id)
-            draft[currentIndex] = {
-              ...draft[currentIndex],
-              ...responseItem,
+            const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+            if (currentIndex !== -1) {
+              draft[currentIndex] = {
+                ...draft[currentIndex],
+                ...currentResponseItem,
+              }
             }
           }))
         },
-        onIterationStart: ({ data }) => {
-          responseItem.workflowProcess!.tracing!.push({
+        onIterationStart: ({ data }: any, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const currentResponseItem = responseMapRef.current.get(messageId)
+          if (!currentResponseItem || !currentResponseItem.workflowProcess)
+            return
+
+          currentResponseItem.workflowProcess.tracing!.push({
             ...data,
             status: WorkflowRunningStatus.Running,
           } as any)
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.findIndex(item => item.id === responseItem.id)
-            draft[currentIndex] = {
-              ...draft[currentIndex],
-              ...responseItem,
+            const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+            if (currentIndex !== -1) {
+              draft[currentIndex] = {
+                ...draft[currentIndex],
+                ...currentResponseItem,
+              }
             }
           }))
           isInIteration = true
         },
-        onIterationFinish: ({ data }) => {
-          const tracing = responseItem.workflowProcess!.tracing!
+        onIterationFinish: ({ data }: any, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const currentResponseItem = responseMapRef.current.get(messageId)
+          if (!currentResponseItem || !currentResponseItem.workflowProcess)
+            return
+
+          const tracing = currentResponseItem.workflowProcess.tracing!
           tracing[tracing.length - 1] = {
             ...tracing[tracing.length - 1],
             ...data,
@@ -512,41 +603,61 @@ export const useChat = (
           } as any
 
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.findIndex(item => item.id === responseItem.id)
-            draft[currentIndex] = {
-              ...draft[currentIndex],
-              ...responseItem,
+            const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+            if (currentIndex !== -1) {
+              draft[currentIndex] = {
+                ...draft[currentIndex],
+                ...currentResponseItem,
+              }
             }
           }))
           isInIteration = false
         },
-        onNodeStarted: ({ data }) => {
+        onNodeStarted: ({ data }: any, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const currentResponseItem = responseMapRef.current.get(messageId)
+          if (!currentResponseItem || !currentResponseItem.workflowProcess)
+            return
+
           if (isInIteration)
             return
 
-          responseItem.workflowProcess!.tracing!.push({
+          currentResponseItem.workflowProcess.tracing!.push({
             ...data,
             status: WorkflowRunningStatus.Running,
           } as any)
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.findIndex(item => item.id === responseItem.id)
-            draft[currentIndex] = {
-              ...draft[currentIndex],
-              ...responseItem,
+            const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+            if (currentIndex !== -1) {
+              draft[currentIndex] = {
+                ...draft[currentIndex],
+                ...currentResponseItem,
+              }
             }
           }))
         },
-        onNodeFinished: ({ data }) => {
+        onNodeFinished: ({ data }: any, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const currentResponseItem = responseMapRef.current.get(messageId)
+          if (!currentResponseItem || !currentResponseItem.workflowProcess)
+            return
+
           if (isInIteration)
             return
 
-          const currentIndex = responseItem.workflowProcess!.tracing!.findIndex(item => item.node_id === data.node_id)
-          responseItem.workflowProcess!.tracing[currentIndex] = data as any
+          const currentIndex = currentResponseItem.workflowProcess.tracing!.findIndex(item => item.node_id === data.node_id)
+          currentResponseItem.workflowProcess.tracing[currentIndex] = data as any
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.findIndex(item => item.id === responseItem.id)
-            draft[currentIndex] = {
-              ...draft[currentIndex],
-              ...responseItem,
+            const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+            if (currentIndex !== -1) {
+              draft[currentIndex] = {
+                ...draft[currentIndex],
+                ...currentResponseItem,
+              }
             }
           }))
         },

@@ -37,18 +37,21 @@ export enum APIType {
   basic = 'basic',
   bearer = 'bearer',
   bella = 'bella',
-  ke_iam = 'ke-IAM',
   custom = 'custom',
+}
+
+export type AuthConfig = {
+  type: APIType
+  api_key: string
+  secret?: string
+  header?: string
+
+  [key: string]: string | undefined
 }
 
 export type Authorization = {
   type: AuthorizationType
-  config?: {
-    type: APIType
-    api_key: string
-    secret?: string
-    header?: string
-  } | null
+  config?: AuthConfig | null
 }
 
 export type Timeout = {

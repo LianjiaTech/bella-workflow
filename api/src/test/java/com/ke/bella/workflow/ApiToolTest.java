@@ -63,15 +63,4 @@ public class ApiToolTest {
         Assertions.assertThrows(IllegalStateException.class, () -> apiTool.execute(inputs));
     }
 
-    @Test
-    public void whenPostWithIAM() throws IOException {
-        Map openapi = JsonUtils.fromJson(new String(Files.readAllBytes(Paths.get("src/test/resources/openapi_post_with_iam_credentials.json"))),
-                Map.class);
-        ApiTool.ToolBundle toolBundle = OpenapiUtil.extractToolBundleFromOpenapi(openapi, "approval");
-        ApiTool apiTool = new ApiTool(toolBundle, new ApiTool.Credentials(BellaToolService.BellaToolCredentialsType.KeIam.getAuthType(), "",
-                "Authorization", "L7ER3D1BQBEQ2ZQW3066", "FZd/HTJlpsDgaLeuwJ0Kehv5doUzCYs4Vl+r5KxE"));
-        ImmutableMap<String, Object> inputs = ImmutableMap.of();
-        Assertions.assertDoesNotThrow(() -> apiTool.execute(inputs));
-    }
-
 }

@@ -332,6 +332,7 @@ const translation = {
         'auth-type': 'Auth Type',
         'basic': 'Basic',
         'bearer': 'Bearer',
+        'bella': 'Bella',
         'custom': 'Custom',
         'api-key-title': 'API Key',
         'header': 'Header',

@@ -3,10 +3,11 @@ import produce from 'immer'
 import type { FC } from 'react'
 import React, { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { Authorization as AuthorizationPayloadType } from '../../types'
+import type { AuthConfig, Authorization as AuthorizationPayloadType } from '../../types'
 import { APIType, AuthorizationType } from '../../types'
+import { authenticatorRegistry } from '../../auth'
 import RadioGroup from './radio-group'
-import Input from '@/app/components/workflow/nodes/_base/components/input-support-select-var'
+import AuthFields from './auth-fields'
 import { VarType } from '@/app/components/workflow/types'
 import type { Var } from '@/app/components/workflow/types'
 import useAvailableVarList from '@/app/components/workflow/nodes/_base/hooks/use-available-var-list'
@@ -53,64 +54,97 @@ const Authorization: FC<Props> = ({
   })
 
   const [tempPayload, setTempPayload] = React.useState<AuthorizationPayloadType>(payload)
+
+  const authenticators = authenticatorRegistry.getAllAuthenticators()
+
+  const currentAuthenticator = tempPayload.config?.type
+    ? authenticatorRegistry.getAuthenticator(tempPayload.config.type)
+    : undefined
+
   const handleAuthTypeChange = useCallback((type: string) => {
     const newPayload = produce(tempPayload, (draft: AuthorizationPayloadType) => {
       draft.type = type as AuthorizationType
       if (draft.type === AuthorizationType.apiKey && !draft.config) {
-        draft.config = {
-          type: APIType.basic,
-          api_key: '',
+        const firstAuthenticator = authenticators[0]
+        if (firstAuthenticator) {
+          draft.config = {
+            type: firstAuthenticator.type as APIType,
+            api_key: '',
+          }
         }
-      }
-    })
-    setTempPayload(newPayload)
-  }, [tempPayload, setTempPayload])
-
-  const handleAuthAPITypeChange = useCallback((type: string) => {
-    const newPayload = produce(tempPayload, (draft: AuthorizationPayloadType) => {
-      if (!draft.config) {
-        draft.config = {
-          type: APIType.basic,
-          api_key: '',
-        }
-      }
-      draft.config.type = type as APIType
-    })
-    setTempPayload(newPayload)
-  }, [tempPayload, setTempPayload])
-
-  const handleAPIKeyOrHeaderChange = useCallback((type: 'api_key' | 'header' | 'secret') => {
-    return (e: string) => {
-      const newPayload = produce(tempPayload, (draft: AuthorizationPayloadType) => {
-        if (!draft.config) {
+        else {
           draft.config = {
             type: APIType.basic,
             api_key: '',
           }
         }
-        draft.config[type] = e
-      })
-      setTempPayload(newPayload)
-    }
-  }, [tempPayload, setTempPayload])
+      }
+    })
+    setTempPayload(newPayload)
+  }, [tempPayload, authenticators])
 
-  const handleAPIKeyChange = useCallback((str: string) => {
+  const handleAuthAPITypeChange = useCallback((type: string) => {
     const newPayload = produce(tempPayload, (draft: AuthorizationPayloadType) => {
       if (!draft.config) {
         draft.config = {
-          type: APIType.basic,
+          type: type as APIType,
           api_key: '',
         }
       }
-      draft.config.api_key = str
+      else {
+        const oldValues = { ...draft.config }
+
+        draft.config = {
+          type: type as APIType,
+          api_key: '',
+        }
+
+        if (oldValues.type === type) {
+          Object.keys(oldValues).forEach((key) => {
+            if (key !== 'type' && key in oldValues)
+              draft.config![key as keyof AuthConfig] = oldValues[key as keyof typeof oldValues]
+          })
+        }
+      }
     })
     setTempPayload(newPayload)
-  }, [tempPayload, setTempPayload])
+  }, [tempPayload])
+
+  const handleFieldChange = useCallback((fieldName: string) => {
+    return (value: string) => {
+      const newPayload = produce(tempPayload, (draft: AuthorizationPayloadType) => {
+        if (!draft.config) {
+          const firstAuthenticator = authenticators[0]
+          if (firstAuthenticator) {
+            draft.config = {
+              type: firstAuthenticator.type as APIType,
+              api_key: '',
+            }
+          }
+          else {
+            draft.config = {
+              type: APIType.basic,
+              api_key: '',
+            }
+          }
+        }
+
+        draft.config![fieldName as keyof AuthConfig] = value
+      })
+      setTempPayload(newPayload)
+    }
+  }, [tempPayload, authenticators])
 
   const handleConfirm = useCallback(() => {
     onChange(tempPayload)
     onHide()
   }, [tempPayload, onChange, onHide])
+
+  const authTypeOptions = authenticators.map(authenticator => ({
+    value: authenticator.type,
+    label: authenticator.getDisplayName(t),
+  }))
+
   return (
     <Modal
       title={t(`${i18nPrefix}.authorization`)}
@@ -134,65 +168,26 @@ const Authorization: FC<Props> = ({
             <>
               <Field title={t(`${i18nPrefix}.auth-type`)}>
                 <RadioGroup
-                  options={[
-                    { value: APIType.basic, label: t(`${i18nPrefix}.basic`) },
-                    { value: APIType.bearer, label: t(`${i18nPrefix}.bearer`) },
-                    { value: APIType.bella, label: 'Bella' },
-                    { value: APIType.ke_iam, label: 'KE-IAM' },
-                    { value: APIType.custom, label: t(`${i18nPrefix}.custom`) },
-                  ]}
+                  options={authTypeOptions.length > 0
+                    ? authTypeOptions
+                    : Object.values(APIType).map((type) => {
+                      return { value: type, label: type }
+                    })
+                  }
                   value={tempPayload.config?.type || APIType.basic}
                   onChange={handleAuthAPITypeChange}
                 />
               </Field>
-              {tempPayload.config?.type === APIType.custom && (
-                <Field title={t(`${i18nPrefix}.header`) } isRequired>
-                  <Input
-                    instanceId={'http-authorization-header'}
-                    className='w-full h-8 leading-8 px-2.5 pt-1 rounded-lg border-0 bg-gray-100 text-gray-900 text-[13px] placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
-                    value={tempPayload.config?.header || ''}
-                    onChange={handleAPIKeyOrHeaderChange('header')}
-                    readOnly={false}
-                    nodesOutputVars={availableVars}
-                    availableNodes={availableNodesWithParent}
-                    onFocusChange={setIsFocus}
-                    placeholder={t('workflow.nodes.http.insertVarPlaceholder')!}
-                    promptMinHeightClassName='h-full'
-                  />
-                </Field>
-              )}
-              {tempPayload.config?.type !== APIType.bella && (
-                <Field title={t(`${i18nPrefix}.api-key-title`)} isRequired>
-                  <Input
-                    instanceId={'http-authorization-apikey'}
-                    className='w-full h-8 leading-8 px-2.5 pt-1 rounded-lg border-0 bg-gray-100 text-gray-900 text-[13px] placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
-                    value={tempPayload.config?.api_key || ''}
-                    onChange={handleAPIKeyOrHeaderChange('api_key')}
-                    readOnly={false}
-                    nodesOutputVars={availableVars}
-                    availableNodes={availableNodesWithParent}
-                    onFocusChange={setIsFocus}
-                    placeholder={t('workflow.nodes.http.insertVarPlaceholder')!}
-                    promptMinHeightClassName='h-full'
-                  />
-                </Field>
-              )}
 
-              {tempPayload.config?.type === APIType.ke_iam && (
-                <Field title={'API Key Secret'} isRequired>
-                  <Input
-                    instanceId={'http-authorization-secret'}
-                    className='w-full h-8 leading-8 px-2.5 pt-1 rounded-lg border-0 bg-gray-100 text-gray-900 text-[13px] placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-inset focus:ring-gray-200'
-                    value={tempPayload.config?.secret || ''}
-                    onChange={handleAPIKeyOrHeaderChange('secret')}
-                    readOnly={false}
-                    nodesOutputVars={availableVars}
-                    availableNodes={availableNodesWithParent}
-                    onFocusChange={setIsFocus}
-                    placeholder={t('workflow.nodes.http.insertVarPlaceholder')!}
-                    promptMinHeightClassName='h-full'
-                  />
-                </Field>
+              {currentAuthenticator && (
+                <AuthFields
+                  authenticator={currentAuthenticator}
+                  config={tempPayload.config}
+                  onChange={(fieldName, value) => handleFieldChange(fieldName)(value)}
+                  availableVars={availableVars}
+                  availableNodesWithParent={availableNodesWithParent}
+                  onFocusChange={setIsFocus}
+                />
               )}
             </>
           )}

@@ -5,6 +5,7 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,14 +18,12 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.commons.lang3.RandomStringUtils;
-
-import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.workflow.auth.HttpAuthenticator;
+import com.ke.bella.workflow.auth.HttpAuthenticatorFactory;
 import com.ke.bella.workflow.node.HttpNode;
 import com.ke.bella.workflow.node.HttpNode.Data;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
-import com.ke.bella.workflow.utils.KeIAM;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -220,17 +219,15 @@ public class Requests {
     }
 
     public static String authValue(Data.Authorization.Config config, URL url, String method) {
-        String apiKey = "";
         String authType = config.getType();
-        if("bella".equals(authType)) {
-            apiKey = BellaContext.getApikey().getApikey();
-        } else if("ke-IAM".equalsIgnoreCase(authType)) {
-            apiKey = KeIAM.generateAuthorization(config.getApiKey(), config.getSecret(),
-                    RandomStringUtils.randomNumeric(9), method.toUpperCase(), url.getPath(), url.getHost(), url.getQuery());
-        } else {
-            apiKey = config.getApiKey();
-        }
-        return config.prefix() + apiKey;
+        HttpAuthenticator authenticator = HttpAuthenticatorFactory.getAuthenticator(authType);
+        String authValue = authenticator.generateAuthorization(
+                config.getApiKey(),
+                config.getSecret(),
+                method.toUpperCase(),
+                url,
+                new HashMap<>());
+        return authenticator.getPrefix() + authValue;
     }
 
     private Iterable<Object> streamRequest(OkHttpClient client, Request request) {

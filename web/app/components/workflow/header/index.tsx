@@ -22,7 +22,7 @@ import {
   useChecklistBeforePublish, useNodesInteractions,
   useNodesReadOnly,
   useNodesSyncDraft, useWorkflowInteractions,
-  useWorkflowMode,
+  useWorkflowMode, useWorkflowReadOnly,
   useWorkflowRun,
 } from '../hooks'
 import AppPublisher from '../../app/app-publisher'
@@ -83,6 +83,9 @@ const Header: FC = () => {
   const { handleCheckBeforePublish } = useChecklistBeforePublish()
   const { handleSyncWorkflowDraft } = useNodesSyncDraft()
   const { notify } = useContext(ToastContext)
+  const {
+    getWorkflowReadOnly,
+  } = useWorkflowReadOnly()
   const {
     normal,
     restoring,
@@ -169,7 +172,6 @@ const Header: FC = () => {
     handleCancelDebugAndPreviewPanel()
     workflowStore.setState({ isVersionHistory: true })
   }, [workflowStore, handleCancelDebugAndPreviewPanel, handleBackupDraft, handleNodesCancelSelected])
-
   return (
     <div
       className='absolute top-0 left-0 z-10 flex items-center justify-between w-full px-3 h-14'
@@ -199,7 +201,7 @@ const Header: FC = () => {
       {
         normal && (
           <div className='flex items-center gap-2'>
-            <EnvButton />
+            <EnvButton disabled={getWorkflowReadOnly()} />
             <div className='w-[1px] h-3.5 bg-gray-200'></div>
             <RunAndHistory />
             {/* <Button className='text-components-button-secondary-text' onClick={handleShowFeatures}>

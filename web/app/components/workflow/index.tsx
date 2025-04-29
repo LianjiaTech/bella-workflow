@@ -309,7 +309,6 @@ const Workflow: FC<WorkflowProps> = memo(({
       id='workflow-container'
       className={`
         relative w-full min-w-[960px] h-full bg-[#F0F2F7]
-        ${workflowReadOnly && 'workflow-panel-animation'}
         ${nodeAnimation && 'workflow-node-animation'}
       `}
       ref={workflowContainerRef}
@@ -386,14 +385,14 @@ const Workflow: FC<WorkflowProps> = memo(({
         nodesConnectable={!nodesReadOnly}
         nodesFocusable={!nodesReadOnly}
         edgesFocusable={!nodesReadOnly}
-        panOnDrag={controlMode === 'hand' && !workflowReadOnly}
-        zoomOnPinch={!workflowReadOnly}
-        zoomOnScroll={!workflowReadOnly}
-        zoomOnDoubleClick={!workflowReadOnly}
+        panOnDrag={controlMode === 'hand'}
+        zoomOnPinch={true}
+        zoomOnScroll={true}
+        zoomOnDoubleClick={true}
         isValidConnection={isValidConnection}
         selectionKeyCode={null}
         selectionMode={SelectionMode.Partial}
-        selectionOnDrag={controlMode === 'pointer' && !workflowReadOnly}
+        selectionOnDrag={controlMode === 'pointer'}
         minZoom={0.25}
       >
         <Background

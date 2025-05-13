@@ -26,9 +26,9 @@ bella:
   apiBase: ${BELLA_API_BASE:https://example.com/v1/}
   openApiBase: ${BELLA_OPEN_API_BASE:https://example.com/v1/}
   toolApiBase: ${BELLA_TOOL_API_BASE:http://example.com}
-  boreApiBase: ${BELLA_TOOL_API_BASE:http://example.com}
+  datasetApiBase: ${BELLA_DATASET_API_BASE:http://example.com}
   codeSandboxApiBase: ${BELLA_CODE_SANDBOX_API_BASE:https://example.com/v2/}
-  maxEexMemoryAlloc: ${BELLA_MAX_EX_MEMORY_ALLOC:209715200}
+  maxExeMemoryAlloc: ${BELLA_MAX_EX_MEMORY_ALLOC:209715200}
   workflow:
     sandbox:
       groovy: false

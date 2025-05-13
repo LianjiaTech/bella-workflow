@@ -68,7 +68,7 @@ public class DatasetService {
                 .filename(op.getName())
                 .spaceCode(BellaContext.getOperator().getSpaceCode())
                 .build();
-        BellaResp bellaResp = HttpUtils.postJson(header, Configs.BORE_API_BASE + KNOWLEDGE_FILE_SEARCH_PATH, JsonUtils.toJson(searchReq),
+        BellaResp bellaResp = HttpUtils.postJson(header, Configs.DATASET_API_BASE + KNOWLEDGE_FILE_SEARCH_PATH, JsonUtils.toJson(searchReq),
                 new TypeReference<BellaResp>() {
                 });
         if(!"0".equals(bellaResp.getErrno())) {

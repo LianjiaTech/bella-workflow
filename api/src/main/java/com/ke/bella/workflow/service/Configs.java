@@ -19,7 +19,7 @@ public class Configs {
 
     public static String BELLA_TOOL_API_BASE;
 
-    public static String BORE_API_BASE;
+    public static String DATASET_API_BASE;
 
     public static String SAND_BOX_API_BASE;
 
@@ -71,9 +71,9 @@ public class Configs {
         BELLA_TOOL_API_BASE = bellaToolApiBase;
     }
 
-    @Value("${bella.boreApiBase}")
-    public void setBoreApiBase(String boreApiBase) {
-        BORE_API_BASE = boreApiBase;
+    @Value("${bella.datasetApiBase}")
+    public void setDatasetApiBase(String datasetApiBase) {
+        DATASET_API_BASE = datasetApiBase;
     }
 
     @Value("${bella.workflow.sandbox.groovy}")

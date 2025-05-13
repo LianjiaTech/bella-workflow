@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.tool;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +33,18 @@ public class BellaToolService {
      * @return
      */
     public static List<BellaTool> getTool(String toolName) {
+        if(!Configs.TOOL_API_ENABLED) {
+            return Collections.emptyList();
+        }
         ImmutableMap<String, String> param = ImmutableMap.of("toolName", toolName);
         return get(Configs.BELLA_TOOL_API_BASE + GET_TOOL_PATH, param, new TypeReference<BellaToolMarketResp<List<BellaTool>>>() {
         });
     }
 
     public static BellaToolMarketPage<ToolCollect> listToolCollects(Integer pageNo, Integer pageSize) {
+        if(!Configs.TOOL_API_ENABLED) {
+            return new BellaToolMarketPage<>(0, pageSize, pageNo, Collections.emptyList());
+        }
         Map<String, String> params = new HashMap<>();
         params.put("pageNo", String.valueOf(pageNo));
         params.put("pageSize", String.valueOf(pageSize));

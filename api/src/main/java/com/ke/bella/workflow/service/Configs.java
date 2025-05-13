@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 public class Configs {
     public static String SERVICE_NAME = "workflow";
 
+    public static boolean TOOL_API_ENABLED;
+
+    public static boolean DATASET_API_ENABLED;
+
     public static String OPEN_API_HOST;
 
     public static String OPEN_API_BASE;
@@ -36,6 +40,16 @@ public class Configs {
     public static Integer BATCH_TASK_THREAD_NUMS = 100;
 
     public static int INTERRUPTED_INTERVAL_ROWS = 1000;
+
+    @Value("${bella.toolApiEnabled}")
+    public void setToolApiEnabled(boolean toolApiEnabled) {
+        TOOL_API_ENABLED = toolApiEnabled;
+    }
+
+    @Value("${bella.datasetApiEnabled}")
+    public void setDatasetApiEnabled(boolean datasetApiEnabled) {
+        DATASET_API_ENABLED = datasetApiEnabled;
+    }
 
     @Value("${bella.openapiHost}")
     public void setOpenApiHost(String openApiHost) {

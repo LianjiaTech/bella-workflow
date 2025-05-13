@@ -14,8 +14,8 @@ import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
-import com.ke.bella.workflow.api.DatasetOps;
 import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.workflow.api.DatasetOps;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -47,6 +47,10 @@ public class DatasetService {
     }
 
     public Page<Dataset> pageDataset(DatasetOps.DatasetPage op) {
+        if(!Configs.DATASET_API_ENABLED) {
+            return Page.<Dataset>from(op.getPage(), op.getLimit()).list(Collections.emptyList());
+        }
+
         Map<String, String> header = null;
         try {
             header = ImmutableMap.of(X_BELLA_TENANT_ID, BELLA_WORKFLOW_TENANT_ID, X_BELLA_OPERATOR_ID,

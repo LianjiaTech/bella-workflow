@@ -20,6 +20,8 @@ bella:
   server:
     initializer:
       enabled: true
+  toolApiEnabled: ${BELLA_TOOL_API_ENABLED:false}
+  datasetApiEnabled: ${BELLA_DATASET_API_ENABLED:false}
   openapiHost: ${BELLA_OPENAPI_HOST:https://example.com}
   apiBase: ${BELLA_API_BASE:https://example.com/v1/}
   openApiBase: ${BELLA_OPEN_API_BASE:https://example.com/v1/}

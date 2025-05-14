@@ -1,5 +1,11 @@
-ALTER TABLE `workflow_run` ADD COLUMN `flash_mode` int NOT NULL DEFAULT '0' COMMENT '极速模式' AFTER `elapsed_time`;
-ALTER TABLE `workflow_run` ADD COLUMN `stateful` tinyint(1) NOT NULL DEFAULT 0 AFTER `span_lev`;
+ALTER TABLE `workflow_run`
+    ADD COLUMN `flash_mode` int NOT NULL DEFAULT '0' COMMENT '极速模式' AFTER `elapsed_time`;
+ALTER TABLE `workflow_run`
+    ADD COLUMN `trace_id` varchar(255) default '' not null AFTER `flash_mode`;
+ALTER TABLE `workflow_run`
+    ADD COLUMN `span_lev` int unsigned default '0' not null AFTER `trace_id`;
+ALTER TABLE `workflow_run`
+    ADD COLUMN `stateful` tinyint(1) NOT NULL DEFAULT 0 AFTER `span_lev`;
 
 CREATE TABLE `workflow_as_api` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'workflow配置自增主键',

@@ -127,6 +127,5 @@ ALTER TABLE `workflow_scheduling` ADD COLUMN `trigger_type` varchar(16) CHARACTE
 UPDATE `workflow_scheduling` set `trigger_id` = `workflow_scheduling_id`;
 
 ALTER TABLE `workflow_scheduling` DROP INDEX `idx_workflow_scheduling_id`;
-ALTER TABLE `bella_workflow_junit`.`workflow_scheduling` ADD UNIQUE INDEX `idx_trigger_id`(`trigger_id` ASC) USING BTREE;
 
 SET FOREIGN_KEY_CHECKS = 1;

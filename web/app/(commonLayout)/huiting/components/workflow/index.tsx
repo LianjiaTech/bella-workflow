@@ -31,11 +31,14 @@ import 'reactflow/dist/style.css'
 import '@/app/components/workflow/style.css'
 import useSWR from 'swr'
 import Header from './header'
+import { PostMessageType, ReceiveMessageType } from './types'
 import type {
   Edge,
   EnvironmentVariable,
+  HistoryWorkflowVersion,
   Node,
 } from '@/app/components/workflow/types'
+
 import { SupportUploadFileTypes } from '@/app/components/workflow/types'
 import { WorkflowContextProvider } from '@/app/components/workflow/context'
 import {
@@ -48,8 +51,9 @@ import {
   useSelectionInteractions,
   useWorkflow,
   useWorkflowInit,
-  useWorkflowReadOnly,
+  useWorkflowInteractions,
   useWorkflowStartRun,
+
   useWorkflowUpdate,
 } from '@/app/components/workflow/hooks'
 import CustomNode from '@/app/components/workflow/nodes'
@@ -92,6 +96,9 @@ import { useEventEmitterContextContext } from '@/context/event-emitter'
 import Confirm from '@/app/components/base/confirm/common'
 import { TransferMethod } from '@/types/app'
 import { fetchFileUploadConfig } from '@/service/common'
+import { useStore as useAppStore } from '@/app/components/app/store'
+import { hasEditPermission } from '@/app/components/workflow/hooks/use-workflow'
+import { getUserInfo } from '@/utils/getQueryParams'
 
 const nodeTypes = {
   [CUSTOM_NODE]: CustomNode,
@@ -124,12 +131,22 @@ const Workflow: FC<WorkflowProps> = memo(({
   const showImportDSLModal = useStore(s => s.showImportDSLModal)
   const draftUpdatedAt = useStore(state => state.draftUpdatedAt)
   const publishedAt = useStore(state => state.publishedAt)
+  const role = useStore(state => state.role)
+  const appDetail = useAppStore(state => state.appDetail)
+  const { ucid } = getUserInfo()
   const targetorigin = window.location.hostname === 'example.com' ? 'https://example.com' : '*'
+  const store = useStoreApi()
+  const {
+    handleNodesCancelSelected,
+  } = useNodesInteractions()
+  const {
+    handleCancelDebugAndPreviewPanel,
+  } = useWorkflowInteractions()
   useEffect(() => {
     if (!draftUpdatedAt)
       return
     window.parent.postMessage({
-      type: 'updateTime',
+      type: PostMessageType.updateTime,
       payload: draftUpdatedAt,
     }, targetorigin)
   }, [draftUpdatedAt, targetorigin])
@@ -138,7 +155,7 @@ const Workflow: FC<WorkflowProps> = memo(({
     if (!publishedAt)
       return
     window.parent.postMessage({
-      type: 'published',
+      type: PostMessageType.published,
     }, targetorigin)
   }, [publishedAt, targetorigin])
 
@@ -153,7 +170,6 @@ const Workflow: FC<WorkflowProps> = memo(({
     handleSyncWorkflowDraft,
     syncWorkflowDraftWhenPageClose,
   } = useNodesSyncDraft()
-  const { workflowReadOnly } = useWorkflowReadOnly()
   const { nodesReadOnly } = useNodesReadOnly()
 
   const [secretEnvList, setSecretEnvList] = useState<EnvironmentVariable[]>([])
@@ -198,11 +214,31 @@ const Workflow: FC<WorkflowProps> = memo(({
       handleSyncWorkflowDraft(true, true)
     }
   }, [])
+
   const { handleRefreshWorkflowDraft } = useWorkflowUpdate()
 
+  const handleSetGraphState = useCallback((workflow: HistoryWorkflowVersion) => {
+    const { setEdges, setNodes } = store.getState()
+    workflowStore.setState({ historyWorkflowVersion: workflow })
+    if (!workflow)
+      return
+    setEdges(workflow.graph.edges)
+    setNodes(workflow.graph.nodes)
+  }, [store, workflowStore])
   const receiveMessage = (event: MessageEvent) => {
-    if (event.data === 'rollback')
+    const { type, payload } = event.data || {}
+    if (type === ReceiveMessageType.rollback)
       handleRefreshWorkflowDraft()
+
+    if (type === ReceiveMessageType.viewHistory) {
+      handleNodesCancelSelected()
+      handleCancelDebugAndPreviewPanel()
+      workflowStore.setState({ isVersionHistory: payload?.viewHistoryVersion })
+      handleSetGraphState(payload?.historyData)
+
+      if (!payload?.viewHistoryVersion)
+        handleRefreshWorkflowDraft()
+    }
   }
 
   useEffect(() => {
@@ -214,11 +250,15 @@ const Workflow: FC<WorkflowProps> = memo(({
   }, [])
 
   const handleSyncWorkflowDraftWhenPageClose = useCallback(() => {
-    if (document.visibilityState === 'hidden')
+    if (document.visibilityState === 'hidden') {
       syncWorkflowDraftWhenPageClose()
-    else if (document.visibilityState === 'visible')
+    }
+    else if (document.visibilityState === 'visible') {
+      if (nodesReadOnly)
+        return
       setTimeout(() => handleRefreshWorkflowDraft(), 500)
-  }, [syncWorkflowDraftWhenPageClose, handleRefreshWorkflowDraft])
+    }
+  }, [syncWorkflowDraftWhenPageClose, handleRefreshWorkflowDraft, nodesReadOnly])
 
   useEffect(() => {
     document.addEventListener('visibilitychange', handleSyncWorkflowDraftWhenPageClose)
@@ -327,7 +367,6 @@ const Workflow: FC<WorkflowProps> = memo(({
     { exactMatch: true, useCapture: true },
   )
 
-  const store = useStoreApi()
   if (process.env.NODE_ENV === 'development') {
     store.getState().onError = (code, message) => {
       if (code === '002')
@@ -347,7 +386,7 @@ const Workflow: FC<WorkflowProps> = memo(({
     >
       <SyncingDataModal />
       <CandidateNode />
-      <Header />
+      {hasEditPermission(ucid, appDetail, role) && <Header />}
       <Panel />
       <Operator handleRedo={handleHistoryForward} handleUndo={handleHistoryBack} />
       {

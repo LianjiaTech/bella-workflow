@@ -9,7 +9,6 @@ import { useStore } from '@/app/components/workflow/store'
 import {
   useIsChatMode,
   useNodesReadOnly,
-  useWorkflowRun,
   useWorkflowStartRun,
 } from '@/app/components/workflow/hooks'
 import { WorkflowRunningStatus } from '@/app/components/workflow/types'
@@ -23,7 +22,6 @@ import {
 const RunMode = memo(() => {
   const { t } = useTranslation()
   const { handleWorkflowStartRunInWorkflow } = useWorkflowStartRun()
-  const { handleStopRun } = useWorkflowRun()
   const workflowRunningData = useStore(s => s.workflowRunningData)
   const isRunning = workflowRunningData?.result.status === WorkflowRunningStatus.Running
 

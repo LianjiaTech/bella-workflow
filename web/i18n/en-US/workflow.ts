@@ -19,6 +19,9 @@ const translation = {
     goBackToEdit: 'Go back to editor',
     conversationLog: 'Conversation Log',
     features: 'Features',
+    copilot: '',
+    copilotPanel: 'Copilot',
+    copilotPlaceholder: 'Ask questions about the workflow in the box below',
     debugAndPreview: 'Preview',
     restart: 'Restart',
     currentDraft: 'Current Draft',
@@ -77,6 +80,17 @@ const translation = {
     overwriteAndImport: 'Overwrite and Import',
     importFailure: 'Import failure',
     importSuccess: 'Import success',
+    historyVersion: 'Historical Published Versions',
+    version: {
+      notify: {
+        cancel: 'Default version setting has been cancelled',
+      },
+      restore: 'Overwrite Draft',
+      cancel: 'Cancel Default',
+      default: 'Set as Default',
+      current: '(Current)',
+    },
+    onFailure: 'On Failure',
   },
   env: {
     envPanelTitle: 'Environment Variables',
@@ -166,6 +180,7 @@ const translation = {
     'answer': 'Answer',
     'llm': 'LLM',
     'knowledge-retrieval': 'Knowledge Retrieval',
+    'rag': 'Retrieval Augmented Generation',
     'question-classifier': 'Question Classifier',
     'if-else': 'IF/ELSE',
     'code': 'Code',
@@ -176,6 +191,7 @@ const translation = {
     'iteration-start': 'Iteration Start',
     'iteration': 'Iteration',
     'parameter-extractor': 'Parameter Extractor',
+    'parallel': 'Parallel',
   },
   blocksAbout: {
     'start': 'Define the initial parameters for launching a workflow',
@@ -183,6 +199,7 @@ const translation = {
     'answer': 'Define the reply content of a chat conversation',
     'llm': 'Invoking large language models to answer questions or process natural language',
     'knowledge-retrieval': 'Allows you to query text content related to user questions from the Knowledge',
+    'rag': 'Allows you to query text content related to user questions from the Knowledge and combine it with a generative model to produce more accurate and detailed answers',
     'question-classifier': 'Define the classification conditions of user questions, LLM can define how the conversation progresses based on the classification description',
     'if-else': 'Allows you to split the workflow into two branches based on if/else conditions',
     'code': 'Execute a piece of Python or NodeJS code to implement custom logic',
@@ -192,6 +209,7 @@ const translation = {
     'variable-aggregator': 'Aggregate multi-branch variables into a single variable for unified configuration of downstream nodes.',
     'iteration': 'Perform multiple steps on a list object until all results are outputted.',
     'parameter-extractor': 'Use LLM to extract structured parameters from natural language for tool invocations or HTTP requests.',
+    'parallel': 'Execute multiple nodes in parallel until all nodes are completed.',
   },
   operator: {
     zoomIn: 'Zoom In',
@@ -232,6 +250,41 @@ const translation = {
         title: 'Memories',
         tip: 'Chat memory',
         builtIn: 'Built-in',
+      },
+      errorHandle: {
+        title: 'Error Handling',
+        tip: 'Configure the error handling strategy, triggered when node exceptions occur.',
+        none: {
+          title: 'None',
+          desc: 'When an exception occurs and is not handled, the node will stop running',
+        },
+        defaultValue: {
+          title: 'Default Value',
+          desc: 'When an exception occurs, specify default output content.',
+          tip: 'When an exception occurs, the following value will be returned.',
+          inLog: 'Node exception, output based on default value.',
+          output: 'Output default value',
+        },
+        failBranch: {
+          title: 'Fail Branch',
+          desc: 'When an exception occurs, the fail branch will be executed',
+          customize: 'Customize fail branch logic on canvas.',
+          customizeTip: 'When a node exception occurs, the fail branch will automatically execute. The fail branch allows you to flexibly provide error messages, reports, fixes, or skip operations.',
+          inLog: 'Node exception, the fail branch will be automatically executed. Node output will return error type and error message, and pass it downstream.',
+        },
+        partialSucceeded: {
+          tip: 'There are {{num}} nodes with runtime exceptions in the process, please go to tracing to view logs.',
+        },
+      },
+      delta: {
+        title: 'Direct Reply',
+        tip: 'Reply directly with node output',
+        new_msg: 'Create new message',
+        new_msg_tip: 'Create new message with node output',
+      },
+      callback: {
+        title: 'Wait for Callback',
+        tip: 'Workflow suspended after node execution, continues after callback',
       },
     },
     start: {
@@ -287,12 +340,41 @@ const translation = {
       },
       outputVars: {
         output: 'Generate content',
+        reasoningContent: 'Reasoning process (only reasoning models support)',
         usage: 'Model Usage Information',
       },
       singleRun: {
         variable: 'Variable',
       },
       sysQueryInUser: 'sys.query in user message is required',
+    },
+    rag: {
+      queryVariable: 'Query Variable',
+      knowledge: 'Knowledge',
+      advancedSetting: 'Advanced Setting',
+      instruction: 'Instruction',
+      generationModel: 'Generation Model',
+      outputVars: {
+        contents: {
+          info: 'Generated content',
+          type: 'Message type, usually text, possible types include text, image_url, image_file, etc., structure refers to OpenAI',
+          text: {
+            info: 'Text content as part of message (when type is text)',
+            value: 'Data that makes up the text',
+            annotations: 'Meta information of retrieval enhanced results, structure refers to OpenAI',
+          },
+          image_url: {
+            info: 'Reference image url in message content (when type is image_url)',
+            url: 'Image url',
+            detail: 'Specify the level of detail of the image.',
+          },
+          image_file: {
+            info: 'Reference an image in File Api format in the message content, refer to File API (when type is image_file)',
+            file_id: 'File ID of the image in the message content.',
+            detail: 'Specify the level of detail of the image.',
+          },
+        },
+      },
     },
     knowledgeRetrieval: {
       queryVariable: 'Query Variable',
@@ -437,6 +519,8 @@ const translation = {
       instruction: 'Instruction',
       instructionTip: 'Input additional instructions to help the question classifier better understand how to categorize questions.',
       instructionPlaceholder: 'Write your instruction',
+      files: 'Files',
+      vision: 'Vision',
     },
     parameterExtractor: {
       inputVar: 'Input Variable',
@@ -461,6 +545,8 @@ const translation = {
       reasoningModeTip: 'You can choose the appropriate reasoning mode based on the model\'s ability to respond to instructions for function calling or prompts.',
       isSuccess: 'Is Success.On success the value is 1, on failure the value is 0.',
       errorReason: 'Error Reason',
+      files: 'Files',
+      vision: 'Vision',
     },
     iteration: {
       deleteTitle: 'Delete Iteration Node?',
@@ -493,6 +579,73 @@ const translation = {
   },
   tracing: {
     stopBy: 'Stop by {{user}}',
+  },
+  customApi: {
+    title: 'Custom API',
+    desc: 'Custom API allows you to expose the workflow as a custom domain and path for external system calls, eliminating the need for tenantId and workflowId',
+    add: 'Add Custom API',
+    host: 'Domain',
+    hostPlaceholder: 'Please enter domain host',
+    path: 'Path',
+    pathPlaceholder: 'Please enter path',
+    startFromBlank: 'Create Custom API',
+    table: {
+      header: {
+        id: 'ID',
+        host: 'Domain host',
+        path: 'Path',
+        actions: 'Actions',
+        status: 'Status',
+        operationId: 'Operation ID',
+      },
+      empty: {
+        element: {
+          content: 'No custom API exists',
+        },
+      },
+    },
+  },
+  trigger: {
+    title: 'Trigger',
+    desc: 'Triggers allow you to run workflows when specific events occur',
+    add: 'Add Trigger',
+    name: 'Name',
+    namePlaceholder: 'Please enter trigger name',
+    description: 'Description',
+    descriptionPlaceholder: 'Please enter trigger description',
+    startFromBlank: 'Create Trigger',
+    captionTriggerType: 'Trigger Type',
+    crontab: 'Trigger Time',
+    inputs: 'Workflow Inputs',
+    inputsPlaceholder: 'Please enter workflow inputs',
+    schdDescription: 'Specify the execution time of the workflow',
+    kafkaDescription: 'Receive messages from Kafka to trigger the workflow',
+    expression: 'Trigger Condition',
+    datasource: 'Data Source',
+    expressionTypeDesc: 'Trigger Condition Type',
+    toggle: {
+      activate: 'Trigger activated',
+      deactivate: 'Trigger deactivated',
+    },
+    types: {
+      schd: 'Scheduled Trigger',
+      kafka: 'Kafka Trigger',
+    },
+    table: {
+      header: {
+        id: 'ID',
+        type: 'Type',
+        expression: 'Trigger Condition',
+        name: 'Name',
+        actions: 'Actions',
+        status: 'Status',
+      },
+      empty: {
+        element: {
+          content: 'No corresponding trigger found',
+        },
+      },
+    },
   },
 }
 

@@ -6,15 +6,37 @@ spring:
     name: bella-workflow
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DATASOURCE_POOL_MASTER_URL}
-    username: ${DATASOURCE_POOL_MASTER_USERNAME}
-    password: ${DATASOURCE_POOL_MASTER_PASSWORD}
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/${MYSQL_DATABASE:bella_workflow}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${MYSQL_USER:bella_workflow}
+    password: ${MYSQL_PASSWORD:bella123}
     hikari:
       minimum-idle: 50
       maximum-pool-size: 200
       idle-timeout: 30000
       max-lifetime: 1800000
       connection-timeout: 30000
+  servlet:
+    multipart:
+      max-file-size: 512MB
+      max-request-size: 512MB
+      resolve-lazily: true
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: 6379
+    password: ${REDIS_PASSWORD:bella123}
+
+#-------------------------------------------------------
+# Docker环境配置区域
+#-------------------------------------------------------
+logging:
+  level:
+    root: INFO
+    druid: INFO
+    executableSql: INFO
+    workflowRun: INFO
+    org:
+      springframework: INFO
+      jooq: DEBUG
 
 bella:
   server:
@@ -22,36 +44,74 @@ bella:
       enabled: true
   toolApiEnabled: ${BELLA_TOOL_API_ENABLED:false}
   datasetApiEnabled: ${BELLA_DATASET_API_ENABLED:false}
-  openapiHost: ${BELLA_OPENAPI_HOST:https://example.com}
-  apiBase: ${BELLA_API_BASE:https://example.com/v1/}
-  openApiBase: ${BELLA_OPEN_API_BASE:https://example.com/v1/}
-  toolApiBase: ${BELLA_TOOL_API_BASE:http://example.com}
-  datasetApiBase: ${BELLA_DATASET_API_BASE:http://example.com}
-  codeSandboxApiBase: ${BELLA_CODE_SANDBOX_API_BASE:https://example.com/v2/}
+  openapiHost: ${BELLA_OPENAPI_HOST:http://localhost}
+  apiBase: ${BELLA_WORKFLOW_BACKEND_OUTER_URL:http://localhost:${API_PORT:8080}}/v1/
+  openApiBase: ${BELLA_OPENAPI_BASE:http://localhost/v1/}
+  toolApiBase: ${BELLA_TOOL_API_BASE:http://localhost}
+  datasetApiBase: ${BELLA_DATASET_API_BASE:http://localhost}
+  codeSandboxApiBase: ${BELLA_CODE_SANDBOX_API_BASE:http://localhost:${CODE_SANDBOX_PORT:8090}}
   maxExeMemoryAlloc: ${BELLA_MAX_EX_MEMORY_ALLOC:209715200}
   workflow:
+    domain: ${BELLA_WORKFLOW_BACKEND_OUTER_URL:http://localhost:${API_PORT:8080}}
+    trigger:
+        callback-path: /v1/workflow/trigger/callback
+    run-path: /v1/workflow/run
     sandbox:
-      groovy: false
+      groovy: true
       rdbInterruptedIntervalRows: 1000
+    redis:
+        host: ${REDIS_HOST:localhost}
+        port: 6379
+        password: ${REDIS_PASSWORD:bella123}
+    files-upload-configs: '{"file_size_limit":512,"batch_count_limit":5,"image_file_size_limit":512,"video_file_size_limit":100,"audio_file_size_limit":100,"workflow_file_upload_limit":10}'
+    run-log:
+      elasticsearch:
+        index: ${ELASTICSEARCH_RUN_LOG_INDEX:workflow_run_log_test_*}
+        hosts: ${ELASTICSEARCH_HOSTS:localhost:9200}
+        username: ${ELASTICSEARCH_USERNAME:}
+        password: ${ELASTICSEARCH_PASSWORD:}
   login:
     # 本地环境去掉 bella.login.type 即可关闭登录的身份校验
-    type: cas
+    type: ${BELLA_LOGIN_TYPE:oauth}
+    login-page-url: ${BELLA_OPENAPI_URL:http://localhost}/login
+  oauth:
+    client-index: ${BELLA_OPENAPI_URL:http://localhost}
+    redirect: ${BELLA_OPENAPI_URL:http://localhost}
+  providers:
+    google:
+      enabled: true
+      client-id: google_client_id
+      client-secret: google_client_secret
+      auth-uri: https://accounts.google.com/o/oauth2/v2/auth
+      token-uri: https://oauth2.googleapis.com/token
+      user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+      scope: profile email
   session:
-    cookie-name: bella_workflow_sessionId
+    cookie-name: ${BELLA_SESSION_COOKIE_NAME:bella_openapi_sessionId}
     max-inactive-interval: 60
     cookie-max-age: -1
-    cookie-domain: ke.com
+    cookie-domain: ${BELLA_SESSION_COOKIE_DOMAIN:localhost}
     cookie-context-path: /
-  cas:
-    logoutUri: /console/api/logout
-    client-support: true
   task:
     threadNums: 1000
+
 app:
   id: bella-workflow
+
+s3:
+  ak: ${S3_ACCESS_KEY:bella_workflow}
+  sk: ${S3_SECRET_KEY:bella123}
+  endpoint: http://${S3_HOST:localhost}:${S3_API_PORT:9000}
+  bucket: ${S3_BUCKET:bella-workflow}
+  root: ${S3_ROOT_PATH:test-states}
+
+server:
+  tomcat:
+    max-swallow-size: -1
+
 apollo:
   bootstrap:
-    enabled: true
+    enabled: false
     eagerLoad:
       enabled: true
     namespaces: application
@@ -59,6 +119,7 @@ apollo:
     order:
       enabled: true
   cluster: default
+
 management:
   endpoints:
     web:

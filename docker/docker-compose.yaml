@@ -1,0 +1,301 @@
+name: bella-workflow
+version: "3.8"
+
+# Define shared network
+networks:
+  bella-workflow-network:
+    driver: bridge
+
+services:
+  # 引入中间件服务
+  kafka:
+    image: docker.io/bitnami/kafka:latest
+    container_name: bella-workflow-kafka
+    ports:
+      - '${EXPOSE_KAFKA_PLAINTEXT_PORT:-9092}:9092'
+      - '${EXPOSE_KAFKA_CONTROLLER_PORT:-9093}:9093'
+      - '${EXPOSE_KAFKA_EXTERNAL_PORT:-19092}:19092'
+    environment:
+      # KRaft settings
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
+      # Set cluster ID to resolve warnings
+      KAFKA_CLUSTER_ID: 'Tlau7QrBSNmjXinUlzJt4g'
+      # Listeners
+      KAFKA_CFG_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:19092
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_HOST:-kafka}:9092,EXTERNAL://${KAFKA_EXTERNAL_HOST:-localhost}:19092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      # Other settings
+      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CFG_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+      # Kafka Connect configuration
+      KAFKA_CONNECT_ENABLED: "true"
+      KAFKA_CONNECT_BOOTSTRAP_SERVERS: ${KAFKA_HOST:-kafka}:9092
+    env_file:
+      - .middleware.env
+    volumes:
+      - ./volumes/kafka/data:/bitnami/kafka
+      - ./volumes/kafka/scripts:/scripts
+      - ./volumes/kafka/connect-plugins:/opt/bitnami/kafka/connect-plugins
+      - ${LOG_PATH:-../api/logs}:/workflow-logs
+    healthcheck:
+      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server ${KAFKA_HOST:-kafka}:9092 --list | grep -q '${WORKFLOW_RUN_LOG_TOPIC:-workflow_run_log}'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - bella-workflow-network
+    command: ["bash", "-c", "/opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh & sleep 10 && /scripts/start-connect.sh"]
+
+  # Elasticsearch service
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.7
+    container_name: ${ELASTICSEARCH_CONTAINER_NAME:-bella-workflow-elasticsearch}
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      # These port variables are now loaded from .middleware.env file
+      - "${ELASTICSEARCH_HTTP_PORT}:9200"
+      - "${ELASTICSEARCH_TRANSPORT_PORT}:9300" # Usually not needed to expose externally
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      # Use local volumes instead of named volumes
+      - ./volumes/elasticsearch/data:/usr/share/elasticsearch/data
+      - ./volumes/elasticsearch/scripts:/scripts
+    # Load environment variables from .middleware.env file
+    env_file:
+      - .middleware.env
+    entrypoint: ["/bin/bash", "-c"]
+    command: ["/usr/local/bin/docker-entrypoint.sh eswrapper & sleep 15 && /scripts/init-elasticsearch.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-s", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - bella-workflow-network
+
+  # Bella Workflow Tasks service
+  bella-workflow-tasks:
+    image: jiakaic0213/bella-workflow-tasks:latest
+    container_name: ${WORKFLOW_TASKS_CONTAINER_NAME:-bella-workflow-tasks}
+    depends_on:
+      kafka:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./volumes/flink/application.properties:/opt/flink/conf/application.properties
+    environment:
+      - CONFIG_FILE=/opt/flink/conf/application.properties
+    env_file:
+      - .middleware.env
+    networks:
+      - bella-workflow-network
+
+  # MySQL service
+  mysql:
+    image: mysql:8.0
+    container_name: ${MYSQL_CONTAINER_NAME:-bella-workflow-mysql}
+    ports:
+      - "${EXPOSE_MYSQL_PORT:-3306}:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-bella_workflow}
+      - MYSQL_USER=${MYSQL_USER:-bella_workflow}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-bella123}
+    volumes:
+      - ./volumes/mysql/data:/var/lib/mysql
+      - ../api/sql:/docker-entrypoint-initdb.d
+    expose:
+      - "3306"
+    privileged: true
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "${MYSQL_HOST:-localhost}", "-u", "${MYSQL_USER:-bella_workflow}", "-p${MYSQL_PASSWORD:-bella123}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - bella-workflow-network
+
+  # Redis service
+  redis:
+    image: redis:6.2
+    container_name: ${REDIS_CONTAINER_NAME:-bella-workflow-redis}
+    ports:
+      - "${EXPOSE_REDIS_PORT:-6379}:6379"
+    volumes:
+      - ./volumes/redis/data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-bella123}
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-bella123}", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - bella-workflow-network
+
+  # Code Sandbox service
+  code-sandbox:
+    image: docker.linkos.org/langgenius/dify-sandbox:0.2.10
+    container_name: ${CODE_SANDBOX_CONTAINER_NAME:-bella-workflow-code-sandbox}
+    ports:
+      - "${CODE_SANDBOX_PORT:-8090}:8090"
+    environment:
+      - API_KEY=${CODE_SANDBOX_API_KEY:-bella-workflow-sandbox}
+      - GIN_MODE=${CODE_SANDBOX_GIN_MODE:-release}
+      - WORKER_TIMEOUT=${CODE_SANDBOX_WORKER_TIMEOUT:-15}
+      - ENABLE_NETWORK=${CODE_SANDBOX_ENABLE_NETWORK:-true}
+      - SANDBOX_PORT=8090
+      - TZ=${CODE_SANDBOX_TZ:-UTC}
+    privileged: true
+    stop_grace_period: 1s
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${CODE_SANDBOX_HOST:-localhost}:${CODE_SANDBOX_PORT:-8090}/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    env_file:
+      - .middleware.env
+    networks:
+      - bella-workflow-network
+      
+  # S3 service (MinIO implementation)
+  minio:
+    image: minio/minio:latest
+    container_name: ${S3_CONTAINER_NAME:-bella-workflow-minio}
+    ports:
+      - "${S3_API_PORT:-9000}:9000"
+      - "${S3_CONSOLE_PORT:-9001}:9001"
+    environment:
+      - MINIO_ROOT_USER=${S3_ACCESS_KEY:-bella_workflow}
+      - MINIO_ROOT_PASSWORD=${S3_SECRET_KEY:-bella123}
+      - MINIO_BUCKET=${S3_BUCKET:-bella-workflow}
+      - MINIO_ROOT_PATH=${S3_ROOT_PATH:-test-states}
+    volumes:
+      - ./volumes/minio/data:/data
+      - ./volumes/minio/scripts:/scripts
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://${S3_HOST:-localhost}:${S3_API_PORT:-9000}/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    env_file:
+      - .middleware.env
+    networks:
+      - bella-workflow-network
+    entrypoint: ["/bin/sh"]
+    command: ["-c", "minio server /data --console-address ':9001' & sleep 10 && /scripts/init-minio.sh"]
+
+  # Spring Boot API 服务
+  bella-workflow-api:
+    image: bella-workflow-api:latest
+    build:
+      context: ..
+      dockerfile: api/Dockerfile
+      args:
+        - MAVEN_ARGS="-Dmaven.test.skip=true -U -Dmaven.build.cache.enabled=false"
+    container_name: bella-workflow-api
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      - LOG_PATH=${LOG_PATH:-../api/logs}
+      # 数据库配置
+      - MYSQL_HOST=${MYSQL_HOST:-mysql}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-bella_workflow}
+      - MYSQL_USER=${MYSQL_USER:-bella_workflow}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-bella123}
+      # Redis配置
+      - SPRING_REDIS_HOST=${REDIS_HOST:-redis}
+      - SPRING_REDIS_PORT=${REDIS_PORT:-6379}
+      - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD:-bella123}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-bella123}
+      # Elasticsearch配置
+      - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_HOST:-elasticsearch}:${ELASTICSEARCH_HTTP_PORT:-9200}
+      - ELASTICSEARCH_RUN_LOG_INDEX=workflow_run_log_*
+      # S3配置
+      - S3_HOST=${S3_HOST:-minio}
+      - S3_API_PORT=${S3_API_PORT:-9000}
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY:-bella_workflow}
+      - S3_SECRET_KEY=${S3_SECRET_KEY:-bella123}
+      - S3_BUCKET=${S3_BUCKET:-bella-workflow}
+      - S3_ROOT_PATH=${S3_ROOT_PATH:-test-states}
+      # 代码沙箱配置
+      - BELLA_CODE_SANDBOX_API_BASE=http://${CODE_SANDBOX_HOST:-code-sandbox}:${CODE_SANDBOX_PORT:-8090}
+      # 应用配置
+      - BELLA_WORKFLOW_DOMAIN=http://localhost:${API_PORT:-8080}
+      - BELLA_WORKFLOW_HOSTS=localhost:${API_PORT:-8080}
+      - BELLA_OPENAPI_URL=${BELLA_OPENAPI_URL:-http://localhost}
+      - BELLA_LOGIN_TYPE=${BELLA_LOGIN_TYPE:-none}
+      - BELLA_LOGIN_PAGE_URL=${BELLA_LOGIN_PAGE_URL:-${BELLA_OPENAPI_URL:-http://localhost}/login}
+      - BELLA_SESSION_COOKIE_NAME=${BELLA_SESSION_COOKIE_NAME:-bella_openapi_sessionId}
+      - BELLA_SESSION_COOKIE_DOMAIN=${BELLA_SESSION_COOKIE_DOMAIN:-localhost}
+      # 环境变量
+      - IDC=zeus
+      - MODULE=bella-workflow
+      - ENVTYPE=test
+      - DEBUGPORT=9008
+      - JMXPORT=9009
+      - MATRIX_CODE_DIR=/opt/bella-workflow/htdocs
+      - MATRIX_APPLOGS_DIR=/opt/bella-workflow/applogs
+      - MATRIX_ACCESSLOGS_DIR=/opt/bella-workflow/logs
+      - MATRIX_LOGS_DIR=/opt/bella-workflow/logs
+      - MATRIX_CACHE_DIR=/opt/bella-workflow/cache
+      - MATRIX_PRIVDATA_DIR=/opt/bella-workflow/privdata
+    volumes:
+      # 挂载日志和配置目录
+      - ../api/logs:/opt/bella-workflow/applogs
+      - ../api/logs:/opt/bella-workflow/logs
+      - ../api/configuration:/opt/bella-workflow/configuration
+      - ../api/cache:/opt/bella-workflow/cache
+      - ../api/privdata:/opt/bella-workflow/privdata
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      code-sandbox:
+        condition: service_healthy
+    networks:
+      - bella-workflow-network
+
+  # Web 前端服务
+  bella-workflow-web:
+    image: bella-workflow-web:latest
+    build:
+      context: ../web
+      dockerfile: Dockerfile
+    container_name: bella-workflow-web
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    environment:
+      - NEXT_PUBLIC_API_PREFIX=http://${API_HOST:-localhost}:${API_PORT:-8080}/console/api
+      - NEXT_PUBLIC_PUBLIC_API_PREFIX=http://${API_HOST:-localhost}:${API_PORT:-8080}/api
+      - CONSOLE_API_URL=http://${API_HOST:-localhost}:${API_PORT:-8080}
+      - APP_API_URL=http://${API_HOST:-localhost}:${API_PORT:-8080}
+      - PORT=3000
+      - TZ=${TZ:-UTC}
+    networks:
+      - bella-workflow-network

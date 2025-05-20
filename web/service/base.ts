@@ -316,6 +316,7 @@ const baseFetch = <T>(
   options.headers.set('X-BELLA-OPERATOR-ID', ucid)
   options.headers.set('X-BELLA-TENANT-ID', tenantId)
   options.headers.set('X-BELLA-OPERATOR-SPACE', spaceCode)
+  options.headers.set('X-BELLA-CONSOLE', 'true')
   const { method, params, body } = options
   // handle query
   if (method === 'GET' && params) {

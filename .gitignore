@@ -147,6 +147,7 @@ docker/volumes/weaviate/*
 docker/volumes/qdrant/*
 docker/volumes/etcd/*
 docker/volumes/minio/*
+!docker/volumes/minio/scripts/
 docker/volumes/milvus/*
 
 sdks/python-client/build
@@ -163,3 +164,6 @@ pyrightconfig.json
 .project
 .settings/**
 yarn.lock
+
+/docker/volumes/*/data/
+/docker/volumes/kafka/kraft/

@@ -46,7 +46,7 @@ public class ToolManager {
                 secret = param.getValue();
             }
         }
-        // fixme:bella对于iam没有注册此字段到工具集市，此处干脆直接对空的全部兜底
+
         key = StringUtils.isEmpty(key) ? "Authorization" : key;
         return new Credentials(credential.getAuthType(), credential.getPrefix(), key, apiKey, secret);
     }

@@ -416,6 +416,7 @@ const translation = {
         'auth-type': 'API 鉴权类型',
         'basic': '基础',
         'bearer': 'Bearer',
+        'bella': 'Bella',
         'custom': '自定义',
         'api-key-title': 'API Key',
         'header': 'Header',

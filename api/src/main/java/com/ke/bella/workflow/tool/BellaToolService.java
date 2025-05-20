@@ -77,8 +77,7 @@ public class BellaToolService {
         None(0, "", "none", "", "", ""),
         Custom(1, "", "custom", "key", "ak", ""),
         Basic(2, "Basic ", "basic", "key", "ak", ""),
-        Bearer(3, "Bearer ", "bearer", "key", "ak", ""),
-        KeIam(4, "", "ke-IAM", "", "ak", "sk");
+        Bearer(3, "Bearer ", "bearer", "key", "ak", "");
 
         private Integer code;
         private String prefix;

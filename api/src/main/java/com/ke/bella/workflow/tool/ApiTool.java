@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.util.CollectionUtils;
 
+import com.ke.bella.workflow.auth.HttpAuthenticator;
+import com.ke.bella.workflow.auth.HttpAuthenticatorFactory;
 import com.ke.bella.workflow.utils.JsonUtils;
-import com.ke.bella.workflow.utils.KeIAM;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -183,13 +183,14 @@ public class ApiTool implements ITool {
             // build headers
             Headers.Builder headerBuilder = new Headers.Builder();
             if(Objects.nonNull(credentials)) {
-                if("ke-IAM".equals(credentials.getAuthType())) {
-                    String signed = KeIAM.generateAuthorization(credentials.getApiKey(), credentials.getSecret(),
-                            RandomStringUtils.randomNumeric(9), method, url.encodedPath(), url.host(), url.query());
-                    headers.put(credentials.getKey(), credentials.getPrefix() + signed);
-                } else {
-                    headers.put(credentials.getKey(), credentials.getPrefix() + credentials.getApiKey());
-                }
+                HttpAuthenticator authenticator = HttpAuthenticatorFactory.getAuthenticator(credentials.getAuthType());
+                String authValue = authenticator.generateAuthorization(
+                        credentials.getApiKey(),
+                        credentials.getSecret(),
+                        method,
+                        url.url(),
+                        new HashMap<>());
+                headers.put(credentials.getKey(), credentials.getPrefix() + authValue);
             }
             headers.forEach(headerBuilder::add);
             cookies.forEach(headerBuilder::add);

@@ -22,7 +22,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
@@ -38,9 +37,10 @@ import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult.NodeRunResultBuilder;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.WorkflowSchema.Node;
+import com.ke.bella.workflow.auth.HttpAuthenticator;
+import com.ke.bella.workflow.auth.HttpAuthenticatorFactory;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
-import com.ke.bella.workflow.utils.KeIAM;
 import com.ke.bella.workflow.utils.OpenAiUtils;
 
 import lombok.AllArgsConstructor;
@@ -412,24 +412,16 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
         // Auth header
         Data.Authorization.Config config = data.getAuthorization().getConfig();
         String authType = data.getAuthorization().type;
-        String apiKey = null;
         if("api-key".equals(authType)) {
-            authType = config.getType();
-            if("bella".equals(authType)) {
-                apiKey = BellaContext.getApikey().getApikey();
-            } else if("ke-IAM".equalsIgnoreCase(authType)) {
-                URL url = buildUrl(context).toURL();
-                String ak = Variables.format(config.getApiKey(), context.getState().getVariablePool());
-                String sk = Variables.format(config.getSecret(), context.getState().getVariablePool());
-                apiKey = KeIAM.generateAuthorization(ak, sk,
-                        RandomStringUtils.randomNumeric(9), data.getMethod().toUpperCase(), url.getPath(), url.getHost(), url.getQuery());
-            } else {
-                apiKey = Variables.format(config.getApiKey(), context.getState().getVariablePool());
-            }
-            builder.add(Variables.format(config.header(), context.getState().getVariablePool()),
-                    Variables.format(config.prefix() + apiKey, context.getState().getVariablePool()));
-        }
+            HttpAuthenticator authenticator = HttpAuthenticatorFactory.getAuthenticator(config.getType());
+            URL url = buildUrl(context).toURL();
+            String ak = Variables.format(config.getApiKey(), context.getState().getVariablePool());
+            String sk = Variables.format(config.getSecret(), context.getState().getVariablePool());
+            String apiKey = authenticator.generateAuthorization(ak, sk, data.getMethod().toUpperCase(), url, context.getState().getVariablePool());
 
+            builder.add(Variables.format(config.header(), context.getState().getVariablePool()),
+                    Variables.format(authenticator.getPrefix() + apiKey, context.getState().getVariablePool()));
+        }
         return builder.build();
     }
 
@@ -534,7 +526,7 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
             @Getter
             @Setter
             public static class Config {
-                // 'basic', 'bearer', 'custom', 'bella', 'KE-IAM'
+                // 'basic', 'bearer', 'custom', 'bella'
                 String type;
                 @JsonAlias({ "api_key" })
                 String apiKey;
@@ -543,17 +535,6 @@ public class HttpNode extends BaseNode<HttpNode.Data> {
 
                 public String header() {
                     return StringUtils.isEmpty(header) ? "Authorization" : header;
-                }
-
-                public String prefix() {
-                    if("basic".equals(type)) {
-                        return "Basic ";
-                    } else if("bearer".equals(type)) {
-                        return "Bearer ";
-                    } else if("bella".equals(type)) {
-                        return "Bearer ";
-                    }
-                    return "";
                 }
             }
 

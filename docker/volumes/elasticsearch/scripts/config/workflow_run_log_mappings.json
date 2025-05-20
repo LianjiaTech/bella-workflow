@@ -1,0 +1,118 @@
+{
+  "properties": {
+    "akCode": {
+      "type": "keyword"
+    },
+    "bellaTraceId": {
+      "type": "keyword"
+    },
+    "ctime": {
+      "type": "date"
+    },
+    "elapsedTime": {
+      "type": "long"
+    },
+    "error": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 256
+        }
+      }
+    },
+    "event": {
+      "type": "keyword"
+    },
+    "flashMode": {
+      "type": "integer"
+    },
+    "inputs": {
+      "type": "text",
+      "index": false,
+      "store": true,
+      "norms": false
+    },
+    "iteration": {
+      "type": "boolean"
+    },
+    "iterationIndex": {
+      "type": "integer"
+    },
+    "nodeId": {
+      "type": "keyword"
+    },
+    "nodeInputs": {
+      "type": "text",
+      "index": false,
+      "store": true,
+      "norms": false
+    },
+    "nodeOutputs": {
+      "type": "text",
+      "index": false,
+      "store": true,
+      "norms": false
+    },
+    "nodeProcessData": {
+      "type": "text",
+      "index": false,
+      "store": true,
+      "norms": false
+    },
+    "nodeRunId": {
+      "type": "keyword"
+    },
+    "nodeTitle": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 256
+        }
+      }
+    },
+    "nodeType": {
+      "type": "keyword"
+    },
+    "outputs": {
+      "type": "text",
+      "index": false,
+      "store": true,
+      "norms": false
+    },
+    "stateful": {
+      "type": "boolean"
+    },
+    "status": {
+      "type": "keyword"
+    },
+    "sys": {
+      "type": "text",
+      "index": false,
+      "store": true,
+      "norms": false
+    },
+    "tenantId": {
+      "type": "keyword"
+    },
+    "threadId": {
+      "type": "keyword"
+    },
+    "triggerFrom": {
+      "type": "keyword"
+    },
+    "userId": {
+      "type": "long"
+    },
+    "userName": {
+      "type": "keyword"
+    },
+    "workflowId": {
+      "type": "keyword"
+    },
+    "workflowRunId": {
+      "type": "keyword"
+    }
+  }
+}

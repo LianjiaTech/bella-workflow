@@ -13,6 +13,7 @@ import { Variable02 } from '@/app/components/base/icons/src/vender/solid/develop
 import { Env } from '@/app/components/base/icons/src/vender/line/others'
 import { isENV, isSystemVar } from '@/app/components/workflow/nodes/_base/components/variable/utils'
 import cn from '@/utils/classnames'
+import { isExceptionVariable } from '@/app/components/workflow/utils'
 
 type VariableTagProps = {
   valueSelector: ValueSelector
@@ -32,6 +33,7 @@ const VariableTag = ({
   const isEnv = isENV(valueSelector)
 
   const variableName = isSystemVar(valueSelector) ? valueSelector.slice(0).join('.') : valueSelector.slice(1).join('.')
+  const isException = isExceptionVariable(variableName, node?.data.type)
 
   return (
     <div className='inline-flex items-center px-1.5 max-w-full h-6 text-xs rounded-md border-[0.5px] border-[rgba(16, 2440,0.08)] bg-white shadow-xs'>
@@ -50,12 +52,12 @@ const VariableTag = ({
             {node?.data.title}
           </div>
           <Line3 className='shrink-0 mx-0.5' />
-          <Variable02 className='shrink-0 mr-0.5 w-3.5 h-3.5 text-text-accent' />
+          <Variable02 className={cn('shrink-0 mr-0.5 w-3.5 h-3.5 text-text-accent', isException && 'text-text-warning')} />
         </>
       )}
       {isEnv && <Env className='shrink-0 mr-0.5 w-3.5 h-3.5 text-util-colors-violet-violet-600' />}
       <div
-        className={cn('truncate text-text-accent font-medium', isEnv && 'text-text-secondary')}
+        className={cn('truncate text-text-accent font-medium', isEnv && 'text-text-secondary', isException && 'text-text-warning')}
         title={variableName}
       >
         {variableName}

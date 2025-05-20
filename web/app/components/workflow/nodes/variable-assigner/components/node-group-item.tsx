@@ -21,6 +21,7 @@ import AddVariable from './add-variable'
 import NodeVariableItem from './node-variable-item'
 import { isENV, isSystemVar } from '@/app/components/workflow/nodes/_base/components/variable/utils'
 import cn from '@/utils/classnames'
+import { isExceptionVariable } from '@/app/components/workflow/utils'
 
 const i18nPrefix = 'workflow.nodes.variableAssigner'
 type GroupItem = {
@@ -126,6 +127,7 @@ const NodeGroupItem = ({
           const isEnv = isENV(variable)
           const node = isSystem ? nodes.find(node => node.data.type === BlockEnum.Start) : nodes.find(node => node.id === variable[0])
           const varName = isSystem ? `sys.${variable[variable.length - 1]}` : variable.slice(1).join('.')
+          const isException = isExceptionVariable(varName, node?.data.type)
 
           return (
             <NodeVariableItem
@@ -133,6 +135,7 @@ const NodeGroupItem = ({
               isEnv={isEnv}
               node={node as Node}
               varName={varName}
+              isException={isException}
               showBorder={showSelectedBorder || showSelectionBorder}
             />
           )

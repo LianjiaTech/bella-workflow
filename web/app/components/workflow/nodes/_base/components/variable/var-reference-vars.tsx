@@ -225,6 +225,7 @@ const ObjectChildren: FC<ObjectChildrenProps> = ({
             onChange={onChange}
             onHovering={setIsChildrenHovering}
             isSupportFileVar={isSupportFileVar}
+            isException={v.isException}
           />
         ))
       }
@@ -321,6 +322,7 @@ const VarReferenceVars: FC<Props> = ({
                     onChange={onChange}
                     itemWidth={itemWidth}
                     isSupportFileVar={isSupportFileVar}
+                    isException={v.isException}
                   />
                 ))}
               </div>))

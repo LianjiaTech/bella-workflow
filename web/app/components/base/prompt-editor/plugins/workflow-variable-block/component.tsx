@@ -26,6 +26,7 @@ import { VarBlockIcon } from '@/app/components/workflow/block-icon'
 import { Line3 } from '@/app/components/base/icons/src/public/common'
 import { isENV, isSystemVar } from '@/app/components/workflow/nodes/_base/components/variable/utils'
 import TooltipPlus from '@/app/components/base/tooltip-plus'
+import { isExceptionVariable } from '@/app/components/workflow/utils'
 
 type WorkflowVariableBlockComponentProps = {
   nodeKey: string
@@ -52,6 +53,7 @@ const WorkflowVariableBlockComponent = ({
   const [localWorkflowNodesMap, setLocalWorkflowNodesMap] = useState<WorkflowNodesMap>(workflowNodesMap)
   const node = localWorkflowNodesMap![variables[0]]
   const isEnv = isENV(variables)
+  const isException = isExceptionVariable(varName, node?.type)
 
   useEffect(() => {
     if (!editor.hasNodes([WorkflowVariableBlockNode]))
@@ -97,9 +99,9 @@ const WorkflowVariableBlockComponent = ({
         </div>
       )}
       <div className='flex items-center text-primary-600'>
-        {!isEnv && <Variable02 className='shrink-0 w-3.5 h-3.5' />}
+        {!isEnv && <Variable02 className={cn('shrink-0 w-3.5 h-3.5', isException && 'text-text-warning')}/>}
         {isEnv && <Env className='shrink-0 w-3.5 h-3.5 text-util-colors-violet-violet-600' />}
-        <div className={cn('shrink-0 ml-0.5 text-xs font-medium truncate', isEnv && 'text-gray-900')} title={varName}>{varName}</div>
+        <div className={cn('shrink-0 ml-0.5 text-xs font-medium truncate', isEnv && 'text-gray-900', isException && 'text-text-warning')} title={varName}>{varName}</div>
         {
           !node && !isEnv && (
             <RiErrorWarningFill className='ml-0.5 w-3 h-3 text-[#D92D20]' />

@@ -244,6 +244,7 @@ export type Var = {
   options?: string[]
   required?: boolean
   des?: string
+  isException?: boolean
 }
 
 export type NodeOutPutVar = {

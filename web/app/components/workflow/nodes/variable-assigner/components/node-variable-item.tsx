@@ -12,12 +12,14 @@ type NodeVariableItemProps = {
   node: Node
   varName: string
   showBorder?: boolean
+  isException?: boolean
 }
 const NodeVariableItem = ({
   isEnv,
   node,
   varName,
   showBorder,
+  isException,
 }: NodeVariableItemProps) => {
   return (
     <div className={cn(
@@ -37,9 +39,9 @@ const NodeVariableItem = ({
         </div>
       )}
       <div className='flex items-center text-primary-600'>
-        {!isEnv && <Variable02 className='shrink-0 w-3.5 h-3.5 text-primary-500' />}
+        {!isEnv && <Variable02 className={cn('shrink-0 w-3.5 h-3.5 text-primary-500', isException && 'text-text-warning')} />}
         {isEnv && <Env className='shrink-0 w-3.5 h-3.5 text-util-colors-violet-violet-600' />}
-        <div className={cn('max-w-[75px] truncate ml-0.5 text-xs font-medium', isEnv && 'text-gray-900')} title={varName}>{varName}</div>
+        <div className={cn('max-w-[75px] truncate ml-0.5 text-xs font-medium', isEnv && 'text-gray-900', isException && 'text-text-warning')} title={varName}>{varName}</div>
       </div>
     </div>
   )

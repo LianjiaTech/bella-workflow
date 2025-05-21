@@ -7,25 +7,38 @@ import { AppContextProvider } from '@/context/app-context'
 import GA, { GaType } from '@/app/components/base/ga'
 import HeaderWrapper from '@/app/components/header/header-wrapper'
 import Header from '@/app/components/header'
-import BellaHeader from '@/app/(commonLayout)/bella/components/header'
 import { EventEmitterContextProvider } from '@/context/event-emitter'
 import { ProviderContextProvider } from '@/context/provider-context'
 import { ModalContextProvider } from '@/context/modal-context'
 import { getQueryParams, getTenantId, setTenantId } from '@/utils/getQueryParams'
+import type { AppConfig } from '@/app/context/app-registry'
+import { AppRegistryProvider, getAppConfig, tryLoadConfigFile } from '@/app/context/app-registry'
 
-const Layout = ({ children }: { children: ReactNode }) => {
+// Try to load the configuration file, won't error if the file doesn't exist
+tryLoadConfigFile()
+
+// Layout implementation component
+const LayoutImplementation = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname()
-  const isBella = pathname.startsWith('/bella')
-  const isHuiting = pathname.startsWith('/huiting')
+
+  // Create default configuration
+  const defaultConfig: AppConfig = {
+    tenantId: 'test',
+    showHeader: true,
+    HeaderComponent: Header,
+  }
+
+  // Get application configuration (using default config as second parameter)
+  const appConfig = getAppConfig(pathname, defaultConfig)
 
   useEffect(() => {
-    let tenantId = getQueryParams('tenant') || getTenantId() || 'test'
-    if (pathname.startsWith('/bella'))
-      tenantId = '04633c4f-8638-43a3-a02e-af23c29f821f'
-    else if (pathname.startsWith('/huiting'))
-      tenantId = 'TENT-d815410c-f9db-459e-b4ab-67a52d8e63ce'
+    // Determine tenant ID: URL parameter has priority, then app config, then stored value or default
+    const tenantId = getQueryParams('tenant') || appConfig.tenantId || getTenantId() || 'test'
     setTenantId(tenantId)
-  }, [])
+  }, [pathname, appConfig.tenantId])
+
+  // Determine which Header component to use
+  const HeaderComponent = appConfig.HeaderComponent || Header
 
   return (
     <>
@@ -35,9 +48,11 @@ const Layout = ({ children }: { children: ReactNode }) => {
           <EventEmitterContextProvider>
             <ProviderContextProvider>
               <ModalContextProvider>
-                {!isHuiting && <HeaderWrapper>
-                  {isBella ? (<BellaHeader/>) : (<Header />)}
-                </HeaderWrapper>}
+                {appConfig.showHeader && (
+                  <HeaderWrapper>
+                    <HeaderComponent />
+                  </HeaderWrapper>
+                )}
                 {children}
               </ModalContextProvider>
             </ProviderContextProvider>
@@ -45,6 +60,17 @@ const Layout = ({ children }: { children: ReactNode }) => {
         </AppContextProvider>
       </SwrInitor>
     </>
+  )
+}
+
+// Common layout component
+const Layout = ({ children }: { children: ReactNode }) => {
+  return (
+    <AppRegistryProvider>
+      <LayoutImplementation>
+        {children}
+      </LayoutImplementation>
+    </AppRegistryProvider>
   )
 }
 

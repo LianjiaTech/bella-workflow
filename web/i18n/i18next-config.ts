@@ -28,7 +28,6 @@ const loadLangResources = (lang: string) => ({
     custom: require(`./${lang}/custom`).default,
     tools: require(`./${lang}/tools`).default,
     workflow: require(`./${lang}/workflow`).default,
-    huiting: require('./zh-Hans/huiting').default,
     runLog: require(`./${lang}/run-log`).default,
   },
 })

@@ -41,7 +41,7 @@ CREATE TABLE `tenant` (
 -- Records of tenant
 -- ----------------------------
 BEGIN;
-INSERT INTO `tenant` (`id`, `tenant_id`, `tenant_name`, `parent_id`, `cuid`, `cu_name`, `ctime`, `muid`, `mu_name`, `mtime`) VALUES (1, '04633c4f-8638-43a3-a02e-af23c29f821f', 'test', '', 0, 'string', '2024-05-22 14:38:45', 0, 'string', '2024-05-22 14:38:45');
+INSERT INTO `tenant` (`id`, `tenant_id`, `tenant_name`, `parent_id`, `cuid`, `cu_name`, `ctime`, `muid`, `mu_name`, `mtime`) VALUES (1, 'test', 'test', '', 0, 'string', '2024-05-22 14:38:45', 0, 'string', '2024-05-22 14:38:45');
 COMMIT;
 
 -- ----------------------------

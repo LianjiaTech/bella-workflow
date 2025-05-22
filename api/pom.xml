@@ -354,9 +354,9 @@
         <configuration>
           <jdbc>
             <driver>com.mysql.cj.jdbc.Driver</driver>
-            <url>jdbc:mysql://m12039.mars.test.mysql.ljnode.com:12039?useSSL=false</url>
-            <user>root</user>
-            <password>3BU4i3X7i2I5GOd5</password>
+            <url>jdbc:mysql://localhost:3306?useSSL=false</url>
+            <user>bella</user>
+            <password>bella123</password>
           </jdbc>
           <generator>
             <database>

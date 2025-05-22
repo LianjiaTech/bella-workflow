@@ -214,6 +214,7 @@ public class WorkflowContext {
             mergedOutputs.putAll(defaults);
             mergedOutputs.putAll(errorOutput);
             newResult.setOutputs(mergedOutputs);
+            newResult.setActivatedSourceHandles(node.getNodeData().getSourceHandles());
 
         } else if("fail-branch".equals(node.getNodeData().getError_strategy())) {
             mergedOutputs.putAll(errorOutput);

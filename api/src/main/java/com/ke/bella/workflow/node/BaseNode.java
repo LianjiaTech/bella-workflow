@@ -160,7 +160,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 result = context.handleContinueOnError(this, result);
             }
 
-            if(result.getStatus() == NodeRunResult.Status.succeeded || result.getStatus() == NodeRunResult.Status.exception) {
+            if(result.getStatus() == NodeRunResult.Status.succeeded) {
                 List<String> handles = data.getSourceHandles();
                 if(handles.size() == 1) {
                     result.setActivatedSourceHandles(handles);
@@ -225,7 +225,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 result = context.handleContinueOnError(this, result);
             }
 
-            if(result.getStatus() == NodeRunResult.Status.succeeded || result.getStatus() == NodeRunResult.Status.exception) {
+            if(result.getStatus() == NodeRunResult.Status.succeeded) {
                 List<String> handles = data.getSourceHandles();
                 if(handles.size() == 1) {
                     result.setActivatedSourceHandles(handles);

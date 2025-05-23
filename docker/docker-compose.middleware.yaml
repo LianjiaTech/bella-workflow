@@ -137,7 +137,7 @@ services:
     image: redis:6.2
     container_name: ${REDIS_CONTAINER_NAME:-bella-workflow-redis}
     ports:
-      - "${EXPOSE_REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - ./volumes/redis/data:/data
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-bella123}

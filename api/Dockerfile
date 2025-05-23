@@ -5,13 +5,13 @@ WORKDIR /build
 
 # 复制 settings.xml
 RUN mkdir -p /root/.m2
-COPY ../resources/settings.xml /root/.m2/
+COPY resources/settings.xml /root/.m2/
 
 # 先复制 pom.xml 以实现依赖缓存
 COPY pom.xml /build/
 
 # 复制本地依赖包
-COPY ../resources/bella-job-queue-sdk-1.0.0-SNAPSHOT.jar /build/
+COPY resources/bella-job-queue-sdk-1.0.0-SNAPSHOT.jar /build/
 
 # 安装本地依赖 bella-job-queue-sdk 到 Maven 本地仓库
 RUN mvn install:install-file \

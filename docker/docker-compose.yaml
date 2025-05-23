@@ -52,7 +52,7 @@ services:
       retries: 10
     networks:
       - bella-workflow-network
-    command: ["bash", "-c", "/opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh & sleep 10 && /scripts/start-connect.sh"]
+    command: [ "bash", "-c", "/opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh & sleep 10 && /scripts/start-connect.sh" ]
 
   # Elasticsearch service
   elasticsearch:
@@ -77,10 +77,10 @@ services:
     # Load environment variables from .middleware.env file
     env_file:
       - .middleware.env
-    entrypoint: ["/bin/bash", "-c"]
-    command: ["/usr/local/bin/docker-entrypoint.sh eswrapper & sleep 15 && /scripts/init-elasticsearch.sh"]
+    entrypoint: [ "/bin/bash", "-c" ]
+    command: [ "/usr/local/bin/docker-entrypoint.sh eswrapper & sleep 15 && /scripts/init-elasticsearch.sh" ]
     healthcheck:
-      test: ["CMD", "curl", "-s", "-f", "http://localhost:9200/_cluster/health"]
+      test: [ "CMD", "curl", "-s", "-f", "http://localhost:9200/_cluster/health" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -125,7 +125,7 @@ services:
     privileged: true
     command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "${MYSQL_HOST:-localhost}", "-u", "${MYSQL_USER:-bella_workflow}", "-p${MYSQL_PASSWORD:-bella123}"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "${MYSQL_HOST:-localhost}", "-u", "${MYSQL_USER:-bella_workflow}", "-p${MYSQL_PASSWORD:-bella123}" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -138,7 +138,7 @@ services:
     image: redis:6.2
     container_name: ${REDIS_CONTAINER_NAME:-bella-workflow-redis}
     ports:
-      - "${EXPOSE_REDIS_PORT:-6379}:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - ./volumes/redis/data:/data
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-bella123}
@@ -166,7 +166,7 @@ services:
     privileged: true
     stop_grace_period: 1s
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${CODE_SANDBOX_HOST:-localhost}:${CODE_SANDBOX_PORT:-8090}/health"]
+      test: [ "CMD", "curl", "-f", "http://${CODE_SANDBOX_HOST:-localhost}:${CODE_SANDBOX_PORT:-8090}/health" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -175,7 +175,7 @@ services:
       - .middleware.env
     networks:
       - bella-workflow-network
-      
+
   # S3 service (MinIO implementation)
   minio:
     image: minio/minio:latest
@@ -192,7 +192,7 @@ services:
       - ./volumes/minio/data:/data
       - ./volumes/minio/scripts:/scripts
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://${S3_HOST:-localhost}:${S3_API_PORT:-9000}/minio/health/live"]
+      test: [ "CMD", "curl", "-f", "http://${S3_HOST:-localhost}:${S3_API_PORT:-9000}/minio/health/live" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -200,15 +200,15 @@ services:
       - .middleware.env
     networks:
       - bella-workflow-network
-    entrypoint: ["/bin/sh"]
-    command: ["-c", "minio server /data --console-address ':9001' & sleep 10 && /scripts/init-minio.sh"]
+    entrypoint: [ "/bin/sh" ]
+    command: [ "-c", "minio server /data --console-address ':9001' & sleep 10 && /scripts/init-minio.sh" ]
 
   # Spring Boot API 服务
   bella-workflow-api:
     image: bella-workflow-api:latest
     build:
-      context: ..
-      dockerfile: api/Dockerfile
+      context: ../api
+      dockerfile: Dockerfile
       args:
         - MAVEN_ARGS="-Dmaven.test.skip=true -U -Dmaven.build.cache.enabled=false"
     container_name: bella-workflow-api
@@ -226,9 +226,12 @@ services:
       - SPRING_REDIS_PORT=${REDIS_PORT:-6379}
       - SPRING_REDIS_PASSWORD=${REDIS_PASSWORD:-bella123}
       - REDIS_PASSWORD=${REDIS_PASSWORD:-bella123}
+      - REDIS_HOST=${REDIS_HOST:-redis}
       # Elasticsearch配置
       - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_HOST:-elasticsearch}:${ELASTICSEARCH_HTTP_PORT:-9200}
-      - ELASTICSEARCH_RUN_LOG_INDEX=workflow_run_log_*
+      - ELASTICSEARCH_RUN_LOG_INDEX=${ELASTICSEARCH_RUN_LOG_INDEX:-workflow_run_log_*}
+      - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME:-}
+      - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD:-}
       # S3配置
       - S3_HOST=${S3_HOST:-minio}
       - S3_API_PORT=${S3_API_PORT:-9000}
@@ -237,15 +240,25 @@ services:
       - S3_BUCKET=${S3_BUCKET:-bella-workflow}
       - S3_ROOT_PATH=${S3_ROOT_PATH:-test-states}
       # 代码沙箱配置
-      - BELLA_CODE_SANDBOX_API_BASE=http://${CODE_SANDBOX_HOST:-code-sandbox}:${CODE_SANDBOX_PORT:-8090}
+      - BELLA_CODE_SANDBOX_API_BASE=${BELLA_CODE_SANDBOX_API_BASE:-http://${CODE_SANDBOX_HOST:-code-sandbox}:${CODE_SANDBOX_PORT:-8090}}
+      - BELLA_MAX_EX_MEMORY_ALLOC=${BELLA_MAX_EX_MEMORY_ALLOC:-209715200}
+      # Bella API配置
+      - BELLA_TOOL_API_ENABLED=${BELLA_TOOL_API_ENABLED:-false}
+      - BELLA_DATASET_API_ENABLED=${BELLA_DATASET_API_ENABLED:-false}
+      - BELLA_TOOL_API_BASE=${BELLA_TOOL_API_BASE:-http://localhost}
+      - BELLA_DATASET_API_BASE=${BELLA_DATASET_API_BASE:-http://localhost}
+      - BELLA_WORKFLOW_BACKEND_OUTER_URL=${BELLA_WORKFLOW_BACKEND_OUTER_URL:-http://localhost:${API_PORT:-8080}}
       # 应用配置
-      - BELLA_WORKFLOW_DOMAIN=http://localhost:${API_PORT:-8080}
+      - BELLA_WORKFLOW_DOMAIN=${BELLA_WORKFLOW_BACKEND_OUTER_URL:-http://localhost:${API_PORT:-8080}}
       - BELLA_WORKFLOW_HOSTS=localhost:${API_PORT:-8080}
+      - BELLA_OPENAPI_HOST=${BELLA_OPENAPI_HOST:-http://localhost}
+      - BELLA_OPENAPI_BASE=${BELLA_OPENAPI_BASE:-http://localhost/v1/}
       - BELLA_OPENAPI_URL=${BELLA_OPENAPI_URL:-http://localhost}
       - BELLA_LOGIN_TYPE=${BELLA_LOGIN_TYPE:-none}
       - BELLA_LOGIN_PAGE_URL=${BELLA_LOGIN_PAGE_URL:-${BELLA_OPENAPI_URL:-http://localhost}/login}
       - BELLA_SESSION_COOKIE_NAME=${BELLA_SESSION_COOKIE_NAME:-bella_openapi_sessionId}
       - BELLA_SESSION_COOKIE_DOMAIN=${BELLA_SESSION_COOKIE_DOMAIN:-localhost}
+      - API_PORT=${API_PORT:-8080}
       # 环境变量
       - IDC=zeus
       - MODULE=bella-workflow

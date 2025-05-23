@@ -22,7 +22,7 @@ spring:
       resolve-lazily: true
   redis:
     host: ${REDIS_HOST:localhost}
-    port: 6379
+    port: ${REDIS_PORT:6379}
     password: ${REDIS_PASSWORD:bella123}
 
 #-------------------------------------------------------
@@ -76,7 +76,7 @@ bella:
     login-page-url: ${BELLA_OPENAPI_URL:http://localhost}/login
   oauth:
     client-index: ${BELLA_OPENAPI_URL:http://localhost}
-    redirect: ${BELLA_OPENAPI_URL:http://localhost}
+    redirect: ${BELLA_OPENAPI_HOST:http://localhost}
   providers:
     google:
       enabled: true

@@ -273,7 +273,15 @@ public class IfElseNode extends BaseNode<IfElseNode.Data> {
     }
 
     private boolean assertLessThan(Object actualValue, String expectedValue) {
-        return !assertGreaterThan(actualValue, expectedValue);
+        if(actualValue == null) {
+            return false;
+        }
+
+        if(!(actualValue instanceof Number)) {
+            return false;
+        }
+
+        return new BigDecimal(actualValue.toString()).compareTo(new BigDecimal(expectedValue)) < 0;
     }
 
     private boolean assertGreaterThanOrEqual(Object actualValue, String expectedValue) {

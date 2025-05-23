@@ -1,0 +1,47 @@
+# Open Source License
+
+## Bella-Workflow Open Source License Declaration
+
+Bella-Workflow is a derivative work based on the Dify project, adhering to the modified Apache License 2.0 of the Dify project and its additional conditions.
+
+## Original Dify License
+
+Dify is licensed under a modified version of the Apache License 2.0, with the following additional conditions:
+
+1. Dify may be utilized commercially, including as a backend service for other applications or as an application development platform for enterprises. Should the conditions below be met, a commercial license must be obtained from the producer:
+
+a. Multi-tenant service: Unless explicitly authorized by Dify in writing, you may not use the Dify source code to operate a multi-tenant environment.
+    - Tenant Definition: Within the context of Dify, one tenant corresponds to one workspace. The workspace provides a separated area for each tenant's data and configurations.
+
+b. LOGO and copyright information: In the process of using Dify's frontend, you may not remove or modify the LOGO or copyright information in the Dify console or applications. This restriction is inapplicable to uses of Dify that do not involve its frontend.
+    - Frontend Definition: For the purposes of this license, the "frontend" of Dify includes all components located in the `web/` directory when running Dify from the raw source code, or the "web" image when running Dify with Docker.
+
+Please contact business@dify.ai by email to inquire about licensing matters.
+
+2. As a contributor, you should agree that:
+
+a. The producer can adjust the open-source agreement to be more strict or relaxed as deemed necessary.
+b. Your contributed code may be used for commercial purposes, including but not limited to its cloud business operations.
+
+Apart from the specific conditions mentioned above, all other rights and restrictions follow the Apache License 2.0. Detailed information about the Apache License 2.0 can be found at http://www.apache.org/licenses/LICENSE-2.0.
+
+## Bella-Workflow Additional Declaration
+
+1. As a derivative project of Dify, Bella-Workflow inherits all license conditions and restrictions of Dify.
+
+2. For any commercial use of Bella-Workflow, especially as a multi-tenant service, please comply with Dify's commercial licensing requirements and contact business@dify.ai to obtain necessary authorization.
+
+3. When using Bella-Workflow, this license file must be retained, and the project documentation must clearly state that the project is based on Dify.
+
+4. Contributors to Bella-Workflow should agree that their contributed code may be used for commercial purposes.
+
+## Copyright Notice
+
+The interactive design of this product is protected by appearance patent.
+
+© 2025 Bella
+Original Project © 2025 LangGenius, Inc.
+
+---
+
+For the full text of the Apache License 2.0, please visit: http://www.apache.org/licenses/LICENSE-2.0

@@ -1,19 +1,10 @@
 'use client'
 
 import type { FC } from 'react'
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { setAutoFreeze } from 'immer'
-import {
-  useEventListener,
-  useKeyPress,
-} from 'ahooks'
+import { useEventListener, useKeyPress } from 'ahooks'
+import type { Viewport } from 'reactflow'
 import ReactFlow, {
   Background,
   ReactFlowProvider,
@@ -24,19 +15,14 @@ import ReactFlow, {
   useReactFlow,
   useStoreApi,
 } from 'reactflow'
-import type {
-  Viewport,
-} from 'reactflow'
 import 'reactflow/dist/style.css'
-import './style.css'
+import '@/app/components/workflow/style.css'
 import useSWR from 'swr'
-import type {
-  Edge,
-  EnvironmentVariable,
-  Node,
-} from './types'
-import { SupportUploadFileTypes } from './types'
-import { WorkflowContextProvider } from './context'
+import {
+  SupportUploadFileTypes,
+} from '@/app/components/workflow/types'
+import type { Edge, EnvironmentVariable, Node } from '@/app/components/workflow/types'
+import { WorkflowContextProvider } from '@/app/components/workflow/context'
 import {
   useDSL,
   useEdgesInteractions,
@@ -50,48 +36,45 @@ import {
   useWorkflowReadOnly,
   useWorkflowStartRun,
   useWorkflowUpdate,
-} from './hooks'
-import Header from './header'
-import CustomNode from './nodes'
-import CustomNoteNode from './note-node'
-import { CUSTOM_NOTE_NODE } from './note-node/constants'
-import Operator from './operator'
-import CustomEdge from './custom-edge'
-import CustomConnectionLine from './custom-connection-line'
-import Panel from './panel'
-import Features from './features'
-import HelpLine from './help-line'
-import CandidateNode from './candidate-node'
-import PanelContextmenu from './panel-contextmenu'
-import NodeContextmenu from './node-contextmenu'
-import SyncingDataModal from './syncing-data-modal'
-import UpdateDSLModal from './update-dsl-modal'
-import DSLExportConfirmModal from './dsl-export-confirm-modal'
-import {
-  useStore,
-  useWorkflowStore,
-} from './store'
+} from '@/app/components/workflow/hooks'
+import Header from '@/app/components/workflow/header'
+import CustomNode from '@/app/components/workflow/nodes'
+import CustomNoteNode from '@/app/components/workflow/note-node'
+import { CUSTOM_NOTE_NODE } from '@/app/components/workflow/note-node/constants'
+import Operator from '@/app/components/workflow/operator'
+import CustomEdge from '@/app/components/workflow/custom-edge'
+import CustomConnectionLine from '@/app/components/workflow/custom-connection-line'
+import Panel from '@/app/components/workflow/panel'
+import Features from '@/app/components/workflow/features'
+import HelpLine from '@/app/components/workflow/help-line'
+import CandidateNode from '@/app/components/workflow/candidate-node'
+import PanelContextmenu from '@/app/components/workflow/panel-contextmenu'
+import NodeContextmenu from '@/app/components/workflow/node-contextmenu'
+import SyncingDataModal from '@/app/components/workflow/syncing-data-modal'
+import UpdateDSLModal from '@/app/components/workflow/update-dsl-modal'
+import DSLExportConfirmModal from '@/app/components/workflow/dsl-export-confirm-modal'
+import { useStore, useWorkflowStore } from '@/app/components/workflow/store'
 import {
   getKeyboardKeyCodeBySystem,
   initialEdges,
   initialNodes,
   isEventTargetInputArea,
-} from './utils'
+} from '@/app/components/workflow/utils'
 import {
   CUSTOM_NODE,
   DSL_EXPORT_CHECK,
   ITERATION_CHILDREN_Z_INDEX,
   WORKFLOW_DATA_UPDATE,
-} from './constants'
-import { WorkflowHistoryProvider, useWorkflowHistoryStore } from './workflow-history-store'
+} from '@/app/components/workflow/constants'
+import { WorkflowHistoryProvider, useWorkflowHistoryStore } from '@/app/components/workflow/workflow-history-store'
 import Loading from '@/app/components/base/loading'
 import { FeaturesProvider } from '@/app/components/base/features'
 import type { Features as FeaturesData } from '@/app/components/base/features/types'
 import { useFeaturesStore } from '@/app/components/base/features/hooks'
 import { useEventEmitterContextContext } from '@/context/event-emitter'
 import Confirm from '@/app/components/base/confirm/common'
-import { TransferMethod } from '@/types/app'
 import { fetchFileUploadConfig } from '@/service/common'
+import { TransferMethod } from '@/types/app'
 
 const nodeTypes = {
   [CUSTOM_NODE]: CustomNode,
@@ -386,7 +369,7 @@ const Workflow: FC<WorkflowProps> = memo(({
         nodesConnectable={!nodesReadOnly}
         nodesFocusable={!nodesReadOnly}
         edgesFocusable={!nodesReadOnly}
-        panOnDrag={controlMode === 'hand' || workflowReadOnly }
+        panOnDrag={controlMode === 'hand' || workflowReadOnly}
         zoomOnPinch={true}
         zoomOnScroll={true}
         zoomOnDoubleClick={true}

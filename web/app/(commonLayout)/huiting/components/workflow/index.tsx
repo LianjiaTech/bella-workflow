@@ -28,15 +28,19 @@ import type {
   Viewport,
 } from 'reactflow'
 import 'reactflow/dist/style.css'
-import './style.css'
+import '@/app/components/workflow/style.css'
 import useSWR from 'swr'
+import Header from './header'
+import { PostMessageType, ReceiveMessageType } from './types'
 import type {
   Edge,
   EnvironmentVariable,
+  HistoryWorkflowVersion,
   Node,
-} from './types'
-import { SupportUploadFileTypes } from './types'
-import { WorkflowContextProvider } from './context'
+} from '@/app/components/workflow/types'
+
+import { SupportUploadFileTypes } from '@/app/components/workflow/types'
+import { WorkflowContextProvider } from '@/app/components/workflow/context'
 import {
   useDSL,
   useEdgesInteractions,
@@ -47,43 +51,43 @@ import {
   useSelectionInteractions,
   useWorkflow,
   useWorkflowInit,
-  useWorkflowReadOnly,
+  useWorkflowInteractions, useWorkflowReadOnly,
   useWorkflowStartRun,
+
   useWorkflowUpdate,
-} from './hooks'
-import Header from './header'
-import CustomNode from './nodes'
-import CustomNoteNode from './note-node'
-import { CUSTOM_NOTE_NODE } from './note-node/constants'
-import Operator from './operator'
-import CustomEdge from './custom-edge'
-import CustomConnectionLine from './custom-connection-line'
-import Panel from './panel'
-import Features from './features'
-import HelpLine from './help-line'
-import CandidateNode from './candidate-node'
-import PanelContextmenu from './panel-contextmenu'
-import NodeContextmenu from './node-contextmenu'
-import SyncingDataModal from './syncing-data-modal'
-import UpdateDSLModal from './update-dsl-modal'
-import DSLExportConfirmModal from './dsl-export-confirm-modal'
+} from '@/app/components/workflow/hooks'
+import CustomNode from '@/app/components/workflow/nodes'
+import CustomNoteNode from '@/app/components/workflow/note-node'
+import { CUSTOM_NOTE_NODE } from '@/app/components/workflow/note-node/constants'
+import Operator from '@/app/components/workflow/operator'
+import CustomEdge from '@/app/components/workflow/custom-edge'
+import CustomConnectionLine from '@/app/components/workflow/custom-connection-line'
+import Panel from '@/app/components/workflow/panel'
+import Features from '@/app/components/workflow/features'
+import HelpLine from '@/app/components/workflow/help-line'
+import CandidateNode from '@/app/components/workflow/candidate-node'
+import PanelContextmenu from '@/app/components/workflow/panel-contextmenu'
+import NodeContextmenu from '@/app/components/workflow/node-contextmenu'
+import SyncingDataModal from '@/app/components/workflow/syncing-data-modal'
+import UpdateDSLModal from '@/app/components/workflow/update-dsl-modal'
+import DSLExportConfirmModal from '@/app/components/workflow/dsl-export-confirm-modal'
 import {
   useStore,
   useWorkflowStore,
-} from './store'
+} from '@/app/components/workflow/store'
 import {
   getKeyboardKeyCodeBySystem,
   initialEdges,
   initialNodes,
   isEventTargetInputArea,
-} from './utils'
+} from '@/app/components/workflow/utils'
 import {
   CUSTOM_NODE,
   DSL_EXPORT_CHECK,
   ITERATION_CHILDREN_Z_INDEX,
   WORKFLOW_DATA_UPDATE,
-} from './constants'
-import { WorkflowHistoryProvider, useWorkflowHistoryStore } from './workflow-history-store'
+} from '@/app/components/workflow/constants'
+import { WorkflowHistoryProvider, useWorkflowHistoryStore } from '@/app/components/workflow/workflow-history-store'
 import Loading from '@/app/components/base/loading'
 import { FeaturesProvider } from '@/app/components/base/features'
 import type { Features as FeaturesData } from '@/app/components/base/features/types'
@@ -92,6 +96,9 @@ import { useEventEmitterContextContext } from '@/context/event-emitter'
 import Confirm from '@/app/components/base/confirm/common'
 import { TransferMethod } from '@/types/app'
 import { fetchFileUploadConfig } from '@/service/common'
+import { useStore as useAppStore } from '@/app/components/app/store'
+import { hasEditPermission } from '@/app/components/workflow/hooks/use-workflow'
+import { getUserInfo } from '@/utils/getQueryParams'
 
 const nodeTypes = {
   [CUSTOM_NODE]: CustomNode,
@@ -100,12 +107,12 @@ const nodeTypes = {
 const edgeTypes = {
   [CUSTOM_NODE]: CustomEdge,
 }
-
 type WorkflowProps = {
   nodes: Node[]
   edges: Edge[]
   viewport?: Viewport
 }
+
 const Workflow: FC<WorkflowProps> = memo(({
   nodes: originalNodes,
   edges: originalEdges,
@@ -122,6 +129,35 @@ const Workflow: FC<WorkflowProps> = memo(({
   const nodeAnimation = useStore(s => s.nodeAnimation)
   const showConfirm = useStore(s => s.showConfirm)
   const showImportDSLModal = useStore(s => s.showImportDSLModal)
+  const draftUpdatedAt = useStore(state => state.draftUpdatedAt)
+  const publishedAt = useStore(state => state.publishedAt)
+  const role = useStore(state => state.role)
+  const appDetail = useAppStore(state => state.appDetail)
+  const { ucid } = getUserInfo()
+  const targetorigin = window.location.hostname === 'example.com' ? 'https://example.com' : '*'
+  const store = useStoreApi()
+  const {
+    handleNodesCancelSelected,
+  } = useNodesInteractions()
+  const {
+    handleCancelDebugAndPreviewPanel,
+  } = useWorkflowInteractions()
+  useEffect(() => {
+    if (!draftUpdatedAt)
+      return
+    window.parent.postMessage({
+      type: PostMessageType.updateTime,
+      payload: draftUpdatedAt,
+    }, targetorigin)
+  }, [draftUpdatedAt, targetorigin])
+
+  useEffect(() => {
+    if (!publishedAt)
+      return
+    window.parent.postMessage({
+      type: PostMessageType.published,
+    }, targetorigin)
+  }, [publishedAt, targetorigin])
 
   const {
     setShowConfirm,
@@ -181,12 +217,49 @@ const Workflow: FC<WorkflowProps> = memo(({
   }, [])
 
   const { handleRefreshWorkflowDraft } = useWorkflowUpdate()
+
+  const handleSetGraphState = useCallback((workflow: HistoryWorkflowVersion) => {
+    const { setEdges, setNodes } = store.getState()
+    workflowStore.setState({ historyWorkflowVersion: workflow })
+    if (!workflow)
+      return
+    setEdges(workflow.graph.edges)
+    setNodes(workflow.graph.nodes)
+  }, [store, workflowStore])
+  const receiveMessage = (event: MessageEvent) => {
+    const { type, payload } = event.data || {}
+    if (type === ReceiveMessageType.rollback)
+      handleRefreshWorkflowDraft()
+
+    if (type === ReceiveMessageType.viewHistory) {
+      handleNodesCancelSelected()
+      handleCancelDebugAndPreviewPanel()
+      workflowStore.setState({ isVersionHistory: payload?.viewHistoryVersion })
+      handleSetGraphState(payload?.historyData)
+
+      if (!payload?.viewHistoryVersion)
+        handleRefreshWorkflowDraft()
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('message', receiveMessage)
+
+    return () => {
+      window.removeEventListener('message', receiveMessage)
+    }
+  }, [])
+
   const handleSyncWorkflowDraftWhenPageClose = useCallback(() => {
-    if (document.visibilityState === 'hidden')
+    if (document.visibilityState === 'hidden') {
       syncWorkflowDraftWhenPageClose()
-    else if (document.visibilityState === 'visible')
+    }
+    else if (document.visibilityState === 'visible') {
+      if (nodesReadOnly)
+        return
       setTimeout(() => handleRefreshWorkflowDraft(), 500)
-  }, [syncWorkflowDraftWhenPageClose, handleRefreshWorkflowDraft])
+    }
+  }, [syncWorkflowDraftWhenPageClose, handleRefreshWorkflowDraft, nodesReadOnly])
 
   useEffect(() => {
     document.addEventListener('visibilitychange', handleSyncWorkflowDraftWhenPageClose)
@@ -295,7 +368,6 @@ const Workflow: FC<WorkflowProps> = memo(({
     { exactMatch: true, useCapture: true },
   )
 
-  const store = useStoreApi()
   if (process.env.NODE_ENV === 'development') {
     store.getState().onError = (code, message) => {
       if (code === '002')
@@ -316,7 +388,7 @@ const Workflow: FC<WorkflowProps> = memo(({
     >
       <SyncingDataModal />
       <CandidateNode />
-      <Header/>
+      {hasEditPermission(ucid, appDetail, role) && <Header />}
       <Panel />
       <Operator handleRedo={handleHistoryForward} handleUndo={handleHistoryBack} />
       {
@@ -386,7 +458,7 @@ const Workflow: FC<WorkflowProps> = memo(({
         nodesConnectable={!nodesReadOnly}
         nodesFocusable={!nodesReadOnly}
         edgesFocusable={!nodesReadOnly}
-        panOnDrag={controlMode === 'hand' || workflowReadOnly }
+        panOnDrag={controlMode === 'hand' || workflowReadOnly}
         zoomOnPinch={true}
         zoomOnScroll={true}
         zoomOnDoubleClick={true}

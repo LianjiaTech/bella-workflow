@@ -1,13 +1,13 @@
 <div align="center">
 
-# Bella Workflow
+# Bella-Workflow
 
 <h3>专业的大模型工作流引擎，让 AI 应用开发更简单</h3>
 
-[![Static Badge](https://img.shields.io/badge/Docs-Bella%20Home-green?style=for-the-badge)](https://doc.bella.top/)
-[![License](https://img.shields.io/badge/License-Dify%20License-blue?style=for-the-badge)](./LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/LianjiaTech/bella-workflow?style=for-the-badge)](https://github.com/LianjiaTech/bella-workflow/stargazers)
-[![GitHub issues](https://img.shields.io/github/issues/LianjiaTech/bella-workflow?style=for-the-badge)](https://github.com/LianjiaTech/bella-workflow/issues)
+[![Static Badge](https://img.shields.io/badge/Docs-Bella%20Home-green?style=flat)](https://doc.bella.top/)
+[![License](https://img.shields.io/badge/License-Bella--Workflow%20License-blue?style=flat)](./LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/LianjiaTech/bella-workflow?style=flat)](https://github.com/LianjiaTech/bella-workflow/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/LianjiaTech/bella-workflow?style=flat)](https://github.com/LianjiaTech/bella-workflow/issues)
 
 </div>
 
@@ -19,22 +19,30 @@
 
 ## 🔥 项目简介
 
-**Bella Workflow** 是一个企业级工作流开发平台，基于 **Dify** 二次开发而成。我们秉承 "工作流即服务"（Workflow as a
-Service）的理念，重新设计了核心架构，专注于提供企业级的工作流能力。
+**Bella-Workflow** 是 **贝壳找房** 内部最为核心的LLM应用开发平台，致力于为开发者提供**更灵活、高效、强大**的AI应用构建能力。
 
-Bella Workflow 精简了 Dify 中的非核心功能（如 Agent、文本生成应用等高层封装），同时大幅增强了工作流引擎的核心能力，为企业级
-AI 应用开发提供更稳定、更强大、更灵活的解决方案。
+基于"后台即服务"（Backend as a Service）理念，我们自主研发了一套性能强大的工作流执行引擎。同时，我们持续扩展能力边界，力求将传统后端服务从开发、测试、部署、运维的全生命周期管理能力进行深度整合，打造真正意义上的AI应用一站式服务平台。
+
+为了加速整个项目的落地，我们复用了 Dify 的优秀前端模块，这不仅缩短了项目开发周期，也极大地提升了用户体验，在此，我们对 Dify 项目组表示诚挚的感谢。
 
 ## ✨ 核心优势
 
 <table>
   <tr>
-    <th width="200">功能模块</th>
-    <th>企业级特性</th>
+    <th width="200">能力</th>
+    <th>介绍</th>
+  </tr>
+  <tr>
+    <td><b>☕ Java友好</b></td>
+    <td>后端完全基于Java技术栈构建，方便快速基于Java活跃的生态融合，充分利用已有技术积累</td>
+  </tr>
+  <tr>
+    <td><b>💪 企业级可靠性</b></td>
+    <td>在贝壳找房内部经过大规模生产环境验证，支持高并发、高可用的企业级应用场景</td>
   </tr>
   <tr>
     <td><b>🔎 数据集成</b></td>
-    <td>无编码直连 MySQL、Redis、PostgreSQL、Kafka 等企业数据源，轻松构建数据驱动型 AI 应用</td>
+    <td>零编码直连 MySQL、Redis、PostgreSQL、Kafka 等企业数据源，轻松构建数据驱动型 AI 应用</td>
   </tr>
   <tr>
     <td><b>🔔 智能触发器</b></td>
@@ -68,9 +76,13 @@ AI 应用开发提供更稳定、更强大、更灵活的解决方案。
     <td><b>📝 灵活配置</b></td>
     <td>支持开始节点定义 JSON 类型字段，实现复杂数据结构的传递和处理</td>
   </tr>
+  <tr>
+    <td><b>......</b></td>
+    <td>......</td>
+  </tr>
 </table>
 
-> 注：Bella Workflow 中的工具、知识库模块目前尚未开源，敬请期待后续版本。
+> 注：Bella-Workflow 中的工具、知识库模块目前尚未开源，敬请期待后续版本。
 
 ## 📍 快速开始
 
@@ -86,7 +98,7 @@ AI 应用开发提供更稳定、更强大、更灵活的解决方案。
   <tr>
     <td><b>💻 自部署版</b></td>
     <td>
-      在您自己的基础设施上部署 Bella Workflow，完全控制数据和环境。<br/>
+      在您自己的基础设施上部署 Bella-Workflow，完全控制数据和环境。<br/>
       详细步骤请参考我们的<a href="https://doc.bella.top/deployment">部署文档</a>。
     </td>
   </tr>
@@ -105,34 +117,34 @@ docker-compose --env-file .example.env -f docker-compose.yaml up
 
 更详细部署指南，请参考 [部署指南](./docker/README.md) 。
 
-## 🔐 商业使用须知
-
-Bella Workflow 采用开源协议，可用于商业目的，但请注意以下限制：
-
-<table>
-  <tr>
-    <td width="200"><b>📷 品牌保护</b></td>
-    <td>
-      使用前端时，不得移除或修改 Dify 控制台或应用程序中的 LOGO 或版权信息。
-    </td>
-  </tr>
-  <tr>
-    <td><b>🌟 多租户服务</b></td>
-    <td>
-      如需将 Bella-Workflow 用于多租户服务，确保遵循 Dify License。
-    </td>
-  </tr>
-</table>
-
 ## 👨‍💻 贡献指南
 
 我们热心欢迎社区贡献！贡献者需要同意项目维护者可根据需要调整开源协议，以及贡献代码可能被用于商业目的。
 
 详细的贡献指南请参考 [贡献指南](./CONTRIBUTING.md) 。
 
+## 🔐 商业使用须知
+
+Bella-Workflow 采用双重许可协议，具体使用限制如下：
+
+<table>
+  <tr>
+    <td width="200"><b>📷 前端限制</b></td>
+    <td>
+      前端部分遵循 Dify 许可协议，使用时不得移除或修改 Dify 控制台或应用程序中的 LOGO 或版权信息。如需将前端用于多租户服务，请确保遵循 Dify 许可协议的相关条款。
+    </td>
+  </tr>
+  <tr>
+    <td><b>🌟 后端自由使用</b></td>
+    <td>
+      后端及其他部分采用 MIT 许可协议，允许自由使用、修改和分发，包括商业用途，只要保留原始版权声明和许可证文本。
+    </td>
+  </tr>
+</table>
+
 ## 📃 许可协议
 
-Bella Workflow 遵循 Dify 项目的修改版 Apache License 2.0 协议。详细条款请参阅 [LICENSE](./LICENSE) 文件。
+Bella-Workflow 采用双重许可协议模式，分别针对前端和其他部分使用不同的许可协议。详细条款请参阅 [LICENSE](./LICENSE) 文件。
 
 ---
 

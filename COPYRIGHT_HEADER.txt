@@ -1,7 +1,0 @@
-/**
- * Copyright (c) 2025 Bella
- * A derivative work based on the Dify project (© LangGenius, Inc.)
- * 
- * This file is subject to the modified Apache License 2.0 of the Dify project
- * For details, please refer to the LICENSE file in the project root directory
- */

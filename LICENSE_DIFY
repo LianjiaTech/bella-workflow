@@ -1,0 +1,21 @@
+# Dify Frontend License
+
+This file contains the license terms for the frontend components of Bella-Workflow, which are derived from the Dify project.
+
+## Frontend License Terms
+
+The frontend components of Bella-Workflow (located in the `web/` directory) are subject to the Dify project's license terms regarding frontend usage:
+
+1. LOGO and copyright information: In the process of using Dify's frontend, you may not remove or modify the LOGO or copyright information in the Dify console or applications.
+
+2. Frontend Definition: For the purposes of this license, the "frontend" of Dify includes all components located in the `web/` directory when running Dify from the raw source code, or the "web" image when running Dify with Docker.
+
+3. Multi-tenant service: Unless explicitly authorized by Dify in writing, you may not use the Dify source code to operate a multi-tenant environment.
+   - Tenant Definition: Within the context of Dify, one tenant corresponds to one workspace. The workspace provides a separated area for each tenant's data and configurations.
+
+## Important Notice
+
+For the most up-to-date license terms regarding the web/ module, please refer to the official Dify project repository on GitHub:
+https://github.com/langgenius/dify
+
+© 2025 LangGenius, Inc.

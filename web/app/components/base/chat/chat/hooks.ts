@@ -31,6 +31,11 @@ type SendCallback = {
   isPublicAPI?: boolean
 }
 
+type ChatItemT = ChatItem & {
+  _isTemporary?: boolean
+  onlyShowWorkflowProgress?: boolean // 标记这个项只用于显示工作流进度
+}
+
 export const useCheckPromptVariables = () => {
   const { t } = useTranslation()
   const { notify } = useToastContext()
@@ -96,6 +101,12 @@ export const useChat = (
   const params = useParams()
   const pathname = usePathname()
   const responseMapRef = useRef<Map<string, ChatItem>>(new Map())
+  // 定义变量用于跟踪是否接收到数据
+  const hasReceivedDataRef = useRef(false)
+  // 定义变量用于跟踪临时响应ID
+  const tempResponseIdRef = useRef('')
+  // 定义变量用于跟踪是否在迭代中
+  const isInIteration = false
   useEffect(() => {
     setAutoFreeze(false)
     return () => {
@@ -107,9 +118,20 @@ export const useChat = (
     setChatList(newChatList)
     chatListRef.current = newChatList
   }, [])
+
+  // 添加一个函数来移除临时项并更新列表
+  const getFilteredChatList = useCallback(() => {
+    return chatListRef.current.filter(item => !(item as ChatItemT)?._isTemporary)
+  }, [])
   const handleResponding = useCallback((isResponding: boolean) => {
     setIsResponding(isResponding)
     isRespondingRef.current = isResponding
+
+    // 重置数据接收状态
+    if (isResponding) {
+      hasReceivedDataRef.current = false
+      tempResponseIdRef.current = ''
+    }
   }, [])
 
   const getIntroduction = useCallback((str: string) => {
@@ -282,6 +304,8 @@ export const useChat = (
       {
         isPublicAPI,
         onData: (message: string, isFirstMessage: boolean, { conversationId: newConversationId, messageId, taskId }: any) => {
+          // 标记已接收到真实数据
+          hasReceivedDataRef.current = true
           if (messageId && messageId !== responseItem.id) {
             // 检查是否已经存在此消息的响应项
             const existingItem = responseMapRef.current.get(messageId)
@@ -522,59 +546,157 @@ export const useChat = (
           handleUpdateChatList(newChatList)
         },
         onWorkflowStarted: ({ workflow_run_id, task_id }: any, messageId?: string) => {
-          if (!messageId)
-            return
-
-          const currentResponseItem = responseMapRef.current.get(messageId)
-          if (!currentResponseItem)
-            return
-
           taskIdRef.current = task_id
-          currentResponseItem.workflow_run_id = workflow_run_id
-          currentResponseItem.workflowProcess = {
-            status: WorkflowRunningStatus.Running,
-            tracing: [],
-          }
-          handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
-            if (currentIndex !== -1) {
-              draft[currentIndex] = {
-                ...draft[currentIndex],
-                ...currentResponseItem,
-              }
+
+          // 检查是否已经有消息响应
+          const hasMessages = responseMapRef.current.size > 0
+
+          if (!hasMessages) {
+            // 如果没有消息响应，创建一个临时的工作流进度项
+            const workflowProgressItem: ChatItemT = {
+              id: `workflow-progress-temp-${Date.now()}`,
+              content: '',
+              agent_thoughts: [],
+              message_files: [],
+              isAnswer: true,
+              _isTemporary: true, // 这是一个临时项
+              workflowProcess: {
+                status: WorkflowRunningStatus.Running,
+                tracing: [],
+              },
+              workflow_run_id,
+              onlyShowWorkflowProgress: true,
             }
-          }))
+
+            // 添加临时项到聊天列表
+            handleUpdateChatList([...getFilteredChatList(), workflowProgressItem as ChatItem])
+            return
+          }
+
+          // 如果提供了特定的消息ID
+          if (messageId) {
+            const currentResponseItem = responseMapRef.current.get(messageId)
+            if (!currentResponseItem)
+              return
+
+            // 为此消息创建工作流进程
+            currentResponseItem.workflowProcess = {
+              status: WorkflowRunningStatus.Running,
+              tracing: [],
+            }
+            currentResponseItem.workflow_run_id = workflow_run_id
+
+            // 更新聊天列表
+            handleUpdateChatList(produce(chatListRef.current, (draft) => {
+              const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+              if (currentIndex !== -1) {
+                draft[currentIndex] = {
+                  ...draft[currentIndex],
+                  ...currentResponseItem,
+                }
+              }
+            }))
+          }
+          else {
+            // 如果没有提供特定消息ID，更新所有消息的工作流状态
+            handleUpdateChatList(produce(getFilteredChatList(), (draft) => {
+              responseMapRef.current.forEach((item) => {
+                // 为每个消息创建工作流进程
+                item.workflowProcess = {
+                  status: WorkflowRunningStatus.Running,
+                  tracing: [],
+                }
+                item.workflow_run_id = workflow_run_id
+
+                const currentIndex = draft.findIndex(draftItem => draftItem.id === item.id)
+                if (currentIndex >= 0) {
+                  draft[currentIndex] = {
+                    ...draft[currentIndex],
+                    workflowProcess: item.workflowProcess,
+                    workflow_run_id,
+                  }
+                }
+              })
+            }))
+          }
         },
         onWorkflowFinished: ({ data }: any, messageId?: string) => {
-          if (!messageId)
-            return
+          // 检查是否有任何消息响应
+          const hasMessages = responseMapRef.current.size > 0
 
-          const currentResponseItem = responseMapRef.current.get(messageId)
-          if (!currentResponseItem || !currentResponseItem.workflowProcess)
-            return
-
-          currentResponseItem.workflowProcess.status = data.status as WorkflowRunningStatus
-          handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
-            if (currentIndex !== -1) {
-              draft[currentIndex] = {
-                ...draft[currentIndex],
-                ...currentResponseItem,
-              }
+          if (!hasMessages) {
+            // 如果没有任何消息响应，创建一个只包含WorkflowProgress的ChatItem
+            const workflowProgressItem: ChatItemT = {
+              id: `workflow-progress-${Date.now()}`,
+              content: '', // 可以为空，因为我们只关心WorkflowProgress
+              agent_thoughts: [],
+              message_files: [],
+              isAnswer: true,
+              _isTemporary: false, // 这不是临时项，因为它是最终结果
+              workflowProcess: {
+                status: data.status as WorkflowRunningStatus,
+                tracing: [],
+              },
+              workflow_run_id: data.workflow_id,
+              onlyShowWorkflowProgress: true, // 标记这个项只用于显示工作流进度
             }
-          }))
+
+            // 移除任何临时项并添加工作流进度项
+            handleUpdateChatList([...getFilteredChatList(), workflowProgressItem as ChatItem])
+            return
+          }
+
+          // 如果提供了特定的消息ID
+          if (messageId) {
+            const currentResponseItem = responseMapRef.current.get(messageId)
+            if (!currentResponseItem || !currentResponseItem.workflowProcess)
+              return
+
+            // 更新工作流状态
+            currentResponseItem.workflowProcess.status = data.status as WorkflowRunningStatus
+
+            // 更新聊天列表
+            handleUpdateChatList(produce(chatListRef.current, (draft) => {
+              const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+              if (currentIndex !== -1) {
+                draft[currentIndex] = {
+                  ...draft[currentIndex],
+                  ...currentResponseItem,
+                }
+              }
+            }))
+          }
+          else {
+            // 如果没有提供特定消息ID，更新所有消息的工作流状态
+            handleUpdateChatList(produce(getFilteredChatList(), (draft) => {
+              responseMapRef.current.forEach((item) => {
+                if (item.workflowProcess) {
+                  item.workflowProcess.status = data.status as WorkflowRunningStatus
+
+                  const currentIndex = draft.findIndex(draftItem => draftItem.id === item.id)
+                  if (currentIndex >= 0) {
+                    draft[currentIndex] = {
+                      ...draft[currentIndex],
+                      workflowProcess: item.workflowProcess,
+                    }
+                  }
+                }
+              })
+            }))
+          }
         },
         onIterationStart: ({ data }: any, messageId?: string) => {
           if (!messageId)
             return
 
           const currentResponseItem = responseMapRef.current.get(messageId)
-          if (!currentResponseItem || !currentResponseItem.workflowProcess)
+          if (!currentResponseItem || !currentResponseItem.workflowProcess || !currentResponseItem.workflowProcess.tracing)
             return
 
-          currentResponseItem.workflowProcess.tracing!.push({
+          currentResponseItem.workflowProcess.tracing.push({
             ...data,
             status: WorkflowRunningStatus.Running,
+            details: [],
           } as any)
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
             const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
@@ -592,16 +714,21 @@ export const useChat = (
             return
 
           const currentResponseItem = responseMapRef.current.get(messageId)
-          if (!currentResponseItem || !currentResponseItem.workflowProcess)
+          if (!currentResponseItem || !currentResponseItem.workflowProcess || !currentResponseItem.workflowProcess.tracing || currentResponseItem.workflowProcess.tracing.length === 0)
             return
 
-          const tracing = currentResponseItem.workflowProcess.tracing!
+          // 获取跟踪数组和迭代项
+          const tracing = currentResponseItem.workflowProcess.tracing
+          const iterations = tracing[tracing.length - 1]
+
+          // 更新迭代状态
           tracing[tracing.length - 1] = {
-            ...tracing[tracing.length - 1],
+            ...iterations,
             ...data,
             status: WorkflowRunningStatus.Succeeded,
           } as any
 
+          // 更新聊天列表
           handleUpdateChatList(produce(chatListRef.current, (draft) => {
             const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
             if (currentIndex !== -1) {
@@ -611,55 +738,141 @@ export const useChat = (
               }
             }
           }))
+
+          // 重置迭代状态
           isInIteration = false
+        },
+        onIterationNext: (data: any, messageId?: string) => {
+          if (!messageId)
+            return
+
+          const currentResponseItem = responseMapRef.current.get(messageId)
+          if (!currentResponseItem || !currentResponseItem.workflowProcess || !currentResponseItem.workflowProcess.tracing || currentResponseItem.workflowProcess.tracing.length === 0)
+            return
+
+          const tracing = currentResponseItem.workflowProcess.tracing
+          const iterations = tracing[tracing.length - 1]
+
+          if (iterations.details) {
+            iterations.details.push([])
+
+            // 更新聊天列表
+            handleUpdateChatList(produce(chatListRef.current, (draft) => {
+              const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+              if (currentIndex !== -1) {
+                draft[currentIndex] = {
+                  ...draft[currentIndex],
+                  ...currentResponseItem,
+                }
+              }
+            }))
+          }
         },
         onNodeStarted: ({ data }: any, messageId?: string) => {
           if (!messageId)
             return
 
           const currentResponseItem = responseMapRef.current.get(messageId)
-          if (!currentResponseItem || !currentResponseItem.workflowProcess)
+          if (!currentResponseItem || !currentResponseItem.workflowProcess || !currentResponseItem.workflowProcess.tracing)
             return
 
-          if (isInIteration)
-            return
+          if (isInIteration) {
+            const tracing = currentResponseItem.workflowProcess.tracing
+            if (tracing.length > 0) {
+              const iterations = tracing[tracing.length - 1]
+              if (iterations.details && iterations.details.length > 0) {
+                const currIteration = iterations.details[iterations.details.length - 1]
+                currIteration.push({
+                  ...data,
+                  status: WorkflowRunningStatus.Running,
+                } as any)
 
-          currentResponseItem.workflowProcess.tracing!.push({
-            ...data,
-            status: WorkflowRunningStatus.Running,
-          } as any)
-          handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
-            if (currentIndex !== -1) {
-              draft[currentIndex] = {
-                ...draft[currentIndex],
-                ...currentResponseItem,
+                handleUpdateChatList(produce(chatListRef.current, (draft) => {
+                  const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+                  if (currentIndex !== -1) {
+                    draft[currentIndex] = {
+                      ...draft[currentIndex],
+                      ...currentResponseItem,
+                    }
+                  }
+                }))
               }
             }
-          }))
+          }
+          else {
+            currentResponseItem.workflowProcess.tracing.push({
+              ...data,
+              status: WorkflowRunningStatus.Running,
+            } as any)
+
+            handleUpdateChatList(produce(chatListRef.current, (draft) => {
+              const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+              if (currentIndex !== -1) {
+                draft[currentIndex] = {
+                  ...draft[currentIndex],
+                  ...currentResponseItem,
+                }
+              }
+            }))
+          }
         },
         onNodeFinished: ({ data }: any, messageId?: string) => {
           if (!messageId)
             return
 
           const currentResponseItem = responseMapRef.current.get(messageId)
-          if (!currentResponseItem || !currentResponseItem.workflowProcess)
+          if (!currentResponseItem || !currentResponseItem.workflowProcess || !currentResponseItem.workflowProcess.tracing)
             return
 
-          if (isInIteration)
-            return
+          if (isInIteration) {
+            const tracing = currentResponseItem.workflowProcess.tracing
+            if (tracing.length > 0) {
+              const iterations = tracing[tracing.length - 1]
+              if (iterations.details && iterations.details.length > 0) {
+                const currIteration = iterations.details[iterations.details.length - 1]
+                if (currIteration.length > 0) {
+                  currIteration[currIteration.length - 1] = {
+                    ...data,
+                    status: WorkflowRunningStatus.Succeeded,
+                  } as any
 
-          const currentIndex = currentResponseItem.workflowProcess.tracing!.findIndex(item => item.node_id === data.node_id)
-          currentResponseItem.workflowProcess.tracing[currentIndex] = data as any
-          handleUpdateChatList(produce(chatListRef.current, (draft) => {
-            const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
-            if (currentIndex !== -1) {
-              draft[currentIndex] = {
-                ...draft[currentIndex],
-                ...currentResponseItem,
+                  handleUpdateChatList(produce(chatListRef.current, (draft) => {
+                    const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+                    if (currentIndex !== -1) {
+                      draft[currentIndex] = {
+                        ...draft[currentIndex],
+                        ...currentResponseItem,
+                      }
+                    }
+                  }))
+                }
               }
             }
-          }))
+          }
+          else {
+            const currentIndex = currentResponseItem.workflowProcess.tracing.findIndex(item => item.node_id === data.node_id)
+            if (currentIndex >= 0) {
+              const extras = currentResponseItem.workflowProcess.tracing[currentIndex].extras
+                ? { extras: currentResponseItem.workflowProcess.tracing[currentIndex].extras }
+                : {}
+
+              currentResponseItem.workflowProcess.tracing[currentIndex] = {
+                ...extras,
+                ...data,
+                status: WorkflowRunningStatus.Succeeded,
+              } as any
+
+              handleUpdateChatList(produce(chatListRef.current, (draft) => {
+                const currentIndex = draft.findIndex(item => item.id === currentResponseItem.id)
+                if (currentIndex !== -1) {
+                  draft[currentIndex] = {
+                    ...draft[currentIndex],
+                    ...currentResponseItem,
+                  }
+                }
+              }))
+            }
+          }
         },
         onTTSChunk: (messageId: string, audio: string) => {
           if (!audio || audio === '')

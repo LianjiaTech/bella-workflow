@@ -30,7 +30,7 @@ const Container = () => {
 
   const options = useMemo(() => {
     return [
-      { value: 'dataset', text: t('datasource.file') },
+      // { value: 'dataset', text: t('datasource.file') },
       { value: 'rdb', text: t('datasource.rdb') },
       { value: 'redis', text: t('datasource.redis') },
       { value: 'kafka', text: t('datasource.kafka') },
@@ -39,7 +39,7 @@ const Container = () => {
   }, [t])
 
   const [activeTab, setActiveTab] = useTabSearchParams({
-    defaultTab: 'dataset',
+    defaultTab: 'rdb',
   })
   const containerRef = useRef<HTMLDivElement>(null)
 

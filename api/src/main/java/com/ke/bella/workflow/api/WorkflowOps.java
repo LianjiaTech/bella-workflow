@@ -23,7 +23,8 @@ public class WorkflowOps {
     public enum ResponseMode {
         streaming,
         blocking,
-        callback;
+        callback,
+        batch
     }
 
     public enum TriggerFrom {

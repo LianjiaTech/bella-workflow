@@ -1,8 +1,10 @@
 package com.ke.bella.workflow.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class Configs {
     public static String SERVICE_NAME = "workflow";
@@ -20,6 +22,8 @@ public class Configs {
     public static String BELLA_TOOL_API_BASE;
 
     public static String DATASET_API_BASE;
+
+    public static String JOB_QUEUE_BASE;
 
     public static String SAND_BOX_API_BASE;
 
@@ -74,6 +78,11 @@ public class Configs {
     @Value("${bella.datasetApiBase}")
     public void setDatasetApiBase(String datasetApiBase) {
         DATASET_API_BASE = datasetApiBase;
+    }
+
+    @Value("${bella.job-queue.url}")
+    public void setJobQueueBase(String jobQueueBase) {
+        JOB_QUEUE_BASE = jobQueueBase;
     }
 
     @Value("${bella.workflow.sandbox.groovy}")

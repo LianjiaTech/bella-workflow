@@ -1,12 +1,15 @@
 package com.ke.bella.workflow.node;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import com.google.common.collect.Maps;
+import com.ke.bella.job.queue.JobQueueClient;
+import com.ke.bella.job.queue.api.entity.param.TaskParam;
+import com.ke.bella.workflow.api.WorkflowOps;
+import com.ke.bella.workflow.service.Configs;
+import com.theokanning.openai.completion.chat.*;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 
@@ -25,13 +28,6 @@ import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
-import com.theokanning.openai.completion.chat.AssistantMessage;
-import com.theokanning.openai.completion.chat.ChatCompletionChunk;
-import com.theokanning.openai.completion.chat.ChatCompletionRequest;
-import com.theokanning.openai.completion.chat.ChatMessage;
-import com.theokanning.openai.completion.chat.StreamOption;
-import com.theokanning.openai.completion.chat.SystemMessage;
-import com.theokanning.openai.completion.chat.UserMessage;
 import com.theokanning.openai.service.OpenAiService;
 
 import io.reactivex.Flowable;
@@ -41,6 +37,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Slf4j
 public class LlmNode extends BaseNode<LlmNode.Data> {
 
     private long ttftStart;
@@ -63,18 +60,21 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
 
             // fill process data
             processData = fillProcessData(chatMessages);
-
+            // if trigger from batch, then push to job-queue
+            String triggerFrom = context.getTriggerFrom();
+            if(WorkflowOps.TriggerFrom.BATCH.name().equalsIgnoreCase(triggerFrom)) {
+                data.setWaitCallback(true);
+                return invokeLlmAsync(chatMessages, nodeInputs);
+            }
             // invoke llm
             Flowable<ChatCompletionChunk> llmResult = invokeLlm(chatMessages);
             AssistantMessage message = handleInvokeResult(context, llmResult, callback);
-
             ProcessMetaData metadata = ProcessMetaData.builder()
                     .ttlt((System.nanoTime() - ttftStart) / 1000000L)
                     .ttft((this.ttftEnd - ttftStart) / 1000000L)
                     .tokens(tokens)
                     .build();
             processData.put("meta_data", metadata);
-
             // fill outputs
             HashMap<String, Object> outputs = fillOutputs(message);
             outputs.put("usage", usage);
@@ -92,6 +92,32 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
                     .error(e)
                     .processData(processData).build();
         }
+    }
+
+    @Override
+    protected NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback, Map notifyData) {
+        NodeRunResult r = context.getState().getNodeState(getNodeId());
+        ChatCompletionResult completionResult = JsonUtils.convertValue(notifyData,
+                new TypeReference<ChatCompletionResult>() {
+                });
+        AssistantMessage message = new AssistantMessage();
+        if(completionResult.getChoices() != null && !completionResult.getChoices().isEmpty()) {
+            message = completionResult.getChoices().get(0).getMessage();
+            if(message != null) {
+                message.setContent(message.getContent());
+                message.setReasoningContent(message.getReasoningContent());
+            }
+        }
+        Map<String, Object> outputs = null;
+        if(message != null) {
+            outputs = fillOutputs(message);
+        }
+        return NodeRunResult.builder()
+                .inputs(r.getInputs())
+                .processData(r.getProcessData())
+                .outputs(outputs)
+                .status(NodeRunResult.Status.succeeded)
+                .build();
     }
 
     @NotNull
@@ -188,6 +214,30 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
         this.ttftStart = System.nanoTime();
         return service.streamChatCompletion(chatCompletionRequest);
     }
+
+    private NodeRunResult invokeLlmAsync(List<ChatMessage> chatMessages, Map<String, Object> nodeInputs) {
+        ChatCompletionRequest chatRequest = data.getModel().getTemplateCompletionParams();
+        chatRequest.setMessages(chatMessages);
+        chatRequest.setStreamOptions(StreamOption.INCLUDE);
+        chatRequest.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
+
+        String queueName = chatRequest.getModel() + ":offline";
+        String endpoint = "/v1/chat/completions";
+        JobQueueClient jobQueueClient = JobQueueClient.getInstance(Configs.JOB_QUEUE_BASE, endpoint, queueName);
+        jobQueueClient.put(TaskParam.TaskPutParam.builder()
+                .endpoint(endpoint)
+                .model(queueName)
+                .data(chatRequest)
+                .callbackUrl(getCallbackUrl())
+                .build(), data.getAuthorization().getToken());
+
+        return NodeRunResult.builder()
+                .status(NodeRunResult.Status.waiting)
+                .inputs(nodeInputs)
+                .outputs(Maps.newHashMap())
+                .build();
+    }
+
 
     @SuppressWarnings("rawtypes")
     private Map<String, Object> fetchJinjaInputs(Data data, Map variablePool) {

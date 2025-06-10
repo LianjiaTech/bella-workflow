@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -81,7 +82,7 @@ public class KafkaEventConsumers {
             } else {
                 if(ds.getStatus().intValue() == 0) {
                     try {
-                        addConsumer(ds.getServer(), ds.getTopic(), ds.getAutoOffsetReset(), ds.getPropsConfig());
+                        addConsumer(ds.getServer(), ds.getTopic(), ds.getAutoOffsetReset(), ds.getPropsConfig(), ds.getGroupId());
 
                         Set<String> dsIdSet = new HashSet<>();
                         dsIdSet.add(ds.getDatasourceId());
@@ -110,10 +111,13 @@ public class KafkaEventConsumers {
         }
     }
 
-    void addConsumer(String server, String topic, String autoOffsetReset, String propsConfig) {
+    void addConsumer(String server, String topic, String autoOffsetReset, String propsConfig, String groupId) {
         String key = serverKey(server, topic);
+        if (!StringUtils.hasText(groupId)){
+            groupId = "bella-workflow-" + profile;
+        }
         ConsumerFactory<String, String> consumerFactory = createConsumerFactory(server,
-                "bella-workflow-" + profile, autoOffsetReset, propsConfig);
+            groupId, autoOffsetReset, propsConfig);
 
         ContainerProperties containerProps = new ContainerProperties(topic);
         containerProps.setMessageListener(new EventListener(key));

@@ -19,7 +19,7 @@ import org.jooq.Identity;
 import org.jooq.Index;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row18;
+import org.jooq.Row19;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -91,6 +91,11 @@ host:port
      * The column <code>kafka_datasource.name</code>. 数据源名称
      */
     public final TableField<KafkaDatasourceRecord, String> NAME = createField(DSL.name("name"), SQLDataType.VARCHAR(255).nullable(false), this, "数据源名称");
+
+    /**
+     * The column <code>kafka_datasource.group_id</code>. 消费者组id
+     */
+    public final TableField<KafkaDatasourceRecord, String> GROUP_ID = createField(DSL.name("group_id"), SQLDataType.VARCHAR(255).nullable(false).defaultValue(DSL.inline("", SQLDataType.VARCHAR)), this, "消费者组id");
 
     /**
      * The column <code>kafka_datasource.msg_schema</code>. 消息体的json schema
@@ -229,11 +234,11 @@ host:port
     }
 
     // -------------------------------------------------------------------------
-    // Row18 type methods
+    // Row19 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row18<Long, String, String, String, String, String, String, String, String, String, String, Integer, Long, Long, LocalDateTime, LocalDateTime, String, String> fieldsRow() {
-        return (Row18) super.fieldsRow();
+    public Row19<Long, String, String, String, String, String, String, String, String, String, String, String, Integer, Long, Long, LocalDateTime, LocalDateTime, String, String> fieldsRow() {
+        return (Row19) super.fieldsRow();
     }
 }

@@ -26,6 +26,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
     private String        server;
     private String        topic;
     private String        name;
+    private String        groupId;
     private String        msgSchema;
     private String        autoOffsetReset;
     private String        propsConfig;
@@ -48,6 +49,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         this.server = value.server;
         this.topic = value.topic;
         this.name = value.name;
+        this.groupId = value.groupId;
         this.msgSchema = value.msgSchema;
         this.autoOffsetReset = value.autoOffsetReset;
         this.propsConfig = value.propsConfig;
@@ -69,6 +71,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         String        server,
         String        topic,
         String        name,
+        String        groupId,
         String        msgSchema,
         String        autoOffsetReset,
         String        propsConfig,
@@ -88,6 +91,7 @@ public class KafkaDatasourceDB implements Operator, Serializable {
         this.server = server;
         this.topic = topic;
         this.name = name;
+        this.groupId = groupId;
         this.msgSchema = msgSchema;
         this.autoOffsetReset = autoOffsetReset;
         this.propsConfig = propsConfig;
@@ -212,6 +216,20 @@ host:port
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Getter for <code>kafka_datasource.group_id</code>. 消费者组id
+     */
+    public String getGroupId() {
+        return this.groupId;
+    }
+
+    /**
+     * Setter for <code>kafka_datasource.group_id</code>. 消费者组id
+     */
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
     }
 
     /**
@@ -370,6 +388,7 @@ host:port
         sb.append(", ").append(server);
         sb.append(", ").append(topic);
         sb.append(", ").append(name);
+        sb.append(", ").append(groupId);
         sb.append(", ").append(msgSchema);
         sb.append(", ").append(autoOffsetReset);
         sb.append(", ").append(propsConfig);

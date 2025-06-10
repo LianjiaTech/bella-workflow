@@ -23,6 +23,8 @@ public class DataSourceOps {
         String server;
         String topic;
         String name;
+        String groupId;
+        String propsConfig;
         String msgSchema;
     }
 

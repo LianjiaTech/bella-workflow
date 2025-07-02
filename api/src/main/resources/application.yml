@@ -72,20 +72,8 @@ bella:
         password: ${ELASTICSEARCH_PASSWORD:}
   login:
     # 本地环境去掉 bella.login.type 即可关闭登录的身份校验
-    type: ${BELLA_LOGIN_TYPE:oauth}
-    login-page-url: ${BELLA_OPENAPI_URL:http://localhost}/login
-  oauth:
-    client-index: ${BELLA_OPENAPI_URL:http://localhost}
-    redirect: ${BELLA_OPENAPI_HOST:http://localhost}
-  providers:
-    google:
-      enabled: true
-      client-id: google_client_id
-      client-secret: google_client_secret
-      auth-uri: https://accounts.google.com/o/oauth2/v2/auth
-      token-uri: https://oauth2.googleapis.com/token
-      user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-      scope: profile email
+    type: ${BELLA_LOGIN_TYPE:client}
+    openapi-base: ${BELLA_OPENAPI_URL:http://localhost}
   session:
     cookie-name: ${BELLA_SESSION_COOKIE_NAME:bella_openapi_sessionId}
     max-inactive-interval: 60

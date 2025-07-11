@@ -11,6 +11,7 @@ services:
   kafka:
     image: docker.io/bitnami/kafka:latest
     container_name: bella-workflow-kafka
+    user: "1001:0"
     ports:
       - '${EXPOSE_KAFKA_PLAINTEXT_PORT:-9092}:9092'
       - '${EXPOSE_KAFKA_CONTROLLER_PORT:-9093}:9093'
@@ -78,7 +79,7 @@ services:
     env_file:
       - .middleware.env
     entrypoint: [ "/bin/bash", "-c" ]
-    command: [ "/usr/local/bin/docker-entrypoint.sh eswrapper & sleep 15 && /scripts/init-elasticsearch.sh" ]
+    command: [ "chown -R elasticsearch:elasticsearch /usr/share/elasticsearch/data && /usr/local/bin/docker-entrypoint.sh eswrapper & sleep 15 && /scripts/init-elasticsearch.sh" ]
     healthcheck:
       test: [ "CMD", "curl", "-s", "-f", "http://localhost:9200/_cluster/health" ]
       interval: 10s
@@ -90,7 +91,7 @@ services:
 
   # Bella Workflow Tasks service
   bella-workflow-tasks:
-    image: jiakaic0213/bella-workflow-tasks:latest
+    image: ${REGISTRY:-bellatop}/bella-workflow-tasks:latest
     container_name: ${WORKFLOW_TASKS_CONTAINER_NAME:-bella-workflow-tasks}
     depends_on:
       kafka:
@@ -205,7 +206,7 @@ services:
 
   # Spring Boot API 服务
   bella-workflow-api:
-    image: bella-workflow-api:latest
+    image: ${REGISTRY:-bellatop}/bella-workflow-api:latest
     build:
       context: ../api
       dockerfile: Dockerfile
@@ -296,7 +297,7 @@ services:
 
   # Web 前端服务
   bella-workflow-web:
-    image: bella-workflow-web:latest
+    image: ${REGISTRY:-bellatop}/bella-workflow-web:latest
     build:
       context: ../web
       dockerfile: Dockerfile
@@ -304,11 +305,37 @@ services:
     ports:
       - "${WEB_PORT:-3000}:3000"
     environment:
-      - NEXT_PUBLIC_API_PREFIX=http://${API_HOST:-localhost}:${API_PORT:-8080}/console/api
-      - NEXT_PUBLIC_PUBLIC_API_PREFIX=http://${API_HOST:-localhost}:${API_PORT:-8080}/api
-      - CONSOLE_API_URL=http://${API_HOST:-localhost}:${API_PORT:-8080}
-      - APP_API_URL=http://${API_HOST:-localhost}:${API_PORT:-8080}
+      - NEXT_PUBLIC_API_PREFIX=${SERVER_PROTOCOL:-http}://${SERVER_DOMAIN:-localhost}/console/api
+      - NEXT_PUBLIC_PUBLIC_API_PREFIX=${SERVER_PROTOCOL:-http}://${SERVER_DOMAIN:-localhost}/api
+      - CONSOLE_API_URL=${SERVER_PROTOCOL:-http}://${SERVER_DOMAIN:-localhost}
+      - APP_API_URL=${SERVER_PROTOCOL:-http}://${SERVER_DOMAIN:-localhost}
       - PORT=3000
       - TZ=${TZ:-UTC}
     networks:
       - bella-workflow-network
+
+  # Nginx 反向代理服务
+  nginx:
+    image: nginx:latest
+    container_name: ${NGINX_CONTAINER_NAME:-bella-workflow-nginx}
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./volumes/nginx/conf.d:/etc/nginx/conf.d
+# 如果需要使用 SSL/TLS 证书，可以取消下面的注释并配置相应的路径
+#      - /root/.acme.sh/workflow.bella.top_ecc/:/etc/ssl/certs/workflow/:ro
+    environment:
+      - TZ=${TZ:-UTC}
+      - SERVER_DOMAIN=${SERVER_DOMAIN:-localhost}
+      - SERVER_PROTOCOL=${SERVER_PROTOCOL:-http}
+    depends_on:
+      - bella-workflow-api
+      - bella-workflow-web
+    networks:
+      - bella-workflow-network
+    healthcheck:
+      test: [ "CMD", "nginx", "-t" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3

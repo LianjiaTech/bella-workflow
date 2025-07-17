@@ -1,4 +1,5 @@
-FROM maven:3.8.4-openjdk-8 AS builder
+# 支持多架构构建
+FROM --platform=$BUILDPLATFORM maven:3.8.4-openjdk-8 AS builder
 
 # 设置工作目录
 WORKDIR /build
@@ -37,7 +38,7 @@ ARG MAVEN_ARGS="-Dmaven.test.skip=true -U -Dmaven.build.cache.enabled=false"
 RUN cd /build && bash build.sh ${MAVEN_ARGS}
 
 # 第二阶段：运行环境
-FROM openjdk:8
+FROM --platform=$TARGETPLATFORM openjdk:8
 
 # 设置环境变量
 ENV IDC zeus

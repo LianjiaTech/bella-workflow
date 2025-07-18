@@ -119,3 +119,6 @@ management:
         enabled: true
     tags:
       application: ${spring.application.name}
+  health:
+    redis:
+      enabled: false

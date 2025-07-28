@@ -71,6 +71,7 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
                         .status(context.getWorkflowRunResult().getStatus().name())
                         .createdAt(System.currentTimeMillis())
                         .finishedAt(System.currentTimeMillis())
+                        .totalTokens((long) context.getState().getVariable("Tokens", "TotalTokens"))
                         .elapsedTime(context.elapsedTime(LocalDateTime.now()) / 1000d)
                         .createdBy(BellaContext.getOperator().getUserName())
                         .build())
@@ -467,6 +468,8 @@ public class DifyWorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         private String createdBy;
         @JsonProperty("finished_at")
         private Long finishedAt;
+        @JsonProperty("total_tokens")
+		private Long totalTokens;
         @JsonProperty("elapsed_time")
         private Double elapsedTime;
         private String text;

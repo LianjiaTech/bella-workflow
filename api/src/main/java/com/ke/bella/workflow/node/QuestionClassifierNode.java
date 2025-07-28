@@ -78,6 +78,20 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
             processData.put("prompts", prompts);
 
             processData.put("usage", compResult.getUsage());
+            // 定义需要更新的变量名和对应的增量值
+            Map<String, Long> tokenUpdates = new HashMap<>();
+            tokenUpdates.put("TotalTokens", compResult.getUsage().getTotalTokens());
+            tokenUpdates.put("PromptTokens", compResult.getUsage().getPromptTokens());
+            tokenUpdates.put("CompletionTokens", compResult.getUsage().getCompletionTokens());
+            tokenUpdates.put("HasLLM", 1L);
+            // 遍历每个 token 类型，更新其值
+            for (Map.Entry<String, Long> entry : tokenUpdates.entrySet()) {
+                String tokenType = entry.getKey();
+                long increment = entry.getValue();
+                long tokensTemp = (long) context.getState().getVariable("Tokens", tokenType);
+                tokensTemp += increment;
+                context.getState().putVariable("Tokens", tokenType, tokensTemp);
+            }
 
             return NodeRunResult.builder()
                     .status(NodeRunResult.Status.succeeded)

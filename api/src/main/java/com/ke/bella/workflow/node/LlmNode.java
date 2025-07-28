@@ -139,11 +139,9 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             if(fullText.length() == 0) {
                 this.ttftEnd = System.nanoTime();
             }
-            if (chunk.getChoices()!= null && !chunk.getChoices().isEmpty()) {
-
-				finishReason = chunk.getChoices().get(chunk.getChoices().size() - 1).getFinishReason();
-
-			}
+            if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()) {
+                finishReason = chunk.getChoices().get(chunk.getChoices().size() - 1).getFinishReason();
+            }
             if(chunk.getUsage() != null) {
                 tokens = chunk.getUsage().getCompletionTokens();
 				// 定义需要更新的变量名和对应的增量值

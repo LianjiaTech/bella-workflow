@@ -329,7 +329,7 @@ public class WorkflowService {
         state.putVariable("sys", "tenant_id", wr.getTenantId());
         state.putVariable("sys", "workflow_id", wr.getWorkflowId());
         state.putVariable("sys", "run_id", wr.getWorkflowRunId());
-		List<EnvVar> ennVars = meta.getEnvironmentVariables();
+        List<EnvVar> ennVars = meta.getEnvironmentVariables();
         if(ennVars != null) {
             ennVars.forEach(v -> state.putVariable("env", v.getName(), v.getValue()));
         }

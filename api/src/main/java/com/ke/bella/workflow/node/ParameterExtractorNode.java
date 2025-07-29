@@ -162,8 +162,8 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
 
             outputs.put("__is_success", 1);
             outputs.put("__reason", null);
-            outputs.put("usage", chatResultCompletion.getUsage());
-            outputs.put("finish_reason", chatCompletionChoice.getFinishReason());
+            outputs.put("__usage", chatResultCompletion.getUsage());
+            outputs.put("__finish_reason", chatCompletionChoice.getFinishReason());
             outputs.putAll(result);
 
             return WorkflowRunState.NodeRunResult.builder()

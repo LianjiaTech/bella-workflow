@@ -78,11 +78,8 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             // fill outputs
             HashMap<String, Object> outputs = fillOutputs(message);
             outputs.put("usage", llmnodeTokens);
-            if(!finishReason.isEmpty()) {
-                outputs.put("finish_reason", finishReason);
-            } else {
-                outputs.put("finish_reason", null);
-            }
+            outputs.put("finish_reason", finishReason);
+
             return NodeRunResult.builder()
                     .status(NodeRunResult.Status.succeeded)
                     .inputs(nodeInputs)
@@ -129,7 +126,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
                 this.ttftEnd = System.nanoTime();
             }
             if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()) {
-                finishReason = chunk.getChoices().get(chunk.getChoices().size() - 1).getFinishReason();
+                finishReason = chunk.getChoices().get(0).getFinishReason();
             }
             if(chunk.getUsage() != null) {
                 tokens = chunk.getUsage().getCompletionTokens();
@@ -250,16 +247,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
         long ttlt;
         long tokens;
     }
-	@Getter
-	@Setter
-	@NoArgsConstructor
-	@AllArgsConstructor
-	@Builder
-	public static class LLMNodeTokens {
-		long promptTokens;
-		long completionTokens;
-		long totalTokens;
-	}
+
     @Getter
     @Setter
     @NoArgsConstructor

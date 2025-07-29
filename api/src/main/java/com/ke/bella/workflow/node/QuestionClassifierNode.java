@@ -52,13 +52,13 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
 
             // 构造参数请求LLM
             ChatCompletionResult compResult = invokeOpenAPILlm(data.getAuthorization(), chatMessages);
-            Data.ClassConfig resultClass = parseAndCheckJsonMarkdown(compResult.getChoices().get(0).getMessage().getContent(),
-                    Data.ClassConfig.class);
+            String content = compResult.getChoices().isEmpty() ? "" : compResult.getChoices().get(0).getMessage().getContent();
+            Data.ClassConfig resultClass = parseAndCheckJsonMarkdown(content, Data.ClassConfig.class);
 
             // 获取第一个节点为默认节点
-            Data.ClassConfig category = data.getClasses().get(0);
+            Data.ClassConfig category = data.getClasses().isEmpty() ? null : data.getClasses().get(0);
 
-            // 获取分类结果
+			// 获取分类结果
             if(resultClass.getId() != null && resultClass.getName() != null) {
                 category = data.getClasses().stream().filter(c -> c.getId().equals(resultClass.getId())).findFirst().orElse(category);
             }
@@ -68,14 +68,11 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
             variables.put("query", query);
 
             Map<String, Object> outputData = Maps.newHashMap();
-            outputData.put("class_name", category.getName());
+            outputData.put("class_name", category != null ? category.getName() : null);
             outputData.put("usage", compResult.getUsage());
-            if(compResult.getChoices() != null && !compResult.getChoices().isEmpty()) {
-                outputData.put("finish_reason", compResult.getChoices().get(compResult.getChoices().size() - 1).getFinishReason());
-            } else {
-                outputData.put("finish_reason", null);
-            }
-            Map<String, Object> processData = Maps.newHashMap();
+            outputData.put("finish_reason", compResult.getChoices().isEmpty() ? null : compResult.getChoices().get(0).getFinishReason());
+
+			Map<String, Object> processData = Maps.newHashMap();
             processData.put("model_mode", data.getModel().getMode());
 
             HashMap<String, Object> prompts = new HashMap<>();

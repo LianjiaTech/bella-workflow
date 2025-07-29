@@ -244,6 +244,16 @@ const Panel: FC<NodePanelProps<ParameterExtractorNodeType>> = ({
                 type={VarType.string}
                 description={t(`${i18nPrefix}.errorReason`)}
               />
+              <VarItem
+                name='__finish_reason'
+                type={VarType.string}
+                description={t(`${i18nPrefix}.finishReason`)}
+              />
+              <VarItem
+                name='__usage'
+                type={VarType.object}
+                description={t(`${i18nPrefix}.usage`)}
+              />
             </>
           </OutputVars>
         </div>

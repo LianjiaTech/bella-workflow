@@ -12,7 +12,7 @@ import Field from '@/app/components/workflow/nodes/_base/components/field'
 import Split from '@/app/components/workflow/nodes/_base/components/split'
 import ModelParameterModal from '@/app/components/header/account-setting/model-provider-page/model-parameter-modal'
 import OutputVars, { VarItem } from '@/app/components/workflow/nodes/_base/components/output-vars'
-import { InputVarType, type NodePanelProps } from '@/app/components/workflow/types'
+import { InputVarType, type NodePanelProps, VarType } from '@/app/components/workflow/types'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import type { Props as FormProps } from '@/app/components/workflow/nodes/_base/components/before-run-form/form'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
@@ -294,13 +294,23 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
           <>
             <VarItem
               name='text'
-              type='string'
+              type={VarType.string}
               description={t(`${i18nPrefix}.outputVars.output`)}
             />
             <VarItem
               name='reasoning_content'
-              type='string'
+              type={VarType.string}
               description={t(`${i18nPrefix}.outputVars.reasoningContent`)}
+            />
+            <VarItem
+              name='finish_reason'
+              type={VarType.string}
+              description={t(`${i18nPrefix}.outputVars.finishReason`)}
+            />
+            <VarItem
+              name='usage'
+              type={VarType.object}
+              description={t(`${i18nPrefix}.outputVars.usage`)}
             />
           </>
         </OutputVars>

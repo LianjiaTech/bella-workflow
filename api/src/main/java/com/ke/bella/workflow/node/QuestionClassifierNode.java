@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.springframework.util.CollectionUtils;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -52,13 +54,13 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
 
             // 构造参数请求LLM
             ChatCompletionResult compResult = invokeOpenAPILlm(data.getAuthorization(), chatMessages);
-            String content = compResult.getChoices().isEmpty() ? "" : compResult.getChoices().get(0).getMessage().getContent();
+            String content = CollectionUtils.isEmpty(compResult.getChoices()) ? "" : compResult.getChoices().get(0).getMessage().getContent();
             Data.ClassConfig resultClass = parseAndCheckJsonMarkdown(content, Data.ClassConfig.class);
 
             // 获取第一个节点为默认节点
-            Data.ClassConfig category = data.getClasses().isEmpty() ? null : data.getClasses().get(0);
+            Data.ClassConfig category = CollectionUtils.isEmpty(data.getClasses()) ? null : data.getClasses().get(0);
 
-			// 获取分类结果
+            // 获取分类结果
             if(resultClass.getId() != null && resultClass.getName() != null) {
                 category = data.getClasses().stream().filter(c -> c.getId().equals(resultClass.getId())).findFirst().orElse(category);
             }

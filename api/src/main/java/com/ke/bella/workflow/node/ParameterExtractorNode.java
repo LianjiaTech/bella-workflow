@@ -37,6 +37,8 @@ import com.theokanning.openai.completion.chat.ChatMessage;
 import com.theokanning.openai.completion.chat.ChatTool;
 import com.theokanning.openai.completion.chat.ChatToolCall;
 import com.theokanning.openai.completion.chat.SystemMessage;
+import com.theokanning.openai.completion.chat.ChatCompletionResult;
+import com.theokanning.openai.completion.chat.ChatCompletionChoice;
 import com.theokanning.openai.completion.chat.ToolMessage;
 import com.theokanning.openai.completion.chat.UserMessage;
 import com.theokanning.openai.function.FunctionDefinition;
@@ -147,7 +149,9 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
             processData.put("function", extraParamsTool);
 
             // 5. invoke llm
-            AssistantMessage chatResult = invokeLlm(chatMessages, extraParamsTool);
+            ChatCompletionResult chatResultCompletion = invokeLlm(chatMessages, extraParamsTool);
+            ChatCompletionChoice chatCompletionChoice = chatResultCompletion.getChoices().get(0);
+            AssistantMessage chatResult = chatCompletionChoice.getMessage();
             ChatToolCall toolCall = Optional.ofNullable(chatResult.getToolCalls()).map(toolCalls -> toolCalls.get(0)).orElse(null);
             String llmText = chatResult.getContent();
             processData.put("tool_call", toolCall);
@@ -158,6 +162,8 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
 
             outputs.put("__is_success", 1);
             outputs.put("__reason", null);
+            outputs.put("usage", chatResultCompletion.getUsage());
+            outputs.put("finish_reason", chatCompletionChoice.getFinishReason());
             outputs.putAll(result);
 
             return WorkflowRunState.NodeRunResult.builder()
@@ -300,7 +306,7 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
         return null;
     }
 
-    private AssistantMessage invokeLlm(List<ChatMessage> chatMessages, ChatTool tool) {
+    private ChatCompletionResult invokeLlm(List<ChatMessage> chatMessages, ChatTool tool) {
         OpenAiService service = OpenAiUtils.defaultOpenAiService(data.getAuthorization().getToken(), data.getTimeout().getReadSeconds(),
                 TimeUnit.SECONDS);
         ChatCompletionRequest chatCompletionRequest = data.getModel().getTemplateCompletionParams();
@@ -316,7 +322,7 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
         // fixme:
         // 1. 三方包流式请求，严格校验协议；
         // 2. 自研模型响应体"stop"不是"tool_call"导致解析失败，此处先采用非流式请求，由于是tool_call不影响速度
-        return service.createChatCompletion(chatCompletionRequest).getChoices().get(0).getMessage();
+        return service.createChatCompletion(chatCompletionRequest);
     }
 
     private List<ChatMessage> generatePromptEngineeringPrompt(String query, String systemPrompt) {

@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 
+import com.theokanning.openai.Usage;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.openapi.BellaContext;
@@ -44,7 +46,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     private long ttftStart;
     private long ttftEnd;
     private long tokens;
-    private LLMNodeTokens llmnodetokens;
+    private Usage llmnodeTokens;
     private String finishReason;
 
     public LlmNode(WorkflowSchema.Node meta) {
@@ -75,20 +77,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
 
             // fill outputs
             HashMap<String, Object> outputs = fillOutputs(message);
-            if(llmnodetokens.getPromptTokens() != 0) {
-                // 创建一个 HashMap 来存储键值对
-                Map<String, Object> tokenDataMap = new HashMap<>();
-
-                // 将变量名作为键，变量值作为值存入 HashMap
-                tokenDataMap.put("prompt_tokens", llmnodetokens.getPromptTokens());
-                tokenDataMap.put("completion_tokens", llmnodetokens.getCompletionTokens());
-                tokenDataMap.put("total_tokens", llmnodetokens.getTotalTokens());
-
-                outputs.put("token_usage", tokenDataMap);
-
-            } else {
-                outputs.put("token_usage", null);
-            }
+            outputs.put("usage", llmnodeTokens);
             if(!finishReason.isEmpty()) {
                 outputs.put("finish_reason", finishReason);
             } else {
@@ -144,26 +133,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             }
             if(chunk.getUsage() != null) {
                 tokens = chunk.getUsage().getCompletionTokens();
-				// 定义需要更新的变量名和对应的增量值
-				Map<String, Long> tokenUpdates = new HashMap<>();
-				tokenUpdates.put("TotalTokens", chunk.getUsage().getTotalTokens());
-				tokenUpdates.put("PromptTokens", chunk.getUsage().getPromptTokens());
-				tokenUpdates.put("CompletionTokens", chunk.getUsage().getCompletionTokens());
-				tokenUpdates.put("HasLLM", 1L);
-				// 遍历每个 token 类型，更新其值
-				for (Map.Entry<String, Long> entry : tokenUpdates.entrySet()) {
-					String tokenType = entry.getKey();
-					long increment = entry.getValue();
-					long tokensTemp = (long) context.getState().getVariable("Tokens", tokenType);
-					tokensTemp += increment;
-					context.getState().putVariable("Tokens", tokenType, tokensTemp);
-				}
-
-				llmnodetokens = LLMNodeTokens.builder()
-					.totalTokens(chunk.getUsage().getTotalTokens())
-					.promptTokens(chunk.getUsage().getPromptTokens())
-					.completionTokens(chunk.getUsage().getCompletionTokens())
-					.build();
+                llmnodeTokens = chunk.getUsage();
             }
 
             if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()

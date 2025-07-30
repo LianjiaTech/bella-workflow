@@ -46,7 +46,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     private long ttftStart;
     private long ttftEnd;
     private long tokens;
-    private Usage llmnodeTokens;
+    private Usage usage;
     private String finishReason;
 
     public LlmNode(WorkflowSchema.Node meta) {
@@ -77,7 +77,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
 
             // fill outputs
             HashMap<String, Object> outputs = fillOutputs(message);
-            outputs.put("usage", llmnodeTokens);
+            outputs.put("usage", usage);
             outputs.put("finish_reason", finishReason);
 
             return NodeRunResult.builder()
@@ -130,7 +130,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             }
             if(chunk.getUsage() != null) {
                 tokens = chunk.getUsage().getCompletionTokens();
-                llmnodeTokens = chunk.getUsage();
+				usage = chunk.getUsage();
             }
 
             if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()

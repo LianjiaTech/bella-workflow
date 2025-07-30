@@ -69,6 +69,8 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
 
             Map<String, Object> outputData = Maps.newHashMap();
             outputData.put("class_name", category.getName());
+            outputData.put("usage", compResult.getUsage());
+            outputData.put("finish_reason", compResult.getChoices().get(0).getFinishReason());
 
             Map<String, Object> processData = Maps.newHashMap();
             processData.put("model_mode", data.getModel().getMode());

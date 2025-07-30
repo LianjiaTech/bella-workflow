@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.springframework.util.CollectionUtils;
-
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
@@ -54,10 +52,8 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
 
             // 构造参数请求LLM
             ChatCompletionResult compResult = invokeOpenAPILlm(data.getAuthorization(), chatMessages);
-            // 预先检查choices是否为空
-            boolean hasChoices = !CollectionUtils.isEmpty(compResult.getChoices());
-            String content = hasChoices ? compResult.getChoices().get(0).getMessage().getContent() : "";
-            Data.ClassConfig resultClass = parseAndCheckJsonMarkdown(content, Data.ClassConfig.class);
+            Data.ClassConfig resultClass = parseAndCheckJsonMarkdown(compResult.getChoices().get(0).getMessage().getContent(),
+                    Data.ClassConfig.class);
 
             // 获取第一个节点为默认节点
             Data.ClassConfig category = data.getClasses().get(0);
@@ -74,7 +70,7 @@ public class QuestionClassifierNode extends BaseNode<QuestionClassifierNode.Data
             Map<String, Object> outputData = Maps.newHashMap();
             outputData.put("class_name", category.getName());
             outputData.put("usage", compResult.getUsage());
-            outputData.put("finish_reason", hasChoices ? compResult.getChoices().get(0).getFinishReason() : null);
+            outputData.put("finish_reason", compResult.getChoices().get(0).getFinishReason());
 
             Map<String, Object> processData = Maps.newHashMap();
             processData.put("model_mode", data.getModel().getMode());

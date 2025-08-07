@@ -8,12 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import org.jetbrains.annotations.Nullable;
 import org.springframework.util.CollectionUtils;
 
 import com.ke.bella.workflow.auth.HttpAuthenticator;
 import com.ke.bella.workflow.auth.HttpAuthenticatorFactory;
+import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.AllArgsConstructor;
@@ -38,6 +40,7 @@ public class ApiTool implements ITool {
     static HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
     static OkHttpClient toolHttpClient = new OkHttpClient.Builder()
             .addInterceptor(logging)
+            .readTimeout(Configs.HTTP_CLIENT_READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .build();
 
     static {

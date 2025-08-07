@@ -1,8 +1,9 @@
 package com.ke.bella.workflow.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
@@ -44,6 +45,8 @@ public class Configs {
     public static Integer BATCH_TASK_THREAD_NUMS = 100;
 
     public static int INTERRUPTED_INTERVAL_ROWS = 1000;
+
+    public static long HTTP_CLIENT_READ_TIMEOUT_SECONDS;
 
     @Value("${bella.toolApiEnabled}")
     public void setToolApiEnabled(boolean toolApiEnabled) {
@@ -108,5 +111,10 @@ public class Configs {
     @Value("${bella.workflow.sandbox.rdbInterruptedIntervalRows}")
     public void setMaxQueryRows(int rdbInterruptedIntervalRows) {
         INTERRUPTED_INTERVAL_ROWS = rdbInterruptedIntervalRows;
+    }
+
+    @Value("${bella.api.tool.read-timeout-seconds}")
+    public void setHttpClientReadTimeoutSeconds(long httpClientReadTimeoutSeconds) {
+        HTTP_CLIENT_READ_TIMEOUT_SECONDS = httpClientReadTimeoutSeconds;
     }
 }

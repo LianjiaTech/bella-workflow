@@ -82,7 +82,9 @@ bella:
     cookie-context-path: /
   task:
     threadNums: 1000
-
+  api:
+    tool:
+      read-timeout-seconds: 60
 app:
   id: bella-workflow
 

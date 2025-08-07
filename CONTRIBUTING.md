@@ -32,12 +32,12 @@
    ```
 5. 安装项目依赖的本地 JAR 包：
    
-   **重要**：在本地源码启动前，您需要将 `api/resources/bella-job-queue-sdk-1.0.0-SNAPSHOT.jar` 添加到您的本地 Maven 仓库中：
+   **重要**：在本地源码启动前，您需要将 `api/resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar` 添加到您的本地 Maven 仓库中：
    
    ```bash
    # 在项目根目录下执行
    mvn install:install-file \
-     -Dfile=api/resources/bella-job-queue-sdk-1.0.0-SNAPSHOT.jar \
+     -Dfile=api/resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
      -DgroupId=com.ke.bella \
      -DartifactId=bella-job-queue-sdk \
      -Dversion=1.0.0-SNAPSHOT \

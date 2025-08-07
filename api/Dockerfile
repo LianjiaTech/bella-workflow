@@ -12,11 +12,11 @@ COPY resources/settings.xml /root/.m2/
 COPY pom.xml /build/
 
 # 复制本地依赖包
-COPY resources/bella-job-queue-sdk-1.0.0-SNAPSHOT.jar /build/
+COPY resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar /build/
 
 # 安装本地依赖 bella-job-queue-sdk 到 Maven 本地仓库
 RUN mvn install:install-file \
-    -Dfile=/build/bella-job-queue-sdk-1.0.0-SNAPSHOT.jar \
+    -Dfile=/build/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
     -DgroupId=com.ke.bella.job.queue \
     -DartifactId=bella-job-queue-sdk \
     -Dversion=1.0.0-SNAPSHOT \

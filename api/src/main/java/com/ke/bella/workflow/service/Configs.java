@@ -3,6 +3,9 @@ package com.ke.bella.workflow.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class Configs {
     public static String SERVICE_NAME = "workflow";
@@ -20,6 +23,8 @@ public class Configs {
     public static String BELLA_TOOL_API_BASE;
 
     public static String DATASET_API_BASE;
+
+    public static String JOB_QUEUE_BASE;
 
     public static String SAND_BOX_API_BASE;
 
@@ -40,6 +45,8 @@ public class Configs {
     public static Integer BATCH_TASK_THREAD_NUMS = 100;
 
     public static int INTERRUPTED_INTERVAL_ROWS = 1000;
+
+    public static long HTTP_CLIENT_READ_TIMEOUT_SECONDS;
 
     @Value("${bella.toolApiEnabled}")
     public void setToolApiEnabled(boolean toolApiEnabled) {
@@ -76,6 +83,11 @@ public class Configs {
         DATASET_API_BASE = datasetApiBase;
     }
 
+    @Value("${bella.job-queue.url}")
+    public void setJobQueueBase(String jobQueueBase) {
+        JOB_QUEUE_BASE = jobQueueBase;
+    }
+
     @Value("${bella.workflow.sandbox.groovy}")
     public void setGroovySandbox(boolean value) {
         GROOVY_SANDBOX_ENABLE = value;
@@ -99,5 +111,10 @@ public class Configs {
     @Value("${bella.workflow.sandbox.rdbInterruptedIntervalRows}")
     public void setMaxQueryRows(int rdbInterruptedIntervalRows) {
         INTERRUPTED_INTERVAL_ROWS = rdbInterruptedIntervalRows;
+    }
+
+    @Value("${bella.api.tool.read-timeout-seconds}")
+    public void setHttpClientReadTimeoutSeconds(long httpClientReadTimeoutSeconds) {
+        HTTP_CLIENT_READ_TIMEOUT_SECONDS = httpClientReadTimeoutSeconds;
     }
 }

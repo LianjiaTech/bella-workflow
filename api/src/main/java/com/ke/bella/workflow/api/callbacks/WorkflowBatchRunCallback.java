@@ -37,4 +37,10 @@ public class WorkflowBatchRunCallback extends WorkflowCallbackAdaptor {
         }
         task.markFailed(MapUtils.getString(data, "error", StringUtils.EMPTY));
     }
+
+    @Override
+    public void onWorkflowRunSuspended(WorkflowContext context) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        responseWorkflowInfo(context, data);
+    }
 }

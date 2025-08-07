@@ -365,6 +365,14 @@ export const LLM_OUTPUT_STRUCT: Var[] = [
     variable: 'reasoning_content',
     type: VarType.string,
   },
+  {
+    variable: 'usage',
+    type: VarType.object,
+  },
+  {
+    variable: 'finish_reason',
+    type: VarType.string,
+  },
 ]
 
 export const KNOWLEDGE_RETRIEVAL_OUTPUT_STRUCT: Var[] = [
@@ -391,6 +399,14 @@ export const TEMPLATE_TRANSFORM_OUTPUT_STRUCT: Var[] = [
 export const QUESTION_CLASSIFIER_OUTPUT_STRUCT = [
   {
     variable: 'class_name',
+    type: VarType.string,
+  },
+  {
+    variable: 'usage',
+    type: VarType.object,
+  },
+  {
+    variable: 'finish_reason',
     type: VarType.string,
   },
 ]
@@ -432,6 +448,14 @@ export const PARAMETER_EXTRACTOR_COMMON_STRUCT: Var[] = [
   },
   {
     variable: '__reason',
+    type: VarType.string,
+  },
+  {
+    variable: '__usage',
+    type: VarType.object,
+  },
+  {
+    variable: '__finish_reason',
     type: VarType.string,
   },
 ]

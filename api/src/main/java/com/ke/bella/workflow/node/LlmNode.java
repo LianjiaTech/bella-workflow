@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 
+import com.theokanning.openai.Usage;
+
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.ke.bella.openapi.BellaContext;
@@ -44,6 +46,8 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     private long ttftStart;
     private long ttftEnd;
     private long tokens;
+    private Usage usage;
+    private String finishReason;
 
     public LlmNode(WorkflowSchema.Node meta) {
         super(meta, JsonUtils.convertValue(meta.getData(), Data.class));
@@ -73,6 +77,9 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
 
             // fill outputs
             HashMap<String, Object> outputs = fillOutputs(message);
+            outputs.put("usage", usage);
+            outputs.put("finish_reason", finishReason);
+
             return NodeRunResult.builder()
                     .status(NodeRunResult.Status.succeeded)
                     .inputs(nodeInputs)
@@ -118,8 +125,12 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             if(fullText.length() == 0) {
                 this.ttftEnd = System.nanoTime();
             }
+            if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()) {
+                finishReason = chunk.getChoices().get(0).getFinishReason();
+            }
             if(chunk.getUsage() != null) {
                 tokens = chunk.getUsage().getCompletionTokens();
+				usage = chunk.getUsage();
             }
 
             if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()

@@ -9,7 +9,7 @@ import AdvancedSetting from './components/advanced-setting'
 import type { QuestionClassifierNodeType } from './types'
 import Field from '@/app/components/workflow/nodes/_base/components/field'
 import ModelParameterModal from '@/app/components/header/account-setting/model-provider-page/model-parameter-modal'
-import { InputVarType, type NodePanelProps } from '@/app/components/workflow/types'
+import { InputVarType, type NodePanelProps, VarType } from '@/app/components/workflow/types'
 import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/before-run-form'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
 import Split from '@/app/components/workflow/nodes/_base/components/split'
@@ -169,8 +169,18 @@ const Panel: FC<NodePanelProps<QuestionClassifierNodeType>> = ({
           <>
             <VarItem
               name='class_name'
-              type='string'
+              type={VarType.string}
               description={t(`${i18nPrefix}.outputVars.className`)}
+            />
+            <VarItem
+              name='finish_reason'
+              type={VarType.string}
+              description={t(`${i18nPrefix}.outputVars.finishReason`)}
+            />
+            <VarItem
+              name='usage'
+              type={VarType.object}
+              description={t(`${i18nPrefix}.outputVars.usage`)}
             />
           </>
         </OutputVars>

@@ -1,5 +1,5 @@
 # base image
-FROM docker.ipigsy.com/library/node:20.11-alpine3.19 AS base
+FROM node:20.11-alpine3.19 AS base
 LABEL maintainer="takatost@gmail.com"
 
 # if you located in China, you can use aliyun mirror to speed up

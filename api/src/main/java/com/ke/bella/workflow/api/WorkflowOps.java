@@ -29,6 +29,7 @@ public class WorkflowOps {
 
     public enum TriggerFrom {
         DEBUG,
+		MANUAL,
         DEBUG_NODE,
         API,
         SCHEDULE,

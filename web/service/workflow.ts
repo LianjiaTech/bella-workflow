@@ -7,6 +7,7 @@ import type {
   CustomApiListResponse,
   FetchWorkflowDraftResponse,
   NodesDefaultConfigsResponse, UserInfoResponse,
+  WorkflowOutputs,
   WorkflowRunHistoryResponse,
   WorkflowTriggerDetail,
   WorkflowVersionHistoryResponse,
@@ -95,7 +96,12 @@ export const createSchedulingTrigger: Fetcher<WorkflowTriggerDetail, { name: str
 export const activateTrigger: Fetcher<WorkflowTriggerDetail, { workflowId: string; triggerId: string; triggerType: string }> = ({ workflowId, triggerId, triggerType }) => {
   return post<WorkflowTriggerDetail>(`apps/${workflowId}/trigger/activate`, { body: { triggerId, triggerType } })
 }
-
+export const callTrigger: Fetcher<WorkflowTriggerDetail, { workflowId: string; triggerId: string; triggerType: string }> = ({ workflowId, triggerId, triggerType }) => {
+  return post<WorkflowTriggerDetail>(`apps/${workflowId}/trigger/call`, { body: { triggerId, triggerType } })
+}
+export const debugTrigger: Fetcher<WorkflowOutputs, { workflowId: string; inputs: string; responseMode: string; runVersion: string }> = ({ workflowId, inputs, responseMode, runVersion }) => {
+  return post<WorkflowOutputs>(`apps/${workflowId}/trigger/debug`, { body: { workflowId, inputs: JSON.parse(inputs), responseMode, runVersion, triggerFrom: 'MANUAL' } })
+}
 export const deactivateTrigger: Fetcher<WorkflowTriggerDetail, { workflowId: string; triggerId: string; triggerType: string }> = ({ workflowId, triggerId, triggerType }) => {
   return post<WorkflowTriggerDetail>(`apps/${workflowId}/trigger/deactivate`, { body: { triggerId, triggerType } })
 }

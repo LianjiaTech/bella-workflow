@@ -105,7 +105,7 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
       notify({ type: 'error', message: t('app.newApp.appCreateFailed') })
     }
     isCreatingRef.current = false
-  }, [name, notify, t, triggerType, cronExpression, onSuccess, onClose, mutateApps, push, isCurrentWorkspaceEditor, datasourceId, datasourceList, kafkaExpression])
+  }, [name, notify, t, triggerType, cronExpression, onSuccess, onClose, mutateApps, push, isCurrentWorkspaceEditor, datasourceId, datasourceList, kafkaExpression, inputs])
   return (
     <Modal
       overflowVisible
@@ -228,7 +228,7 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
             value={kafkaExpression}
             options={{
               lineNumbers: 'on',
-              tabsize: 2,
+              tabSize: 2,
             }}
             onChange={(newValue, e) => setKafkaExpression(newValue || '')}
           />
@@ -253,7 +253,7 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
           value={inputs}
           options={{
             lineNumbers: 'on',
-            tabsize: 2,
+            tabSize: 2,
           }}
           onChange={(newValue, e) => setInputs(newValue || '{}')}
         />

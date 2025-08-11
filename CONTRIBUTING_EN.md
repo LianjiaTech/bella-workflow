@@ -32,12 +32,12 @@ Before contributing code, please ensure you agree to the following terms:
    ```
 5. Install locally required JAR packages:
    
-   **Important**: Before starting the source code locally, you need to add `api/resources/bella-job-queue-sdk-1.0.0-SNAPSHOT.jar` to your local Maven repository:
+   **Important**: Before starting the source code locally, you need to add `api/resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar` to your local Maven repository:
    
    ```bash
    # Execute in the project root directory
    mvn install:install-file \
-     -Dfile=api/resources/bella-job-queue-sdk-1.0.0-SNAPSHOT.jar \
+     -Dfile=api/resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
      -DgroupId=com.ke.bella \
      -DartifactId=bella-job-queue-sdk \
      -Dversion=1.0.0-SNAPSHOT \

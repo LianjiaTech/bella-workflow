@@ -382,7 +382,8 @@ public class WorkflowRepo implements BaseRepo {
             rec.setTraceId(op.getTraceId());
         }
 
-        if(ResponseMode.callback.name().equals(op.getResponseMode())) {
+        if(ResponseMode.callback.name().equals(op.getResponseMode())
+                || ResponseMode.batch.name().equals(op.getResponseMode())) {
             rec.setContext(JsonUtils.toJson(BellaContext.snapshot()));
         }
 

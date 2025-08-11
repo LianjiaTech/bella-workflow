@@ -11,6 +11,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 import com.google.common.cache.Cache;
+import com.ke.bella.job.queue.worker.JobQueueWorker;
 import com.ke.bella.job.queue.worker.Task;
 import com.ke.bella.openapi.apikey.ApikeyInfo;
 import com.ke.bella.workflow.api.callbacks.WorkflowBatchRunCallback;
@@ -88,6 +89,9 @@ public class WorkflowService {
 
     @Autowired
     WorkflowRunLogService ls;
+
+    @Autowired(required = false)
+    JobQueueWorker worker;
 
     WorkflowRunManager manager;
 
@@ -356,10 +360,14 @@ public class WorkflowService {
         }
     }
 
+    @SuppressWarnings("ALL")
     public void runWorkflow(Task task, Cache<String, WorkflowDB> workflowCache) {
         try {
             WorkflowOps.WorkflowRun payload = task.getPayload(WorkflowOps.WorkflowRun.class);
+            payload.setResponseMode(ResponseMode.batch.name());
             payload.setTriggerFrom(WorkflowOps.TriggerFrom.BATCH.name());
+            payload.getMetadata().put("taskId", task.getTaskId());
+
             Map<String, Object> inputs = payload.getInputs();
             String apiKey = MapUtils.getString(inputs, "apiKey");
             String traceId = MapUtils.getString(inputs, "traceId",
@@ -371,8 +379,8 @@ public class WorkflowService {
             TaskExecutor.submit(() -> {
                 try {
                     String workflowId = payload.getWorkflowId();
-					WorkflowDB workflowDB = workflowCache.get(workflowId,
-						() -> getPublishedWorkflow(workflowId, null));
+                    WorkflowDB workflowDB = workflowCache.get(workflowId,
+                            () -> getPublishedWorkflow(workflowId, null));
                     runWorkflow(newWorkflowRun(workflowDB, payload), payload, new WorkflowBatchRunCallback(task));
                 } catch (Exception e) {
                     task.markFailed(e.getMessage());
@@ -829,6 +837,17 @@ public class WorkflowService {
                 BellaContext.replace(wr.getContext());
                 WorkflowRunNotifyCallback callback = new WorkflowRunNotifyCallback(this, wr.getCallbackUrl());
                 tryResumeWorkflow(wr.getWorkflowRunId(), callback);
+            } finally {
+                BellaContext.clearAll();
+            }
+        } else if(ResponseMode.batch.name().equals(wr.getResponseMode())) {
+            try {
+                BellaContext.replace(wr.getContext());
+                Map metadata = JsonUtils.fromJson(wr.getMetadata(), Map.class);
+                String taskId = MapUtils.getString(metadata, "taskId");
+                tryResumeWorkflow(wr.getWorkflowRunId(), new WorkflowBatchRunCallback(Task.of(taskId, worker)));
+            } catch (Exception e) {
+                LOGGER.error("batch callback occur error.", e);
             } finally {
                 BellaContext.clearAll();
             }

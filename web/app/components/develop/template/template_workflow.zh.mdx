@@ -225,3 +225,144 @@ data:{"tenantId":"test","workflowId":"WKFL-fe8c17f6-2faf-4a8f-80cf-9f0596ea7a4e"
     </CodeGroup>
   </Col>
 </Row>
+
+---
+
+<Heading
+    url='/{workflowId}/trigger/call'
+    method='POST'
+    title='触发器触发'
+    name='#Trigger-Run'
+/>
+<Row>
+    <Col>
+        调试 workflow 触发器。
+
+        ### Request Body
+        - `triggerId` (string) Required
+        触发器 ID。
+        - `triggerType` (string) Required
+        触发器类型。
+
+        ### Response
+        此 API 调用不会返回具体的 Workflow 执行结果，仅表示触发请求已成功发送。
+        - 200，请求成功
+        - 400，请求参数错误
+
+    </Col>
+    <Col sticky>
+        <CodeGroup title="Request" tag="POST" label="/workflowId/trigger/call" targetCode={`curl -X POST '${props.appDetail.api_base_url}/{workflowId}/trigger/call' \\\n--header 'Authorization: Bearer {api_key}' \\\n--header 'Content-Type: application/json' \\\n--data-raw '{\n    "triggerId": "TRG-SCHD-9319682e-18f8-40fe-8673-78a9e960125e",\n    "triggerType": "SCHD"\n}'\n`}>
+
+            ```bash {{ title: 'cURL' }}
+            curl -X 'POST' \
+            '${props.appDetail.api_base_url}/{workflowId}/trigger/call' \
+            -H 'Content-Type: application/json' \
+            -d '{
+            "triggerId": "TRG-SCHD-9319682e-18f8-40fe-8673-78a9e960125e",
+            "triggerType": "SCHD"
+            }'
+            ```
+
+        </CodeGroup>
+
+        <CodeGroup title="Response">
+            ```json {{ title: 'Response' }}
+            {
+              "triggerId": "TRG-SCHD-dff44a7e-8ad0-4d3e-9168-a1955fed9016",
+              "triggerType": "SCHD",
+              "name": "陈述句端口号 8112",
+              "desc": "",
+              "expression": null,
+              "expressionType": null,
+              "datasourceId": null,
+              "status": "inactive",
+              "workflowId": null,
+              "inputs": "{\"text\":\"说一段陈述句\"}",
+              "inputKey": null
+            }
+            ```
+        </CodeGroup>
+    </Col>
+</Row>
+
+---
+<Heading
+  url='/{workflowId}/trigger/debug'
+  method='POST'
+  title='触发器调试'
+  name='#Trigger-Debug'
+/>
+<Row>
+  <Col>
+    ### 功能描述
+    此 API 用于调试工作流的触发器，并返回具体的执行结果。
+
+    ### 请求体
+    - `workflowId` (string) **必需**
+    工作流的 ID。
+    - `inputs` (string) **必需**
+    工作流运行的输入，格式为 JSON 字符串。
+    - `responseMode` (string) **必需**
+    API 调用的响应模式。
+    - `runVersion` (string) **必需**
+    要执行的工作流版本。可以是 **"published"**（已发布）或 **"draft"**（草稿）。
+    - `triggerFrom` (string) **固定**
+    触发方式。固定为"MANUAL"即手动模式。
+
+    ### 响应
+    此 API 调用返回工作流的具体执行结果。
+    - `200`，请求成功
+    - `400`，请求参数有误
+
+    #### 响应体
+    - `tenantId` (string)
+    租户 ID。
+    - `workflowId` (string)
+    工作流 ID。
+    - `workflowRunId` (string)
+    工作流运行 ID。
+    - `status` (string)
+    工作流运行状态（例如：“succeeded”、“failed”）。
+    - `outputs` (any)
+    工作流运行的输出数据。
+    - `error` (string)
+    如果运行失败，则为错误信息。
+  </Col>
+  <Col sticky>
+    <CodeGroup title="Request" tag="POST" label="/workflowId/trigger/debug">
+      ```bash {{ title: 'cURL' }}
+      curl -X POST '[https://api.dify.ai/v1/workflows/](https://api.dify.ai/v1/workflows/){workflowId}/trigger/debug' \
+      -H 'Authorization: Bearer {api_key}' \
+      -H 'Content-Type: application/json' \
+      -d '{
+      "workflowId": "WKFL-95bc50fc-ed7b-4b1f-a6e9-884936cb4e5c",
+      "inputs": "{\"text\":\"说一段陈述句\"}",
+      "responseMode": "blocking",
+      "runVersion": "draft",
+      "triggerFrom": "MANUAL"
+      }'
+      ```
+    </CodeGroup>
+
+    <CodeGroup title="Response">
+      ```json {{ title: 'Response' }}
+      {
+      "tenantId": "test",
+      "workflowId": "WKFL-95bc50fc-ed7b-4b1f-a6e9-884936cb4e5c",
+      "workflowRunId": "RUN-2508111722470214000003",
+      "status": "succeeded",
+      "outputs": {
+      "text": "问句",
+      "temp": {
+      "prompt_tokens": 673,
+      "completion_tokens": 32,
+      "total_tokens": 705
+      },
+      "test": "{\"status\":\"success\",\"received_message\":\"{\\n\\\"message\\\":问句,\\n}\"}"
+      }
+      }
+      ```
+    </CodeGroup>
+  </Col>
+</Row>
+---

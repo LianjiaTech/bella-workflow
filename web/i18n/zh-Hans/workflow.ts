@@ -640,6 +640,15 @@ const translation = {
     expression: '触发条件',
     datasource: '数据源',
     expressionTypeDesc: '触发条件类型',
+    crontabRequired: '工作流的执行时间必填',
+    datasourceRequired: 'Kafka数据源必填',
+    debug: {
+      fail: '任务失败,检查工作流',
+      success: '测试完成',
+      onRun: '运行中...',
+      onIdle: '测试触发',
+    },
+    outputs: '工作流出参',
     toggle: {
       activate: '触发器已激活',
       deactivate: '触发器已停用',

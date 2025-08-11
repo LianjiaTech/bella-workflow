@@ -400,7 +400,8 @@ public class DifyController {
                 .flashMode(op.flashMode)
                 .build();
 
-        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
+        WorkflowDB wf = op.runVersion.equals("published") ? ws.getPublishedWorkflow(op.getWorkflowId(), op.getVersion())
+                : ws.getDraftWorkflow(op.getWorkflowId());
         Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法调试", op2.workflowId));
 
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
@@ -474,6 +475,19 @@ public class DifyController {
         ts.activateWorkflowTrigger(trigger.getTriggerId(), trigger.getTriggerType());
 
         return trigger;
+    }
+
+    @PostMapping("/{workflowId}/trigger/call")
+    public Object callWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowTrigger trigger) {
+        Assert.hasText(trigger.getTriggerId(), "triggerId不能为空");
+        Assert.hasText(trigger.getTriggerType(), "triggerType不能为空");
+
+        return ts.callWorkflowTrigger(trigger.getTriggerId(), trigger.getTriggerType());
+    }
+
+    @PostMapping("/{workflowId}/trigger/debug")
+    public Object debugWorkflowTrigger(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
+        return workflowRun0(workflowId, op);
     }
 
     @PostMapping("/{workflowId}/trigger/deactivate")
@@ -831,6 +845,9 @@ public class DifyController {
 
         @Builder.Default
         int flashMode = 0;
+
+        @Builder.Default
+        String runVersion = "draft";
     }
 
     @Getter

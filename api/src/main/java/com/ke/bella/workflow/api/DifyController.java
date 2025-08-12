@@ -384,7 +384,6 @@ public class DifyController {
 
     @PostMapping("/{workflowId}/workflows/run")
     public Object runWorkflow(@PathVariable String workflowId, @RequestBody WorkflowRun op) {
-
         TriggerFrom tf = TriggerFrom.valueOf(op.triggerFrom);
         Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE, DEBUG]之一");
         WorkflowDB wd = ws.getPublishedWorkflow(workflowId, null);
@@ -394,7 +393,7 @@ public class DifyController {
         return wc.run0(op, "published");
     }
 
-	private Object workflowRun0(String workflowId, DifyWorkflowRun op) {
+    private Object workflowRun0(String workflowId, DifyWorkflowRun op) {
         op.setWorkflowId(workflowId);
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
         Assert.hasText(workflowId, "workflowId不能为空");

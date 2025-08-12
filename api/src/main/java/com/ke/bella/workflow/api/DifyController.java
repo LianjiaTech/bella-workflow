@@ -382,7 +382,19 @@ public class DifyController {
         return workflowRun0(workflowId, op);
     }
 
-    private Object workflowRun0(String workflowId, DifyWorkflowRun op) {
+    @PostMapping("/{workflowId}/workflows/run")
+    public Object runWorkflow(@PathVariable String workflowId, @RequestBody WorkflowRun op) {
+
+        TriggerFrom tf = TriggerFrom.valueOf(op.triggerFrom);
+        Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE, DEBUG]之一");
+        WorkflowDB wd = ws.getPublishedWorkflow(workflowId, null);
+        Assert.notNull(wd, "工作流需要先发布，才可以测试");
+        op.setTenantId(BellaContext.getOperator().getTenantId());
+
+        return wc.run0(op, "published");
+    }
+
+	private Object workflowRun0(String workflowId, DifyWorkflowRun op) {
         op.setWorkflowId(workflowId);
         ResponseMode mode = ResponseMode.valueOf(op.responseMode);
         Assert.hasText(workflowId, "workflowId不能为空");
@@ -419,18 +431,6 @@ public class DifyController {
             });
             return emitter;
         }
-    }
-
-    @PostMapping("/{workflowId}/debug")
-    public Object debugWorkflow(@PathVariable String workflowId, @RequestBody WorkflowRun op) {
-
-        TriggerFrom tf = TriggerFrom.valueOf(op.triggerFrom);
-        Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE, DEBUG]之一");
-        WorkflowDB wd = ws.getPublishedWorkflow(workflowId, null);
-        Assert.notNull(wd, "工作流需要先发布，才可以测试");
-        op.setTenantId(BellaContext.getOperator().getTenantId());
-
-        return wc.run0(op, "published");
     }
 
     @RequestMapping("/{workflowId}/workflow-app-logs")

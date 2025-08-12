@@ -101,8 +101,8 @@ export const deactivateTrigger: Fetcher<WorkflowTriggerDetail, { workflowId: str
   return post<WorkflowTriggerDetail>(`apps/${workflowId}/trigger/deactivate`, { body: { triggerId, triggerType } })
 }
 
-export const debugPublishedWorkflow: Fetcher<WorkflowOutputs, { workflowId: string; inputs: string; responseMode: string; triggerFrom: string }> = ({ workflowId, inputs, responseMode, triggerFrom }) => {
-  return post<WorkflowOutputs>(`apps/${workflowId}/debug`, { body: { workflowId, inputs: JSON.parse(inputs), responseMode, triggerFrom } })
+export const runPublishedWorkflow: Fetcher<WorkflowOutputs, { workflowId: string; inputs: string; responseMode: string; triggerFrom: string }> = ({ workflowId, inputs, responseMode, triggerFrom }) => {
+  return post<WorkflowOutputs>(`apps/${workflowId}/workflows/run`, { body: { workflowId, inputs: JSON.parse(inputs), responseMode, triggerFrom } })
 }
 
 export const fetchWorkflowCustomApis: Fetcher<CustomApiListResponse, { workflowId: string }> = ({ workflowId }) => {

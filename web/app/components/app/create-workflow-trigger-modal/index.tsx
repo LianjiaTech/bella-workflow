@@ -16,7 +16,7 @@ import s from './style.module.css'
 import cn from '@/utils/classnames'
 import AppsContext, { useAppContext } from '@/context/app-context'
 import { ToastContext } from '@/app/components/base/toast'
-import { createSchedulingTrigger, debugPublishedWorkflow } from '@/service/workflow'
+import { createSchedulingTrigger, runPublishedWorkflow } from '@/service/workflow'
 import Modal from '@/app/components/base/modal'
 import Button from '@/app/components/base/button'
 import TooltipPlus from '@/app/components/base/tooltip-plus'
@@ -65,14 +65,14 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
   }
 
   const isCreatingRef = useRef(false)
-  const [isDebuging, setIsDebuging] = useState(false)
-  const onDebug = async () => {
+  const [isRunning, setIsRunning] = useState(false)
+  const onRunning = async () => {
     try {
-      setIsDebuging(true)
-      const res = await debugPublishedWorkflow({ workflowId, inputs, responseMode: 'blocking', triggerFrom: 'DEBUG' })
+      setIsRunning(true)
+      const res = await runPublishedWorkflow({ workflowId, inputs, responseMode: 'blocking', triggerFrom: 'DEBUG' })
 
       setOutputs(JSON.stringify(res, null, 2))
-      if (res.data.error === null)
+      if (res.data.error === undefined)
         notify({ type: 'success', message: t('workflow.trigger.debug.success') })
       else
         notify({ type: 'error', message: t('workflow.trigger.debug.fail') })
@@ -81,7 +81,7 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
       notify({ type: 'error', message: `${t('workflow.trigger.debug.fail')}` })
     }
     finally {
-      setIsDebuging(false)
+      setIsRunning(false)
     }
   }
   const onCreate: MouseEventHandler = useCallback(async () => {
@@ -298,8 +298,8 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
       )}
 
       <div className='px-8 py-6 flex justify-between'>
-        { triggerType === 'SCHD' && (<Button variant="primary" onClick={onDebug} disabled={isDebuging}>
-          {isDebuging ? t('workflow.trigger.debug.onRun') : t('workflow.trigger.debug.onIdle')}</Button>
+        { triggerType === 'SCHD' && (<Button variant="primary" onClick={onRunning} disabled={isRunning}>
+          {isRunning ? t('workflow.trigger.debug.onRun') : t('workflow.trigger.debug.onIdle')}</Button>
         )}
         { triggerType !== 'SCHD' && (<div></div>)}
         <div className='flex'>

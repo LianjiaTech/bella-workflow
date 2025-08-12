@@ -104,6 +104,9 @@ public class DifyController {
     @Autowired
     WorkflowRunLogService ls;
 
+    @Autowired
+    WorkflowController wc;
+
     private void initContext(Operator op) {
         if(op != null && contextOperatorInvalid()) {
             BellaContext.setOperator(op);
@@ -377,6 +380,17 @@ public class DifyController {
     @PostMapping({ "/{workflowId}/advanced-chat/workflows/draft/run" })
     public Object chatFlowRun(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
         return workflowRun0(workflowId, op);
+    }
+
+    @PostMapping("/{workflowId}/workflows/run")
+    public Object runWorkflow(@PathVariable String workflowId, @RequestBody WorkflowRun op) {
+        TriggerFrom tf = TriggerFrom.valueOf(op.triggerFrom);
+        Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE, DEBUG]之一");
+        WorkflowDB wd = ws.getPublishedWorkflow(workflowId, null);
+        Assert.notNull(wd, "工作流需要先发布，才可以测试");
+        op.setTenantId(BellaContext.getOperator().getTenantId());
+
+        return wc.run0(op, "published");
     }
 
     private Object workflowRun0(String workflowId, DifyWorkflowRun op) {

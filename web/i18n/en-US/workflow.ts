@@ -628,6 +628,15 @@ const translation = {
     expression: 'Trigger Condition',
     datasource: 'Data Source',
     expressionTypeDesc: 'Trigger Condition Type',
+    crontabRequired: 'Workflow execution time required',
+    datasourceRequired: 'Kafka data source required',
+    debug: {
+      fail: 'Task failed, check workflow',
+      success: 'Test completed',
+      onRun: 'Running...',
+      onIdle: 'Test triggered',
+    },
+    outputs: 'Workflow output parameters',
     toggle: {
       activate: 'Trigger activated',
       deactivate: 'Trigger deactivated',

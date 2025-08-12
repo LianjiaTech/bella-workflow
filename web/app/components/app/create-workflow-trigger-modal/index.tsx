@@ -16,7 +16,7 @@ import s from './style.module.css'
 import cn from '@/utils/classnames'
 import AppsContext, { useAppContext } from '@/context/app-context'
 import { ToastContext } from '@/app/components/base/toast'
-import { createSchedulingTrigger } from '@/service/workflow'
+import { createSchedulingTrigger, runPublishedWorkflow } from '@/service/workflow'
 import Modal from '@/app/components/base/modal'
 import Button from '@/app/components/base/button'
 import TooltipPlus from '@/app/components/base/tooltip-plus'
@@ -46,6 +46,7 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
   const [kafkaExpressionType, setKafkaExpressionType] = useState('Groovy')
   const [datasourceId, setDatasourceId] = useState('')
   const [inputs, setInputs] = useState('{}')
+  const [outputs, setOutputs] = useState('')
 
   const { isCurrentWorkspaceEditor } = useAppContext()
 
@@ -64,6 +65,25 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
   }
 
   const isCreatingRef = useRef(false)
+  const [isRunning, setIsRunning] = useState(false)
+  const onRunning = async () => {
+    try {
+      setIsRunning(true)
+      const res = await runPublishedWorkflow({ workflowId, inputs, responseMode: 'blocking', triggerFrom: 'DEBUG' })
+
+      setOutputs(JSON.stringify(res, null, 2))
+      if (res.data.error === undefined)
+        notify({ type: 'success', message: t('workflow.trigger.debug.success') })
+      else
+        notify({ type: 'error', message: t('workflow.trigger.debug.fail') })
+    }
+    catch (e) {
+      notify({ type: 'error', message: `${t('workflow.trigger.debug.fail')}` })
+    }
+    finally {
+      setIsRunning(false)
+    }
+  }
   const onCreate: MouseEventHandler = useCallback(async () => {
     if (!triggerType) {
       notify({ type: 'error', message: t('app.newApp.appTypeRequired') })
@@ -105,7 +125,7 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
       notify({ type: 'error', message: t('app.newApp.appCreateFailed') })
     }
     isCreatingRef.current = false
-  }, [name, notify, t, triggerType, cronExpression, onSuccess, onClose, mutateApps, push, isCurrentWorkspaceEditor, datasourceId, datasourceList, kafkaExpression, inputs])
+  }, [name, notify, t, triggerType, cronExpression, onSuccess, onClose, mutateApps, push, isCurrentWorkspaceEditor, datasourceId, datasourceList, kafkaExpression, inputs, outputs])
   return (
     <Modal
       overflowVisible
@@ -259,9 +279,33 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
         />
       </div>
 
-      <div className='px-8 py-6 flex justify-end'>
-        <Button className='mr-2' onClick={onClose}>{t('app.newApp.Cancel')}</Button>
-        <Button variant="primary" onClick={onCreate}>{t('app.newApp.Create')}</Button>
+      { triggerType === 'SCHD' && (
+        <div className='pt-2 px-8'>
+          <div className='py-2 text-sm font-medium leading-[20px] text-gray-900'>{t('workflow.trigger.outputs')}</div>
+          <Editor
+            width="800"
+            height="100px"
+            language="json"
+            theme="vs-dark"
+            value={outputs}
+            options={{
+              lineNumbers: 'on',
+              tabSize: 2,
+              readOnly: true,
+            }}
+          />
+        </div>
+      )}
+
+      <div className='px-8 py-6 flex justify-between'>
+        { triggerType === 'SCHD' && (<Button variant="primary" onClick={onRunning} disabled={isRunning}>
+          {isRunning ? t('workflow.trigger.debug.onRun') : t('workflow.trigger.debug.onIdle')}</Button>
+        )}
+        { triggerType !== 'SCHD' && (<div></div>)}
+        <div className='flex'>
+          <Button className='mr-2' onClick={onClose}>{t('app.newApp.Cancel')}</Button>
+          <Button variant="primary" onClick={onCreate}>{t('app.newApp.Create')}</Button>
+        </div>
       </div>
       <div className='absolute right-6 top-6 p-2 cursor-pointer z-20' onClick={onClose}>
         <RiCloseLine className='w-4 h-4 text-gray-500' />

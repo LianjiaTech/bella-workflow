@@ -262,7 +262,17 @@ export type WorkflowTriggerDetail = {
   workflowId: string
   inputs: string
 }
-
+export type WorkflowOutputs = {
+  code: number
+  data: {
+    tenantId: string
+    workflowId: string
+    workflowRunId: string
+    status: string
+    outputs: any
+    error: string
+  }
+}
 export type Datasource = {
   datasourceId: string
   datasourceType: string

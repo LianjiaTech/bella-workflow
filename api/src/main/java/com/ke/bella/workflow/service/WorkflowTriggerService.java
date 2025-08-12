@@ -357,5 +357,4 @@ public class WorkflowTriggerService {
             deactiveWebotTrigger(triggerId);
         }
     }
-
 }

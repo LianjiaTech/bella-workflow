@@ -403,7 +403,7 @@ public class DifyController {
                 .flashMode(op.flashMode)
                 .build();
 
-        WorkflowDB wf = ws.getDraftWorkflow(op.getWorkflowId());
+        WorkflowDB wf = ws.getDraftWorkflow(workflowId);
         Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法调试", op2.workflowId));
 
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
@@ -844,7 +844,6 @@ public class DifyController {
 
         @Builder.Default
         int flashMode = 0;
-
     }
 
     @Getter

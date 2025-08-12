@@ -104,6 +104,9 @@ public class DifyController {
     @Autowired
     WorkflowRunLogService ls;
 
+    @Autowired
+    WorkflowController wc;
+
     private void initContext(Operator op) {
         if(op != null && contextOperatorInvalid()) {
             BellaContext.setOperator(op);
@@ -400,8 +403,7 @@ public class DifyController {
                 .flashMode(op.flashMode)
                 .build();
 
-        WorkflowDB wf = op.runVersion.equals("published") ? ws.getPublishedWorkflow(op.getWorkflowId(), op.getVersion())
-                : ws.getDraftWorkflow(op.getWorkflowId());
+        WorkflowDB wf = ws.getDraftWorkflow(op.getWorkflowId());
         Assert.notNull(wf, String.format("工作流[%s]当前无draft版本，无法调试", op2.workflowId));
 
         WorkflowRunDB wr = ws.newWorkflowRun(wf, op2);
@@ -477,17 +479,14 @@ public class DifyController {
         return trigger;
     }
 
-    @PostMapping("/{workflowId}/trigger/call")
-    public Object callWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowTrigger trigger) {
-        Assert.hasText(trigger.getTriggerId(), "triggerId不能为空");
-        Assert.hasText(trigger.getTriggerType(), "triggerType不能为空");
-
-        return ts.callWorkflowTrigger(trigger.getTriggerId(), trigger.getTriggerType());
-    }
-
     @PostMapping("/{workflowId}/trigger/debug")
-    public Object debugWorkflowTrigger(@PathVariable String workflowId, @RequestBody DifyWorkflowRun op) {
-        return workflowRun0(workflowId, op);
+    public Object debugWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowRun op) {
+
+        TriggerFrom tf = TriggerFrom.valueOf(op.triggerFrom);
+        Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE, DEBUG]之一");
+        op.setTenantId(BellaContext.getOperator().getTenantId());
+
+        return wc.run0(op, "published");
     }
 
     @PostMapping("/{workflowId}/trigger/deactivate")
@@ -846,8 +845,6 @@ public class DifyController {
         @Builder.Default
         int flashMode = 0;
 
-        @Builder.Default
-        String runVersion = "draft";
     }
 
     @Getter

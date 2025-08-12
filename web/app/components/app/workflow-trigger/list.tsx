@@ -2,7 +2,7 @@
 import type { FC } from 'react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { RiPlayFill, RiRestartLine, RiShutDownLine } from '@remixicon/react'
+import { RiRestartLine, RiShutDownLine } from '@remixicon/react'
 import { useContext } from 'use-context-selector'
 import Button from '../../base/button'
 import s from './style.module.css'
@@ -10,7 +10,7 @@ import Loading from '@/app/components/base/loading'
 import useBreakpoints from '@/hooks/use-breakpoints'
 import type { WorkflowTriggerDetail, WorkflowTriggersResponse } from '@/models/log'
 import type { App } from '@/types/app'
-import { activateTrigger, callTrigger, deactivateTrigger } from '@/service/workflow'
+import { activateTrigger, deactivateTrigger } from '@/service/workflow'
 import { ToastContext } from '@/app/components/base/toast'
 
 type ILogs = {
@@ -38,14 +38,6 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh, disabled })
       await activateTrigger({ workflowId: appDetail.id, triggerId, triggerType })
       notify({ type: 'success', message: t('workflow.trigger.toggle.activate') })
     }
-    onRefresh()
-  }
-  const runTrigger = async (triggerId: string, triggerType: string, status: string) => {
-    if (status === 'active') {
-      await deactivateTrigger({ workflowId: appDetail.id, triggerId, triggerType })
-      notify({ type: 'info', message: t('workflow.trigger.toggle.deactivate') })
-    }
-    await callTrigger({ workflowId: appDetail.id, triggerId, triggerType })
     onRefresh()
   }
 
@@ -80,10 +72,6 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh, disabled })
                   <Button disabled={disabled} variant="secondary" size="small" onClick={() => { toggleTrigger(t.triggerId, t.triggerType, t.status) }}>
                     {t.status === 'active' ? <RiShutDownLine className="h-4 w-4" /> : <RiRestartLine className="h-4 w-4" />}
                   </Button>
-                  { t.triggerType === 'SCHD' && <Button disabled={disabled} variant="secondary" size="small" onClick={() => { runTrigger(t.triggerId, t.triggerType, t.status) }}>
-                    <RiPlayFill className="h-4 w-4 inline-block mr-1" />
-                  </Button>
-                  }
                 </div>
               </td>
             </tr>

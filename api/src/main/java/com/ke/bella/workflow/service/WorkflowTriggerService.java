@@ -20,7 +20,6 @@ import com.ke.bella.workflow.trigger.WorkflowSchedulingStatus;
 import com.ke.bella.workflow.utils.CronUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Collections;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -351,30 +347,6 @@ public class WorkflowTriggerService {
         }
     }
 
-    public WorkflowTrigger callWorkflowTrigger(String triggerId, String triggerType) {
-        TriggerType type = TriggerType.valueOf(triggerType);
-        if(type == TriggerType.KFKA) {
-            // TODO Find KFKA Infos
-        } else if(type == TriggerType.SCHD) {
-            WorkflowSchedulingDB trigger = repo.selectWorkflowScheduling(triggerId);
-            String tenantId = trigger.getTenantId();
-            Map<String, TenantDB> tenantsMap = getTenantsMap(Collections.singletonList(tenantId));
-            TenantDB tenantDB = tenantsMap.get(tenantId);
-            wfc.workflowRun(tenantDB, trigger);
-            return WorkflowTrigger.builder()
-                    .triggerId(trigger.getTriggerId())
-                    .triggerType(trigger.getTriggerType())
-                    .name(trigger.getName())
-                    .desc(trigger.getDesc())
-                    .inputs(trigger.getInputs())
-                    .status(trigger.getStatus().intValue() == 0 ? "active" : "inactive")
-                    .build();
-        } else if(type == TriggerType.WBOT) {
-            // TODO Find WBOT Infos
-        }
-        return null;
-    }
-
     public void deactivateWorkflowTrigger(String triggerId, String triggerType) {
         TriggerType type = TriggerType.valueOf(triggerType);
         if(type == TriggerType.KFKA) {
@@ -386,9 +358,4 @@ public class WorkflowTriggerService {
         }
     }
 
-    @NotNull
-    private Map<String, TenantDB> getTenantsMap(List<String> tenantIds) {
-        List<TenantDB> tenantDbs = ws.listTenants(tenantIds);
-        return tenantDbs.stream().collect(Collectors.toMap(TenantDB::getTenantId, Function.identity(), (k1, k2) -> k1));
-    }
 }

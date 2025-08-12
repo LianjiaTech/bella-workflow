@@ -69,13 +69,13 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
   const onDebug = async () => {
     try {
       setIsDebuging(true)
-      const res = await debugTrigger({ workflowId, inputs, responseMode: 'blocking', runVersion: 'published' })
-      if (res.status !== 'succeeded') {
+      const res = await debugTrigger({ workflowId, inputs, responseMode: 'blocking', triggerFrom: 'DEBUG' })
+      if (res.code !== 200) {
         notify({ type: 'error', message: t('workflow.trigger.debug.fail') })
         setOutputs(JSON.stringify(res, null, 2))
       }
       else {
-        setOutputs(JSON.stringify(res.outputs, null, 2))
+        setOutputs(JSON.stringify(res.data, null, 2))
         notify({ type: 'success', message: t('workflow.trigger.debug.success') })
       }
     }

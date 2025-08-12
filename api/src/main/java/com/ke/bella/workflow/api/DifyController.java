@@ -421,6 +421,18 @@ public class DifyController {
         }
     }
 
+    @PostMapping("/{workflowId}/debug")
+    public Object debugWorkflow(@PathVariable String workflowId, @RequestBody WorkflowRun op) {
+
+        TriggerFrom tf = TriggerFrom.valueOf(op.triggerFrom);
+        Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE, DEBUG]之一");
+        WorkflowDB wd = ws.getPublishedWorkflow(workflowId, null);
+        Assert.notNull(wd, "工作流需要先发布，才可以测试");
+        op.setTenantId(BellaContext.getOperator().getTenantId());
+
+        return wc.run0(op, "published");
+    }
+
     @RequestMapping("/{workflowId}/workflow-app-logs")
     public Page<WorkflowRunLog> pageWorkflowRunLog(@PathVariable String workflowId,
             @RequestParam(required = false) String status,
@@ -477,16 +489,6 @@ public class DifyController {
         ts.activateWorkflowTrigger(trigger.getTriggerId(), trigger.getTriggerType());
 
         return trigger;
-    }
-
-    @PostMapping("/{workflowId}/trigger/debug")
-    public Object debugWorkflowTrigger(@PathVariable String workflowId, @RequestBody WorkflowRun op) {
-
-        TriggerFrom tf = TriggerFrom.valueOf(op.triggerFrom);
-        Assert.notNull(tf, "triggerFrom必须为[API, SCHEDULE, DEBUG]之一");
-        op.setTenantId(BellaContext.getOperator().getTenantId());
-
-        return wc.run0(op, "published");
     }
 
     @PostMapping("/{workflowId}/trigger/deactivate")

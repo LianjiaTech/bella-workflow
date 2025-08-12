@@ -16,7 +16,7 @@ import s from './style.module.css'
 import cn from '@/utils/classnames'
 import AppsContext, { useAppContext } from '@/context/app-context'
 import { ToastContext } from '@/app/components/base/toast'
-import { createSchedulingTrigger, debugTrigger } from '@/service/workflow'
+import { createSchedulingTrigger, debugPublishedWorkflow } from '@/service/workflow'
 import Modal from '@/app/components/base/modal'
 import Button from '@/app/components/base/button'
 import TooltipPlus from '@/app/components/base/tooltip-plus'
@@ -69,18 +69,16 @@ const CreateTriggerModal = ({ show, onSuccess, onClose, workflowId }: CreateTrig
   const onDebug = async () => {
     try {
       setIsDebuging(true)
-      const res = await debugTrigger({ workflowId, inputs, responseMode: 'blocking', triggerFrom: 'DEBUG' })
-      if (res.code !== 200) {
-        notify({ type: 'error', message: t('workflow.trigger.debug.fail') })
-        setOutputs(JSON.stringify(res, null, 2))
-      }
-      else {
-        setOutputs(JSON.stringify(res.data, null, 2))
+      const res = await debugPublishedWorkflow({ workflowId, inputs, responseMode: 'blocking', triggerFrom: 'DEBUG' })
+
+      setOutputs(JSON.stringify(res, null, 2))
+      if (res.data.error === null)
         notify({ type: 'success', message: t('workflow.trigger.debug.success') })
-      }
+      else
+        notify({ type: 'error', message: t('workflow.trigger.debug.fail') })
     }
     catch (e) {
-      notify({ type: 'error', message: `${t('workflow.trigger.debug.fail')}: ${e} ` })
+      notify({ type: 'error', message: `${t('workflow.trigger.debug.fail')}` })
     }
     finally {
       setIsDebuging(false)

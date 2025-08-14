@@ -107,7 +107,7 @@ public class WorkflowRepo implements BaseRepo {
                 .where(WORKFLOW.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                 .and(WORKFLOW.WORKFLOW_ID.eq(workflowId))
                 .and(version == null ? WORKFLOW.VERSION.greaterThan(0l) : WORKFLOW.VERSION.eq(version)) // 正式版
-                .orderBy(WORKFLOW.ID.desc())   // 最新版
+                .orderBy(WORKFLOW.VERSION.desc())   // 最新版
                 .limit(1)
                 .fetchOneInto(WorkflowDB.class);
     }

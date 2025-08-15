@@ -65,6 +65,7 @@ bella:
         password: ${REDIS_PASSWORD:bella123}
     files-upload-configs: '{"file_size_limit":512,"batch_count_limit":5,"image_file_size_limit":512,"video_file_size_limit":100,"audio_file_size_limit":100,"workflow_file_upload_limit":10}'
     run-log:
+      provider: db
       elasticsearch:
         index: ${ELASTICSEARCH_RUN_LOG_INDEX:workflow_run_log_test_*}
         hosts: ${ELASTICSEARCH_HOSTS:localhost:9200}
@@ -123,4 +124,6 @@ management:
       application: ${spring.application.name}
   health:
     redis:
+      enabled: false
+    elasticsearch:
       enabled: false

@@ -1,7 +1,15 @@
 package com.ke.bella.workflow.service;
 
+import static com.ke.bella.openapi.BellaContext.BELLA_TRACE_HEADER;
+
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -10,11 +18,6 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import com.google.common.cache.Cache;
-import com.ke.bella.job.queue.worker.JobQueueWorker;
-import com.ke.bella.job.queue.worker.Task;
-import com.ke.bella.openapi.apikey.ApikeyInfo;
-import com.ke.bella.workflow.api.callbacks.WorkflowBatchRunCallback;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +27,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
 import com.amazonaws.services.s3.model.S3Object;
+import com.google.common.cache.Cache;
+import com.ke.bella.job.queue.worker.JobQueueWorker;
+import com.ke.bella.job.queue.worker.Task;
 import com.ke.bella.openapi.BellaContext;
+import com.ke.bella.openapi.apikey.ApikeyInfo;
 import com.ke.bella.openapi.protocol.files.File;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.RedisMesh;
@@ -49,6 +56,7 @@ import com.ke.bella.workflow.api.WorkflowOps.WorkflowRun;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunCancel;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowSync;
+import com.ke.bella.workflow.api.callbacks.WorkflowBatchRunCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.repo.Page;
@@ -69,8 +77,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.jodah.expiringmap.ExpirationListener;
 import net.jodah.expiringmap.ExpiringMap;
 
-import static com.ke.bella.openapi.BellaContext.BELLA_TRACE_HEADER;
-
 @Component
 @Slf4j
 public class WorkflowService {
@@ -88,7 +94,7 @@ public class WorkflowService {
     RedisMesh mesh;
 
     @Autowired
-    WorkflowRunLogService ls;
+    IWorkflowRunLogService ls;
 
     @Autowired(required = false)
     JobQueueWorker worker;
@@ -354,7 +360,7 @@ public class WorkflowService {
 
         try {
             manager.beforeRun(context);
-            new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback));
+            new WorkflowRunner().run(context, new WorkflowRunCallback(this, callback, ls));
         } finally {
             manager.afterRun(context);
         }
@@ -424,7 +430,7 @@ public class WorkflowService {
 
         try {
             manager.beforeRun(context);
-            new WorkflowRunner().runNode(context, new WorkflowRunCallback(this, callback), nodeId);
+            new WorkflowRunner().runNode(context, new WorkflowRunCallback(this, callback, ls), nodeId);
         } finally {
             manager.afterRun(context);
         }
@@ -685,7 +691,7 @@ public class WorkflowService {
         context.getState().putNotifyData(notifiedData);
         try {
             manager.beforeRun(context);
-            new WorkflowRunner().resume(context, new WorkflowRunCallback(this, callback), ids);
+            new WorkflowRunner().resume(context, new WorkflowRunCallback(this, callback, ls), ids);
             return true;
         } finally {
             manager.afterRun(context);

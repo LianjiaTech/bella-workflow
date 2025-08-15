@@ -29,7 +29,10 @@ import com.ke.bella.workflow.RedisMesh;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.repo.InstanceRepo;
 import com.ke.bella.workflow.service.Configs;
+import com.ke.bella.workflow.service.IWorkflowRunLogService;
 import com.ke.bella.workflow.service.WorkflowService;
+import com.ke.bella.workflow.service.impl.DbWorkflowRunLogService;
+import com.ke.bella.workflow.service.impl.EsWorkflowRunLogService;
 
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -111,6 +114,7 @@ public class BellaAutoConf {
     }
 
     @Bean
+    @ConditionalOnProperty(name = "bella.workflow.run-log.provider", havingValue = "elasticsearch")
     public RestHighLevelClient restHighLevelClient(@Value("${bella.workflow.run-log.elasticsearch.hosts}") String hosts,
             @Value("${bella.workflow.run-log.elasticsearch.username}") String username,
             @Value("${bella.workflow.run-log.elasticsearch.password}") String password) {
@@ -121,5 +125,18 @@ public class BellaAutoConf {
         return new RestHighLevelClient(
                 RestClient.builder(hostArray).setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
                         .setDefaultCredentialsProvider(credentialsProvider)));
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "bella.workflow.run-log.provider", havingValue = "elasticsearch")
+    public IWorkflowRunLogService esWorkflowRunLogService(RestHighLevelClient restHighLevelClient,
+            @Value("${bella.workflow.run-log.elasticsearch.index}") String logIndex) {
+        return new EsWorkflowRunLogService(restHighLevelClient, logIndex);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "bella.workflow.run-log.provider", havingValue = "db", matchIfMissing = true)
+    public IWorkflowRunLogService dbWorkflowRunLogService(WorkflowService workflowService) {
+        return new DbWorkflowRunLogService(workflowService);
     }
 }

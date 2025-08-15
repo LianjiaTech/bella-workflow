@@ -39,8 +39,6 @@ BELLA_OPENAPI_URL=http://your-bella-openapi-host:port
 # 在 docker 目录下执行
 
 # 1. 复制环境变量模板文件
-# 完整部署模板
-
 cp .example.env .env
 
 # 2. 修改环境变量文件中的配置，特别是 bella-openapi 相关的配置
@@ -48,7 +46,7 @@ cp .example.env .env
 # vi .env
 
 # 3. 使用修改后的环境变量文件启动服务
-docker-compose --env-file .env -f docker-compose.yaml up -d
+docker-compose --env-file .env up -d
 ```
 
 > **提示**：添加 `-d` 参数可在后台运行容器，方便您继续使用终端。
@@ -59,7 +57,7 @@ docker-compose --env-file .env -f docker-compose.yaml up -d
 
 ### 1. 启动依赖中间件
 
-如果您需要进行本地开发，可以只启动必要的中间件服务（如数据库、Redis等）：
+如果您需要进行本地开发，可以只启动必要的中间件服务：
 
 ```bash
 # 在 docker 目录下执行
@@ -71,7 +69,7 @@ cp .middleware.env .my-middleware.env
 # vi .my-middleware.env
 
 # 3. 使用修改后的环境变量文件启动中间件服务
-docker-compose --env-file .my-middleware.env -f docker-compose.yaml up -d
+docker-compose --env-file .my-middleware.env -f docker-compose.middleware.yaml up -d
 ```
 
 ### 2. 启动后端服务
@@ -125,8 +123,32 @@ docker-compose up -d --build [服务名称]
 2. 环境变量文件中的 bella-openapi 相关配置是否正确
 3. 查看容器日志了解具体错误信息：`docker-compose logs -f`
 
+## 企业级架构部署
+
+如果您有企业级高性能、高可用需求，可以使用包含 Kafka → Flink → Elasticsearch 的完整流处理架构来优化日志模块：
+
+```bash
+# 在 docker 目录下执行
+
+# 1. 复制企业级架构环境变量模板文件
+cp .example.es.env .env
+
+# 2. 修改环境变量文件中的配置
+# vi .env
+
+# 3. 启动企业级架构服务
+docker-compose --env-file .env -f docker-compose.es.yaml up -d
+```
+
+该架构包含：
+
+- **Kafka**：消息队列，处理工作流运行日志
+- **Flink**：流处理引擎，实时处理日志数据
+- **Elasticsearch**：搜索引擎，存储和查询日志
+- 适用于大数据量、高并发场景
+
 ## 注意事项
 
 - 首次启动可能需要较长时间，请耐心等待
-- 确保端口未被占用（默认使用：3000、8080、5432、6379等）
+- 确保端口未被占用（默认使用：3000、8080、3306、6379等）
 - 生产环境部署前，请修改默认密码和配置

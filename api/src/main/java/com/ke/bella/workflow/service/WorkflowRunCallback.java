@@ -37,12 +37,14 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
     private final IWorkflowCallback delegate;
     private final OpenAiService openAiService;
     private final Map<String, StringBuilder> resultBufferMap;
+    private final IWorkflowRunLogService ls;
 
-    public WorkflowRunCallback(WorkflowService service, IWorkflowCallback delegate) {
+    public WorkflowRunCallback(WorkflowService service, IWorkflowCallback delegate, IWorkflowRunLogService ls) {
         this.service = service;
         this.delegate = delegate;
         this.openAiService = OpenAiUtils.defaultOpenAiService(BellaContext.getApikey().getApikey());
         this.resultBufferMap = new ConcurrentHashMap<>();
+        this.ls = ls;
     }
 
     @Override
@@ -74,6 +76,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setCtime(System.currentTimeMillis());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         service.markWorkflowRunStarted(ctx);
 
@@ -101,6 +104,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setTriggerFrom(ctx.getTriggerFrom());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         service.markWorkflowRunSuccessed(ctx, Optional.ofNullable(ctx.getWorkflowRunResult()).map(NodeRunResult::getOutputs).orElse(null));
 
@@ -134,6 +138,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setCtime(System.currentTimeMillis());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         delegate.onWorkflowRunSuspended(context);
 
@@ -160,6 +165,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setTriggerFrom(context.getTriggerFrom());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         service.updateWorkflowRunStatus(context, WorkflowRunStatus.stopped.name());
 
@@ -184,6 +190,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setCtime(System.currentTimeMillis());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         service.updateWorkflowRunStatus(context, WorkflowRunStatus.running.name());
 
@@ -210,6 +217,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setTriggerFrom(context.getTriggerFrom());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         service.updateWorkflowRun(context, WorkflowRunStatus.failed.name(), t.toString());
 
@@ -234,6 +242,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setCtime(System.currentTimeMillis());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         if(!context.isFlashMode()) {
             service.createWorkflowNodeRun(context, nodeId, nodeRunId, NodeRunResult.Status.running.name());
@@ -279,6 +288,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         }
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         if(!context.isFlashMode()) {
             service.updateWorkflowNodeRunWaited(context, nodeId, nodeRunId);
@@ -311,6 +321,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         }
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         if(!ctx.isFlashMode()) {
             service.updateWorkflowNodeRunSucceeded(ctx, nodeId, nodeRunId);
@@ -342,6 +353,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         }
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         if(!context.isFlashMode()) {
             service.updateWorkflowNodeRunFailed(context, nodeId, nodeRunId, error);
@@ -375,6 +387,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         }
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         if(!context.isFlashMode()) {
             service.updateWorkflowNodeRunException(context, nodeId, nodeRunId);
@@ -402,6 +415,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setIterationIndex(index);
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         delegate.onWorkflowIterationStarted(context, nodeId, nodeRunId, index);
     }
@@ -430,6 +444,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setIterationIndex(index);
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
+        ls.saveWorkflowRunLog(runLog);
 
         delegate.onWorkflowIterationCompleted(context, nodeId, nodeRunId, index);
     }

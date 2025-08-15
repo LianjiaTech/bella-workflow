@@ -505,7 +505,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         }
 
         public static List<WorkflowRunEvent> nodeFinishedEvents() {
-            return Arrays.asList(onWorkflowNodeRunSucceeded, onWorkflowNodeRunFailed, onWorkflowIterationCompleted);
+            return Arrays.asList(onWorkflowNodeRunSucceeded, onWorkflowNodeRunFailed, onWorkflowIterationCompleted, onWorkflowNodeRunException);
         }
     }
 }

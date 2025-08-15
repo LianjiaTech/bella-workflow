@@ -1,4 +1,4 @@
-package com.ke.bella.workflow.service;
+package com.ke.bella.workflow.service.impl;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -18,46 +18,45 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.google.common.base.Throwables;
 import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.db.repo.Page;
+import com.ke.bella.workflow.service.IWorkflowRunLogService;
+import com.ke.bella.workflow.service.WorkflowRunCallback;
 import com.ke.bella.workflow.service.WorkflowRunCallback.WorkflowRunLog;
 import com.ke.bella.workflow.utils.JsonUtils;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Service
 @Slf4j
-public class WorkflowRunLogService {
+public class EsWorkflowRunLogService implements IWorkflowRunLogService {
 
-    @Autowired
-    RestHighLevelClient esClient;
+    private final RestHighLevelClient esClient;
+    private final String logIndex;
 
-    @Value("${bella.workflow.run-log.elasticsearch.index}")
-    private String logIndex;
+    public EsWorkflowRunLogService(RestHighLevelClient esClient, String logIndex) {
+        this.esClient = esClient;
+        this.logIndex = logIndex;
+    }
 
-    public WorkflowRunLog getWorkflowRunLogAgg(String workflowRunId) {
-        WorkflowRunLogService.QueryOps build = QueryOps.builder()
+    @Override
+    public WorkflowRunLog getWorkflowRunLog(String workflowRunId) {
+        QueryOps build = QueryOps.builder()
                 .workflowRunId(workflowRunId)
                 .build();
-        List<WorkflowRunCallback.WorkflowRunLog> workflowRunLogs = listWorkflowRuns(build);
+        List<WorkflowRunLog> workflowRunLogs = listWorkflowRuns(build);
 
         if(CollectionUtils.isEmpty(workflowRunLogs)) {
             return null;
         }
 
-        // aggregation
-        WorkflowRunCallback.WorkflowRunLog logAggregation = new WorkflowRunCallback.WorkflowRunLog();
-        for (WorkflowRunCallback.WorkflowRunLog workflowRunLog : workflowRunLogs) {
+        WorkflowRunLog logAggregation = new WorkflowRunLog();
+        for (WorkflowRunLog workflowRunLog : workflowRunLogs) {
             if(WorkflowRunCallback.WorkflowRunEvent.onWorkflowRunSucceeded.name().equals(workflowRunLog.getEvent())) {
                 logAggregation.setOutputs(workflowRunLog.getOutputs());
                 logAggregation.setStatus(WorkflowRunState.WorkflowRunStatus.succeeded.name());
@@ -89,10 +88,7 @@ public class WorkflowRunLogService {
         return logAggregation;
     }
 
-    public List<WorkflowRunLog> listWorkflowRuns(QueryOps ops) {
-        return pageWorkflowRunLogs(ops).getData();
-    }
-
+    @Override
     public Page<WorkflowRunLog> pageWorkflowRunLogs(QueryOps ops) {
         try {
             SearchRequest request = getSearchRequest(ops);
@@ -119,6 +115,15 @@ public class WorkflowRunLogService {
             LOGGER.error("failed to search workflow run logs", e);
             throw new IllegalStateException("failed to search workflow run logs", e);
         }
+    }
+
+    @Override
+    public void saveWorkflowRunLog(WorkflowRunLog runLog) {
+        // ignore for elasticsearch - logs are saved via logback appender
+    }
+
+    public List<WorkflowRunLog> listWorkflowRuns(QueryOps ops) {
+        return pageWorkflowRunLogs(ops).getData();
     }
 
     private SearchRequest getSearchRequest(QueryOps ops) {
@@ -165,29 +170,6 @@ public class WorkflowRunLogService {
         return request;
     }
 
-    @Data
-    @Builder
-    public static class QueryOps {
-        private String workflowId;
-        private List<String> triggerFroms;
-        private List<String> status;
-        private String workflowRunId;
-        private List<String> events;
-        private Long userId;
-        @Builder.Default
-        private Integer fromIndex = 0;
-        @Builder.Default
-        private Integer size = 1000;
-        @Builder.Default
-        private String orderBy = "ctime";
-        @Builder.Default
-        private String order = "desc";
-        private String lastWorkflowRunId;
-    }
-
-    /**
-     * es中使用text类型来存储object类型的数据：sys、inputs、outputs、nodeInputs、nodeProcessData、nodeOutputs
-     */
     @Data
     @NoArgsConstructor
     public static class WorkflowRunLogEs {

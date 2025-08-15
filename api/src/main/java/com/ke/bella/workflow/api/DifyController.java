@@ -65,9 +65,10 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.node.BaseNode;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.service.Configs;
+import com.ke.bella.workflow.service.IWorkflowRunLogService;
+import com.ke.bella.workflow.service.IWorkflowRunLogService.QueryOps;
 import com.ke.bella.workflow.service.WorkflowRunCallback;
 import com.ke.bella.workflow.service.WorkflowRunCallback.WorkflowRunLog;
-import com.ke.bella.workflow.service.WorkflowRunLogService;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.service.WorkflowTriggerService;
 import com.ke.bella.workflow.space.BellaSpaceService;
@@ -102,7 +103,7 @@ public class DifyController {
     BellaSpaceService ss;
 
     @Autowired
-    WorkflowRunLogService ls;
+    IWorkflowRunLogService ls;
 
     @Autowired
     WorkflowController wc;
@@ -452,7 +453,7 @@ public class DifyController {
 
         List<String> status0 = runStatus.stream().map(WorkflowRunStatus::name).collect(Collectors.toList());
 
-        WorkflowRunLogService.QueryOps ops = WorkflowRunLogService.QueryOps.builder()
+        QueryOps ops = QueryOps.builder()
                 .workflowId(workflowId)
                 .triggerFroms(Lists.newArrayList(TriggerFrom.API.name(), TriggerFrom.CUSTOM_API.name()))
                 .events(WorkflowRunCallback.WorkflowRunEvent.runFinishedEvents().stream().map(Enum::name).collect(Collectors.toList()))
@@ -558,7 +559,7 @@ public class DifyController {
             @RequestParam(value = "limit", defaultValue = "100") int limit) {
         Assert.isTrue(limit > 0, "limit必须大于0");
         Assert.isTrue(limit < 101, "limit必须小于100");
-        WorkflowRunLogService.QueryOps ops = WorkflowRunLogService.QueryOps.builder()
+        QueryOps ops = QueryOps.builder()
                 .size(limit)
                 .workflowId(workflowId)
                 .lastWorkflowRunId(lastId)
@@ -666,14 +667,14 @@ public class DifyController {
         WorkflowRunDB wr = ws.getWorkflowRun(workflowRunId);
         WorkflowDB wf = ws.getWorkflow(workflowId, wr.getWorkflowVersion());
 
-        WorkflowRunLog wrl = ls.getWorkflowRunLogAgg(workflowRunId);
+        WorkflowRunLog wrl = ls.getWorkflowRunLog(workflowRunId);
         return DifyUtils.transfer(wrl, wf);
     }
 
     @RequestMapping("/{workflowId}/workflow-runs/{workflowRunId}/node-executions")
     public DifyNodeExecution getWorkflowNodeRuns(@PathVariable String workflowId,
             @PathVariable String workflowRunId) {
-        WorkflowRunLogService.QueryOps ops = WorkflowRunLogService.QueryOps.builder()
+        QueryOps ops = QueryOps.builder()
                 .workflowId(workflowId)
                 .events(WorkflowRunCallback.WorkflowRunEvent.nodeFinishedEvents().stream().map(Enum::name).collect(Collectors.toList()))
                 .workflowRunId(workflowRunId)

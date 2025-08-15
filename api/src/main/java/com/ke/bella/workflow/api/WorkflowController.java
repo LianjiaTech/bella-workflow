@@ -41,8 +41,9 @@ import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
+import com.ke.bella.workflow.service.IWorkflowRunLogService;
+import com.ke.bella.workflow.service.IWorkflowRunLogService.QueryOps;
 import com.ke.bella.workflow.service.WorkflowRunCallback;
-import com.ke.bella.workflow.service.WorkflowRunLogService;
 import com.ke.bella.workflow.service.WorkflowService;
 import com.ke.bella.workflow.utils.DifyUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
@@ -57,7 +58,7 @@ public class WorkflowController {
     WorkflowService ws;
 
     @Autowired
-    WorkflowRunLogService ls;
+    IWorkflowRunLogService ls;
 
     @PostMapping("/workflow")
     public WorkflowDB createApp(@RequestBody DifyController.DifyApp app) {
@@ -296,7 +297,7 @@ public class WorkflowController {
     @RequestMapping("/workflow/{workflowId}/workflow-runs/{workflowRunId}/node-executions")
     public DifyController.DifyNodeExecution getWorkflowNodeRuns(@PathVariable String workflowId,
             @PathVariable String workflowRunId) {
-        WorkflowRunLogService.QueryOps ops = WorkflowRunLogService.QueryOps.builder()
+        QueryOps ops = QueryOps.builder()
                 .workflowId(workflowId)
                 .workflowRunId(workflowRunId)
                 .events(WorkflowRunCallback.WorkflowRunEvent.nodeFinishedEvents().stream().map(Enum::name).collect(Collectors.toList()))

@@ -455,7 +455,8 @@ public class DifyController {
 
         QueryOps ops = QueryOps.builder()
                 .workflowId(workflowId)
-                .triggerFroms(Lists.newArrayList(TriggerFrom.API.name(), TriggerFrom.CUSTOM_API.name()))
+                .triggerFroms(Lists.newArrayList(TriggerFrom.API.name(), TriggerFrom.CUSTOM_API.name(), TriggerFrom.SCHEDULE.name(),
+                        TriggerFrom.KAFKA.name()))
                 .events(WorkflowRunCallback.WorkflowRunEvent.runFinishedEvents().stream().map(Enum::name).collect(Collectors.toList()))
                 .status(status0)
                 .fromIndex((page - 1) * limit)

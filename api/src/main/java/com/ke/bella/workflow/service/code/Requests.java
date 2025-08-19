@@ -33,6 +33,7 @@ import lombok.Getter;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -159,7 +160,7 @@ public class Requests {
         }
 
         // Build request body
-        RequestBody requestBody = buildRequestBody(method, data, json);
+        RequestBody requestBody = buildRequestBody(method, data, json, headers);
         requestBuilder.method(method, requestBody);
 
         OkHttpClient.Builder clientBuilder = HttpUtils.clientBuilder();
@@ -258,13 +259,17 @@ public class Requests {
     }
 
     @SuppressWarnings("unchecked")
-    private static RequestBody buildRequestBody(String method, Object data, Object json) {
+    private static RequestBody buildRequestBody(String method, Object data, Object json, Map<String, String> headers) {
         if(HttpMethod.permitsRequestBody(method)) {
             if(json != null) {
                 String jsonBody = JsonUtils.toJson(json);
                 return RequestBody.create(jsonBody, MediaType.parse("application/json; charset=utf-8"));
             } else if(data != null) {
-                if(data instanceof Map) {
+                // 检查 Content-Type 是否为 multipart/form-data
+                String contentType = headers != null ? headers.get("Content-Type") : null;
+                if(contentType != null && contentType.startsWith("multipart/form-data")) {
+                    return buildMultipartBody((Map<String, Object>) data);
+                } else if(data instanceof Map) {
                     FormBody.Builder formBodyBuilder = new FormBody.Builder();
                     for (Map.Entry<String, Object> entry : ((Map<String, Object>) data).entrySet()) {
                         formBodyBuilder.add(entry.getKey(), String.valueOf(entry.getValue()));
@@ -276,6 +281,55 @@ public class Requests {
             }
         }
         return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static RequestBody buildMultipartBody(Map<String, Object> data) {
+        MultipartBody.Builder builder = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM);
+
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            if(value instanceof Map) {
+                // 支持文件配置对象 {content: "...", filename: "...", contentType:
+                // "..."}
+                Map<String, Object> fileConfig = (Map<String, Object>) value;
+                Object content = fileConfig.get("content");
+                String filename = (String) fileConfig.getOrDefault("filename", "file");
+                String mimeType = (String) fileConfig.getOrDefault("contentType", "application/octet-stream");
+
+                if(content != null) {
+                    RequestBody fileBody;
+                    if(content instanceof String) {
+                        fileBody = RequestBody.create(((String) content).getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                                MediaType.parse(mimeType));
+                    } else if(content instanceof byte[]) {
+                        fileBody = RequestBody.create((byte[]) content, MediaType.parse(mimeType));
+                    } else {
+                        continue;
+                    }
+                    builder.addFormDataPart(key, filename, fileBody);
+                }
+            } else if("file".equals(key)) {
+                // 特殊处理 file 字段
+                RequestBody fileBody;
+                if(value instanceof String) {
+                    fileBody = RequestBody.create(((String) value).getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                            MediaType.parse("application/octet-stream"));
+                    builder.addFormDataPart(key, "file", fileBody);
+                } else if(value instanceof byte[]) {
+                    fileBody = RequestBody.create((byte[]) value, MediaType.parse("application/octet-stream"));
+                    builder.addFormDataPart(key, "file", fileBody);
+                } else {
+                    builder.addFormDataPart(key, String.valueOf(value));
+                }
+            } else {
+                builder.addFormDataPart(key, String.valueOf(value));
+            }
+        }
+        return builder.build();
     }
 
     private static SSLSocketFactory createInsecureSSLSocketFactory() {

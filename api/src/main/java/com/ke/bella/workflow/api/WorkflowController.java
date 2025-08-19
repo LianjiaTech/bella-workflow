@@ -38,6 +38,7 @@ import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
 import com.ke.bella.workflow.api.callbacks.WorkflowRunStreamingCallback;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
@@ -63,6 +64,25 @@ public class WorkflowController {
     @PostMapping("/workflow")
     public WorkflowDB createApp(@RequestBody DifyController.DifyApp app) {
         return createApp0(app);
+    }
+
+    @PostMapping("/workflow/page")
+    public Page<WorkflowAggregateDB> pageWorkflowAgg(@RequestBody WorkflowOps.WorkflowPage op) {
+        return ws.pageWorkflowAggregate(op);
+    }
+
+    @PostMapping("/workflow/workflow-versions")
+    public Page<WorkflowDB> pageWorkflowVersions(@RequestBody WorkflowOps.WorkflowPage op) {
+        Assert.isTrue(op.getPageSize() > 0 && op.getPageSize() <= 100, "pageSize必须大于0, 且小于等于100");
+        Assert.notNull(op.getWorkflowId(), "workflowId不能为空");
+
+        Page<WorkflowDB> page = ws.pagePublicWorkflows(op);
+        Page<WorkflowDB> result = new Page<>();
+        result.setPage(page.getPage());
+        result.pageSize(page.getPageSize());
+        result.total(page.getTotal());
+        result.setData(page.getData());
+        return result;
     }
 
     public WorkflowDB createApp0(DifyController.DifyApp app) {

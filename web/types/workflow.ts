@@ -24,6 +24,7 @@ export type NodeTracing = {
     total_price: number
     currency: string
     steps_boundary: number[]
+    iterator_length: number
   }
   metadata: {
     iterator_length: number
@@ -120,26 +121,7 @@ export type NodeFinishedResponse = {
   task_id: string
   workflow_run_id: string
   event: string
-  data: {
-    id: string
-    node_id: string
-    node_type: string
-    index: number
-    predecessor_node_id?: string
-    inputs: any
-    process_data: any
-    outputs: any
-    status: string
-    error: string
-    elapsed_time: number
-    execution_metadata: {
-      total_tokens: number
-      total_price: number
-      currency: string
-    }
-    created_at: number
-    iteration_id?: string
-  }
+  data: NodeTracing
 }
 
 export type IterationStartedResponse = {

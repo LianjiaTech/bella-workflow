@@ -24,6 +24,9 @@ export type QueryParam = {
   keyword?: string
   workflowRunId?: string
   userId?: number
+  period?: string | number
+  annotation_status?: string
+  sort_by?: string
 }
 
 const ThreeDotsIcon = ({ className }: SVGProps<SVGElement>) => {

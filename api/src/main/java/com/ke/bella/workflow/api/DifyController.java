@@ -18,10 +18,13 @@ import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -466,6 +469,17 @@ public class DifyController {
                 .build();
 
         return ls.pageWorkflowRunLogs(ops);
+    }
+
+    @GetMapping("/{workflowId}/statistics/daily-conversations")
+    public ResponseEntity<Map<String, List<Map<String, Object>>>> getDailyRunsStatistic(
+            @PathVariable String workflowId,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") DateTime start,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm") DateTime end) {
+
+        Map<String, List<Map<String, Object>>> statistics = ls.getDailyRunsStatistic(workflowId, start, end);
+
+        return ResponseEntity.ok(statistics);
     }
 
     @RequestMapping("/{workflowId}/workflow-triggers")

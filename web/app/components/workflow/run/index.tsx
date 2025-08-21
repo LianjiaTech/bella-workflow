@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useContext } from 'use-context-selector'
 import { useTranslation } from 'react-i18next'
 import { useBoolean } from 'ahooks'
+import { BlockEnum } from '../types'
 import OutputPanel from './output-panel'
 import ResultPanel from './result-panel'
 import TracingPanel from './tracing-panel'
@@ -60,7 +61,7 @@ const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getRe
     }>()
 
     allItems.forEach((node) => {
-      if (node.node_type === 'iteration' && node.process_data && node.process_data.iterations) {
+      if (node.node_type === BlockEnum.Iteration && node.process_data && node.process_data.iterations) {
         iterationMap.set(node.id, {
           node,
           childrenIds: node.process_data.iterations,
@@ -77,7 +78,7 @@ const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getRe
       if (iterationChildIds.has(item.id))
         return
 
-      if (item.node_type === 'iteration') {
+      if (item.node_type === BlockEnum.Iteration) {
         const iterationInfo = iterationMap.get(item.id)
         if (iterationInfo) {
           const details: NodeTracing[][] = []

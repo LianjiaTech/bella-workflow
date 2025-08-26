@@ -307,8 +307,10 @@ public class WorkflowRepo implements BaseRepo {
                 .fetchOne().into(WorkflowRunDB.class);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Page<WorkflowRunDB> listWorkflowRun(WorkflowRunPage op) {
         SelectConditionStep<WorkflowRunRecord> query = null;
+        List<SelectConditionStep<WorkflowRunRecord>> countQueries = new java.util.ArrayList<>();
         List<WorkflowRunShardingDB> shardings = queryWorkflowRunShardingsByTime(op.getStartTime(), op.getStartTime().plusDays(7));
         for (int i = 0; i < shardings.size(); i++) {
             WorkflowRunShardingDB sharding = shardings.get(i);
@@ -318,6 +320,9 @@ public class WorkflowRepo implements BaseRepo {
                     .and(StringUtils.isEmpty(op.getTriggerId()) ? DSL.noCondition()
                             : WORKFLOW_RUN.TRIGGER_ID.eq(op.getTriggerId()))
                     .and(StringUtils.isEmpty(op.getLastId()) ? DSL.noCondition() : WORKFLOW_RUN.WORKFLOW_RUN_ID.ge(op.getLastId()));
+
+            countQueries.add(sql);
+
             if(i == 0) {
                 query = sql;
             } else {
@@ -326,7 +331,7 @@ public class WorkflowRepo implements BaseRepo {
         }
         Objects.requireNonNull(query).orderBy(WORKFLOW_RUN.CTIME.desc());
 
-        return queryPage(db, query, op.getPage(), op.getPageSize(), WorkflowRunDB.class);
+        return queryPageWithUnion(query, countQueries, op.getPage(), op.getPageSize(), WorkflowRunDB.class);
     }
 
     @Transactional(rollbackFor = Exception.class)

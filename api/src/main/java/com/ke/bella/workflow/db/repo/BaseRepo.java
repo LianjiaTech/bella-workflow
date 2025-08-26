@@ -3,9 +3,11 @@ package com.ke.bella.workflow.db.repo;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.jooq.DSLContext;
 import org.jooq.Query;
+import org.jooq.SelectConditionStep;
 import org.jooq.SelectLimitStep;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -60,6 +62,28 @@ public interface BaseRepo {
         return Page.from(page, pageSize)
                 .total(db.fetchCount(scs))
                 .list(scs.limit((page - 1) * pageSize, pageSize)
+                        .fetch()
+                        .into(clazz));
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Transactional(rollbackFor = Exception.class)
+    default <T> Page<T> queryPageWithUnion(SelectLimitStep unionQuery, List<? extends SelectConditionStep> countQueries,
+            int page, int pageSize, Class<T> clazz) {
+        if(unionQuery == null) {
+            return Page.from(page, pageSize);
+        }
+
+        int totalCount = 0;
+        if(countQueries != null) {
+            for (SelectConditionStep<?> countQuery : countQueries) {
+                totalCount += countQuery.fetchCount();
+            }
+        }
+
+        return Page.<T>from(page, pageSize)
+                .total(totalCount)
+                .list(unionQuery.limit((page - 1) * pageSize, pageSize)
                         .fetch()
                         .into(clazz));
     }

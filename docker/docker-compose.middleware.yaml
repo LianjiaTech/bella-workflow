@@ -7,104 +7,6 @@ networks:
     driver: bridge
 
 services:
-  kafka:
-    image: docker.io/bitnami/kafka:latest
-    container_name: bella-workflow-kafka
-    ports:
-      - '${EXPOSE_KAFKA_PLAINTEXT_PORT:-9092}:9092'
-      - '${EXPOSE_KAFKA_CONTROLLER_PORT:-9093}:9093'
-      - '${EXPOSE_KAFKA_EXTERNAL_PORT:-19092}:19092'
-    environment:
-      # KRaft settings
-      KAFKA_CFG_NODE_ID: 1
-      KAFKA_CFG_PROCESS_ROLES: controller,broker
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
-      # Set cluster ID to resolve warnings
-      KAFKA_CLUSTER_ID: 'Tlau7QrBSNmjXinUlzJt4g'
-      # Listeners
-      KAFKA_CFG_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:19092
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_HOST:-kafka}:9092,EXTERNAL://${KAFKA_EXTERNAL_HOST:-localhost}:19092
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      # Other settings
-      KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CFG_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'true'
-      ALLOW_PLAINTEXT_LISTENER: 'yes'
-      # Kafka Connect configuration
-      KAFKA_CONNECT_ENABLED: "true"
-      KAFKA_CONNECT_BOOTSTRAP_SERVERS: ${KAFKA_HOST:-kafka}:9092
-    env_file:
-      - .middleware.env
-    volumes:
-      - ./volumes/kafka/data:/bitnami/kafka
-      - ./volumes/kafka/scripts:/scripts
-      - ./volumes/kafka/connect-plugins:/opt/bitnami/kafka/connect-plugins
-      - ${LOG_PATH:-../api/logs}:/workflow-logs
-    healthcheck:
-      test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server ${KAFKA_HOST:-kafka}:9092 --list | grep -q '${WORKFLOW_RUN_LOG_TOPIC:-workflow_run_log}'" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    networks:
-      - bella-workflow-network
-    command: ["bash", "-c", "/opt/bitnami/scripts/kafka/entrypoint.sh /opt/bitnami/scripts/kafka/run.sh & sleep 10 && /scripts/start-connect.sh"]
-
-  # Elasticsearch service
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.7
-    container_name: ${ELASTICSEARCH_CONTAINER_NAME:-bella-workflow-elasticsearch}
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    ports:
-      # These port variables are now loaded from .middleware.env file
-      - "${ELASTICSEARCH_HTTP_PORT}:9200"
-      - "${ELASTICSEARCH_TRANSPORT_PORT}:9300" # Usually not needed to expose externally
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      # Use local volumes instead of named volumes
-      - ./volumes/elasticsearch/data:/usr/share/elasticsearch/data
-      - ./volumes/elasticsearch/scripts:/scripts
-    # Load environment variables from .middleware.env file
-    env_file:
-      - .middleware.env
-    entrypoint: ["/bin/bash", "-c"]
-    command: ["/usr/local/bin/docker-entrypoint.sh eswrapper & sleep 15 && /scripts/init-elasticsearch.sh"]
-    healthcheck:
-      test: ["CMD", "curl", "-s", "-f", "http://localhost:9200/_cluster/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-    networks:
-      - bella-workflow-network
-
-  # Bella Workflow Tasks service
-  bella-workflow-tasks:
-    image: jiakaic0213/bella-workflow-tasks:latest
-    container_name: ${WORKFLOW_TASKS_CONTAINER_NAME:-bella-workflow-tasks}
-    depends_on:
-      kafka:
-        condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
-    volumes:
-      - ./volumes/flink/application.properties:/opt/flink/conf/application.properties
-    environment:
-      - CONFIG_FILE=/opt/flink/conf/application.properties
-    env_file:
-      - .middleware.env
-    networks:
-      - bella-workflow-network
-
   # MySQL service
   mysql:
     image: mysql:8.0
@@ -201,3 +103,39 @@ services:
       - bella-workflow-network
     entrypoint: ["/bin/sh"]
     command: ["-c", "minio server /data --console-address ':9001' & sleep 10 && /scripts/init-minio.sh"]
+
+  # Nginx 反向代理服务 - 支持本地开发模式
+  nginx:
+    image: nginx:latest
+    container_name: ${NGINX_CONTAINER_NAME:-bella-workflow-nginx}
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./volumes/nginx/conf.d:/etc/nginx/conf.d
+      - ./volumes/nginx/entrypoint.sh:/docker-entrypoint.d/40-ssl-setup.sh:ro
+# 如果需要使用 SSL/TLS 证书，可以取消下面的注释并配置相应的路径
+#      - /root/.acme.sh/workflow.bella.top_ecc/:/etc/ssl/certs/workflow/:ro
+    environment:
+      - TZ=${TZ:-UTC}
+      - SERVER_DOMAIN=${SERVER_DOMAIN:-localhost}
+      - SERVER_PROTOCOL=${SERVER_PROTOCOL:-http}
+      # SSL配置控制
+      - ENABLE_SSL=${ENABLE_SSL:-false}
+      - SSL_CERT_PATH=${SSL_CERT_PATH:-/etc/ssl/certs/workflow/fullchain.cer}
+      - SSL_KEY_PATH=${SSL_KEY_PATH:-/etc/ssl/certs/workflow/workflow.bella.top.key}
+      # 动态配置变量 (由entrypoint脚本设置)
+      - SSL_LISTEN_DIRECTIVE=
+      - SSL_CONFIG_BLOCK=
+      - SSL_REDIRECT_BLOCK=
+      - PROXY_FORWARDED_PROTO=
+      # 服务upstream配置 (本地开发模式)
+      - API_UPSTREAM=${API_UPSTREAM:-http://host.docker.internal:8080}
+      - WEB_UPSTREAM=${WEB_UPSTREAM:-http://host.docker.internal:3000}
+    networks:
+      - bella-workflow-network
+    healthcheck:
+      test: [ "CMD", "nginx", "-t" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3

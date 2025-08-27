@@ -11,19 +11,20 @@ COPY resources/settings.xml /root/.m2/
 # 先复制 pom.xml 以实现依赖缓存
 COPY pom.xml /build/
 
+# fixme: 安装本地依赖 bella-job-queue-sdk 到 Maven 本地仓库；等待job-queue开源后则可去掉
 # 复制本地依赖包
 COPY resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar /build/
 
-# 安装本地依赖 bella-job-queue-sdk 到 Maven 本地仓库
 RUN mvn install:install-file \
     -Dfile=/build/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
     -DgroupId=com.ke.bella.job.queue \
     -DartifactId=bella-job-queue-sdk \
-    -Dversion=1.0.0-SNAPSHOT \
+    -Dversion=1.0.1-SNAPSHOT \
     -Dpackaging=jar
 
 # 预下载所有依赖，利用 Docker 的层缓存机制
-RUN mvn dependency:go-offline -B
+# 使用 --mount=type=cache 缓存 Maven 本地仓库
+RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline -B
 
 # 复制其余源代码
 COPY . /build/

@@ -51,69 +51,80 @@ const RunPanel: FC<RunProps> = ({ hideResult, activeTab = 'RESULT', runID, getRe
     }
   }, [notify, getResultCallback])
 
-  const formatNodeList = useCallback((list: NodeTracing[]) => {
-    const allItems = list.reverse()
+  const formatNodeList = (list: NodeTracing[]): NodeTracing[] => {
+    const allItems = [...list].reverse()
     const result: NodeTracing[] = []
-    let iterationIndexInfos: {
-      start: number
-      end: number
-    }[] = []
-    allItems.forEach((item) => {
-      const { node_type, index, execution_metadata } = item
-      if (node_type !== BlockEnum.Iteration) {
-        let isInIteration = false
-        let isIterationFirstNode = false
-        iterationIndexInfos.forEach(({ start, end }) => {
-          if (index >= start && index < end) {
-            if (index === start)
-              isIterationFirstNode = true
 
-            isInIteration = true
-          }
+    const iterationMap = new Map<string, {
+      node: NodeTracing
+      childrenIds: string[][]
+    }>()
+
+    allItems.forEach((node) => {
+      if (node.node_type === BlockEnum.Iteration && node.process_data && node.process_data.iterations) {
+        iterationMap.set(node.id, {
+          node,
+          childrenIds: node.process_data.iterations,
         })
-        if (isInIteration) {
-          const iterationDetails = result[result.length - 1].details!
-          if (isIterationFirstNode)
-            iterationDetails!.push([item])
-
-          else
-            iterationDetails[iterationDetails.length - 1].push(item)
-
-          return
-        }
-        // not in iteration
-        result.push(item)
-
-        return
       }
+    })
 
-      const { steps_boundary } = execution_metadata
-      iterationIndexInfos = []
-      steps_boundary.forEach((boundary, index) => {
-        if (index === 0) {
-          iterationIndexInfos.push({
-            start: boundary,
-            end: 0,
+    const iterationChildIds = new Set<string>()
+    iterationMap.forEach(({ childrenIds }) => {
+      childrenIds.flat().forEach(id => iterationChildIds.add(id))
+    })
+
+    allItems.forEach((item) => {
+      if (iterationChildIds.has(item.id))
+        return
+
+      if (item.node_type === BlockEnum.Iteration) {
+        const iterationInfo = iterationMap.get(item.id)
+        if (iterationInfo) {
+          const details: NodeTracing[][] = []
+
+          iterationInfo.childrenIds.forEach((iterationIds) => {
+            const iterationNodes: NodeTracing[] = []
+
+            allItems.forEach((node) => {
+              if (iterationIds.includes(node.id)) {
+                iterationNodes.push({
+                  ...node,
+                  error: node.error || '',
+                })
+              }
+            })
+
+            details.push(iterationNodes)
           })
-        }
-        else if (index === steps_boundary.length - 1) {
-          iterationIndexInfos[iterationIndexInfos.length - 1].end = boundary
+
+          result.push({
+            ...item,
+            metadata: {
+              iterator_length: iterationInfo.childrenIds.length,
+            },
+            execution_metadata: {
+              iterator_length: iterationInfo.childrenIds.length,
+            },
+            details,
+          })
         }
         else {
-          iterationIndexInfos[iterationIndexInfos.length - 1].end = boundary
-          iterationIndexInfos.push({
-            start: boundary,
-            end: 0,
+          result.push({
+            ...item,
+            details: [],
           })
         }
-      })
-      result.push({
-        ...item,
-        details: [],
-      })
+      }
+      else {
+        result.push({
+          ...item,
+          error: item.error || '',
+        })
+      }
     })
     return result
-  }, [])
+  }
 
   const getTracingList = useCallback(async (appID: string, runID: string) => {
     try {

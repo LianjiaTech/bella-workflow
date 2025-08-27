@@ -1,0 +1,61 @@
+server {
+    listen       80;
+    listen  [::]:80;
+    ${SSL_LISTEN_DIRECTIVE}
+    server_name  ${SERVER_DOMAIN};
+
+    ${SSL_CONFIG_BLOCK}
+
+    # 访问日志
+    access_log  /var/log/nginx/host.access.log  main;
+
+    ${SSL_REDIRECT_BLOCK}
+
+    # /api 路径转发到 api 服务的 /v1 (公共API)
+    location ^~ /api/ {
+        proxy_pass ${API_UPSTREAM}/v1/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto ${PROXY_FORWARDED_PROTO};
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+    }
+
+    # /v1 路径直接转发到 api 服务 (直接API访问)
+    location ^~ /v1/ {
+        proxy_pass ${API_UPSTREAM};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto ${PROXY_FORWARDED_PROTO};
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+    }
+
+    # /console 路径转发到 api 服务 (控制台API)
+    location ^~ /console/ {
+        proxy_pass ${API_UPSTREAM};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto ${PROXY_FORWARDED_PROTO};
+    }
+
+    # 其他所有请求转发到 web 服务
+    location / {
+        proxy_pass ${WEB_UPSTREAM};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto ${PROXY_FORWARDED_PROTO};
+    }
+}

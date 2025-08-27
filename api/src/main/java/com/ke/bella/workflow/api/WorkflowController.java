@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.api;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -321,10 +322,11 @@ public class WorkflowController {
                 .workflowId(workflowId)
                 .workflowRunId(workflowRunId)
                 .events(WorkflowRunCallback.WorkflowRunEvent.nodeFinishedEvents().stream().map(Enum::name).collect(Collectors.toList()))
+                .order("asc")
                 .build();
 
-        Page<WorkflowRunCallback.WorkflowRunLog> runLogs = ls.pageWorkflowRunLogs(ops);
-        return DifyController.DifyNodeExecution.builder().data(DifyUtils.transfer0(runLogs.getData())).build();
+        List<WorkflowRunCallback.WorkflowRunLog> runLogs = ls.listNodeRunLogs(ops);
+        return DifyController.DifyNodeExecution.builder().data(DifyUtils.transfer0(runLogs)).build();
     }
 
     @PostMapping("/workflow/templates/page")

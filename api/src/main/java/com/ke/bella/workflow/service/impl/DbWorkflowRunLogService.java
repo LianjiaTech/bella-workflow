@@ -34,15 +34,13 @@ public class DbWorkflowRunLogService implements IWorkflowRunLogService {
 
     @Override
     public Page<WorkflowRunLog> pageWorkflowRunLogs(QueryOps ops) {
-        // Check if querying node execution logs
-        if(ops.getEvents() != null && ops.getEvents().stream().anyMatch(event -> event.contains("NodeRun"))
-                && ops.getWorkflowRunId() != null) {
-            return pageNodeRunLogs(ops);
-        }
-
         // Query workflow run logs
         WorkflowRunPage pageOps = WorkflowRunPage.builder()
                 .workflowId(ops.getWorkflowId())
+                .workflowRunId(ops.getWorkflowRunId())
+                .triggerFroms(ops.getTriggerFroms())
+                .userId(ops.getUserId())
+                .status(ops.getStatus())
                 .page(ops.getFromIndex() != null ? (ops.getFromIndex() / ops.getSize()) + 1 : 1)
                 .pageSize(ops.getSize() != null ? ops.getSize() : 30)
                 .lastId(ops.getLastWorkflowRunId())
@@ -59,15 +57,11 @@ public class DbWorkflowRunLogService implements IWorkflowRunLogService {
                 .list(logList);
     }
 
-    private Page<WorkflowRunLog> pageNodeRunLogs(QueryOps ops) {
-        List<WorkflowNodeRunDB> nodeRuns = ws.getNodeRuns(ops.getWorkflowRunId());
-        List<WorkflowRunLog> logList = nodeRuns.stream()
+    @Override
+    public List<WorkflowRunLog> listNodeRunLogs(QueryOps ops) {
+        return ws.getNodeRuns(ops.getWorkflowRunId()).stream()
                 .map(this::transferNodeRunToWorkflowRunLog)
                 .collect(Collectors.toList());
-
-        return Page.<WorkflowRunLog>from(1, logList.size())
-                .total(logList.size())
-                .list(logList);
     }
 
     @Override

@@ -99,6 +99,7 @@ public class Iteration extends BaseNode<Iteration.Data> {
                 .graph(graph)
                 .state(state)
                 .userInputs(new HashMap())
+                .flashMode(context.getFlashMode())
                 .triggerFrom(context.getTriggerFrom())
                 .build();
         context.addChild(subContext);

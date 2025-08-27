@@ -118,6 +118,11 @@ public class EsWorkflowRunLogService implements IWorkflowRunLogService {
     }
 
     @Override
+    public List<WorkflowRunLog> listNodeRunLogs(QueryOps ops) {
+        return listWorkflowRuns(ops);
+    }
+
+    @Override
     public void saveWorkflowRunLog(WorkflowRunLog runLog) {
         // ignore for elasticsearch - logs are saved via logback appender
     }

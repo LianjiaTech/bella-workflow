@@ -14,6 +14,8 @@ public interface IWorkflowRunLogService {
 
     Page<WorkflowRunLog> pageWorkflowRunLogs(QueryOps ops);
 
+    List<WorkflowRunLog> listNodeRunLogs(QueryOps ops);
+
     void saveWorkflowRunLog(WorkflowRunLog runLog);
 
     @Data

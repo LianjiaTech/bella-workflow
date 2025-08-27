@@ -317,13 +317,15 @@ export const useWorkflowRun = () => {
               const iterations = tracing.find(value => value.node_id === data.iteration_id)
               if (iterations!.details!.length > 0) {
                 const currIteration = iterations!.details![iterations!.details!.length - 1]
-                const nodeInfo = currIteration[currIteration.length - 1]
-
-                currIteration[currIteration.length - 1] = {
-                  ...nodeInfo,
-                  ...data,
-                  status: NodeRunningStatus.Succeeded,
-                } as any
+                // 根据node_id查找正确的节点，而不是使用最后一个索引
+                const nodeIndex = currIteration.findIndex(node => node.node_id === data.node_id)
+                if (nodeIndex !== -1) {
+                  currIteration[nodeIndex] = {
+                    ...currIteration[nodeIndex],
+                    ...data,
+                    status: NodeRunningStatus.Succeeded,
+                  } as any
+                }
               }
             }))
           }

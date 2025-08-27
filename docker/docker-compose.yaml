@@ -109,12 +109,12 @@ services:
 
   # Spring Boot API 服务
   bella-workflow-api:
-    image: ${REGISTRY:-bellatop}/bella-workflow-api:latest
+#    image: ${REGISTRY:-bellatop}/bella-workflow-api:latest
     build:
       context: ../api
       dockerfile: Dockerfile
       args:
-        - MAVEN_ARGS="-Dmaven.test.skip=true -U -Dmaven.build.cache.enabled=false"
+        MAVEN_ARGS: -Dmaven.test.skip=true -U -Dmaven.build.cache.enabled=false
     container_name: bella-workflow-api
     ports:
       - "${API_PORT:-8080}:8080"
@@ -193,7 +193,7 @@ services:
 
   # Web 前端服务
   bella-workflow-web:
-    image: ${REGISTRY:-bellatop}/bella-workflow-web:latest
+#    image: ${REGISTRY:-bellatop}/bella-workflow-web:latest
     build:
       context: ../web
       dockerfile: Dockerfile
@@ -219,12 +219,25 @@ services:
       - "${NGINX_SSL_PORT:-443}:443"
     volumes:
       - ./volumes/nginx/conf.d:/etc/nginx/conf.d
+      - ./volumes/nginx/entrypoint.sh:/docker-entrypoint.d/40-ssl-setup.sh:ro
 # 如果需要使用 SSL/TLS 证书，可以取消下面的注释并配置相应的路径
 #      - /root/.acme.sh/workflow.bella.top_ecc/:/etc/ssl/certs/workflow/:ro
     environment:
       - TZ=${TZ:-UTC}
       - SERVER_DOMAIN=${SERVER_DOMAIN:-localhost}
       - SERVER_PROTOCOL=${SERVER_PROTOCOL:-http}
+      # SSL配置控制
+      - ENABLE_SSL=${ENABLE_SSL:-false}
+      - SSL_CERT_PATH=${SSL_CERT_PATH:-/etc/ssl/certs/workflow/fullchain.cer}
+      - SSL_KEY_PATH=${SSL_KEY_PATH:-/etc/ssl/certs/workflow/workflow.bella.top.key}
+      # 动态配置变量 (由entrypoint脚本设置)
+      - SSL_LISTEN_DIRECTIVE=
+      - SSL_CONFIG_BLOCK=
+      - SSL_REDIRECT_BLOCK=
+      - PROXY_FORWARDED_PROTO=
+      # 服务upstream配置 (容器模式)
+      - API_UPSTREAM=http://bella-workflow-api:8080
+      - WEB_UPSTREAM=http://bella-workflow-web:3000
     depends_on:
       - bella-workflow-api
       - bella-workflow-web

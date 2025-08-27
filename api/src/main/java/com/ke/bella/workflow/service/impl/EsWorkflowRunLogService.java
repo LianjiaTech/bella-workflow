@@ -1,9 +1,7 @@
 package com.ke.bella.workflow.service.impl;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.elasticsearch.action.search.SearchRequest;
@@ -18,6 +16,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.joda.time.DateTime;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -86,6 +85,14 @@ public class EsWorkflowRunLogService implements IWorkflowRunLogService {
         }
 
         return logAggregation;
+    }
+
+    @Override
+    public Map<String, List<Map<String, Object>>> getDailyRunsStatistic(String workflowId, DateTime startDate, DateTime endDate) {
+
+        Map<String, List<Map<String, Object>>> response = new HashMap<>();
+
+        return response;
     }
 
     @Override

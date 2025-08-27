@@ -1,9 +1,16 @@
 package com.ke.bella.workflow.api;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import com.ke.bella.openapi.Operator;
-import com.ke.bella.openapi.protocol.files.File;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowRunDB;
 import com.ke.bella.workflow.utils.JsonUtils;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,13 +18,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class WorkflowOps {
     public enum ResponseMode {
@@ -133,6 +133,12 @@ public class WorkflowOps {
         int pageSize = 30;
 
         String lastId;
+
+        List<String> triggerFroms;
+
+        List<String> status;
+
+        String workflowRunId;
     }
 
     @Getter

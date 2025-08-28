@@ -38,9 +38,9 @@
    # 在项目根目录下执行
    mvn install:install-file \
      -Dfile=api/resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
-     -DgroupId=com.ke.bella \
+     -DgroupId=com.ke.bella.job.queue \
      -DartifactId=bella-job-queue-sdk \
-     -Dversion=1.0.0-SNAPSHOT \
+     -Dversion=1.0.1-SNAPSHOT \
      -Dpackaging=jar
    ```
    

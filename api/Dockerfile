@@ -6,27 +6,9 @@ WORKDIR /build
 
 # 复制 settings.xml
 RUN mkdir -p /root/.m2
-COPY resources/settings.xml /root/.m2/
+COPY resources/settings.xml /root/.m2/settings.xml
 
-# 先复制 pom.xml 以实现依赖缓存
-COPY pom.xml /build/
-
-# fixme: 安装本地依赖 bella-job-queue-sdk 到 Maven 本地仓库；等待job-queue开源后则可去掉
-# 复制本地依赖包
-COPY resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar /build/
-
-# 预下载所有依赖，包括安装本地依赖，利用 Docker 的层缓存机制
-# 使用 --mount=type=cache 缓存 Maven 本地仓库
-RUN --mount=type=cache,target=/root/.m2 \
-    mvn install:install-file \
-        -Dfile=/build/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
-        -DgroupId=com.ke.bella.job.queue \
-        -DartifactId=bella-job-queue-sdk \
-        -Dversion=1.0.1-SNAPSHOT \
-        -Dpackaging=jar && \
-    mvn dependency:go-offline -B
-
-# 复制其余源代码
+# 复制所有源代码
 COPY . /build/
 
 # 设置脚本权限
@@ -36,7 +18,7 @@ RUN chmod +x /build/build.sh /build/run.sh /build/setenv.sh
 ARG MAVEN_ARGS="-Dmaven.test.skip=true -U -Dmaven.build.cache.enabled=false"
 
 # 执行构建
-RUN cd /build && bash build.sh ${MAVEN_ARGS}
+RUN --mount=type=cache,target=/root/.m2/repository cd /build && bash build.sh ${MAVEN_ARGS}
 
 # 第二阶段：运行环境
 FROM --platform=$TARGETPLATFORM openjdk:8

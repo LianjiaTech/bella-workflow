@@ -88,8 +88,8 @@ jobs:
           build-args: COMMIT_SHA=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env[matrix.image_name_env] }},push-by-digest=${{ github.event_name == 'push' && 'true' || 'false' }},name-canonical=true,push=${{ github.event_name == 'push' && 'true' || 'false' }}
-          cache-from: type=gha,scope=${{ matrix.service_name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.service_name }}
+          cache-from: type=gha,scope=${{ matrix.context }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.context }}
 
       - name: Export digest
         if: github.event_name == 'push'

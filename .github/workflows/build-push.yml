@@ -15,51 +15,16 @@ concurrency:
 env:
   DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-  BELLA_API_IMAGE_NAME: ${{ vars.BELLA_API_IMAGE_NAME || 'bellatop/bella-workflow-api' }}
-  BELLA_WEB_IMAGE_NAME: ${{ vars.BELLA_WEB_IMAGE_NAME || 'bellatop/bella-workflow-web' }}
-  BELLA_TASKS_IMAGE_NAME: ${{ vars.BELLA_TASKS_IMAGE_NAME || 'bellatop/bella-workflow-tasks' }}
 
 jobs:
   build:
-    runs-on: ${{ matrix.platform == 'linux/arm64' && 'arm64_runner' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'pull_request'
-    strategy:
-      matrix:
-        include:
-          - service_name: "build-api-amd64"
-            image_name_env: "BELLA_API_IMAGE_NAME"
-            context: "api"
-            platform: linux/amd64
-          - service_name: "build-api-arm64"
-            image_name_env: "BELLA_API_IMAGE_NAME"
-            context: "api"
-            platform: linux/arm64
-          - service_name: "build-web-amd64"
-            image_name_env: "BELLA_WEB_IMAGE_NAME"
-            context: "web"
-            platform: linux/amd64
-          - service_name: "build-web-arm64"
-            image_name_env: "BELLA_WEB_IMAGE_NAME"
-            context: "web"
-            platform: linux/arm64
-          - service_name: "build-tasks-amd64"
-            image_name_env: "BELLA_TASKS_IMAGE_NAME"
-            context: "tasks"
-            platform: linux/amd64
-          - service_name: "build-tasks-arm64"
-            image_name_env: "BELLA_TASKS_IMAGE_NAME"
-            context: "tasks"
-            platform: linux/arm64
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Prepare
-        run: |
-          platform=${{ matrix.platform }}
-          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
-
       - name: Login to Docker Hub
         if: github.event_name == 'push'
         uses: docker/login-action@v3
@@ -67,106 +32,34 @@ jobs:
           username: ${{ env.DOCKERHUB_USER }}
           password: ${{ env.DOCKERHUB_TOKEN }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Extract version
+        id: version
+        run: |
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            VERSION=latest
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env[matrix.image_name_env] }}
-
-      - name: Build Docker image
-        id: build
-        uses: docker/build-push-action@v6
-        with:
-          context: "{{defaultContext}}:${{ matrix.context }}"
-          platforms: ${{ matrix.platform }}
-          build-args: COMMIT_SHA=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
-          labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,name=${{ env[matrix.image_name_env] }},push-by-digest=${{ github.event_name == 'push' && 'true' || 'false' }},name-canonical=true,push=${{ github.event_name == 'push' && 'true' || 'false' }}
-          cache-from: type=gha,scope=${{ matrix.service_name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.service_name }}
-
-      - name: Export digest
+      - name: Build and push multi-arch images
         if: github.event_name == 'push'
-        env:
-          DIGEST: ${{ steps.build.outputs.digest }}
         run: |
-          mkdir -p /tmp/digests
-          sanitized_digest=${DIGEST#sha256:}
-          touch "/tmp/digests/${sanitized_digest}"
+          chmod +x ./build-multiarch.sh
+          ./build-multiarch.sh ${{ env.DOCKERHUB_USER }} ${{ steps.version.outputs.VERSION }}
 
-      - name: Upload digest
-        if: github.event_name == 'push'
-        uses: actions/upload-artifact@v4
-        with:
-          name: digests-${{ matrix.context }}-${{ env.PLATFORM_PAIR }}
-          path: /tmp/digests/*
-          if-no-files-found: error
-          retention-days: 1
-
-  create-manifest:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    strategy:
-      matrix:
-        include:
-          - service_name: "merge-api-images"
-            image_name_env: "BELLA_API_IMAGE_NAME"
-            context: "api"
-          - service_name: "merge-web-images"
-            image_name_env: "BELLA_WEB_IMAGE_NAME"
-            context: "web"
-          - service_name: "merge-tasks-images"
-            image_name_env: "BELLA_TASKS_IMAGE_NAME"
-            context: "tasks"
-    steps:
-      - name: Download digests
-        uses: actions/download-artifact@v4
-        with:
-          path: /tmp/digests
-          pattern: digests-${{ matrix.context }}-*
-          merge-multiple: true
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ env.DOCKERHUB_USER }}
-          password: ${{ env.DOCKERHUB_TOKEN }}
-
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env[matrix.image_name_env] }}
-          tags: |
-            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-') }}
-            type=ref,event=branch
-            type=sha,enable=true,priority=100,prefix=,suffix=,format=long
-            type=raw,value=${{ github.ref_name }},enable=${{ startsWith(github.ref, 'refs/tags/') }}
-
-      - name: Create manifest list and push
-        working-directory: /tmp/digests
-        env:
-          IMAGE_NAME: ${{ env[matrix.image_name_env] }}
+      - name: Build images (PR)
+        if: github.event_name == 'pull_request'
         run: |
-          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf "$IMAGE_NAME@sha256:%s " *)
+          chmod +x ./build-multiarch.sh
+          # Modify script to build without push for PR
+          sed 's/--push/--load/' ./build-multiarch.sh > ./build-multiarch-pr.sh
+          chmod +x ./build-multiarch-pr.sh
+          ./build-multiarch-pr.sh ${{ env.DOCKERHUB_USER }} ${{ steps.version.outputs.VERSION }}
 
-      - name: Inspect image
-        env:
-          IMAGE_NAME: ${{ env[matrix.image_name_env] }}
-          IMAGE_VERSION: ${{ steps.meta.outputs.version }}
-        run: |
-          docker buildx imagetools inspect "$IMAGE_NAME:$IMAGE_VERSION"
 
   create-release:
-    needs: create-manifest
+    needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     steps:

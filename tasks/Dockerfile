@@ -3,21 +3,18 @@ FROM maven:3.8.4-openjdk-8 AS build
 # 设置工作目录
 WORKDIR /build
 
+# 复制 settings.xml
+RUN mkdir -p /root/.m2
+COPY resources/settings.xml /root/.m2/settings.xml
+
 # 首先只复制pom.xml文件
-COPY pom.xml .
-
-# 创建空的src目录结构以确保Maven可以正确解析
-RUN mkdir -p src/main/java src/main/resources
-
-# 预先下载所有依赖项（利用Docker缓存机制）
-# 这一步只有当pom.xml发生变化时才会重新执行
-RUN mvn dependency:go-offline -B
+COPY tasks/pom.xml .
 
 # 复制源代码
-COPY src/ ./src/
+COPY tasks/src/ ./src/
 
 # 打包应用
-RUN mvn clean package -DskipTests
+RUN --mount=type=cache,target=/root/.m2/repository mvn clean package -DskipTests
 
 # 第二阶段：运行环境
 FROM flink:1.18.1-scala_2.12-java8
@@ -35,7 +32,7 @@ COPY --from=build /build/target/tasks-1.0-SNAPSHOT.jar /opt/flink/usrlib/tasks.j
 RUN mkdir -p /opt/flink/logs
 
 # 创建启动脚本
-COPY docker-entrypoint.sh /opt/flink/docker-entrypoint.sh
+COPY tasks/docker-entrypoint.sh /opt/flink/docker-entrypoint.sh
 RUN chmod +x /opt/flink/docker-entrypoint.sh
 
 # 暴露Flink Web UI端口

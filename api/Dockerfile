@@ -15,16 +15,16 @@ COPY pom.xml /build/
 # 复制本地依赖包
 COPY resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar /build/
 
-RUN mvn install:install-file \
-    -Dfile=/build/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
-    -DgroupId=com.ke.bella.job.queue \
-    -DartifactId=bella-job-queue-sdk \
-    -Dversion=1.0.1-SNAPSHOT \
-    -Dpackaging=jar
-
-# 预下载所有依赖，利用 Docker 的层缓存机制
+# 预下载所有依赖，包括安装本地依赖，利用 Docker 的层缓存机制
 # 使用 --mount=type=cache 缓存 Maven 本地仓库
-RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline -B
+RUN --mount=type=cache,target=/root/.m2 \
+    mvn install:install-file \
+        -Dfile=/build/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
+        -DgroupId=com.ke.bella.job.queue \
+        -DartifactId=bella-job-queue-sdk \
+        -Dversion=1.0.1-SNAPSHOT \
+        -Dpackaging=jar && \
+    mvn dependency:go-offline -B
 
 # 复制其余源代码
 COPY . /build/

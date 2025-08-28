@@ -25,20 +25,12 @@
 
   <!-- 镜像配置 -->
   <mirrors>
-    <!-- 阿里云公共仓库 -->
+    <!-- 强制使用阿里云镜像 -->
     <mirror>
       <id>aliyun</id>
-      <mirrorOf>central</mirrorOf>
-      <name>Aliyun Maven Central</name>
-      <url>https://maven.aliyun.com/repository/public</url>
-    </mirror>
-
-    <!-- Maven中央仓库 -->
-    <mirror>
-      <id>central</id>
       <mirrorOf>*</mirrorOf>
-      <name>Maven Central</name>
-      <url>https://repo1.maven.org/maven2</url>
+      <name>Aliyun Maven Repository</name>
+      <url>https://maven.aliyun.com/repository/public</url>
     </mirror>
   </mirrors>
 

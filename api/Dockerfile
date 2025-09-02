@@ -30,6 +30,7 @@ ENV MODULE=bella-workflow
 ENV ENVTYPE=test
 ENV DEBUGPORT=9008
 ENV JMXPORT=9009
+ENV LOG_PATH=/opt/bella-workflow/applogs
 ENV MATRIX_CODE_DIR=/opt/bella-workflow/htdocs
 ENV MATRIX_APPLOGS_DIR=/opt/bella-workflow/applogs
 ENV MATRIX_ACCESSLOGS_DIR=/opt/bella-workflow/logs

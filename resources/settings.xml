@@ -25,12 +25,18 @@
 
   <!-- 镜像配置 -->
   <mirrors>
-    <!-- 强制使用阿里云镜像 -->
+    <!-- 大陆，强制使用阿里云镜像 -->
+<!--    <mirror>-->
+<!--      <id>aliyun</id>-->
+<!--      <mirrorOf>*</mirrorOf>-->
+<!--      <name>Aliyun Maven Repository</name>-->
+<!--      <url>https://maven.aliyun.com/repository/central</url>-->
+<!--    </mirror>-->
     <mirror>
-      <id>aliyun</id>
+      <id>central</id>
       <mirrorOf>*</mirrorOf>
       <name>Aliyun Maven Repository</name>
-      <url>https://maven.aliyun.com/repository/public</url>
+      <url>https://repo1.maven.org/maven2</url>
     </mirror>
   </mirrors>
 
@@ -59,7 +65,7 @@
         <repository>
           <id>aliyun</id>
           <name>Aliyun Maven Repository</name>
-          <url>https://maven.aliyun.com/repository/public</url>
+          <url>https://maven.aliyun.com/repository/central</url>
           <releases>
             <enabled>true</enabled>
           </releases>
@@ -101,7 +107,7 @@
         <pluginRepository>
           <id>aliyun-plugin</id>
           <name>Aliyun Plugin Repository</name>
-          <url>https://maven.aliyun.com/repository/public</url>
+          <url>https://maven.aliyun.com/repository/central</url>
           <releases>
             <enabled>true</enabled>
           </releases>

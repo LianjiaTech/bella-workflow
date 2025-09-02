@@ -111,15 +111,15 @@ services:
   bella-workflow-api:
     image: ${REGISTRY:-bellatop}/bella-workflow-api:latest
     build:
-      context: ../api
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: api/Dockerfile
       args:
         MAVEN_ARGS: -Dmaven.test.skip=true -U -Dmaven.build.cache.enabled=false
     container_name: bella-workflow-api
     ports:
       - "${API_PORT:-8080}:8080"
     environment:
-      - LOG_PATH=${LOG_PATH:-../api/logs}
+      - LOG_PATH=${LOG_PATH:-/opt/bella-workflow/applogs}
       # 数据库配置
       - MYSQL_HOST=${MYSQL_HOST:-mysql}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-bella_workflow}
@@ -195,8 +195,8 @@ services:
   bella-workflow-web:
     image: ${REGISTRY:-bellatop}/bella-workflow-web:latest
     build:
-      context: ../web
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: web/Dockerfile
     container_name: bella-workflow-web
     ports:
       - "${WEB_PORT:-3000}:3000"

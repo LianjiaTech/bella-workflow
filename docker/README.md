@@ -152,3 +152,15 @@ docker-compose restart
 - 确保所需端口未被占用
 - 生产环境请修改默认密码
 - 如需HTTPS，准备好SSL证书文件
+
+---
+
+## 多租户配置
+
+Bella Workflow 支持多租户架构。使用前需要设置默认租户的 OpenAPI 密钥：
+
+```bash
+# 在项目根目录执行（从 bella-openapi 获取密钥后）
+# cd ../
+./set-tenant-apikey.sh your_openapi_key_here
+```

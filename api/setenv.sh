@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# 设置日志路径
-export LOG_PATH="/data0/www/applogs/"
+# 设置日志路径 - 使用环境变量LOG_PATH，默认为/opt/bella-workflow/applogs
+: "${LOG_PATH:="/opt/bella-workflow/applogs"}"
 
 if [ "x$ENVTYPE" = "xpreview" ]; then
   export SPRING_PROFILES_ACTIVE='preview'
@@ -25,7 +25,7 @@ USER_OPTS="$USER_OPTS -XX:-UseBiasedLocking -XX:AutoBoxCacheMax=20000 -Djava.sec
 USER_OPTS="$USER_OPTS -XX:+PrintCommandLineFlags -XX:-OmitStackTraceInFastThrow"
 USER_OPTS="$USER_OPTS -Djava.net.preferIPv4Stack=true -Djava.awt.headless=true -Dfile.encoding=UTF-8"
 USER_OPTS="$USER_OPTS -Droot.path=${MATRIX_CODE_DIR}"
-USER_OPTS="$USER_OPTS -Dlogging.path=${MATRIX_APPLOGS_DIR}"
+USER_OPTS="$USER_OPTS -Dlogging.path=${LOG_PATH}"
 USER_OPTS="$USER_OPTS -Djava.io.tmpdir=${MATRIX_CACHE_DIR}"
 USER_OPTS="$USER_OPTS -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}"
 USER_OPTS="$USER_OPTS -Dorg.gradle.daemon=false"

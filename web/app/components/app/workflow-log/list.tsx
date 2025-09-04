@@ -93,6 +93,8 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh }) => {
             <td className='pl-2 pr-1 w-5 rounded-l-lg bg-background-section-burn whitespace-nowrap'></td>
             <td className='pl-3 py-1.5 bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.startTime')}</td>
             <td className='pl-3 py-1.5 bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.workflowRunId')}</td>
+            <td className='pl-3 py-1.5 bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.triggerID')}</td>
+            <td className='pl-3 py-1.5 rounded-r-lg bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.triggerFrom')}</td>
             <td className='pl-3 py-1.5 bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.status')}</td>
             <td className='pl-3 py-1.5 bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.runtime')}</td>
             <td className='pl-3 py-1.5 rounded-r-lg bg-background-section-burn whitespace-nowrap'>{t('appLog.table.header.user')}</td>
@@ -101,6 +103,9 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh }) => {
         <tbody className="text-text-secondary system-sm-regular">
           {logs.data.map((log: WorkflowRunLog) => {
             const endUser = log.userName ? `${log.userName}(${log.userId})` : log.userId
+            const triggerId = log.workflowSchedulingId || defaultValue
+            const triggerFrom = log.triggerFrom || defaultValue
+
             return <tr
               key={log.workflowRunId}
               className={cn('border-b border-divider-subtle hover:bg-background-default-hover cursor-pointer', currentLog?.workflowRunId !== log.workflowRunId ? '' : 'bg-background-default-hover')}
@@ -121,6 +126,18 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh }) => {
               <td
                 className='p-3 pr-2 w-[210px]'>{formatMilliseconds(log.ctime, t('appLog.dateTimeFormat') as string)}</td>
               <td className='p-3 pr-2 w-[264px]'>{log.workflowRunId}</td>
+              <td className='p-3 pr-2'>
+                <div
+                  className={cn(triggerId === defaultValue ? 'text-text-quaternary' : 'text-text-secondary', 'overflow-hidden text-ellipsis whitespace-nowrap')}>
+                  {triggerId}
+                </div>
+              </td>
+              <td className='p-3 pr-2'>
+                <div
+                  className={cn(triggerFrom === defaultValue ? 'text-text-quaternary' : 'text-text-secondary', 'overflow-hidden text-ellipsis whitespace-nowrap')}>
+                  {triggerFrom}
+                </div>
+              </td>
               <td className='p-3 pr-2'>{statusTdRender(log.status)}</td>
               <td className='p-3 pr-2'>
                 <div className={cn(

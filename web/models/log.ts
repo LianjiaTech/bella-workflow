@@ -271,6 +271,7 @@ export type WorkflowRunLog = {
   workflowRunId: string
   flashMode: number
   triggerFrom: string
+  workflowSchedulingId: string | null
   threadId: string | null
   stateful: boolean
   sys: Record<string, any>

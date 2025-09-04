@@ -463,6 +463,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         private String workflowRunId;
         private int flashMode;
         private String triggerFrom;
+        private String workflowSchedulingId;
         private String threadId;
         private boolean stateful;
         private Object sys;

@@ -188,6 +188,7 @@ public class EsWorkflowRunLogService implements IWorkflowRunLogService {
         private String workflowRunId;
         private int flashMode;
         private String triggerFrom;
+        private String workflowSchedulingId;
         private String threadId;
         private boolean stateful;
         private String sys;
@@ -219,6 +220,7 @@ public class EsWorkflowRunLogService implements IWorkflowRunLogService {
                     .workflowRunId(runLogEs.getWorkflowRunId())
                     .flashMode(runLogEs.getFlashMode())
                     .triggerFrom(runLogEs.getTriggerFrom())
+                    .workflowSchedulingId(runLogEs.getWorkflowSchedulingId())
                     .threadId(runLogEs.getThreadId())
                     .stateful(runLogEs.isStateful())
                     .sys(JsonUtils.fromJson(runLogEs.getSys(), Object.class))

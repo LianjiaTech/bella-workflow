@@ -149,3 +149,20 @@ services:
     networks:
       - bella-infrastructure_bella-network
     restart: unless-stopped
+
+  bella-workflow-tasks:
+    image: ${REGISTRY:-bellatop}/bella-workflow-tasks:latest
+    build:
+      context: ../
+      dockerfile: tasks/Dockerfile
+      args:
+        MAVEN_ARGS: -Dmaven.test.skip=true -U -Dmaven.build.cache.enabled=false
+    container_name: ${WORKFLOW_TASKS_CONTAINER_NAME:-bella-workflow-tasks}
+    volumes:
+      - ./volumes/flink/application.properties:/opt/flink/conf/application.properties
+    environment:
+      - CONFIG_FILE=/opt/flink/conf/application.properties
+    env_file:
+      - .bella-app.env
+    networks:
+      - bella-infrastructure_bella-network

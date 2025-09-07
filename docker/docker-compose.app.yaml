@@ -99,6 +99,12 @@ services:
       - ../api/privdata:/opt/bella-workflow/privdata
       # workflow日志路径，确保与kafka能访问到相同的日志文件
       - ../api/logs:/workflow-logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     env_file:
       - .bella-app.env
     networks:
@@ -115,8 +121,8 @@ services:
     ports:
       - "${WEB_PORT:-3000}:3000"
     environment:
-      - NEXT_PUBLIC_API_PREFIX=${SERVER_PROTOCOL:-http}://${SERVER_DOMAIN:-localhost:8080}/console/api
-      - NEXT_PUBLIC_PUBLIC_API_PREFIX=${SERVER_PROTOCOL:-http}://${SERVER_DOMAIN:-localhost:8080}/api
+      - NEXT_PUBLIC_API_PREFIX=${SERVER_PROTOCOL:-http}://${SERVER_DOMAIN:-bella-workflow-api:8080}/console/api
+      - NEXT_PUBLIC_PUBLIC_API_PREFIX=${SERVER_PROTOCOL:-http}://${SERVER_DOMAIN:-bella-workflow-api:8080}/api
       - CONSOLE_API_URL=${SERVER_PROTOCOL:-http}://${SERVER_DOMAIN:-localhost:8080}
       - APP_API_URL=${SERVER_PROTOCOL:-http}://${SERVER_DOMAIN:-localhost:8080}
       - PORT=3000

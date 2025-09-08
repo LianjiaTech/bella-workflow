@@ -8,6 +8,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import com.google.common.cache.Cache;
+import com.ke.bella.queue.TaskWrapper;
+import com.ke.bella.queue.worker.TaskExecutor;
+import com.ke.bella.workflow.db.tables.pojos.WorkflowDB;
+import com.theokanning.openai.service.OpenAiService;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -23,7 +28,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.google.common.cache.CacheBuilder;
-import com.ke.bella.job.queue.worker.JobQueueWorker;
 import com.ke.bella.openapi.server.BellaServerContextHolder;
 import com.ke.bella.workflow.RedisMesh;
 import com.ke.bella.workflow.db.IDGenerator;
@@ -76,17 +80,28 @@ public class BellaAutoConf {
     }
 
     @Bean
-    @ConditionalOnProperty(name = "bella.job-queue.worker.enabled", havingValue = "true")
-    public JobQueueWorker jobQueueWorker(@Value("${bella.job-queue.url}") String url,
-            @Value("${bella.job-queue.worker.endpoint}") String endpoint,
-            @Value("${bella.job-queue.worker.queueName}") String queueName, WorkflowService ws) {
-        JobQueueWorker jobQueueWorker = new JobQueueWorker(url, endpoint, queueName);
-        jobQueueWorker.setTaskHandler(task -> ws.runWorkflow(task, CacheBuilder.newBuilder()
+    public TaskExecutor workerTaskExecutor(WorkflowService ws,
+            @Value("${bella.queue.worker.executor.remaining-capacity:10}") int remainingCapacity) {
+        Cache<String, WorkflowDB> workflowCache = CacheBuilder.newBuilder()
                 .maximumSize(1000)
                 .expireAfterWrite(5, TimeUnit.MINUTES)
-                .build()));
-        jobQueueWorker.start();
-        return jobQueueWorker;
+                .build();
+        return new TaskExecutor() {
+            @Override
+            public void submit(TaskWrapper task) {
+                ws.runWorkflow(task, workflowCache);
+            }
+
+            public Integer remainingCapacity() {
+                return remainingCapacity;
+            }
+        };
+    }
+
+    @Bean
+    public OpenAiService openAiService(@Value("${bella.openApiBase:}") String openApiBase,
+            @Value("${bella.openApikey:}") String openApikey) {
+        return new OpenAiService(openApikey, openApiBase);
     }
 
     @PostConstruct

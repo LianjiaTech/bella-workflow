@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
+import com.ke.bella.queue.TaskWrapper;
+import com.ke.bella.queue.worker.Worker;
+import com.theokanning.openai.queue.Task;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +31,6 @@ import org.springframework.util.CollectionUtils;
 
 import com.amazonaws.services.s3.model.S3Object;
 import com.google.common.cache.Cache;
-import com.ke.bella.job.queue.worker.JobQueueWorker;
-import com.ke.bella.job.queue.worker.Task;
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.apikey.ApikeyInfo;
 import com.ke.bella.openapi.protocol.files.File;
@@ -97,12 +98,13 @@ public class WorkflowService {
     IWorkflowRunLogService ls;
 
     @Autowired(required = false)
-    JobQueueWorker worker;
+    Worker worker;
 
     WorkflowRunManager manager;
 
     public static final String EVENT_INTERRUPT = "interruptWorkflowRun";
     public static final String EVENT_NOTIFY = "notifyWorkflowRun";
+
 
     public Page<WorkflowTemplate> pageWorkflowTemplates(WorkflowPage op) {
         List<WorkflowTemplateDB> workflowTemplates = repo.listWorkflowTemplateDB(op);
@@ -367,15 +369,16 @@ public class WorkflowService {
     }
 
     @SuppressWarnings("ALL")
-    public void runWorkflow(Task task, Cache<String, WorkflowDB> workflowCache) {
+    public void runWorkflow(TaskWrapper task, Cache<String, WorkflowDB> workflowCache) {
         try {
             WorkflowOps.WorkflowRun payload = task.getPayload(WorkflowOps.WorkflowRun.class);
             payload.setResponseMode(ResponseMode.batch.name());
             payload.setTriggerFrom(WorkflowOps.TriggerFrom.BATCH.name());
-            payload.getMetadata().put("taskId", task.getTaskId());
+            payload.getMetadata().put("taskId", task.getTask().getTaskId());
+            payload.getMetadata().put("instanceId", task.getTask().getInstanceId());
 
             Map<String, Object> inputs = payload.getInputs();
-            String apiKey = MapUtils.getString(inputs, "apiKey");
+            String apiKey = task.getTask().getAk();
             String traceId = MapUtils.getString(inputs, "traceId",
                     BellaContext.generateTraceId("workflow-batch-run"));
             BellaContext.setOperator(payload);
@@ -385,11 +388,17 @@ public class WorkflowService {
             TaskExecutor.submit(() -> {
                 try {
                     String workflowId = payload.getWorkflowId();
-                    WorkflowDB workflowDB = workflowCache.get(workflowId,
-                            () -> getPublishedWorkflow(workflowId, null));
+                    WorkflowDB workflowDB = workflowCache.get(workflowId, () -> getPublishedWorkflow(workflowId, null));
                     runWorkflow(newWorkflowRun(workflowDB, payload), payload, new WorkflowBatchRunCallback(task));
-                } catch (Exception e) {
-                    task.markFailed(e.getMessage());
+                } catch (Throwable e) {
+                    Map<String, Object> errorBody = new HashMap<>();
+                    errorBody.put("error", "workflow run failed: " + e.getMessage());
+                    
+                    Map<String, Object> errorData = new HashMap<>();
+                    errorData.put("status_code", 500);
+                    errorData.put("request_id", task.getTask().getTaskId());
+                    errorData.put("body", errorBody);
+                    task.markComplete(errorData);
                 }
             }, e -> task.markRetryLater());
         } finally {
@@ -849,9 +858,15 @@ public class WorkflowService {
         } else if(ResponseMode.batch.name().equals(wr.getResponseMode())) {
             try {
                 BellaContext.replace(wr.getContext());
-                Map metadata = JsonUtils.fromJson(wr.getMetadata(), Map.class);
+                Map<String, Object> metadata = JsonUtils.fromJson(wr.getMetadata(), Map.class);
                 String taskId = MapUtils.getString(metadata, "taskId");
-                tryResumeWorkflow(wr.getWorkflowRunId(), new WorkflowBatchRunCallback(Task.of(taskId, worker)));
+                String taskInstanceId = MapUtils.getString(metadata, "instanceId");
+                Task task = new Task();
+                task.setTaskId(taskId);
+                task.setInstanceId(taskInstanceId);
+                TaskWrapper taskWrapper = TaskWrapper.of(task, worker);
+                taskWrapper.setWorker(worker);
+                tryResumeWorkflow(wr.getWorkflowRunId(), new WorkflowBatchRunCallback(taskWrapper));
             } catch (Exception e) {
                 LOGGER.error("batch callback occur error.", e);
             } finally {

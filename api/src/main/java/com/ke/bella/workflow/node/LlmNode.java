@@ -218,7 +218,6 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     private NodeRunResult invokeLlmAsync(List<ChatMessage> chatMessages, Map<String, Object> nodeInputs) {
         ChatCompletionRequest chatRequest = data.getModel().getTemplateCompletionParams();
         chatRequest.setMessages(chatMessages);
-        chatRequest.setStreamOptions(StreamOption.INCLUDE);
         chatRequest.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
 
         String queueName = chatRequest.getModel() + ":offline";

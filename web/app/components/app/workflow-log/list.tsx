@@ -103,7 +103,7 @@ const WorkflowAppLogList: FC<ILogs> = ({ logs, appDetail, onRefresh }) => {
         <tbody className="text-text-secondary system-sm-regular">
           {logs.data.map((log: WorkflowRunLog) => {
             const endUser = log.userName ? `${log.userName}(${log.userId})` : log.userId
-            const triggerId = log.workflowSchedulingId || defaultValue
+            const triggerId = log.triggerId || defaultValue
             const triggerFrom = log.triggerFrom || defaultValue
 
             return <tr

@@ -357,6 +357,7 @@ public class WorkflowRepo implements BaseRepo {
         rec.setFlashMode(op.isFlashMode() ? op.getFlashMode() : 0);
         if(op.getTriggerId() != null) {
             rec.setWorkflowSchedulingId(op.getTriggerId());
+			rec.setTriggerId(op.getTriggerId());
         }
         if(op.getThreadId() != null) {
             rec.setThreadId(op.getThreadId());

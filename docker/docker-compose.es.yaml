@@ -107,6 +107,7 @@ services:
       - ./volumes/flink/application.properties:/opt/flink/conf/application.properties
     environment:
       - CONFIG_FILE=/opt/flink/conf/application.properties
+      - FLINK_ENV_JAVA_OPTS=${TASKS_FLINK_ENV_JAVA_OPTS:--Xms1g -Xmx2g}
     env_file:
       - .middleware.env
     networks:
@@ -273,6 +274,12 @@ services:
       - ENVTYPE=test
       - DEBUGPORT=9008
       - JMXPORT=9009
+      # JVM 内存配置
+      - Xms=${API_XMS:-4096m}
+      - Xmx=${API_XMX:-4096m}
+      - Xmn=${API_XMN:-1024m}
+      - MetaspaceSize=${API_METASPACE_SIZE:-512m}
+      - MaxMetaspaceSize=${API_MAX_METASPACE_SIZE:-512m}
       - MATRIX_CODE_DIR=/opt/bella-workflow/htdocs
       - MATRIX_APPLOGS_DIR=/opt/bella-workflow/applogs
       - MATRIX_ACCESSLOGS_DIR=/opt/bella-workflow/logs

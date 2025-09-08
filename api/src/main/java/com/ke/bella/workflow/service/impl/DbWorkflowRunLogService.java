@@ -84,6 +84,7 @@ public class DbWorkflowRunLogService implements IWorkflowRunLogService {
                 .workflowRunId(wr.getWorkflowRunId())
                 .flashMode(wr.getFlashMode() != null ? wr.getFlashMode() : 0)
                 .triggerFrom(wr.getTriggerFrom())
+				.triggerId(wr.getTriggerId())
                 .threadId(wr.getThreadId())
                 .stateful(wr.getStateful() != null && wr.getStateful() == 1)
                 .status(wr.getStatus())

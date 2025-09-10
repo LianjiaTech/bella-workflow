@@ -105,7 +105,6 @@ public class WorkflowService {
     public static final String EVENT_INTERRUPT = "interruptWorkflowRun";
     public static final String EVENT_NOTIFY = "notifyWorkflowRun";
 
-
     public Page<WorkflowTemplate> pageWorkflowTemplates(WorkflowPage op) {
         List<WorkflowTemplateDB> workflowTemplates = repo.listWorkflowTemplateDB(op);
         Set<String> tags = op.getTags();
@@ -376,6 +375,7 @@ public class WorkflowService {
             payload.setTriggerFrom(WorkflowOps.TriggerFrom.BATCH.name());
             payload.getMetadata().put("taskId", task.getTask().getTaskId());
             payload.getMetadata().put("instanceId", task.getTask().getInstanceId());
+            payload.getMetadata().put("responseMode", task.getTask().getResponseMode());
 
             Map<String, Object> inputs = payload.getInputs();
             String apiKey = task.getTask().getAk();
@@ -393,7 +393,6 @@ public class WorkflowService {
                 } catch (Throwable e) {
                     Map<String, Object> errorBody = new HashMap<>();
                     errorBody.put("error", "workflow run failed: " + e.getMessage());
-                    
                     Map<String, Object> errorData = new HashMap<>();
                     errorData.put("status_code", 500);
                     errorData.put("request_id", task.getTask().getTaskId());
@@ -861,9 +860,11 @@ public class WorkflowService {
                 Map<String, Object> metadata = JsonUtils.fromJson(wr.getMetadata(), Map.class);
                 String taskId = MapUtils.getString(metadata, "taskId");
                 String taskInstanceId = MapUtils.getString(metadata, "instanceId");
+                String responseMode = MapUtils.getString(metadata, "responseMode");
                 Task task = new Task();
                 task.setTaskId(taskId);
                 task.setInstanceId(taskInstanceId);
+                task.setResponseMode(responseMode);
                 TaskWrapper taskWrapper = TaskWrapper.of(task, worker);
                 taskWrapper.setWorker(worker);
                 tryResumeWorkflow(wr.getWorkflowRunId(), new WorkflowBatchRunCallback(taskWrapper));

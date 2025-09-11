@@ -4,6 +4,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.client.OpenapiClient;
 import com.ke.bella.openapi.request.BellaInterceptor;
@@ -26,6 +28,11 @@ public class OpenAiUtils {
     static TimeUnit DEFAULT_READ_TIMEOUT_UNIT = TimeUnit.SECONDS;
     static OkHttpClient client;
     static OpenapiClient openApiClient;
+    private static final Cache<String, OpenAiService> serviceCache = CacheBuilder.newBuilder()
+            .maximumSize(1000)
+            .expireAfterAccess(10, TimeUnit.MINUTES)
+            .build();
+
     static {
         Dispatcher dispatcher = new Dispatcher();
         dispatcher.setMaxRequests(Configs.TASK_THREAD_NUMS);
@@ -63,4 +70,13 @@ public class OpenAiUtils {
     public static OpenAiService defaultOpenAiService(String token) {
         return defaultOpenAiService(token, DEFAULT_READ_TIMEOUT_SECONDS, DEFAULT_READ_TIMEOUT_UNIT);
     }
+
+    public static OpenAiService getOrCreateOpenAiService(String token) {
+        try {
+            return serviceCache.get(token, () -> defaultOpenAiService(token));
+        } catch (Exception e) {
+            return defaultOpenAiService(token);
+        }
+    }
+
 }

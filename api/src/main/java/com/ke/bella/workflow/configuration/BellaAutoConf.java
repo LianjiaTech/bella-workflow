@@ -100,8 +100,8 @@ public class BellaAutoConf {
 
     @Bean
     public OpenAiService openAiService(@Value("${bella.openApiBase:}") String openApiBase,
-            @Value("${bella.openApikey:}") String openApikey) {
-        return new OpenAiService(openApikey, openApiBase);
+            @Value("${bella.openApiKey:}") String openApiKey) {
+        return new OpenAiService(openApiKey, openApiBase);
     }
 
     @PostConstruct

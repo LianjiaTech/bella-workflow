@@ -6,10 +6,14 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.collect.Maps;
 import com.ke.bella.job.queue.JobQueueClient;
 import com.ke.bella.job.queue.api.entity.param.TaskParam;
+import com.ke.bella.openapi.protocol.route.RouteResult;
+import com.ke.bella.queue.QueueMode;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.service.Configs;
 import com.theokanning.openai.completion.chat.*;
+import com.theokanning.openai.queue.Put;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StringUtils;
 
@@ -97,7 +101,8 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     @Override
     protected NodeRunResult resume(WorkflowContext context, IWorkflowCallback callback, Map notifyData) {
         NodeRunResult r = context.getState().getNodeState(getNodeId());
-        ChatCompletionResult completionResult = JsonUtils.convertValue(notifyData,
+        Map notifyBody = MapUtils.getMap(notifyData, "body");
+        ChatCompletionResult completionResult = JsonUtils.convertValue(notifyBody,
                 new TypeReference<ChatCompletionResult>() {
                 });
         AssistantMessage message = new AssistantMessage();
@@ -220,15 +225,18 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
         chatRequest.setMessages(chatMessages);
         chatRequest.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
 
-        String queueName = chatRequest.getModel() + ":offline";
         String endpoint = "/v1/chat/completions";
-        JobQueueClient jobQueueClient = JobQueueClient.getInstance(Configs.JOB_QUEUE_BASE, endpoint, queueName);
-        jobQueueClient.put(TaskParam.TaskPutParam.builder()
+        String token = data.getAuthorization().getToken();
+        Map<String, Object> requestData = JsonUtils.convertValue(chatRequest, new TypeReference<Map<String, Object>>() {
+        });
+
+        OpenAiService openAiService = OpenAiUtils.getOrCreateOpenAiService(token);
+        openAiService.putTask(Put.builder()
                 .endpoint(endpoint)
-                .model(queueName)
-                .data(chatRequest)
+                .level(1)
+                .data(requestData)
                 .callbackUrl(getCallbackUrl())
-                .build(), data.getAuthorization().getToken());
+                .build());
 
         return NodeRunResult.builder()
                 .status(NodeRunResult.Status.waiting)

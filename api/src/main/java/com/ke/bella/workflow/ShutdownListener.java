@@ -32,6 +32,12 @@ public class ShutdownListener implements ApplicationListener<ApplicationEvent> {
             }
             redisMesh.shutdown();
             repo.unregister(BellaServerContextHolder.getIp(), BellaServerContextHolder.getPort());
+
+            try {
+                TaskExecutor.gracefulShutdown(60);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }

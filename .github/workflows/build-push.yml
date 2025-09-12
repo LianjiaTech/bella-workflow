@@ -65,19 +65,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Generate Release Notes
         id: release_notes
         run: |
           # Check if this is the first release
-          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | head -2 | tail -1)
-          IS_FIRST_RELEASE=false
+          CURRENT_TAG="${{ github.ref_name }}"
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | grep -v "^${CURRENT_TAG}$" | head -1)
           
-          if [ -z "$PREVIOUS_TAG" ] || [ "$PREVIOUS_TAG" = "${{ github.ref_name }}" ]; then
+          if [ -z "$PREVIOUS_TAG" ]; then
             IS_FIRST_RELEASE=true
             echo "This is the first release"
           else
-            echo "Comparing from $PREVIOUS_TAG to ${{ github.ref_name }}"
+            IS_FIRST_RELEASE=false
+            echo "Comparing from $PREVIOUS_TAG to $CURRENT_TAG"
           fi
           
           if [ "$IS_FIRST_RELEASE" = true ]; then
@@ -95,7 +98,7 @@ jobs:
             echo "" >> release_notes.md
           
             # Get recent feat: commits (up to 3)
-            FEAT_COMMITS=$(git log ${PREVIOUS_TAG}..${{ github.sha }} --pretty=format:"- %s" --no-merges --grep="^feat:" | head -3)
+            FEAT_COMMITS=$(git log "${PREVIOUS_TAG}"..${{ github.sha }} --pretty=format:"- %s" --no-merges --grep="^feat:" | head -3)
             if [ ! -z "$FEAT_COMMITS" ]; then
               echo "### ✨ New Features" >> release_notes.md
               echo "$FEAT_COMMITS" >> release_notes.md
@@ -107,7 +110,7 @@ jobs:
             echo "" >> release_notes.md
           
             # Use git log to get commits with author GitHub username if possible
-            git log ${PREVIOUS_TAG}..${{ github.sha }} --no-merges --pretty=format:"- %s (%h) by @%an" >> release_notes.md
+            git log "${PREVIOUS_TAG}"..${{ github.sha }} --no-merges --pretty=format:"- %s (%h) by @%an" >> release_notes.md
             echo "" >> release_notes.md
             echo "" >> release_notes.md
           
@@ -116,7 +119,7 @@ jobs:
             echo "" >> release_notes.md
           
             # Get unique authors and try to convert to GitHub usernames
-            AUTHORS=$(git log ${PREVIOUS_TAG}..${{ github.sha }} --no-merges --pretty=format:"%an <%ae>" | sort -u)
+            AUTHORS=$(git log "${PREVIOUS_TAG}"..${{ github.sha }} --no-merges --pretty=format:"%an <%ae>" | sort -u)
             echo "Thanks to the following contributors:" >> release_notes.md
             echo "" >> release_notes.md
           
@@ -145,13 +148,17 @@ jobs:
           BUILD_TIME=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
           cat >> release_notes.md << EOF
           ## 📦 Docker Images
-
+          
           **Version**: \`${{ github.ref_name }}\`
-
+          
           **Multi-Architecture Support**: All images support both \`linux/amd64\` and \`linux/arm64\` architectures.
-
+          
+          ### 🐳 Available Images
+          - **API Service**: \`${{ env.DOCKERHUB_USER }}/bella-workflow-api:${{ github.ref_name }}\`
+          - **Web Service**: \`${{ env.DOCKERHUB_USER }}/bella-workflow-web:${{ github.ref_name }}\`
+          
           **Deployment**: For detailed deployment instructions, please refer to [docker/README.md](./docker/README.md)
-
+          
           ### 📋 Build Information
           - **Build Date**: ${BUILD_TIME}
           - **Git Commit**: \`${{ github.sha }}\`

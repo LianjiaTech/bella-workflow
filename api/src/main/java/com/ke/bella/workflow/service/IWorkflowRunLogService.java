@@ -11,7 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 
 public interface IWorkflowRunLogService {
 
@@ -21,7 +21,7 @@ public interface IWorkflowRunLogService {
 
     void saveWorkflowRunLog(WorkflowRunLog runLog);
 
-    public Map<String, List<Map<String, Object>>> getDailyRunsStatistic(String workflowId, DateTime startDate, DateTime endDate);
+    Map<String, List<Map<String, Object>>> getDailyRunsStatistic(String workflowId, LocalDateTime startDate, LocalDateTime endDate);
 
     @Data
     @Builder
@@ -41,6 +41,8 @@ public interface IWorkflowRunLogService {
         @Builder.Default
         private String order = "desc";
         private String lastWorkflowRunId;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
     }
 
     @Data

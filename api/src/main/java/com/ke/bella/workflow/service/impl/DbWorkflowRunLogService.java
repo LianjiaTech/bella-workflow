@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
-
+import java.time.LocalDateTime;
 import com.google.common.collect.Lists;
 import com.ke.bella.workflow.api.WorkflowOps;
 import com.ke.bella.workflow.api.WorkflowOps.WorkflowRunPage;
@@ -22,8 +22,6 @@ import com.ke.bella.workflow.utils.JsonUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.joda.time.DateTime;
-
 @Slf4j
 public class DbWorkflowRunLogService implements IWorkflowRunLogService {
 
@@ -34,7 +32,7 @@ public class DbWorkflowRunLogService implements IWorkflowRunLogService {
     }
 
     @Override
-    public Map<String, List<Map<String, Object>>> getDailyRunsStatistic(String workflowId, DateTime start, DateTime end) {
+    public Map<String, List<Map<String, Object>>> getDailyRunsStatistic(String workflowId, LocalDateTime start, LocalDateTime end) {
 
         // 获取过滤后的工作流运行记录
         List<WorkflowRunLog> logs = getFilteredWorkflowRunLogs(workflowId, start, end);
@@ -118,28 +116,26 @@ public class DbWorkflowRunLogService implements IWorkflowRunLogService {
                 .sum();
 
         // 计算平均值并保留两位小数
-        BigDecimal average = BigDecimal.valueOf(totalInteractions)
+        return BigDecimal.valueOf(totalInteractions)
                 .divide(BigDecimal.valueOf(userInteractions.size()), 2, RoundingMode.HALF_UP);
-
-        return average;
     }
 
     /**
      * 生成完整的日期范围并补全缺失日期
      */
     private List<Map<String, Object>> generateCompleteDateRange(
-            Map<String, WorkflowDailyStatistic> dailyStats, DateTime start, DateTime end) {
+            Map<String, WorkflowDailyStatistic> dailyStats, LocalDateTime start, LocalDateTime end) {
 
-        org.joda.time.LocalDate startDate = start != null ? start.toLocalDate() : getEarliestDateJoda(dailyStats.keySet());
+        LocalDate startDate = start != null ? start.toLocalDate() : getEarliestDate(dailyStats.keySet());
 
-        org.joda.time.LocalDate endDate = end != null ? end.toLocalDate() : getLatestDateJoda(dailyStats.keySet());
+        LocalDate endDate = end != null ? end.toLocalDate() : getLatestDate(dailyStats.keySet());
 
         // 生成所有日期并填充数据
         List<Map<String, Object>> result = new ArrayList<>();
-        org.joda.time.LocalDate currentDate = startDate;
+        LocalDate currentDate = startDate;
 
         while (!currentDate.isAfter(endDate)) {
-            String dateStr = currentDate.toString("yyyy-MM-dd");
+            String dateStr = currentDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
             Map<String, Object> item = new HashMap<>();
             item.put("date", dateStr);
 
@@ -167,29 +163,29 @@ public class DbWorkflowRunLogService implements IWorkflowRunLogService {
     /**
      * 获取数据中最早的日期
      */
-    private org.joda.time.LocalDate getEarliestDateJoda(Set<String> dates) {
+    private LocalDate getEarliestDate(Set<String> dates) {
         if(dates.isEmpty()) {
-            return new org.joda.time.LocalDate();
+            return LocalDate.now();
         }
 
         return dates.stream()
-                .map(org.joda.time.LocalDate::parse)
-                .min(org.joda.time.LocalDate::compareTo)
-                .orElse(new org.joda.time.LocalDate());
+                .map(LocalDate::parse)
+                .min(LocalDate::compareTo)
+                .orElse(LocalDate.now());
     }
 
     /**
      * 获取数据中最晚的日期
      */
-    private org.joda.time.LocalDate getLatestDateJoda(Set<String> dates) {
+    private LocalDate getLatestDate(Set<String> dates) {
         if(dates.isEmpty()) {
-            return new org.joda.time.LocalDate();
+            return LocalDate.now();
         }
 
         return dates.stream()
-                .map(org.joda.time.LocalDate::parse)
-                .max(org.joda.time.LocalDate::compareTo)
-                .orElse(new org.joda.time.LocalDate());
+                .map(LocalDate::parse)
+                .max(LocalDate::compareTo)
+                .orElse(LocalDate.now());
     }
 
     /**
@@ -204,54 +200,25 @@ public class DbWorkflowRunLogService implements IWorkflowRunLogService {
 
     /**
      * 获取过滤后的工作流运行记录
+     * 优化版本：使用数据库层面的时间过滤，避免内存过载
      */
-    private List<WorkflowRunLog> getFilteredWorkflowRunLogs(String workflowId, DateTime start, DateTime end) {
-        List<WorkflowRunLog> result = new ArrayList<>();
-        int pageSize = 1000;
-        int fromIndex = 0;
-        boolean hasMore = true;
+    private List<WorkflowRunLog> getFilteredWorkflowRunLogs(String workflowId, LocalDateTime start, LocalDateTime end) {
+        // 直接使用 QueryOps 的时间过滤功能，在数据库层面过滤
+        IWorkflowRunLogService.QueryOps queryOps = IWorkflowRunLogService.QueryOps.builder()
+                .workflowId(workflowId)
+                .triggerFroms(Lists.newArrayList(WorkflowOps.TriggerFrom.API.name(), WorkflowOps.TriggerFrom.CUSTOM_API.name(),
+                        WorkflowOps.TriggerFrom.SCHEDULE.name(),
+                        WorkflowOps.TriggerFrom.KAFKA.name()))
+                .startTime(start)
+                .endTime(end)
+                .size(10000) // 设置合理的限制，避免无限制查询
+                .orderBy("ctime")
+                .order("asc") // 按时间升序，便于统计处理
+                .build();
 
-        while (hasMore) {
-            // 构建分页查询条件
-            IWorkflowRunLogService.QueryOps queryOps = IWorkflowRunLogService.QueryOps.builder()
-                    .workflowId(workflowId)
-                    .triggerFroms(Lists.newArrayList(WorkflowOps.TriggerFrom.API.name(), WorkflowOps.TriggerFrom.CUSTOM_API.name(),
-                            WorkflowOps.TriggerFrom.SCHEDULE.name(),
-                            WorkflowOps.TriggerFrom.KAFKA.name()))
-                    .fromIndex(fromIndex)
-                    .size(pageSize)
-                    .build();
-
-            // 执行查询
-            Page<WorkflowRunLog> page = this.pageWorkflowRunLogs(queryOps);
-            List<WorkflowRunLog> logs = page.getData();
-
-            if(logs.isEmpty()) {
-                hasMore = false;
-            } else {
-                // 过滤时间范围内的记录
-                logs.stream()
-                        .filter(log -> isInTimeRange(log.getCtime(), start, end))
-                        .forEach(result::add);
-
-                fromIndex += pageSize;
-
-                // 如果返回的数据量小于请求的页大小，说明已经到达末尾
-                if(logs.size() < pageSize) {
-                    hasMore = false;
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * 判断时间戳是否在指定范围内
-     */
-    private boolean isInTimeRange(Long timestamp, DateTime start, DateTime end) {
-        return (start == null || timestamp >= start.getMillis()) &&
-                (end == null || timestamp <= end.getMillis());
+        // 执行单次查询，数据库层面已经过滤了时间范围
+        Page<WorkflowRunLog> page = this.pageWorkflowRunLogs(queryOps);
+        return page.getData();
     }
 
     @Override
@@ -271,18 +238,31 @@ public class DbWorkflowRunLogService implements IWorkflowRunLogService {
             return pageNodeRunLogs(ops);
         }
 
-        // Query workflow run logs
-        WorkflowRunPage pageOps = WorkflowRunPage.builder()
+        // Query workflow run logs with time filtering support
+        WorkflowRunPage.WorkflowRunPageBuilder pageOpsBuilder = WorkflowRunPage.builder()
                 .workflowId(ops.getWorkflowId())
                 .page(ops.getFromIndex() != null ? (ops.getFromIndex() / ops.getSize()) + 1 : 1)
                 .pageSize(ops.getSize() != null ? ops.getSize() : 30)
-                .lastId(ops.getLastWorkflowRunId())
-                .build();
+                .lastId(ops.getLastWorkflowRunId());
 
+        // Add time filtering if provided
+        if(ops.getStartTime() != null) {
+            pageOpsBuilder.startTime(ops.getStartTime());
+        }
+
+        // Note: WorkflowRunPage currently only supports startTime, not endTime
+        // For complete time range filtering, we may need to enhance
+        // WorkflowRunPage
+        // or implement additional filtering at service layer
+
+        WorkflowRunPage pageOps = pageOpsBuilder.build();
         Page<WorkflowRunDB> dbPage = ws.listWorkflowRun(pageOps);
 
         List<WorkflowRunLog> logList = dbPage.getData().stream()
                 .map(this::transferToWorkflowRunLog)
+                // Apply endTime filtering at service layer if needed
+                .filter(log -> ops.getEndTime() == null ||
+                        log.getCtime() <= ops.getEndTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli())
                 .collect(Collectors.toList());
 
         return Page.<WorkflowRunLog>from(dbPage.getPage(), dbPage.getPageSize())

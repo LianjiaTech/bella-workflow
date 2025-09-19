@@ -32,6 +32,7 @@ export type ISelectProps = {
   items?: Item[]
   defaultValue?: number | string
   disabled?: boolean
+  notClearable?: boolean
   onSelect: (value: Item) => void
   allowSearch?: boolean
   bgClassName?: string
@@ -155,6 +156,7 @@ const SimpleSelect: FC<ISelectProps> = ({
   items = defaultItems,
   defaultValue = 1,
   disabled = false,
+  notClearable,
   onSelect,
   placeholder,
 }) => {
@@ -185,13 +187,13 @@ const SimpleSelect: FC<ISelectProps> = ({
         <Listbox.Button className={`w-full h-full rounded-lg border-0 bg-gray-100 py-1.5 pl-3 pr-10 sm:text-sm sm:leading-6 focus-visible:outline-none focus-visible:bg-gray-200 group-hover:bg-gray-200 ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${className}`}>
           <span className={classNames('block truncate text-left', !selectedItem?.name && 'text-gray-400')}>{selectedItem?.name ?? localPlaceholder}</span>
           <span className="absolute inset-y-0 right-0 flex items-center pr-2">
-            {selectedItem
+            {(selectedItem && !notClearable)
               ? (
                 <XMarkIcon
                   onClick={(e) => {
                     e.stopPropagation()
                     setSelectedItem(null)
-                    onSelect({ value: null })
+                    onSelect({ name: '', value: '' })
                   }}
                   className="h-5 w-5 text-gray-400 cursor-pointer"
                   aria-hidden="false"

@@ -9,7 +9,7 @@ networks:
 services:
   # 引入中间件服务
   kafka:
-    image: docker.io/bitnami/kafka:latest
+    image: docker.io/bitnamilegacy/kafka:3.4.1
     container_name: bella-workflow-kafka
     user: "1001:0"
     ports:
@@ -42,10 +42,10 @@ services:
     env_file:
       - .middleware.env
     volumes:
-      - ./volumes/kafka/data:/bitnami/kafka
+      - kafka-data:/bitnami/kafka
       - ./volumes/kafka/scripts:/scripts
       - ./volumes/kafka/connect-plugins:/opt/bitnami/kafka/connect-plugins
-      - ${LOG_PATH:-../api/logs}:/workflow-logs
+      - ../api/logs:/workflow-logs
     healthcheck:
       test: [ "CMD-SHELL", "kafka-topics.sh --bootstrap-server ${KAFKA_HOST:-kafka}:9092 --list | grep -q '${WORKFLOW_RUN_LOG_TOPIC:-workflow_run_log}'" ]
       interval: 10s
@@ -92,6 +92,11 @@ services:
   # Bella Workflow Tasks service
   bella-workflow-tasks:
     image: ${REGISTRY:-bellatop}/bella-workflow-tasks:latest
+    build:
+      context: ../
+      dockerfile: tasks/Dockerfile
+      args:
+        MAVEN_ARGS: -Dmaven.test.skip=true -U -Dmaven.build.cache.enabled=false
     container_name: ${WORKFLOW_TASKS_CONTAINER_NAME:-bella-workflow-tasks}
     depends_on:
       kafka:
@@ -102,6 +107,7 @@ services:
       - ./volumes/flink/application.properties:/opt/flink/conf/application.properties
     environment:
       - CONFIG_FILE=/opt/flink/conf/application.properties
+      - FLINK_ENV_JAVA_OPTS=${TASKS_FLINK_ENV_JAVA_OPTS:--Xms1g -Xmx2g}
     env_file:
       - .middleware.env
     networks:
@@ -208,15 +214,16 @@ services:
   bella-workflow-api:
     image: ${REGISTRY:-bellatop}/bella-workflow-api:latest
     build:
-      context: ../api
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: api/Dockerfile
       args:
         - MAVEN_ARGS="-Dmaven.test.skip=true -U -Dmaven.build.cache.enabled=false"
     container_name: bella-workflow-api
     ports:
       - "${API_PORT:-8080}:8080"
     environment:
-      - LOG_PATH=${LOG_PATH:-../api/logs}
+      # 日志配置
+      - LOG_PATH=${LOG_PATH:-/opt/bella-workflow/applogs}
       # 数据库配置
       - MYSQL_HOST=${MYSQL_HOST:-mysql}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-bella_workflow}
@@ -267,6 +274,12 @@ services:
       - ENVTYPE=test
       - DEBUGPORT=9008
       - JMXPORT=9009
+      # JVM 内存配置
+      - Xms=${API_XMS:-4096m}
+      - Xmx=${API_XMX:-4096m}
+      - Xmn=${API_XMN:-1024m}
+      - MetaspaceSize=${API_METASPACE_SIZE:-512m}
+      - MaxMetaspaceSize=${API_MAX_METASPACE_SIZE:-512m}
       - MATRIX_CODE_DIR=/opt/bella-workflow/htdocs
       - MATRIX_APPLOGS_DIR=/opt/bella-workflow/applogs
       - MATRIX_ACCESSLOGS_DIR=/opt/bella-workflow/logs
@@ -276,7 +289,6 @@ services:
     volumes:
       # 挂载日志和配置目录
       - ../api/logs:/opt/bella-workflow/applogs
-      - ../api/logs:/opt/bella-workflow/logs
       - ../api/configuration:/opt/bella-workflow/configuration
       - ../api/cache:/opt/bella-workflow/cache
       - ../api/privdata:/opt/bella-workflow/privdata
@@ -300,8 +312,8 @@ services:
   bella-workflow-web:
     image: ${REGISTRY:-bellatop}/bella-workflow-web:latest
     build:
-      context: ../web
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: web/Dockerfile
     container_name: bella-workflow-web
     ports:
       - "${WEB_PORT:-3000}:3000"
@@ -353,3 +365,6 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+
+volumes:
+  kafka-data:

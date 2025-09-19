@@ -26,6 +26,7 @@ import org.jooq.impl.DSL;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import com.ke.bella.openapi.BellaContext;
@@ -317,6 +318,13 @@ public class WorkflowRepo implements BaseRepo {
             SelectConditionStep<WorkflowRunRecord> sql = db(sharding.getKey()).selectFrom(WORKFLOW_RUN)
                     .where(WORKFLOW_RUN.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
                     .and(WORKFLOW_RUN.WORKFLOW_ID.eq(op.getWorkflowId()))
+                    .and(op.getWorkflowRunId() == null ? DSL.noCondition() : WORKFLOW_RUN.WORKFLOW_RUN_ID.eq(op.getWorkflowRunId()))
+                    .and(CollectionUtils.isEmpty(op.getTriggerFroms()) ? DSL.noCondition()
+                            : WORKFLOW_RUN.TRIGGER_FROM.in(op.getTriggerFroms()))
+                    .and(CollectionUtils.isEmpty(op.getStatus()) ? DSL.noCondition()
+                            : WORKFLOW_RUN.STATUS.in(op.getStatus()))
+                    .and(op.getUserId() == null ? DSL.noCondition()
+                            : WORKFLOW_RUN.CUID.eq(op.getUserId()))
                     .and(StringUtils.isEmpty(op.getTriggerId()) ? DSL.noCondition()
                             : WORKFLOW_RUN.TRIGGER_ID.eq(op.getTriggerId()))
                     .and(StringUtils.isEmpty(op.getLastId()) ? DSL.noCondition() : WORKFLOW_RUN.WORKFLOW_RUN_ID.ge(op.getLastId()));
@@ -349,6 +357,7 @@ public class WorkflowRepo implements BaseRepo {
         rec.setFlashMode(op.isFlashMode() ? op.getFlashMode() : 0);
         if(op.getTriggerId() != null) {
             rec.setWorkflowSchedulingId(op.getTriggerId());
+			rec.setTriggerId(op.getTriggerId());
         }
         if(op.getThreadId() != null) {
             rec.setThreadId(op.getThreadId());
@@ -584,6 +593,7 @@ public class WorkflowRepo implements BaseRepo {
         String shardKey = shardingKeyByWorkflowRunId(workflowRunId);
         return db(shardKey).selectFrom(WORKFLOW_NODE_RUN)
                 .where(WORKFLOW_NODE_RUN.WORKFLOW_RUN_ID.eq(workflowRunId))
+                .orderBy(WORKFLOW_NODE_RUN.ID.asc())
                 .fetchInto(WorkflowNodeRunDB.class);
     }
 

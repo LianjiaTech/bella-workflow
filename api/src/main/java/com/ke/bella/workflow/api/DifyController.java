@@ -691,10 +691,11 @@ public class DifyController {
                 .workflowId(workflowId)
                 .events(WorkflowRunCallback.WorkflowRunEvent.nodeFinishedEvents().stream().map(Enum::name).collect(Collectors.toList()))
                 .workflowRunId(workflowRunId)
+                .order("asc")
                 .build();
 
-        Page<WorkflowRunLog> runLogs = ls.pageWorkflowRunLogs(ops);
-        return DifyNodeExecution.builder().data(DifyUtils.transfer0(runLogs.getData())).build();
+        List<WorkflowRunLog> runLogs = ls.listNodeRunLogs(ops);
+        return DifyNodeExecution.builder().data(DifyUtils.transfer0(runLogs)).build();
     }
 
     @GetMapping("/{workflowId}/workflows/default-workflow-block-configs/{blockType}")

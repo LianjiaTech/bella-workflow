@@ -18,6 +18,8 @@ public class Configs {
 
     public static String OPEN_API_BASE;
 
+    public static String OPEN_API_KEY;
+
     public static String API_BASE;
 
     public static String BELLA_TOOL_API_BASE;
@@ -71,6 +73,11 @@ public class Configs {
     @Value("${bella.openApiBase}")
     public void setOpenApiBase(String openApiBase) {
         OPEN_API_BASE = openApiBase;
+    }
+
+    @Value("${bella.openApiKey:}")
+    public void setOpenApiKey(String openApiKey) {
+        OPEN_API_KEY = openApiKey;
     }
 
     @Value("${bella.toolApiBase}")

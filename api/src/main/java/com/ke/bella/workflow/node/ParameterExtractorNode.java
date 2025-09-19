@@ -355,7 +355,7 @@ public class ParameterExtractorNode extends BaseNode<ParameterExtractorNode.Data
         ChatToolCall chatToolCall = new ChatToolCall(1, id1, "function", chatFunctionCall);
         AssistantMessage assistantMessage1Before = new AssistantMessage(
                 "I need always call the function with the correct parameters. in this case, I need to call the function with the location parameter.",
-                "", null, Collections.singletonList(chatToolCall), null, null, null);
+                null, null, Collections.singletonList(chatToolCall), null, null, null);
         ToolMessage toolMessage1 = new ToolMessage("Great! You have called the function with the correct parameters.", id1);
         AssistantMessage assistantMessage1After = new AssistantMessage("I have extracted the parameters, let\\'s move on.");
 

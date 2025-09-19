@@ -112,10 +112,22 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
         if(ctx.isStateful() && "advanced-chat".equals(ctx.getWorkflowMode())) {
             Map<String, String> metadata = Collections.singletonMap("workflowRunId", ctx.getRunId());
-            openAiService.createMessage(ctx.getThreadId(),
-                    new MessageRequest("user", ctx.getState().getVariable("sys", "query"), null, metadata));
+            String queryText = Optional.ofNullable(ctx.getState().getVariable("sys", "query"))
+                    .map(Object::toString)
+                    .orElse("");
+            MessageRequest userMessage = MessageRequest.builder()
+                    .role("user")
+                    .textMessage(queryText)
+                    .metadata(metadata)
+                    .build();
+            openAiService.createMessage(ctx.getThreadId(), userMessage);
             for (StringBuilder buffer : resultBufferMap.values()) {
-                openAiService.createMessage(ctx.getThreadId(), new MessageRequest("assistant", buffer.toString(), null, metadata));
+                MessageRequest assistantMessage = MessageRequest.builder()
+                        .role("assistant")
+                        .textMessage(buffer.toString())
+                        .metadata(metadata)
+                        .build();
+                openAiService.createMessage(ctx.getThreadId(), assistantMessage);
             }
         }
     }
@@ -463,6 +475,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         private String workflowRunId;
         private int flashMode;
         private String triggerFrom;
+        private String triggerId;
         private String threadId;
         private boolean stateful;
         private Object sys;
@@ -505,7 +518,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         }
 
         public static List<WorkflowRunEvent> nodeFinishedEvents() {
-            return Arrays.asList(onWorkflowNodeRunSucceeded, onWorkflowNodeRunFailed, onWorkflowIterationCompleted, onWorkflowNodeRunException);
+            return Arrays.asList(onWorkflowNodeRunSucceeded, onWorkflowNodeRunFailed, onWorkflowNodeRunException);
         }
     }
 }

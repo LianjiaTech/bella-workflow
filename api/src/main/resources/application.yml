@@ -47,6 +47,7 @@ bella:
   openapiHost: ${BELLA_OPENAPI_HOST:http://localhost}
   apiBase: ${BELLA_WORKFLOW_BACKEND_OUTER_URL:http://localhost:${API_PORT:8080}}/v1/
   openApiBase: ${BELLA_OPENAPI_BASE:http://localhost/v1/}
+  openApiKey: ${BELLA_OPENAPI_KEY:}
   toolApiBase: ${BELLA_TOOL_API_BASE:http://localhost}
   datasetApiBase: ${BELLA_DATASET_API_BASE:http://localhost}
   codeSandboxApiBase: ${BELLA_CODE_SANDBOX_API_BASE:http://localhost:${CODE_SANDBOX_PORT:8090}}
@@ -75,6 +76,7 @@ bella:
     # 本地环境去掉 bella.login.type 即可关闭登录的身份校验
     type: ${BELLA_LOGIN_TYPE:client}
     openapi-base: ${BELLA_OPENAPI_URL:http://localhost}
+    authorization-header: Authorization
   session:
     cookie-name: ${BELLA_SESSION_COOKIE_NAME:bella_openapi_sessionId}
     max-inactive-interval: 60

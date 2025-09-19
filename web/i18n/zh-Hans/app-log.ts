@@ -16,6 +16,8 @@ const translation = {
       userRate: '用户反馈',
       adminRate: '管理员反馈',
       startTime: '开始时间',
+      triggerFrom: '触发方式',
+      triggerID: 'Trigger_ID',
       status: '状态',
       runtime: '运行时间',
       tokens: 'TOKENS',

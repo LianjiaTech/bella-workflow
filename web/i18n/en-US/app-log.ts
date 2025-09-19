@@ -13,6 +13,8 @@ const translation = {
       userRate: 'User Rate',
       adminRate: 'Op. Rate',
       startTime: 'START TIME',
+      triggerFrom: 'Trigger From',
+      triggerID: 'Trigger ID',
       status: 'STATUS',
       runtime: 'RUN TIME',
       tokens: 'TOKENS',

@@ -111,6 +111,63 @@ public class TaskExecutor {
         return result;
     }
 
+    public static void gracefulShutdown(long timeoutSeconds) throws InterruptedException {
+        LOGGER.info("Starting TaskExecutor graceful shutdown...");
+
+        executor.shutdown();
+        batchExecutor.shutdown();
+        scheduledExecutor.shutdown();
+
+        CompletableFuture<Boolean> executorFuture = awaitTerminationAsync(executor, timeoutSeconds);
+        CompletableFuture<Boolean> scheduledExecutorFuture = awaitTerminationAsync(scheduledExecutor, timeoutSeconds);
+        CompletableFuture<Boolean> batchExecutorFuture = awaitTerminationAsync(batchExecutor, timeoutSeconds);
+
+        boolean executorTerminated;
+        boolean scheduledExecutorTerminated;
+        boolean batchExecutorTerminated;
+        try {
+            executorTerminated = executorFuture.get();
+            scheduledExecutorTerminated = scheduledExecutorFuture.get();
+            batchExecutorTerminated = batchExecutorFuture.get();
+        } catch (ExecutionException e) {
+            LOGGER.warn("Error waiting for executor termination", e);
+            executorTerminated = false;
+            scheduledExecutorTerminated = false;
+            batchExecutorTerminated = false;
+        }
+
+        if(!executorTerminated) {
+            LOGGER.warn("General executor did not terminate gracefully, forcing shutdown");
+            executor.shutdownNow();
+        }
+
+        if(!batchExecutorTerminated) {
+            LOGGER.warn("Batch executor did not terminate gracefully, forcing shutdown");
+            batchExecutor.shutdownNow();
+        }
+
+        if(!scheduledExecutorTerminated) {
+            LOGGER.warn("Scheduled executor did not terminate gracefully, forcing shutdown");
+            scheduledExecutor.shutdownNow();
+        }
+
+        LOGGER.info("TaskExecutor shutdown completed - executor: {}, batchExecutor: {}, scheduledExecutor: {}",
+                executorTerminated ? "graceful" : "forced",
+                batchExecutorTerminated ? "graceful" : "forced",
+                scheduledExecutorTerminated ? "graceful" : "forced");
+    }
+
+    private static CompletableFuture<Boolean> awaitTerminationAsync(ExecutorService executor, long timeoutSeconds) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return executor.awaitTermination(timeoutSeconds, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        });
+    }
+
     public static class Task implements Runnable {
         Runnable r;
         Map<String, Object> context;

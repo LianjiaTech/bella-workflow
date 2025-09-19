@@ -13,8 +13,8 @@ FROM base AS packages
 
 WORKDIR /app/web
 
-COPY package.json .
-COPY yarn.lock .
+COPY web/package.json .
+COPY web/yarn.lock .
 
 # if you located in China, you can use taobao registry to speed up
 RUN yarn install --frozen-lockfile --registry https://registry.npmmirror.com/
@@ -23,7 +23,7 @@ RUN yarn install --frozen-lockfile --registry https://registry.npmmirror.com/
 FROM base AS builder
 WORKDIR /app/web
 COPY --from=packages /app/web/ .
-COPY . .
+COPY web/ .
 
 RUN yarn build
 
@@ -53,8 +53,8 @@ COPY --from=builder /app/web/.next/standalone ./
 COPY --from=builder /app/web/.next/static ./.next/static
 
 
-COPY docker/pm2.json ./pm2.json
-COPY docker/entrypoint.sh ./entrypoint.sh
+COPY web/docker/pm2.json ./pm2.json
+COPY web/docker/entrypoint.sh ./entrypoint.sh
 
 ARG COMMIT_SHA
 ENV COMMIT_SHA=${COMMIT_SHA}

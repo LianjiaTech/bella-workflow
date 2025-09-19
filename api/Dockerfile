@@ -1,58 +1,42 @@
 # 支持多架构构建
-FROM --platform=$BUILDPLATFORM maven:3.8.4-openjdk-8 AS builder
+FROM maven:3.8.4-openjdk-8 AS builder
 
 # 设置工作目录
 WORKDIR /build
 
 # 复制 settings.xml
 RUN mkdir -p /root/.m2
-COPY resources/settings.xml /root/.m2/
+COPY resources/settings.xml /root/.m2/settings.xml
 
-# 先复制 pom.xml 以实现依赖缓存
-COPY pom.xml /build/
-
-# fixme: 安装本地依赖 bella-job-queue-sdk 到 Maven 本地仓库；等待job-queue开源后则可去掉
-# 复制本地依赖包
-COPY resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar /build/
-
-RUN mvn install:install-file \
-    -Dfile=/build/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
-    -DgroupId=com.ke.bella.job.queue \
-    -DartifactId=bella-job-queue-sdk \
-    -Dversion=1.0.1-SNAPSHOT \
-    -Dpackaging=jar
-
-# 预下载所有依赖，利用 Docker 的层缓存机制
-# 使用 --mount=type=cache 缓存 Maven 本地仓库
-RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline -B
-
-# 复制其余源代码
-COPY . /build/
+# 复制 API 源代码和依赖
+COPY api/ /build/
+COPY resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar /build/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar
 
 # 设置脚本权限
 RUN chmod +x /build/build.sh /build/run.sh /build/setenv.sh
 
 # 接收构建参数
-ARG MAVEN_ARGS="-Dmaven.test.skip=true -U -Dmaven.build.cache.enabled=false"
+ARG MAVEN_ARGS="-Dmaven.test.skip=true"
 
 # 执行构建
-RUN cd /build && bash build.sh ${MAVEN_ARGS}
+RUN --mount=type=cache,target=/root/.m2/repository cd /build && bash build.sh ${MAVEN_ARGS}
 
 # 第二阶段：运行环境
-FROM --platform=$TARGETPLATFORM openjdk:8
+FROM openjdk:8
 
 # 设置环境变量
-ENV IDC zeus
-ENV MODULE bella-workflow
-ENV ENVTYPE test
-ENV DEBUGPORT 9008
-ENV JMXPORT 9009
-ENV MATRIX_CODE_DIR /opt/bella-workflow/htdocs
-ENV MATRIX_APPLOGS_DIR /opt/bella-workflow/applogs
-ENV MATRIX_ACCESSLOGS_DIR /opt/bella-workflow/logs
-ENV MATRIX_LOGS_DIR /opt/bella-workflow/logs
-ENV MATRIX_CACHE_DIR /opt/bella-workflow/cache
-ENV MATRIX_PRIVDATA_DIR /opt/bella-workflow/privdata
+ENV IDC=zeus
+ENV MODULE=bella-workflow
+ENV ENVTYPE=test
+ENV DEBUGPORT=9008
+ENV JMXPORT=9009
+ENV LOG_PATH=/opt/bella-workflow/applogs
+ENV MATRIX_CODE_DIR=/opt/bella-workflow/htdocs
+ENV MATRIX_APPLOGS_DIR=/opt/bella-workflow/applogs
+ENV MATRIX_ACCESSLOGS_DIR=/opt/bella-workflow/logs
+ENV MATRIX_LOGS_DIR=/opt/bella-workflow/logs
+ENV MATRIX_CACHE_DIR=/opt/bella-workflow/cache
+ENV MATRIX_PRIVDATA_DIR=/opt/bella-workflow/privdata
 
 # 创建必要的目录
 RUN mkdir -p /opt/bella-workflow/htdocs/bin /opt/bella-workflow/htdocs/lib \

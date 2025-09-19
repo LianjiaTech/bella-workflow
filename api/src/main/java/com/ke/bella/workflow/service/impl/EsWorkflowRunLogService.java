@@ -125,6 +125,11 @@ public class EsWorkflowRunLogService implements IWorkflowRunLogService {
     }
 
     @Override
+    public List<WorkflowRunLog> listNodeRunLogs(QueryOps ops) {
+        return listWorkflowRuns(ops);
+    }
+
+    @Override
     public void saveWorkflowRunLog(WorkflowRunLog runLog) {
         // ignore for elasticsearch - logs are saved via logback appender
     }
@@ -190,6 +195,7 @@ public class EsWorkflowRunLogService implements IWorkflowRunLogService {
         private String workflowRunId;
         private int flashMode;
         private String triggerFrom;
+        private String triggerId;
         private String threadId;
         private boolean stateful;
         private String sys;
@@ -221,6 +227,7 @@ public class EsWorkflowRunLogService implements IWorkflowRunLogService {
                     .workflowRunId(runLogEs.getWorkflowRunId())
                     .flashMode(runLogEs.getFlashMode())
                     .triggerFrom(runLogEs.getTriggerFrom())
+                    .triggerId(runLogEs.getTriggerId())
                     .threadId(runLogEs.getThreadId())
                     .stateful(runLogEs.isStateful())
                     .sys(JsonUtils.fromJson(runLogEs.getSys(), Object.class))

@@ -19,6 +19,8 @@ public interface IWorkflowRunLogService {
 
     Page<WorkflowRunLog> pageWorkflowRunLogs(QueryOps ops);
 
+    List<WorkflowRunLog> listNodeRunLogs(QueryOps ops);
+
     void saveWorkflowRunLog(WorkflowRunLog runLog);
 
     Map<String, List<Map<String, Object>>> getDailyRunsStatistic(String workflowId, LocalDateTime startDate, LocalDateTime endDate);

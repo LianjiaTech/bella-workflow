@@ -1,12 +1,17 @@
 package com.ke.bella.workflow.service;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.service.WorkflowRunCallback.WorkflowRunLog;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 public interface IWorkflowRunLogService {
 
@@ -17,6 +22,8 @@ public interface IWorkflowRunLogService {
     List<WorkflowRunLog> listNodeRunLogs(QueryOps ops);
 
     void saveWorkflowRunLog(WorkflowRunLog runLog);
+
+    Map<String, List<Map<String, Object>>> getDailyRunsStatistic(String workflowId, LocalDateTime startDate, LocalDateTime endDate);
 
     @Data
     @Builder
@@ -36,5 +43,21 @@ public interface IWorkflowRunLogService {
         @Builder.Default
         private String order = "desc";
         private String lastWorkflowRunId;
+        private LocalDateTime startTime;
+        private LocalDateTime endTime;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    class WorkflowDailyStatistic {
+        private String date;
+        @Builder.Default
+        private Long runs = 0L;
+        @Builder.Default
+        private Long terminalCount = 0L;
+        @Builder.Default
+        private BigDecimal interactions = BigDecimal.ZERO;
     }
 }

@@ -121,6 +121,10 @@ const translation = {
       title: 'Total Messages',
       explanation: 'Daily AI interactions count; prompt engineering/debugging excluded.',
     },
+    totalConversations: {
+      title: 'Total Conversations',
+      explanation: 'Daily AI conversations count; prompt engineering/debugging excluded.',
+    },
     activeUsers: {
       title: 'Active Users',
       explanation: 'Unique users engaging in Q&A with AI; prompt engineering/debugging excluded.',

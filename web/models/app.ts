@@ -88,6 +88,10 @@ export type AppStatisticsResponse = {
   data: Array<{ date: string }>
 }
 
+export type AppDailyMessagesResponse = {
+  data: Array<{ date: string; message_count: number }>
+}
+
 export type AppDailyEndUsersResponse = {
   data: Array<{ date: string; terminal_count: number }>
 }

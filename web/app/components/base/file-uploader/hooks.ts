@@ -11,6 +11,7 @@ import type { FileEntity } from './types'
 import { useFileStore } from './store'
 import {
   fileUpload,
+  generateUniqueFileName,
   getSupportFileType,
   isAllowedFileExtension,
 } from './utils'
@@ -244,9 +245,10 @@ export const useFile = (fileConfig: FileUpload) => {
     reader.addEventListener(
       'load',
       () => {
+        const uniqueFileName = generateUniqueFileName(file.name)
         const uploadingFile = {
           _id: uuid4(),
-          filename: file.name,
+          filename: uniqueFileName,
           type: file.type,
           size: file.size,
           progress: 0,

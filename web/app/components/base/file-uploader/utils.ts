@@ -1,10 +1,24 @@
 import mimeTypes from 'mime-types'
+import { v4 as uuid4 } from 'uuid'
 import { FileAppearanceTypeEnum } from './types'
 import type { FileEntity } from './types'
 import { upload } from '@/service/base'
 import { FILE_EXTS } from '@/app/components/base/prompt-editor/constants'
 import { SupportUploadFileTypes } from '@/app/components/workflow/types'
 import { TransferMethod } from '@/types/app'
+
+// Generate unique filename by adding UUID before file extension
+export const generateUniqueFileName = (originalName: string): string => {
+  const lastDotIndex = originalName.lastIndexOf('.')
+  if (lastDotIndex === -1) {
+    // No extension, just append UUID
+    return `${originalName}(${uuid4()})`
+  }
+
+  const baseName = originalName.substring(0, lastDotIndex)
+  const extension = originalName.substring(lastDotIndex)
+  return `${baseName}(${uuid4()})${extension}`
+}
 
 type FileUploadParams = {
   file: File
@@ -20,7 +34,10 @@ export const fileUpload: FileUpload = ({
   onErrorCallback,
 }, isPublic, url) => {
   const formData = new FormData()
-  formData.append('file', file)
+  // Create a new File object with unique name
+  const uniqueFileName = generateUniqueFileName(file.name)
+  const renamedFile = new File([file], uniqueFileName, { type: file.type })
+  formData.append('file', renamedFile)
   const onProgress = (e: ProgressEvent) => {
     if (e.lengthComputable) {
       const percent = Math.floor(e.loaded / e.total * 100)

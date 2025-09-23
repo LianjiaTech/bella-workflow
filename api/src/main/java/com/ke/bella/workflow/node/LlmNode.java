@@ -4,12 +4,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.Maps;
-import com.ke.bella.job.queue.JobQueueClient;
-import com.ke.bella.job.queue.api.entity.param.TaskParam;
-import com.ke.bella.openapi.protocol.route.RouteResult;
-import com.ke.bella.queue.QueueMode;
 import com.ke.bella.workflow.api.WorkflowOps;
-import com.ke.bella.workflow.service.Configs;
+import com.ke.bella.workflow.service.WorkflowService;
 import com.theokanning.openai.completion.chat.*;
 import com.theokanning.openai.queue.Put;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +37,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import static com.ke.bella.workflow.WorkflowContext.BELLA_QUEUE_TASK_TRACE_ID;
+
 @Slf4j
 public class LlmNode extends BaseNode<LlmNode.Data> {
 
@@ -68,7 +66,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             String triggerFrom = context.getTriggerFrom();
             if(WorkflowOps.TriggerFrom.BATCH.name().equalsIgnoreCase(triggerFrom)) {
                 data.setWaitCallback(true);
-                return invokeLlmAsync(chatMessages, nodeInputs);
+                return invokeLlmAsync(chatMessages, nodeInputs, context);
             }
             // invoke llm
             Flowable<ChatCompletionChunk> llmResult = invokeLlm(chatMessages);
@@ -220,22 +218,25 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
         return service.streamChatCompletion(chatCompletionRequest);
     }
 
-    private NodeRunResult invokeLlmAsync(List<ChatMessage> chatMessages, Map<String, Object> nodeInputs) {
+    @SuppressWarnings("unchecked")
+    private NodeRunResult invokeLlmAsync(List<ChatMessage> chatMessages, Map<String, Object> nodeInputs, WorkflowContext context) {
         ChatCompletionRequest chatRequest = data.getModel().getTemplateCompletionParams();
         chatRequest.setMessages(chatMessages);
         chatRequest.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
 
-        String endpoint = "/v1/chat/completions";
         String token = data.getAuthorization().getToken();
         Map<String, Object> requestData = JsonUtils.convertValue(chatRequest, new TypeReference<Map<String, Object>>() {
         });
+        Map<String, Object> metadata = (Map<String, Object>) context.getState().getVariable("sys", "metadata");
+        String traceId = MapUtils.getString(metadata, BELLA_QUEUE_TASK_TRACE_ID);
 
         OpenAiService openAiService = OpenAiUtils.getOrCreateOpenAiService(token);
         openAiService.putTask(Put.builder()
-                .endpoint(endpoint)
+                .endpoint("/v1/chat/completions")
                 .level(1)
                 .data(requestData)
                 .callbackUrl(getCallbackUrl())
+                .traceId(traceId)
                 .build());
 
         return NodeRunResult.builder()

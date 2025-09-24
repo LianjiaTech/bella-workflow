@@ -199,7 +199,7 @@
     <dependency>
       <groupId>top.bella</groupId>
       <artifactId>openai-service</artifactId>
-      <version>0.23.40</version>
+      <version>0.23.56</version>
     </dependency>
     <dependency>
       <groupId>top.bella</groupId>

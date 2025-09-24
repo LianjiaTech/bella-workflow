@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.service;
 
 import static com.ke.bella.openapi.BellaContext.BELLA_TRACE_HEADER;
+import static com.ke.bella.workflow.WorkflowContext.BELLA_QUEUE_TASK_TRACE_ID;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -368,38 +369,37 @@ public class WorkflowService {
     }
 
     @SuppressWarnings("ALL")
-    public void runWorkflow(TaskWrapper task, Cache<String, WorkflowDB> workflowCache) {
+    public void runWorkflow(TaskWrapper taskWrapper, Cache<String, WorkflowDB> workflowCache) {
         try {
-            WorkflowOps.WorkflowRun payload = task.getPayload(WorkflowOps.WorkflowRun.class);
-            payload.setResponseMode(ResponseMode.batch.name());
-            payload.setTriggerFrom(WorkflowOps.TriggerFrom.BATCH.name());
-            payload.getMetadata().put("taskId", task.getTask().getTaskId());
-            payload.getMetadata().put("instanceId", task.getTask().getInstanceId());
-            payload.getMetadata().put("responseMode", task.getTask().getResponseMode());
+            WorkflowOps.WorkflowRun op = taskWrapper.getPayload(WorkflowOps.WorkflowRun.class);
+            op.setResponseMode(ResponseMode.batch.name());
+            op.setTriggerFrom(WorkflowOps.TriggerFrom.BATCH.name());
 
-            Map<String, Object> inputs = payload.getInputs();
-            String apiKey = task.getTask().getAk();
-            String traceId = MapUtils.getString(inputs, "traceId",
-                    BellaContext.generateTraceId("workflow-batch-run"));
-            BellaContext.setOperator(payload);
-            BellaContext.setApikey(ApikeyInfo.builder().apikey(apiKey).build());
-            BellaContext.getHeaders().put(BELLA_TRACE_HEADER, traceId);
+            Task task = taskWrapper.getTask();
+            op.getMetadata().put("taskId", task.getTaskId());
+            op.getMetadata().put("instanceId", task.getInstanceId());
+            op.getMetadata().put("responseMode", task.getResponseMode());
+            op.getMetadata().put(BELLA_QUEUE_TASK_TRACE_ID, task.getTraceId());
+
+            BellaContext.setOperator(op);
+            BellaContext.setApikey(ApikeyInfo.builder().apikey(task.getAk()).build());
+            BellaContext.getHeaders().put(BELLA_TRACE_HEADER, task.getTaskId());
 
             TaskExecutor.submit(() -> {
                 try {
-                    String workflowId = payload.getWorkflowId();
+                    String workflowId = op.getWorkflowId();
                     WorkflowDB workflowDB = workflowCache.get(workflowId, () -> getPublishedWorkflow(workflowId, null));
-                    runWorkflow(newWorkflowRun(workflowDB, payload), payload, new WorkflowBatchRunCallback(task));
+                    runWorkflow(newWorkflowRun(workflowDB, op), op, new WorkflowBatchRunCallback(taskWrapper));
                 } catch (Throwable e) {
                     Map<String, Object> errorBody = new HashMap<>();
                     errorBody.put("error", "workflow run failed: " + e.getMessage());
                     Map<String, Object> errorData = new HashMap<>();
                     errorData.put("status_code", 500);
-                    errorData.put("request_id", task.getTask().getTaskId());
+                    errorData.put("request_id", task.getTaskId());
                     errorData.put("body", errorBody);
-                    task.markComplete(errorData);
+                    taskWrapper.markComplete(errorData);
                 }
-            }, e -> task.markRetryLater());
+            }, e -> taskWrapper.markRetryLater());
         } finally {
             BellaContext.clearAll();
         }

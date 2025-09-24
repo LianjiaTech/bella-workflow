@@ -57,6 +57,8 @@ public class WorkflowContext {
 
     private Map<String, String> runNodeMapping;
 
+    public static final String BELLA_QUEUE_TASK_TRACE_ID = "bellaQueueTaskTraceId";
+
     public Map userInputs() {
         return this.userInputs;
     }

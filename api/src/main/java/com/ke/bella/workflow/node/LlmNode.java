@@ -212,9 +212,6 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
                 TimeUnit.SECONDS);
         ChatCompletionRequest chatCompletionRequest = data.getModel().getTemplateCompletionParams();
         chatCompletionRequest.setMessages(chatMessages);
-        if(StringUtils.hasText(data.getReasoningEffort())) {
-            chatCompletionRequest.setReasoningEffort(data.getReasoningEffort());
-        }
         chatCompletionRequest.setStreamOptions(StreamOption.INCLUDE);
         chatCompletionRequest.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
         this.ttftStart = System.nanoTime();
@@ -225,9 +222,6 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
     private NodeRunResult invokeLlmAsync(List<ChatMessage> chatMessages, Map<String, Object> nodeInputs, WorkflowContext context) {
         ChatCompletionRequest chatRequest = data.getModel().getTemplateCompletionParams();
         chatRequest.setMessages(chatMessages);
-        if(StringUtils.hasText(data.getReasoningEffort())) {
-            chatRequest.setReasoningEffort(data.getReasoningEffort());
-        }
         chatRequest.setUser(String.valueOf(BellaContext.getOperator().getUserId()));
 
         String token = data.getAuthorization().getToken();
@@ -334,9 +328,6 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
         private Timeout timeout = new Timeout();
         @Builder.Default
         private Authorization authorization = new Authorization();
-        @JsonAlias("reasoning_effort")
-        private String reasoningEffort;
-
         @lombok.Getter
         @lombok.Setter
         public static class Timeout {

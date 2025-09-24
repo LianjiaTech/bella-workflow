@@ -338,16 +338,6 @@ const translation = {
         high: 'High',
         low: 'Low',
       },
-      reasoning: {
-        title: 'Model reasoning',
-        description: 'Turn on the model reasoning capability when it is supported.',
-        effortLabel: 'Reasoning effort',
-        effortOptions: {
-          low: 'Low',
-          medium: 'Medium',
-          high: 'High',
-        },
-      },
       outputVars: {
         output: 'Generate content',
         reasoningContent: 'Reasoning process (only reasoning models support)',

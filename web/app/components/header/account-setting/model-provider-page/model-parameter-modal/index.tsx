@@ -68,6 +68,22 @@ const stopParameterRule: ModelParameterRule = {
   },
 }
 
+const reasoningEffortParameterRule: ModelParameterRule = {
+  default: 'medium',
+  help: {
+    en_US: 'Control how much reasoning effort the model should apply when supported.',
+    zh_Hans: '控制模型在支持时应尽多大的推理努力。',
+  },
+  label: {
+    en_US: 'Reasoning effort',
+    zh_Hans: '推理强度',
+  },
+  name: 'reasoning_effort',
+  required: false,
+  type: 'string',
+  options: ['low', 'medium', 'high'],
+}
+
 const PROVIDER_WITH_PRESET_TONE = ['openai', 'azure_openai', 'Azure']
 const ModelParameterModal: FC<ModelParameterModalProps> = ({
   popupClassName,
@@ -104,6 +120,41 @@ const ModelParameterModal: FC<ModelParameterModalProps> = ({
   const parameterRules: ModelParameterRule[] = useMemo(() => {
     return parameterRulesData?.data || []
   }, [parameterRulesData])
+
+  const parameterRulesWithReasoning: ModelParameterRule[] = useMemo(() => {
+    if (!parameterRules.length) {
+      if (provider && modelId)
+        return [reasoningEffortParameterRule]
+
+      return []
+    }
+
+    if (parameterRules.some(parameter => parameter.name === reasoningEffortParameterRule.name))
+      return parameterRules
+
+    const extendedRules: ModelParameterRule[] = []
+    let inserted = false
+    parameterRules.forEach((parameter) => {
+      extendedRules.push(parameter)
+      if (!inserted && parameter.name === 'temperature') {
+        extendedRules.push(reasoningEffortParameterRule)
+        inserted = true
+      }
+    })
+
+    if (!inserted)
+      extendedRules.push(reasoningEffortParameterRule)
+
+    return extendedRules
+  }, [parameterRules, provider, modelId])
+
+  const displayParameterRules = useMemo(() => {
+    const baseRules = parameterRulesWithReasoning
+    if (!isAdvancedMode)
+      return baseRules
+
+    return [...baseRules, stopParameterRule]
+  }, [parameterRulesWithReasoning, isAdvancedMode])
 
   const handleParamChange = (key: string, value: ParameterValue) => {
     onCompletionParamsChange({
@@ -208,7 +259,7 @@ const ModelParameterModal: FC<ModelParameterModalProps> = ({
                 />
               </div>
               {
-                !!parameterRules.length && (
+                !isLoading && !!parameterRulesWithReasoning.length && (
                   <div className='my-5 h-[1px] bg-gray-100' />
                 )
               }
@@ -218,7 +269,7 @@ const ModelParameterModal: FC<ModelParameterModalProps> = ({
                 )
               }
               {
-                !isLoading && !!parameterRules.length && (
+                !isLoading && !!parameterRulesWithReasoning.length && (
                   <div className='flex items-center justify-between mb-4'>
                     <div className={cn('font-semibold text-gray-900', isInWorkflow && 'text-[13px]')}>{t('common.modelProvider.parameters')}</div>
                     {
@@ -230,11 +281,8 @@ const ModelParameterModal: FC<ModelParameterModalProps> = ({
                 )
               }
               {
-                !isLoading && !!parameterRules.length && (
-                  [
-                    ...parameterRules,
-                    ...(isAdvancedMode ? [stopParameterRule] : []),
-                  ].map(parameter => (
+                !isLoading && !!parameterRulesWithReasoning.length && (
+                  displayParameterRules.map(parameter => (
                     <ParameterItem
                       key={`${modelId}-${parameter.name}`}
                       className='mb-4'

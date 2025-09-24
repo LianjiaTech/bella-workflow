@@ -17,6 +17,8 @@ import BeforeRunForm from '@/app/components/workflow/nodes/_base/components/befo
 import type { Props as FormProps } from '@/app/components/workflow/nodes/_base/components/before-run-form/form'
 import ResultPanel from '@/app/components/workflow/run/result-panel'
 import Tooltip from '@/app/components/base/tooltip/new'
+import Switch from '@/app/components/base/switch'
+import { SimpleSelect } from '@/app/components/base/select'
 import Editor from '@/app/components/workflow/nodes/_base/components/prompt/editor'
 
 const i18nPrefix = 'workflow.nodes.llm'
@@ -53,6 +55,8 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
     handleMemoryChange,
     handleVisionResolutionEnabledChange,
     handleVisionResolutionChange,
+    handleReasoningEffortToggle,
+    handleReasoningEffortChange,
     isShowSingleRun,
     hideSingleRun,
     inputVarValues,
@@ -72,6 +76,8 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
   } = useConfig(id, data)
 
   const model = inputs.model
+  const reasoningEffort = inputs.reasoning_effort ?? 'medium'
+  const reasoningEnabled = !!inputs.reasoning_effort
 
   const singleRunForms = useMemo(() => {
     const forms: FormProps[] = []
@@ -155,6 +161,34 @@ const Panel: FC<NodePanelProps<LLMNodeType>> = ({
             debugWithMultipleModel={false}
             readonly={readOnly}
           />
+          <div className='mt-3 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2'>
+            <div className='flex items-center justify-between'>
+              <div className='text-xs font-medium text-gray-900'>{t(`${i18nPrefix}.reasoning.title`)}</div>
+              <Switch
+                size='md'
+                defaultValue={reasoningEnabled}
+                onChange={handleReasoningEffortToggle}
+                disabled={readOnly}
+              />
+            </div>
+            <div className='mt-1 text-xs text-gray-500'>{t(`${i18nPrefix}.reasoning.description`)}</div>
+            <div className='mt-3 flex items-center justify-between'>
+              <div className='text-xs text-gray-600'>{t(`${i18nPrefix}.reasoning.effortLabel`)}</div>
+              <SimpleSelect
+                wrapperClassName='!w-[132px]'
+                className='!text-xs'
+                defaultValue={reasoningEffort}
+                items={[
+                  { value: 'low', name: t(`${i18nPrefix}.reasoning.effortOptions.low`) },
+                  { value: 'medium', name: t(`${i18nPrefix}.reasoning.effortOptions.medium`) },
+                  { value: 'high', name: t(`${i18nPrefix}.reasoning.effortOptions.high`) },
+                ]}
+                disabled={!reasoningEnabled || readOnly}
+                notClearable
+                onSelect={({ value }) => handleReasoningEffortChange(value as NonNullable<LLMNodeType['reasoning_effort']>)}
+              />
+            </div>
+          </div>
         </Field>
 
         {/* knowledge */}

@@ -153,6 +153,23 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     setInputs(newInputs)
   }, [inputs, setInputs])
 
+  const handleReasoningEffortToggle = useCallback((enabled: boolean) => {
+    const newInputs = produce(inputRef.current, (draft) => {
+      if (enabled)
+        draft.reasoning_effort = draft.reasoning_effort || 'medium'
+      else
+        delete draft.reasoning_effort
+    })
+    setInputs(newInputs)
+  }, [setInputs])
+
+  const handleReasoningEffortChange = useCallback((effort: NonNullable<LLMNodeType['reasoning_effort']>) => {
+    const newInputs = produce(inputRef.current, (draft) => {
+      draft.reasoning_effort = effort
+    })
+    setInputs(newInputs)
+  }, [setInputs])
+
   // change to vision model to set vision enabled, else disabled
   useEffect(() => {
     if (!modelChanged)
@@ -411,6 +428,8 @@ const useConfig = (id: string, payload: LLMNodeType) => {
     handleSyeQueryChange,
     handleVisionResolutionEnabledChange,
     handleVisionResolutionChange,
+    handleReasoningEffortToggle,
+    handleReasoningEffortChange,
     isShowSingleRun,
     hideSingleRun,
     inputVarValues,

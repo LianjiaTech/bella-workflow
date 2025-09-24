@@ -23,4 +23,5 @@ export type LLMNodeType = CommonNodeType & {
     enabled: boolean
     configs?: VisionSetting
   }
+  reasoning_effort?: 'low' | 'medium' | 'high'
 }

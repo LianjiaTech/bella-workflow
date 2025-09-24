@@ -340,6 +340,16 @@ const translation = {
         high: '高',
         low: '低',
       },
+      reasoning: {
+        title: '模型思考',
+        description: '仅在支持的模型上开启思考能力。',
+        effortLabel: '思考强度',
+        effortOptions: {
+          low: '低',
+          medium: '中',
+          high: '高',
+        },
+      },
       outputVars: {
         output: '生成内容',
         reasoningContent: '推理过程 (仅推理模型支持)',

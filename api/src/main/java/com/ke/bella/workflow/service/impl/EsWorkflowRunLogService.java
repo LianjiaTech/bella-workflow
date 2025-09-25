@@ -84,6 +84,7 @@ public class EsWorkflowRunLogService implements IWorkflowRunLogService {
                 logAggregation.setWorkflowRunId(workflowRunLog.getWorkflowRunId());
                 logAggregation.setFlashMode(workflowRunLog.getFlashMode());
                 logAggregation.setTriggerFrom(workflowRunLog.getTriggerFrom());
+				logAggregation.setTriggerId(workflowRunLog.getTriggerId());
                 logAggregation.setThreadId(workflowRunLog.getThreadId());
                 logAggregation.setStateful(workflowRunLog.isStateful());
                 logAggregation.setSys(workflowRunLog.getSys());

@@ -354,6 +354,7 @@ public class WorkflowService {
                 .state(state)
                 .userInputs(op.getInputs())
                 .triggerFrom(wr.getTriggerFrom())
+                .triggerId(op.getTriggerId())
                 .ctime(wr.getCtime())
                 .flashMode(wr.getFlashMode())
                 .workflowMode(wf.getMode())

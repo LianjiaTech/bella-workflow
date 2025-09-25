@@ -81,7 +81,7 @@ const reasoningEffortParameterRule: ModelParameterRule = {
   name: 'reasoning_effort',
   required: false,
   type: 'string',
-  options: ['low', 'medium', 'high'],
+  options: ['minimal', 'low', 'medium', 'high'],
 }
 
 const PROVIDER_WITH_PRESET_TONE = ['openai', 'azure_openai', 'Azure']

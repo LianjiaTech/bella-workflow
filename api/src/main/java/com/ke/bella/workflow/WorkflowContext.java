@@ -39,6 +39,7 @@ public class WorkflowContext {
     private String workflowId;
     private String runId;
     private String triggerFrom;
+    private String triggerID;
     private String workflowMode;
     private WorkflowGraph graph;
     private WorkflowRunState state;

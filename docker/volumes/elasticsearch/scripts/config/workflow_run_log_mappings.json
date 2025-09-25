@@ -102,6 +102,9 @@
     "triggerFrom": {
       "type": "keyword"
     },
+    "triggerId": {
+      "type": "keyword"
+    },
     "userId": {
       "type": "long"
     },

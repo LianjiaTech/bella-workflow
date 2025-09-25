@@ -328,7 +328,6 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
         private Timeout timeout = new Timeout();
         @Builder.Default
         private Authorization authorization = new Authorization();
-
         @lombok.Getter
         @lombok.Setter
         public static class Timeout {

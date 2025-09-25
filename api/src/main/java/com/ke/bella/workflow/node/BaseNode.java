@@ -423,6 +423,10 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                         .stop(fontCompletionParams.getStop())
                         .build();
 
+                if(StringUtils.hasText(fontCompletionParams.getReasoningEffort())) {
+                    req.setReasoningEffort(fontCompletionParams.getReasoningEffort());
+                }
+
                 String typeOfResponseFormat = Optional.ofNullable(fontCompletionParams.getResponseFormat()).map(String::valueOf).orElse(null);
                 Object jsonSchemaOfResponseFormat = Optional.ofNullable(fontCompletionParams.getJsonSchema())
                         .map(e -> JsonUtils.fromJson((String) e, new TypeReference<Map>() {
@@ -465,6 +469,8 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 private String responseFormat;
                 @JsonAlias("json_schema")
                 private String jsonSchema;
+                @JsonAlias("reasoning_effort")
+                private String reasoningEffort;
             }
 
         }

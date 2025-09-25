@@ -67,7 +67,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setWorkflowRunId(ctx.getRunId());
         runLog.setFlashMode(ctx.getFlashMode());
         runLog.setTriggerFrom(ctx.getTriggerFrom());
-		runLog.setTriggerId(ctx.getTriggerID());
+		runLog.setTriggerId(ctx.getTriggerId());
         runLog.setStateful(ctx.isStateful());
         runLog.setSys(ctx.getState().getVariablePool().get("sys"));
         runLog.setInputs(ctx.userInputs());
@@ -103,7 +103,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setElapsedTime(ctx.elapsedTime(now));
         runLog.setCtime(System.currentTimeMillis());
         runLog.setTriggerFrom(ctx.getTriggerFrom());
-		runLog.setTriggerId(ctx.getTriggerID());
+		runLog.setTriggerId(ctx.getTriggerId());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
         ls.saveWorkflowRunLog(runLog);
@@ -177,7 +177,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
         runLog.setCtime(System.currentTimeMillis());
         runLog.setTriggerFrom(context.getTriggerFrom());
-		runLog.setTriggerId(context.getTriggerID());
+		runLog.setTriggerId(context.getTriggerId());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
         ls.saveWorkflowRunLog(runLog);
@@ -230,7 +230,7 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
         runLog.setElapsedTime(context.elapsedTime(LocalDateTime.now()));
         runLog.setCtime(System.currentTimeMillis());
         runLog.setTriggerFrom(context.getTriggerFrom());
-		runLog.setTriggerId(context.getTriggerID());
+		runLog.setTriggerId(context.getTriggerId());
 
         WORKFLOW_RUN_LOGGER.info(JsonUtils.toJson(runLog));
         ls.saveWorkflowRunLog(runLog);

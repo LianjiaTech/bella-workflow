@@ -110,6 +110,9 @@ public class Configs {
         TASK_THREAD_NUMS = taskThreadNums;
     }
 
+	@Value("${bella.task.batchThreadNums}")
+	public void setBatchTaskThreadNums(Integer batchTaskThreadNums) { BATCH_TASK_THREAD_NUMS = batchTaskThreadNums; }
+
     @Value("${bella.maxExeMemoryAlloc}")
     public void setMaxExeMemoryAlloc(long maxExeMemoryAlloc) {
         MAX_EXE_MEMORY_ALLOC = maxExeMemoryAlloc;

@@ -85,6 +85,7 @@ bella:
     cookie-context-path: /
   task:
     threadNums: 1000
+    batchThreadNums: 200
   api:
     tool:
       read-timeout-seconds: 60

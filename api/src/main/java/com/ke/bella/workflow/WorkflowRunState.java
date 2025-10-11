@@ -242,6 +242,8 @@ public class WorkflowRunState implements Serializable {
         @Builder.Default
         List<String> deadSourceHandles = new ArrayList();
 
+        Long resumeAfterMinutes;
+
         public static NodeRunResult newSkippedResult(List<String> sourceHandles) {
             return NodeRunResult.builder()
                     .status(Status.skipped)

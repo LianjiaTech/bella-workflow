@@ -40,7 +40,8 @@ public class WorkflowOps {
     public enum TriggerType {
         SCHD,
         KFKA,
-        WBOT;
+        WBOT,
+        SCHD_RESUME;
     }
 
     @Getter

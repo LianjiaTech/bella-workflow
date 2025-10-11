@@ -1,6 +1,7 @@
 package com.ke.bella.workflow.trigger;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -71,14 +72,31 @@ public class WorkflowSchedulingTriggerHelper {
         if(!CollectionUtils.isEmpty(pendingScheduling)) {
             for (WorkflowSchedulingDB workflowScheduling : pendingScheduling) {
                 TenantDB tenantDB = tenantsMap.get(workflowScheduling.getTenantId());
-                // "helper" thread to refresh trigger next time
-                ws.refreshTriggerNextTime(workflowScheduling);
-                CompletableFuture.runAsync(() -> {
-                    workflowClient.workflowRun(tenantDB, workflowScheduling);
-                }, triggerPool).exceptionally(e -> {
-                    LOGGER.error("workflow scheduling error, e: {}", Throwables.getStackTraceAsString(e));
-                    return null;
-                });
+                
+                if("SCHD_RESUME".equals(workflowScheduling.getTriggerType())) {
+                    String callbackUrl = workflowScheduling.getInputs();
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            com.ke.bella.workflow.utils.HttpUtils.postJson(callbackUrl, new HashMap<>());
+                            wfs.finishWorkflowNodeAutoResume(workflowScheduling.getTriggerId());
+                        } catch (Exception e) {
+                            LOGGER.error("workflow auto-resume callback error, triggerId: {}, callbackUrl: {}, e: {}", 
+                                workflowScheduling.getTriggerId(), callbackUrl, Throwables.getStackTraceAsString(e));
+                        }
+                    }, triggerPool).exceptionally(e -> {
+                        LOGGER.error("workflow auto-resume error, e: {}", Throwables.getStackTraceAsString(e));
+                        return null;
+                    });
+                } else {
+                    // "helper" thread to refresh trigger next time
+                    ws.refreshTriggerNextTime(workflowScheduling);
+                    CompletableFuture.runAsync(() -> {
+                        workflowClient.workflowRun(tenantDB, workflowScheduling);
+                    }, triggerPool).exceptionally(e -> {
+                        LOGGER.error("workflow scheduling error, e: {}", Throwables.getStackTraceAsString(e));
+                        return null;
+                    });
+                }
             }
         }
         return pendingScheduling.size();

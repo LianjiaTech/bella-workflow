@@ -114,6 +114,7 @@ apollo:
     order:
       enabled: true
   cluster: default
+  meta: ${APOLLO_META:}
 
 management:
   endpoints:

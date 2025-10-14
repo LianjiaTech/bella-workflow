@@ -84,6 +84,7 @@ public class WorkflowClient {
                 .inputs(inputs)
                 .responseMode(WorkflowOps.ResponseMode.callback.name())
                 .triggerFrom(WorkflowOps.TriggerFrom.API.name())
+                .triggerId(db.getTriggerId())
                 .traceId(db.getTriggerId())
                 .callbackUrl(String.format("%s%s%s", workflowDomain, triggerCallbackPath, db.getTriggerId()))
                 .build();

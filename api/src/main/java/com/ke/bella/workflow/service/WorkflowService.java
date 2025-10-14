@@ -19,9 +19,6 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
-import com.ke.bella.queue.TaskWrapper;
-import com.ke.bella.queue.worker.Worker;
-import com.theokanning.openai.queue.Task;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +32,8 @@ import com.google.common.cache.Cache;
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.openapi.apikey.ApikeyInfo;
 import com.ke.bella.openapi.protocol.files.File;
+import com.ke.bella.queue.TaskWrapper;
+import com.ke.bella.queue.worker.Worker;
 import com.ke.bella.workflow.IWorkflowCallback;
 import com.ke.bella.workflow.RedisMesh;
 import com.ke.bella.workflow.RedisMesh.Event;
@@ -73,6 +72,7 @@ import com.ke.bella.workflow.db.tables.pojos.WorkflowTemplateDB;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
+import com.theokanning.openai.queue.Task;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -354,7 +354,7 @@ public class WorkflowService {
                 .state(state)
                 .userInputs(op.getInputs())
                 .triggerFrom(wr.getTriggerFrom())
-                .triggerId(op.getTriggerId())
+                .triggerId(wr.getTriggerId())
                 .ctime(wr.getCtime())
                 .flashMode(wr.getFlashMode())
                 .workflowMode(wf.getMode())

@@ -313,8 +313,8 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
         NodeRunResult nodeState = context.getState().getNodeState(nodeId);
         if(nodeState != null && nodeState.getResumeAfterMinutes() != null) {
-            String triggerId = (String) context.getState().getVariable(nodeId, Variables.BELLA_WORKFLOW_BUILTIN_VAR_AUTO_RESUME_TRIGGER_ID);
-            String callbackUrl = (String) context.getState().getVariable(nodeId, Variables.BELLA_WORKFLOW_BUILTIN_VAR_CALLBACK_URL);
+            String triggerId = (String) context.getState().getVariable(nodeId, Variables.AUTO_RESUME_TRIGGER_ID);
+            String callbackUrl = (String) context.getState().getVariable(nodeId, Variables.CALLBACK_URL);
 
             if(triggerId != null && callbackUrl != null) {
                 service.scheduleWorkflowNodeAutoResume(

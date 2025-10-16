@@ -268,7 +268,7 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 context.getWorkflowId(),
                 context.getRunId());
 
-        context.getState().putVariable(getNodeId(), Variables.BELLA_WORKFLOW_BUILTIN_VAR_CALLBACK_URL, callbackUrl);
+        context.getState().putVariable(getNodeId(), Variables.CALLBACK_URL, callbackUrl);
     }
 
     private void populateResumeInfo(WorkflowContext context, NodeRunResult result) {
@@ -281,10 +281,10 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
             long safeMinutes = Math.max(1L, resumeAfterMinutes);
             result.setResumeAfterMinutes(safeMinutes);
 
-            String triggerId = (String) context.getState().getVariable(getNodeId(), Variables.BELLA_WORKFLOW_BUILTIN_VAR_AUTO_RESUME_TRIGGER_ID);
+            String triggerId = (String) context.getState().getVariable(getNodeId(), Variables.AUTO_RESUME_TRIGGER_ID);
             if(!StringUtils.hasText(triggerId)) {
                 triggerId = IDGenerator.newTriggerId(TriggerType.SCHD_RESUME.name());
-                context.getState().putVariable(getNodeId(), Variables.BELLA_WORKFLOW_BUILTIN_VAR_AUTO_RESUME_TRIGGER_ID, triggerId);
+                context.getState().putVariable(getNodeId(), Variables.AUTO_RESUME_TRIGGER_ID, triggerId);
             }
         }
     }

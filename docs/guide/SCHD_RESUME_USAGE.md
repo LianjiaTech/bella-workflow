@@ -9,8 +9,6 @@
 ### 1. 在 Groovy 节点中使用
 
 ```groovy
-import com.ke.bella.workflow.WorkflowRunState.NodeRunResult
-
 // 返回 waiting 状态，并指定 5 分钟后自动恢复
 return NodeRunResult.builder()
     .status(NodeRunResult.Status.waiting)
@@ -73,12 +71,9 @@ CREATE TABLE `workflow_scheduling` (
 ### 场景 1: 轮询外部接口状态
 
 ```groovy
-import com.ke.bella.workflow.WorkflowRunState.NodeRunResult
-import groovy.json.JsonSlurper
-
 // 调用外部接口查询任务状态
 def response = httpClient.get("https://api.example.com/task/${taskId}")
-def status = new JsonSlurper().parseText(response).status
+def status = sys.fromJson(response).status
 
 if (status == "processing") {
     // 任务仍在处理中，5分钟后自动重试
@@ -99,8 +94,6 @@ if (status == "processing") {
 ### 场景 2: 延迟执行
 
 ```groovy
-import com.ke.bella.workflow.WorkflowRunState.NodeRunResult
-
 // 需要区分第一次进入和恢复进入
 if (!self.isResuming()) {
     // 第一次进入:发送通知后,等待30分钟再继续执行后续流程
@@ -113,18 +106,13 @@ if (!self.isResuming()) {
         .build()
 } else {
     // 恢复进入:直接继续执行
-    return NodeRunResult.builder()
-        .status(NodeRunResult.Status.succeeded)
-        .outputs([delayCompleted: true])
-        .build()
+    return [delayCompleted: true]
 }
 ```
 
 ### 场景 3: 指数退避重试
 
 ```groovy
-import com.ke.bella.workflow.WorkflowRunState.NodeRunResult
-
 def retryCount = context.getVariable(nodeId, "retryCount") ?: 0
 def maxRetries = 5
 
@@ -132,10 +120,7 @@ try {
     // 尝试执行操作
     def result = performOperation()
     
-    return NodeRunResult.builder()
-        .status(NodeRunResult.Status.succeeded)
-        .outputs([result: result])
-        .build()
+    return [result: result]
         
 } catch (Exception e) {
     if (retryCount < maxRetries) {

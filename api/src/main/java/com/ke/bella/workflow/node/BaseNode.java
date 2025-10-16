@@ -28,6 +28,8 @@ import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowNodeRunException;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowSchema;
+import com.ke.bella.workflow.api.WorkflowOps.TriggerType;
+import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.service.Configs;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
@@ -167,6 +169,8 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 }
             }
 
+            populateResumeInfo(context, result);
+
             synchronized(context) {
                 context.putNodeRunResult(this, result);
                 if(result.getStatus() == NodeRunResult.Status.succeeded) {
@@ -264,9 +268,24 @@ public abstract class BaseNode<T extends BaseNode.BaseNodeData> implements Runna
                 context.getWorkflowId(),
                 context.getRunId());
 
-        // append callbackUrl
-        if(isCallback()) {
-            context.getState().putVariable(getNodeId(), "callbackUrl", callbackUrl);
+        context.getState().putVariable(getNodeId(), Variables.CALLBACK_URL, callbackUrl);
+    }
+
+    private void populateResumeInfo(WorkflowContext context, NodeRunResult result) {
+        if(result == null || result.getStatus() != NodeRunResult.Status.waiting) {
+            return;
+        }
+
+        Long resumeAfterMinutes = result.getResumeAfterMinutes();
+        if(resumeAfterMinutes != null) {
+            long safeMinutes = Math.max(1L, resumeAfterMinutes);
+            result.setResumeAfterMinutes(safeMinutes);
+
+            String triggerId = (String) context.getState().getVariable(getNodeId(), Variables.AUTO_RESUME_TRIGGER_ID);
+            if(!StringUtils.hasText(triggerId)) {
+                triggerId = IDGenerator.newTriggerId(TriggerType.SCHD_RESUME.name());
+                context.getState().putVariable(getNodeId(), Variables.AUTO_RESUME_TRIGGER_ID, triggerId);
+            }
         }
     }
 

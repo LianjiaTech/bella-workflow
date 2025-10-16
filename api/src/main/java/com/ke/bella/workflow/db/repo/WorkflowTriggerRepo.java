@@ -112,6 +112,7 @@ public class WorkflowTriggerRepo implements BaseRepo {
     public List<WorkflowSchedulingDB> listWorkflowSchedulingWithWorkflow(String workflowId) {
         return db.selectFrom(WORKFLOW_SCHEDULING)
                 .where(WORKFLOW_SCHEDULING.WORKFLOW_ID.eq(workflowId))
+                .and(WORKFLOW_SCHEDULING.TRIGGER_TYPE.eq(TriggerType.SCHD.name()))
                 .orderBy(WORKFLOW_SCHEDULING.ID.desc())
                 .fetch()
                 .into(WorkflowSchedulingDB.class);
@@ -120,6 +121,7 @@ public class WorkflowTriggerRepo implements BaseRepo {
     public Page<WorkflowSchedulingDB> pageWorkflowScheduling(WorkflowOps.WorkflowSchedulingPage op) {
         SelectSeekStep1<WorkflowSchedulingRecord, LocalDateTime> sql = db.selectFrom(WORKFLOW_SCHEDULING)
                 .where(WORKFLOW_SCHEDULING.TENANT_ID.eq(BellaContext.getOperator().getTenantId()))
+                .and(WORKFLOW_SCHEDULING.TRIGGER_TYPE.eq(TriggerType.SCHD.name()))
                 .and(StringUtils.isEmpty(op.getTriggerId()) ? DSL.noCondition()
                         : WORKFLOW_SCHEDULING.TRIGGER_ID.eq(op.getTriggerId()))
                 .and(StringUtils.isEmpty(op.getLastId()) ? DSL.noCondition()
@@ -280,6 +282,43 @@ public class WorkflowTriggerRepo implements BaseRepo {
         return db.selectFrom(WORKFLOW_WEBOT_TRIGGER)
                 .where(WORKFLOW_WEBOT_TRIGGER.WORKFLOW_ID.eq(workflowId))
                 .fetchInto(WorkflowWebotTriggerDB.class);
+    }
+
+    public void upsertWorkflowSchedulingForResume(String tenantId, String triggerId,
+            String workflowId, String workflowRunId,
+            String nodeId, LocalDateTime triggerNextTime,
+            String callbackUrl) {
+        WorkflowSchedulingRecord rec = db.newRecord(WORKFLOW_SCHEDULING);
+        rec.setTenantId(tenantId);
+        rec.setTriggerId(triggerId);
+        rec.setTriggerType("SCHD_RESUME");
+        rec.setName(String.format("Auto-resume for %s/%s", workflowRunId, nodeId));
+        rec.setDesc(String.format("Auto-resume workflow run %s node %s", workflowRunId, nodeId));
+        rec.setWorkflowId(workflowId);
+        rec.setWorkflowSchedulingId(workflowRunId);
+        rec.setCronExpression("");
+        rec.setTriggerNextTime(triggerNextTime);
+        rec.setInputs(callbackUrl);
+        rec.setRunningStatus("init");
+        rec.setStatus(0);
+        fillCreatorInfo(rec);
+
+        db.insertInto(WORKFLOW_SCHEDULING)
+                .set(rec)
+                .onDuplicateKeyUpdate()
+                .set(WORKFLOW_SCHEDULING.TRIGGER_NEXT_TIME, triggerNextTime)
+                .set(WORKFLOW_SCHEDULING.RUNNING_STATUS, "init")
+                .set(WORKFLOW_SCHEDULING.MTIME, LocalDateTime.now())
+                .execute();
+    }
+
+    public void finishWorkflowSchedulingForResume(String triggerId) {
+        db.update(WORKFLOW_SCHEDULING)
+                .set(WORKFLOW_SCHEDULING.RUNNING_STATUS, "finished")
+                .set(WORKFLOW_SCHEDULING.STATUS, -1)
+                .set(WORKFLOW_SCHEDULING.MTIME, LocalDateTime.now())
+                .where(WORKFLOW_SCHEDULING.TRIGGER_ID.eq(triggerId))
+                .execute();
     }
 
 }

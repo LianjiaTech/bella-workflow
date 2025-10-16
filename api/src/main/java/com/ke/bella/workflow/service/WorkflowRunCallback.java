@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 import com.google.common.base.Throwables;
 import com.ke.bella.openapi.BellaContext;
 import com.ke.bella.workflow.IWorkflowCallback;
+import com.ke.bella.workflow.Variables;
 import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
@@ -308,6 +309,21 @@ public class WorkflowRunCallback extends WorkflowCallbackAdaptor {
 
         if(!context.isFlashMode()) {
             service.updateWorkflowNodeRunWaited(context, nodeId, nodeRunId);
+        }
+
+        NodeRunResult nodeState = context.getState().getNodeState(nodeId);
+        if(nodeState != null && nodeState.getResumeAfterMinutes() != null) {
+            String triggerId = (String) context.getState().getVariable(nodeId, Variables.AUTO_RESUME_TRIGGER_ID);
+            String callbackUrl = (String) context.getState().getVariable(nodeId, Variables.CALLBACK_URL);
+
+            if(triggerId != null && callbackUrl != null) {
+                service.scheduleWorkflowNodeAutoResume(
+                        context,
+                        nodeId,
+                        triggerId,
+                        nodeState.getResumeAfterMinutes(),
+                        callbackUrl);
+            }
         }
 
         delegate.onWorkflowNodeRunWaited(context, nodeId, nodeRunId);

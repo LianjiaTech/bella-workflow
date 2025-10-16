@@ -62,6 +62,7 @@ import com.ke.bella.workflow.api.callbacks.WorkflowRunNotifyCallback;
 import com.ke.bella.workflow.db.IDGenerator;
 import com.ke.bella.workflow.db.repo.Page;
 import com.ke.bella.workflow.db.repo.WorkflowRepo;
+import com.ke.bella.workflow.db.repo.WorkflowTriggerRepo;
 import com.ke.bella.workflow.db.tables.pojos.TenantDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAggregateDB;
 import com.ke.bella.workflow.db.tables.pojos.WorkflowAsApiDB;
@@ -85,6 +86,9 @@ public class WorkflowService {
 
     @Resource
     WorkflowRepo repo;
+
+    @Autowired
+    WorkflowTriggerRepo triggerRepo;
 
     @Resource
     WorkflowRunCountUpdator counter;
@@ -369,7 +373,7 @@ public class WorkflowService {
         }
     }
 
-    @SuppressWarnings("ALL")
+    @SuppressWarnings("all")
     public void runWorkflow(TaskWrapper taskWrapper, Cache<String, WorkflowDB> workflowCache) {
         try {
             WorkflowOps.WorkflowRun op = taskWrapper.getPayload(WorkflowOps.WorkflowRun.class);
@@ -839,6 +843,7 @@ public class WorkflowService {
         manager.waitWorkflowRunNotify(context, callback, timeout);
     }
 
+    @SuppressWarnings("unchecked")
     public void notifyWorkflowRun(WorkflowRunDB wr) {
         String runId = wr.getWorkflowRunId();
         String instanceId = mesh.getInstanceId(runId);
@@ -971,6 +976,32 @@ public class WorkflowService {
             }
             return null;
         }
+    }
+
+    public void scheduleWorkflowNodeAutoResume(WorkflowContext context, String nodeId, String triggerId,
+            Long resumeAfterMinutes, String callbackUrl) {
+        String tenantId = context.getTenantId();
+        String workflowId = context.getWorkflowId();
+        String workflowRunId = context.getRunId();
+
+        LocalDateTime triggerNextTime = LocalDateTime.now().plusMinutes(resumeAfterMinutes);
+
+        triggerRepo.upsertWorkflowSchedulingForResume(
+                tenantId,
+                triggerId,
+                workflowId,
+                workflowRunId,
+                nodeId,
+                triggerNextTime,
+                callbackUrl);
+
+        LOGGER.info("Scheduled auto-resume for workflow run {} node {} at {}",
+                workflowRunId, nodeId, triggerNextTime);
+    }
+
+    public void finishWorkflowNodeAutoResume(String triggerId) {
+        triggerRepo.finishWorkflowSchedulingForResume(triggerId);
+        LOGGER.info("Finished auto-resume task {}", triggerId);
     }
 
 }

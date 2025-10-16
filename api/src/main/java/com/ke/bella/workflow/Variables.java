@@ -16,6 +16,9 @@ import io.pebbletemplates.pebble.loader.StringLoader;
 import io.pebbletemplates.pebble.template.PebbleTemplate;
 
 public class Variables {
+    public static final String CALLBACK_URL = "callbackUrl";
+    public static final String AUTO_RESUME_TRIGGER_ID = "_bellaWorkflowAutoResumeTriggerId";
+
     private static final PebbleEngine engine = new PebbleEngine.Builder()
             .loader(new StringLoader())
             .build();

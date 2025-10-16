@@ -53,6 +53,7 @@ import com.ke.bella.workflow.db.tables.records.WorkflowNodeRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowRunShardingRecord;
+import com.ke.bella.workflow.db.tables.records.WorkflowSchedulingRecord;
 import com.ke.bella.workflow.db.tables.records.WorkflowTemplateRecord;
 import com.ke.bella.workflow.utils.HttpUtils;
 import com.ke.bella.workflow.utils.JsonUtils;

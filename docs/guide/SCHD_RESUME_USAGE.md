@@ -101,14 +101,23 @@ if (status == "processing") {
 ```groovy
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult
 
-// 发送通知后，等待30分钟再继续执行后续流程
-sendNotification(user)
+// 需要区分第一次进入和恢复进入
+if (!self.isResuming()) {
+    // 第一次进入:发送通知后,等待30分钟再继续执行后续流程
+    sendNotification(user)
 
-return NodeRunResult.builder()
-    .status(NodeRunResult.Status.waiting)
-    .resumeAfterMinutes(30L)
-    .processData([notificationSent: true])
-    .build()
+    return NodeRunResult.builder()
+        .status(NodeRunResult.Status.waiting)
+        .resumeAfterMinutes(30L)
+        .processData([notificationSent: true])
+        .build()
+} else {
+    // 恢复进入:直接继续执行
+    return NodeRunResult.builder()
+        .status(NodeRunResult.Status.succeeded)
+        .outputs([delayCompleted: true])
+        .build()
+}
 ```
 
 ### 场景 3: 指数退避重试

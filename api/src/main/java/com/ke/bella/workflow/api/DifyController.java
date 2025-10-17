@@ -1,5 +1,6 @@
 package com.ke.bella.workflow.api;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,13 +19,11 @@ import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -79,7 +78,9 @@ import com.ke.bella.workflow.utils.DifyUtils;
 import com.ke.bella.workflow.utils.JsonUtils;
 import com.ke.bella.workflow.utils.OpenAiUtils;
 import com.theokanning.openai.assistants.message.Message;
+import com.theokanning.openai.assistants.message.MessageContent;
 import com.theokanning.openai.assistants.message.MessageListSearchParameters;
+import com.theokanning.openai.assistants.message.content.Text;
 import com.theokanning.openai.service.OpenAiService;
 
 import lombok.AllArgsConstructor;
@@ -650,12 +651,28 @@ public class DifyController {
                 }
 
                 for (List<Message> groupedMessage : groupedMessages) {
+                    String query = Optional.ofNullable(groupedMessage.get(0).getContent())
+                            .filter(content -> !content.isEmpty())
+                            .map(content -> content.get(0))
+                            .map(MessageContent::getText)
+                            .map(Text::getValue)
+                            .orElse("");
+
+                    String answer = groupedMessage.subList(1, groupedMessage.size()).stream()
+                            .map(e -> Optional.ofNullable(e.getContent())
+                                    .filter(content -> !content.isEmpty())
+                                    .map(content -> content.get(0))
+                                    .map(MessageContent::getText)
+                                    .map(Text::getValue)
+                                    .orElse(""))
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.joining());
+
                     DifyChatFlowRun run = DifyChatFlowRun.builder()
                             .id(groupedMessage.get(0).getId())
                             .conversation_id(groupedMessage.get(0).getThreadId())
-                            .query(groupedMessage.get(0).getContent().get(0).getText().getValue())
-                            .answer(groupedMessage.subList(1, groupedMessage.size()).stream().map(e -> e.getContent().get(0).getText().getValue())
-                                    .collect(Collectors.joining()))
+                            .query(query)
+                            .answer(answer)
                             .created_at((long) groupedMessage.get(0).getCreatedAt())
                             .workflow_run_id(Optional.ofNullable(groupedMessage.get(0).getMetadata()).map(e -> e.get("workflowRunId")).orElse(null))
                             .build();

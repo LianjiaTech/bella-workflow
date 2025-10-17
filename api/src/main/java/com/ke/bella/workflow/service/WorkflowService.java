@@ -735,6 +735,7 @@ public class WorkflowService {
                 .state(state)
                 .userInputs(new HashMap())
                 .triggerFrom(wr.getTriggerFrom())
+                .triggerId(wr.getTriggerId())
                 .ctime(wr.getCtime())
                 .flashMode(wr.getFlashMode())
                 .workflowMode(wf.getMode())

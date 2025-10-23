@@ -67,6 +67,7 @@ const translation = {
   editAppTitle: 'Editează Info Aplicație',
   editDone: 'Informațiile despre aplicație au fost actualizate',
   editFailed: 'Actualizarea informațiilor despre aplicație a eșuat',
+  descriptionRequired: 'Descrierea nu poate fi goală',
   emoji: {
     ok: 'OK',
     cancel: 'Anulează',

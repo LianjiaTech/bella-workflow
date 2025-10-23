@@ -17,10 +17,12 @@ const LayoutContent = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname()
   const router = useRouter()
   const { tenantConfigFromStore, setTenantConfigFromStore } = useAppContext()
+
   const firstSeg = pathname.split('/')[1]
   const secondSeg = pathname.split('/')[2]
   const isAppSection = () => firstSeg === 'app' || firstSeg === 'apps'
   const isGlobalSection = () => firstSeg === 'app' || firstSeg === 'apps' || secondSeg === 'datasources'
+
   useEffect(() => {
     let finalTenantId: string
 
@@ -36,7 +38,7 @@ const LayoutContent = ({ children }: { children: ReactNode }) => {
       setTenantConfigFromStore(tenantDefaultConfig)
     }
     setTenantId(finalTenantId)
-  }, [pathname, router, setTenantConfigFromStore, isGlobalSection])
+  }, [isAppSection, pathname, router, setTenantConfigFromStore])
 
   // 根据配置确定是否展示模块
   useEffect(() => {

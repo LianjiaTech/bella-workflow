@@ -36,7 +36,7 @@ const Header = () => {
   const pathname = usePathname()
   const firstSeg = pathname.split('/')[1]
   const secondSeg = pathname.split('/')[2]
-  const isGlobalSection = () => firstSeg === 'app' || firstSeg === 'apps' || firstSeg === 'datasources'
+  const isGlobalSection = () => firstSeg === 'app' || firstSeg === 'apps' || secondSeg === 'datasources'
 
   const handlePlanClick = useCallback(() => {
     if (isFreePlan)
@@ -51,7 +51,7 @@ const Header = () => {
   }, [selectedSegment])
 
   const appHeaderConfig = useMemo(() => {
-    if (isGlobalSection() || secondSeg === 'datasources') {
+    if (isGlobalSection()) {
       return {
         showWorkspaceProvider: true,
         showWorkroomButton: true,
@@ -68,7 +68,7 @@ const Header = () => {
       showUserInfo: false,
       iconConfig: { clickable: false },
     }
-  }, [isGlobalSection, secondSeg, tenantConfigFromStore?.appConfig?.appHeader])
+  }, [isGlobalSection, tenantConfigFromStore?.appConfig?.appHeader])
 
   return (
     <div className='flex flex-1 items-center justify-between px-4'>

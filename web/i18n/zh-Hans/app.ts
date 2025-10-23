@@ -70,6 +70,7 @@ const translation = {
   editAppTitle: '编辑应用信息',
   editDone: '应用信息已更新',
   editFailed: '更新应用信息失败',
+  descriptionRequired: '描述不能为空',
   emoji: {
     ok: '确认',
     cancel: '取消',

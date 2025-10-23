@@ -127,7 +127,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
     if (!appDetail)
       return
     if (description === '' || description.trim() === '') {
-      notify({ type: 'error', message: '描述不能为空' })
+      notify({ type: 'error', message: t('app.descriptionRequired') })
       return
     }
     try {

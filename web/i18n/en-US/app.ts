@@ -71,6 +71,7 @@ const translation = {
   editAppTitle: 'Edit App Info',
   editDone: 'App info updated',
   editFailed: 'Failed to update app info',
+  descriptionRequired: 'Description cannot be empty',
   emoji: {
     ok: 'OK',
     cancel: 'Cancel',

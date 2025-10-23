@@ -93,11 +93,6 @@
       <artifactId>springdoc-openapi-ui</artifactId>
       <version>1.8.0</version>
     </dependency>
-      <dependency>
-          <groupId>com.ke.bella.job.queue</groupId>
-          <artifactId>bella-job-queue-sdk</artifactId>
-          <version>1.0.1-SNAPSHOT</version>
-      </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>

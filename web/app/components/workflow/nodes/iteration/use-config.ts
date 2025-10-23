@@ -17,7 +17,8 @@ import type { VarType as VarKindType } from '@/app/components/workflow/nodes/too
 
 const DELIMITER = '@@@@@'
 const useConfig = (id: string, payload: IterationNodeType) => {
-  const { nodesReadOnly: readOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const readOnly = getNodesReadOnly(payload) as boolean
   const { isNodeInIteration } = useIsNodeInIteration(id)
   const isChatMode = useIsChatMode()
 

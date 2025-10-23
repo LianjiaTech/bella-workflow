@@ -17,7 +17,8 @@ import { ModelTypeEnum } from '@/app/components/header/account-setting/model-pro
 import { checkHasQueryBlock } from '@/app/components/base/prompt-editor/constants'
 
 const useConfig = (id: string, payload: QuestionClassifierNodeType) => {
-  const { nodesReadOnly: readOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const readOnly = getNodesReadOnly(payload) as boolean
   const isChatMode = useIsChatMode()
   const defaultConfig = useStore(s => s.nodesDefaultConfigs)[payload.type]
   const { getBeforeNodesInSameBranch } = useWorkflow()

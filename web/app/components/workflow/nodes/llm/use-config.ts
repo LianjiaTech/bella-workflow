@@ -20,7 +20,8 @@ import { RETRIEVAL_OUTPUT_STRUCT } from '@/app/components/workflow/constants'
 import { checkHasContextBlock, checkHasHistoryBlock, checkHasQueryBlock } from '@/app/components/base/prompt-editor/constants'
 
 const useConfig = (id: string, payload: LLMNodeType) => {
-  const { nodesReadOnly: readOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const readOnly = getNodesReadOnly(payload) as boolean
   const isChatMode = useIsChatMode()
 
   const defaultConfig = useStore(s => s.nodesDefaultConfigs)[payload.type]

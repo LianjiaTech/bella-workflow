@@ -41,6 +41,7 @@ export type AppPublisherProps = {
   onVersionHistory?: () => void
   releaseDescription: string
   handleDescription: (desc: string) => void
+  label: string
 }
 
 const AppPublisher = ({
@@ -60,6 +61,7 @@ const AppPublisher = ({
   onVersionHistory,
   releaseDescription,
   handleDescription,
+  label,
 }: AppPublisherProps) => {
   const { t } = useTranslation()
   const [published, setPublished] = useState(false)
@@ -125,7 +127,7 @@ const AppPublisher = ({
           className='pl-3 pr-2'
           disabled={disabled}
         >
-          {t('workflow.common.publish')}
+          {label || t('workflow.common.publish')}
           <RiArrowDownSLine className='w-4 h-4 ml-0.5' />
         </Button>
       </PortalToFollowElemTrigger>
@@ -192,7 +194,7 @@ const AppPublisher = ({
             }
           </div>
           <div className="p-4 pt-3 border-t-[0.5px] border-t-black/5">
-            <SuggestedAction icon={<FileText className="w-4 h-4"/>} onClick={onVersionHistory}
+            <SuggestedAction icon={<FileText className="w-4 h-4" />} onClick={onVersionHistory}
             >{t('workflow.common.historyVersion')}</SuggestedAction>
           </div>
           {/* <div className='p-4 pt-3 border-t-[0.5px] border-t-black/5'>

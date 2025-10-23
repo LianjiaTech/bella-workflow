@@ -2,7 +2,6 @@
 
 // Libraries
 import { useMemo, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { useDebounceFn } from 'ahooks'
 
@@ -19,14 +18,8 @@ import KafkaPage from '@/app/components/kafka'
 
 // Hooks
 import { useTabSearchParams } from '@/hooks/use-tab-searchparams'
-import { useStore as useTagStore } from '@/app/components/base/tag-management/store'
-import { useAppContext } from '@/context/app-context'
-
 const Container = () => {
   const { t } = useTranslation()
-  const router = useRouter()
-  const { currentWorkspace } = useAppContext()
-  const showTagManagementModal = useTagStore(s => s.showTagManagementModal)
 
   const options = useMemo(() => {
     return [
@@ -81,10 +74,6 @@ const Container = () => {
       {activeTab === 'dataset' && (
         <>
           <Datasets containerRef={containerRef} tags={tagIDs} keywords={searchKeywords} />
-          {/* <DatasetFooter /> */}
-          {/* {showTagManagementModal && (
-            <TagManagementModal type='knowledge' show={showTagManagementModal} />
-          )} */}
         </>
       )}
 

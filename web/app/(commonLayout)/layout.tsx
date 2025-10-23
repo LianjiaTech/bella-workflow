@@ -1,45 +1,82 @@
 'use client'
 import React, { useEffect } from 'react'
 import type { ReactNode } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import SwrInitor from '@/app/components/swr-initor'
-import { AppContextProvider } from '@/context/app-context'
+import { AppContextProvider, useAppContext } from '@/context/app-context'
 import GA, { GaType } from '@/app/components/base/ga'
 import HeaderWrapper from '@/app/components/header/header-wrapper'
 import Header from '@/app/components/header'
 import { EventEmitterContextProvider } from '@/context/event-emitter'
 import { ProviderContextProvider } from '@/context/provider-context'
 import { ModalContextProvider } from '@/context/modal-context'
-import { getQueryParams, getTenantId, setTenantId } from '@/utils/getQueryParams'
-import type { AppConfig } from '@/app/context/app-registry'
-import { AppRegistryProvider, getAppConfig, tryLoadConfigFile } from '@/app/context/app-registry'
+import { getQueryParams, setTenantId } from '@/utils/getQueryParams'
+import { TenantConfigCenter } from '@/config/tenant'
 
-// Try to load the configuration file, won't error if the file doesn't exist
-tryLoadConfigFile()
-
-// Layout implementation component
-const LayoutImplementation = ({ children }: { children: ReactNode }) => {
+const LayoutContent = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname()
-
-  // Create default configuration
-  const defaultConfig: AppConfig = {
-    tenantId: 'test',
-    showHeader: true,
-    HeaderComponent: Header,
-  }
-
-  // Get application configuration (using default config as second parameter)
-  const appConfig = getAppConfig(pathname, defaultConfig)
-
+  const router = useRouter()
+  const { tenantConfigFromStore, setTenantConfigFromStore } = useAppContext()
+  const firstSeg = pathname.split('/')[1]
+  const secondSeg = pathname.split('/')[2]
+  const isAppSection = () => firstSeg === 'app' || firstSeg === 'apps'
+  const isGlobalSection = () => firstSeg === 'app' || firstSeg === 'apps' || secondSeg === 'datasources'
   useEffect(() => {
-    // Determine tenant ID: URL parameter has priority, then app config, then stored value or default
-    const tenantId = getQueryParams('tenant') || appConfig.tenantId || getTenantId() || 'test'
-    setTenantId(tenantId)
-  }, [pathname, appConfig.tenantId])
+    let finalTenantId: string
 
-  // Determine which Header component to use
-  const HeaderComponent = appConfig.HeaderComponent || Header
+    if (isAppSection()) {
+      finalTenantId = 'test'
+    }
+    else {
+      const tenantMatch = pathname.match(/^\/([^\/]+)/)
+      const tenantIdFromUrl = tenantMatch ? tenantMatch[1] : null
 
+      finalTenantId = tenantIdFromUrl || getQueryParams('tenantId') || 'test'
+      const tenantDefaultConfig = TenantConfigCenter.getConfig(finalTenantId)
+      setTenantConfigFromStore(tenantDefaultConfig)
+    }
+    setTenantId(finalTenantId)
+  }, [pathname, router, setTenantConfigFromStore, isGlobalSection])
+
+  // 根据配置确定是否展示模块
+  useEffect(() => {
+    const features = tenantConfigFromStore?.appConfig?.features
+    if (!features || isGlobalSection())
+      return
+
+    const match = pathname.match(/\/(customApi|logs|develop|trigger)(\/|$)/)
+    const seg = match?.[1] as 'customApi' | 'logs' | 'develop' | 'trigger' | undefined
+    if (!seg)
+      return
+
+    const enabled = seg === 'customApi'
+      ? !!features.customApi
+      : seg === 'logs'
+        ? !!features.logs
+        : seg === 'develop'
+          ? !!features.develop
+          : seg === 'trigger'
+            ? !!features.trigger
+            : true
+
+    if (!enabled)
+      router.replace('/404')
+  }, [pathname, tenantConfigFromStore, router, isGlobalSection, secondSeg])
+
+  return (
+    <>
+      {(tenantConfigFromStore?.appConfig?.appHeader || isGlobalSection())
+        && (
+          <HeaderWrapper>
+            <Header />
+          </HeaderWrapper>
+        )}
+      {children}
+    </>
+  )
+}
+
+const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <>
       <GA gaType={GaType.admin} />
@@ -48,29 +85,15 @@ const LayoutImplementation = ({ children }: { children: ReactNode }) => {
           <EventEmitterContextProvider>
             <ProviderContextProvider>
               <ModalContextProvider>
-                {appConfig.showHeader && (
-                  <HeaderWrapper>
-                    <HeaderComponent />
-                  </HeaderWrapper>
-                )}
-                {children}
+                <LayoutContent>
+                  {children}
+                </LayoutContent>
               </ModalContextProvider>
             </ProviderContextProvider>
           </EventEmitterContextProvider>
         </AppContextProvider>
       </SwrInitor>
     </>
-  )
-}
-
-// Common layout component
-const Layout = ({ children }: { children: ReactNode }) => {
-  return (
-    <AppRegistryProvider>
-      <LayoutImplementation>
-        {children}
-      </LayoutImplementation>
-    </AppRegistryProvider>
   )
 }
 

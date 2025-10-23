@@ -26,7 +26,8 @@ import {
 import useAvailableVarList from '@/app/components/workflow/nodes/_base/hooks/use-available-var-list'
 
 const useConfig = (id: string, payload: IfElseNodeType) => {
-  const { nodesReadOnly: readOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const readOnly = getNodesReadOnly(payload) as boolean
   const { handleEdgeDeleteByDeleteBranch } = useEdgesInteractions()
   const { inputs, setInputs } = useNodeCrud<IfElseNodeType>(id, payload)
 

@@ -22,7 +22,8 @@ import { convertJsonToVariables } from '@/app/components/workflow/utils'
 import type { ResponseBody } from '@/app/components/workflow/nodes/http/types'
 
 const useConfig = (id: string, payload: ToolNodeType) => {
-  const { nodesReadOnly: readOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const readOnly = getNodesReadOnly(payload) as boolean
   const { handleFetchAllTools } = useFetchToolsData()
   const { t } = useTranslation()
 

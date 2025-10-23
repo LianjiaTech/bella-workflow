@@ -39,9 +39,29 @@ export const getSpaceCode = (userCode: string): string => {
 }
 
 export const getUserInfo = (): { userName: string; ucid: string; tenantId: string ; spaceCode: string } => {
-  const tenantId = globalThis.sessionStorage?.getItem('currentTenantId')
-  const spaceCode = globalThis.sessionStorage?.getItem('currentSpaceCode')
-  const userInfoStr = globalThis.localStorage?.getItem(tenantId)
+  let tenantId = globalThis.sessionStorage?.getItem('currentTenantId') || ''
+  const spaceCode = globalThis.sessionStorage?.getItem('currentSpaceCode') || ''
+
+  // Fallback on first load before Layout sets sessionStorage
+  if (!tenantId && typeof globalThis.location !== 'undefined') {
+    const pathname = globalThis.location.pathname || ''
+    const firstSeg = pathname.split('/')?.[1] || ''
+    if (firstSeg === 'app' || firstSeg === 'apps')
+      tenantId = 'test'
+    else if (firstSeg)
+      tenantId = firstSeg
+    else
+      tenantId = getQueryParams('tenantId') || 'test'
+
+    try {
+      globalThis.sessionStorage?.setItem('currentTenantId', tenantId)
+    }
+    catch (e) {
+      // ignore
+    }
+  }
+
+  const userInfoStr = tenantId ? globalThis.localStorage?.getItem(tenantId) : null
   return userInfoStr != null
     ? JSON.parse(userInfoStr)
     : {

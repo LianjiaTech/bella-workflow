@@ -14,7 +14,8 @@ import {
 import useAvailableVarList from '@/app/components/workflow/nodes/_base/hooks/use-available-var-list'
 
 const useConfig = (id: string, payload: TemplateTransformNodeType) => {
-  const { nodesReadOnly: readOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const readOnly = getNodesReadOnly(payload) as boolean
   const defaultConfig = useStore(s => s.nodesDefaultConfigs)[payload.type]
 
   const isChatMode = useIsChatMode()

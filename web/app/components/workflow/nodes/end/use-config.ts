@@ -5,7 +5,8 @@ import {
   useNodesReadOnly,
 } from '@/app/components/workflow/hooks'
 const useConfig = (id: string, payload: EndNodeType) => {
-  const { nodesReadOnly: readOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const readOnly = getNodesReadOnly(payload) as boolean
   const { inputs, setInputs } = useNodeCrud<EndNodeType>(id, payload)
 
   const { handleVarListChange, handleAddVariable } = useVarList<EndNodeType>({

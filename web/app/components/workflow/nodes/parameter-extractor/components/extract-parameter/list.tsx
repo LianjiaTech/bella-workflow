@@ -18,6 +18,7 @@ type Props = {
 }
 
 const List: FC<Props> = ({
+  readonly,
   list,
   onChange,
 }) => {
@@ -44,17 +45,21 @@ const List: FC<Props> = ({
 
   const handleItemEdit = useCallback((index: number) => {
     return () => {
+      if (readonly)
+        return
       setCurrEditItemIndex(index)
       showEditModal()
     }
-  }, [showEditModal])
+  }, [showEditModal, readonly])
 
   const handleItemDelete = useCallback((index: number) => {
     return () => {
+      if (readonly)
+        return
       const newList = list.filter((_, i) => i !== index)
       onChange(newList)
     }
-  }, [list, onChange])
+  }, [list, onChange, readonly])
 
   if (list.length === 0) {
     return (
@@ -66,6 +71,7 @@ const List: FC<Props> = ({
       {list.map((item, index) => (
         <Item
           key={index}
+          readonly={readonly}
           payload={item}
           onDelete={handleItemDelete(index)}
           onEdit={handleItemEdit(index)}

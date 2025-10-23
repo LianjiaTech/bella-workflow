@@ -99,6 +99,7 @@ import { fetchFileUploadConfig } from '@/service/common'
 import { useStore as useAppStore } from '@/app/components/app/store'
 import { hasEditPermission } from '@/app/components/workflow/hooks/use-workflow'
 import { getUserInfo } from '@/utils/getQueryParams'
+import { useAppContext } from '@/context/app-context'
 
 const nodeTypes = {
   [CUSTOM_NODE]: CustomNode,
@@ -124,6 +125,8 @@ const Workflow: FC<WorkflowProps> = memo(({
   const featuresStore = useFeaturesStore()
   const [nodes, setNodes] = useNodesState(originalNodes)
   const [edges, setEdges] = useEdgesState(originalEdges)
+  const candidateNode = useStore(s => s.candidateNode)
+
   const showFeaturesPanel = useStore(state => state.showFeaturesPanel)
   const controlMode = useStore(s => s.controlMode)
   const nodeAnimation = useStore(s => s.nodeAnimation)
@@ -134,7 +137,11 @@ const Workflow: FC<WorkflowProps> = memo(({
   const role = useStore(state => state.role)
   const appDetail = useAppStore(state => state.appDetail)
   const { ucid } = getUserInfo()
-  const targetorigin = window.location.hostname === 'example.com' ? 'https://example.com' : '*'
+
+  const { handleRefreshWorkflowDraft } = useWorkflowUpdate()
+
+  const { tenantConfigFromStore } = useAppContext()
+
   const store = useStoreApi()
   const {
     handleNodesCancelSelected,
@@ -142,22 +149,29 @@ const Workflow: FC<WorkflowProps> = memo(({
   const {
     handleCancelDebugAndPreviewPanel,
   } = useWorkflowInteractions()
+
+  useEffect(() => {
+    window.parent.postMessage({
+      type: PostMessageType.init,
+    }, '*')
+  }, [])
+
   useEffect(() => {
     if (!draftUpdatedAt)
       return
     window.parent.postMessage({
       type: PostMessageType.updateTime,
       payload: draftUpdatedAt,
-    }, targetorigin)
-  }, [draftUpdatedAt, targetorigin])
+    }, '*')
+  }, [draftUpdatedAt])
 
   useEffect(() => {
     if (!publishedAt)
       return
     window.parent.postMessage({
       type: PostMessageType.published,
-    }, targetorigin)
-  }, [publishedAt, targetorigin])
+    }, '*')
+  }, [publishedAt])
 
   const {
     setShowConfirm,
@@ -196,7 +210,7 @@ const Workflow: FC<WorkflowProps> = memo(({
 
       setEnvironmentVariables(v.payload.environment_variables)
 
-      setTimeout(() => setControlPromptEditorRerenderKey(Date.now()))
+      setTimeout(() => setControlPromptEditorRerenderKey(Date.now()), 0)
     }
     if (v.type === DSL_EXPORT_CHECK)
       setSecretEnvList(v.payload.data as EnvironmentVariable[])
@@ -207,16 +221,9 @@ const Workflow: FC<WorkflowProps> = memo(({
 
     return () => {
       setAutoFreeze(true)
-    }
-  }, [])
-
-  useEffect(() => {
-    return () => {
       handleSyncWorkflowDraft(true, true)
     }
   }, [])
-
-  const { handleRefreshWorkflowDraft } = useWorkflowUpdate()
 
   const handleSetGraphState = useCallback((workflow: HistoryWorkflowVersion) => {
     const { setEdges, setNodes } = store.getState()
@@ -226,18 +233,21 @@ const Workflow: FC<WorkflowProps> = memo(({
     setEdges(workflow.graph.edges)
     setNodes(workflow.graph.nodes)
   }, [store, workflowStore])
+
   const receiveMessage = (event: MessageEvent) => {
     const { type, payload } = event.data || {}
+    console.log('workflow receiveMessage', event.data)
+
     if (type === ReceiveMessageType.rollback)
       handleRefreshWorkflowDraft()
 
     if (type === ReceiveMessageType.viewHistory) {
       handleNodesCancelSelected()
       handleCancelDebugAndPreviewPanel()
-      workflowStore.setState({ isVersionHistory: payload?.viewHistoryVersion })
+      workflowStore.setState({ isVersionHistory: payload?.isReadOnly })
       handleSetGraphState(payload?.historyData)
 
-      if (!payload?.viewHistoryVersion)
+      if (!payload?.isReadOnly)
         handleRefreshWorkflowDraft()
     }
   }
@@ -387,8 +397,12 @@ const Workflow: FC<WorkflowProps> = memo(({
       ref={workflowContainerRef}
     >
       <SyncingDataModal />
-      <CandidateNode />
-      {hasEditPermission(ucid, appDetail, role) && <Header />}
+      {candidateNode && <CandidateNode />}
+      {
+        tenantConfigFromStore?.appConfig?.features?.workflow?.features?.header?.hasPermission
+          ? (hasEditPermission(ucid, appDetail, role) && < Header />)
+          : < Header />
+      }
       <Panel />
       <Operator handleRedo={handleHistoryForward} handleUndo={handleHistoryBack} />
       {

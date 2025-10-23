@@ -21,7 +21,8 @@ import { checkHasQueryBlock } from '@/app/components/base/prompt-editor/constant
 import useAvailableVarList from '@/app/components/workflow/nodes/_base/hooks/use-available-var-list'
 
 const useConfig = (id: string, payload: ParameterExtractorNodeType) => {
-  const { nodesReadOnly: readOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const readOnly = getNodesReadOnly(payload) as boolean
   const { handleOutVarRenameChange } = useWorkflow()
   const isChatMode = useIsChatMode()
 

@@ -11,12 +11,14 @@ import { Variable02 } from '@/app/components/base/icons/src/vender/solid/develop
 const i18nPrefix = 'workflow.nodes.parameterExtractor'
 
 type Props = {
+  readonly: boolean
   payload: Param
   onEdit: () => void
   onDelete: () => void
 }
 
 const Item: FC<Props> = ({
+  readonly,
   payload,
   onEdit,
   onDelete,
@@ -36,26 +38,28 @@ const Item: FC<Props> = ({
         )}
       </div>
       <div className='mt-0.5 leading-[18px] text-xs font-normal text-gray-500'>{payload.description}</div>
-      <div
-        className='group-hover:flex absolute top-0 right-1 hidden h-full items-center w-[119px] justify-end space-x-1 rounded-lg'
-        style={{
-          background: 'linear-gradient(270deg, #FFF 49.99%, rgba(255, 255, 255, 0.00) 98.1%)',
-        }}
-      >
+      {!readonly && (
         <div
-          className='p-1 cursor-pointer rounded-md hover:bg-black/5'
-          onClick={onEdit}
+          className='group-hover:flex absolute top-0 right-1 hidden h-full items-center w-[119px] justify-end space-x-1 rounded-lg'
+          style={{
+            background: 'linear-gradient(270deg, #FFF 49.99%, rgba(255, 255, 255, 0.00) 98.1%)',
+          }}
         >
-          <RiEditLine className='w-4 h-4 text-gray-500' />
-        </div>
+          <div
+            className='p-1 cursor-pointer rounded-md hover:bg-black/5'
+            onClick={onEdit}
+          >
+            <RiEditLine className='w-4 h-4 text-gray-500' />
+          </div>
 
-        <div
-          className='p-1 cursor-pointer rounded-md hover:bg-black/5'
-          onClick={onDelete}
-        >
-          <RiDeleteBinLine className='w-4 h-4 text-gray-500' />
+          <div
+            className='p-1 cursor-pointer rounded-md hover:bg-black/5'
+            onClick={onDelete}
+          >
+            <RiDeleteBinLine className='w-4 h-4 text-gray-500' />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

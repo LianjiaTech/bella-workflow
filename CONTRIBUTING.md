@@ -30,22 +30,6 @@
    git checkout main
    git merge upstream/main
    ```
-5. 安装项目依赖的本地 JAR 包：
-   
-   **重要**：在本地源码启动前，您需要将 `resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar` 添加到您的本地 Maven 仓库中：
-   
-   ```bash
-   # 在项目根目录下执行
-   mvn install:install-file \
-     -Dfile=resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
-     -DgroupId=com.ke.bella.job.queue \
-     -DartifactId=bella-job-queue-sdk \
-     -Dversion=1.0.1-SNAPSHOT \
-     -Dpackaging=jar
-   ```
-   
-   执行成功后，您将看到类似于“`BUILD SUCCESS`”的输出，表示 JAR 包已成功安装到您的本地 Maven 仓库中。
-
 ### 2. 创建分支
 
 为您的贡献创建一个新分支：

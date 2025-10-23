@@ -5,15 +5,6 @@ ARGS_DEV="$@"
 
 set -e
 
-# fixme: 安装本地依赖 bella-job-queue-sdk 到 Maven 本地仓库；等待job-queue开源后则可去掉
-echo "Installing local dependencies..."
-mvn install:install-file \
-    -Dfile=bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
-    -DgroupId=com.ke.bella.job.queue \
-    -DartifactId=bella-job-queue-sdk \
-    -Dversion=1.0.1-SNAPSHOT \
-    -Dpackaging=jar
-
 rm -rf release/
 mvn clean package ${ARGS_DEV}
 

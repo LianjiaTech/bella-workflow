@@ -26,8 +26,6 @@ public class Configs {
 
     public static String DATASET_API_BASE;
 
-    public static String JOB_QUEUE_BASE;
-
     public static String SAND_BOX_API_BASE;
 
     public static long MAX_EXE_TIME = 600; // 600s
@@ -88,11 +86,6 @@ public class Configs {
     @Value("${bella.datasetApiBase}")
     public void setDatasetApiBase(String datasetApiBase) {
         DATASET_API_BASE = datasetApiBase;
-    }
-
-    @Value("${bella.job-queue.url}")
-    public void setJobQueueBase(String jobQueueBase) {
-        JOB_QUEUE_BASE = jobQueueBase;
     }
 
     @Value("${bella.workflow.sandbox.groovy}")

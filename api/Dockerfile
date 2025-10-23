@@ -10,7 +10,6 @@ COPY resources/settings.xml /root/.m2/settings.xml
 
 # 复制 API 源代码和依赖
 COPY api/ /build/
-COPY resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar /build/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar
 
 # 设置脚本权限
 RUN chmod +x /build/build.sh /build/run.sh /build/setenv.sh

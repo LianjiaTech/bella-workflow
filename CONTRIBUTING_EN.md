@@ -30,22 +30,6 @@ Before contributing code, please ensure you agree to the following terms:
    git checkout main
    git merge upstream/main
    ```
-5. Install locally required JAR packages:
-   
-   **Important**: Before starting the source code locally, you need to add `resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar` to your local Maven repository:
-   
-   ```bash
-   # Execute in the project root directory
-   mvn install:install-file \
-     -Dfile=resources/bella-job-queue-sdk-1.0.1-SNAPSHOT.jar \
-     -DgroupId=com.ke.bella.job.queue \
-     -DartifactId=bella-job-queue-sdk \
-     -Dversion=1.0.1-SNAPSHOT \
-     -Dpackaging=jar
-   ```
-   
-   After successful execution, you will see output similar to "`BUILD SUCCESS`", indicating that the JAR package has been successfully installed in your local Maven repository.
-
 ### 2. Create a Branch
 
 Create a new branch for your contribution:

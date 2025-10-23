@@ -88,8 +88,6 @@ bella:
   api:
     tool:
       read-timeout-seconds: 60
-  job-queue:
-    url: ${BELLA_JOB_QUEUE_URL:http://localhost}
 app:
   id: bella-workflow
 

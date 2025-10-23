@@ -77,6 +77,7 @@ public class WorkflowRunLogKafkaToEs {
      * 应用程序入口点
      *
      * @param args 命令行参数
+     *
      * @throws Exception 如果作业执行失败
      */
     public static void main(String[] args) throws Exception {
@@ -122,6 +123,7 @@ public class WorkflowRunLogKafkaToEs {
      *
      * @param parameterTool 命令行参数工具
      * @param config        应用配置
+     *
      * @return 配置好的执行环境
      */
     private static StreamExecutionEnvironment configureEnvironment(
@@ -130,7 +132,7 @@ public class WorkflowRunLogKafkaToEs {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
         // 设置全局并行度（如果通过命令行参数指定）
-        if (parameterTool.has("parallelism")) {
+        if(parameterTool.has("parallelism")) {
             LOGGER.info("Setting parallelism to {}", parameterTool.getInt("parallelism"));
             env.setParallelism(parameterTool.getInt("parallelism"));
         }
@@ -165,6 +167,7 @@ public class WorkflowRunLogKafkaToEs {
      * @param env           执行环境
      * @param parameterTool 命令行参数工具
      * @param config        应用配置
+     *
      * @return Kafka数据流
      */
     private static DataStream<String> createKafkaSource(
@@ -198,6 +201,7 @@ public class WorkflowRunLogKafkaToEs {
      * @param parameterTool 命令行参数工具
      * @param config        应用配置
      * @param env           执行环境
+     *
      * @return 处理后的数据流
      */
     private static SingleOutputStreamOperator<String> processKafkaStream(
@@ -270,6 +274,7 @@ public class WorkflowRunLogKafkaToEs {
      * 创建并配置Elasticsearch Sink
      *
      * @param config 应用配置
+     *
      * @return 配置好的Elasticsearch Sink
      */
     private static ElasticsearchSink<String> createElasticsearchSink(AppConfig config) {
@@ -326,7 +331,7 @@ public class WorkflowRunLogKafkaToEs {
         public void process(String element, RuntimeContext ctx, RequestIndexer indexer) {
             try {
                 // 初始化指标计数器（如果需要）
-                if (esWriteFailures == null) {
+                if(esWriteFailures == null) {
                     esWriteFailures = ctx.getMetricGroup().counter(METRIC_ES_WRITE_FAILURES);
                 }
 
@@ -340,7 +345,7 @@ public class WorkflowRunLogKafkaToEs {
 
                 indexer.add(request);
             } catch (Exception e) {
-                if (esWriteFailures != null) {
+                if(esWriteFailures != null) {
                     esWriteFailures.inc();
                 }
                 // 记录更详细的错误信息
@@ -380,12 +385,12 @@ public class WorkflowRunLogKafkaToEs {
                 LOGGER.debug("Processing log: {}", value);
 
                 // 验证是否为运行日志
-                if (!isRunLog(value)) {
+                if(!isRunLog(value)) {
                     return;
                 }
 
                 // 验证JSON格式
-                if (!isValidJson(value)) {
+                if(!isValidJson(value)) {
                     handleInvalidFormat(value, ctx);
                     return;
                 }
@@ -403,7 +408,7 @@ public class WorkflowRunLogKafkaToEs {
          */
         private boolean isRunLog(String value) {
             Matcher runLogMatcher = runLogPattern.matcher(value);
-            if (!runLogMatcher.find()) {
+            if(!runLogMatcher.find()) {
                 LOGGER.info("Not a run log: {}", value);
                 return false;
             }
@@ -432,11 +437,11 @@ public class WorkflowRunLogKafkaToEs {
          */
         private void processLog(String value, Context ctx, Collector<String> out) throws Exception {
             Matcher matcher = infoMsgPattern.matcher(value);
-            if (matcher.find()) {
+            if(matcher.find()) {
                 JsonNode jsonNode = OBJECT_MAPPER.readTree(matcher.group());
 
                 // 处理不同格式的日志
-                if (!jsonNode.has("info_msg") || jsonNode.get("info_msg").isNull()) {
+                if(!jsonNode.has("info_msg") || jsonNode.get("info_msg").isNull()) {
                     processDirectFormat(jsonNode, value, ctx, out);
                 } else {
                     processStandardFormat(jsonNode, value, ctx, out);
@@ -451,7 +456,7 @@ public class WorkflowRunLogKafkaToEs {
             try {
                 WorkflowRunLog workflowRunLogNew = OBJECT_MAPPER.convertValue(jsonNode, WorkflowRunLog.class);
                 WorkflowRunLogEs logEsNew = WorkflowRunLog.transfer(workflowRunLogNew);
-                if (logEsNew != null) {
+                if(logEsNew != null) {
                     out.collect(OBJECT_MAPPER.writeValueAsString(logEsNew));
                 } else {
                     errorEvents.inc();
@@ -472,7 +477,7 @@ public class WorkflowRunLogKafkaToEs {
                 WorkflowRunLog runLog = OBJECT_MAPPER.readValue(jsonNode.get("info_msg").asText(), WorkflowRunLog.class);
                 WorkflowRunLogEs workflowRunLogEs = WorkflowRunLog.transfer(runLog);
 
-                if (workflowRunLogEs != null) {
+                if(workflowRunLogEs != null) {
                     out.collect(OBJECT_MAPPER.writeValueAsString(workflowRunLogEs));
                 } else {
                     errorEvents.inc();
@@ -527,8 +532,8 @@ public class WorkflowRunLogKafkaToEs {
         private final int keepAliveTime;
 
         public SerializableRestClientFactory(String username, String password, int elasticsearchMaxConnTotal,
-                                             int elasticsearchMaxConnPerRoute, int connectTimeout, int socketTimeout,
-                                             int keepAliveTime) {
+                int elasticsearchMaxConnPerRoute, int connectTimeout, int socketTimeout,
+                int keepAliveTime) {
             this.username = username;
             this.password = password;
             this.elasticsearchMaxConnTotal = elasticsearchMaxConnTotal;
@@ -599,6 +604,7 @@ public class WorkflowRunLogKafkaToEs {
          * 将WorkflowRunLog转换为WorkflowRunLogEs
          *
          * @param runLog 源日志对象
+         *
          * @return 转换后的ES日志对象，失败时返回null
          */
         public static WorkflowRunLogEs transfer(WorkflowRunLog runLog) {

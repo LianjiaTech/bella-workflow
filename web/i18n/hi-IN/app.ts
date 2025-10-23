@@ -67,6 +67,7 @@ const translation = {
   editAppTitle: 'ऐप जानकारी संपादित करें',
   editDone: 'ऐप जानकारी अपडेट की गई',
   editFailed: 'ऐप जानकारी अपडेट करने में विफल',
+  descriptionRequired: 'विवरण खाली नहीं हो सकता',
   emoji: {
     ok: 'ठीक है',
     cancel: 'रद्द करें',

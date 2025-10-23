@@ -67,6 +67,7 @@ const translation = {
   editAppTitle: 'Chỉnh sửa Thông tin Ứng dụng',
   editDone: 'Thông tin ứng dụng đã được cập nhật',
   editFailed: 'Không thể cập nhật thông tin ứng dụng',
+  descriptionRequired: 'Mô tả không thể để trống',
   emoji: {
     ok: 'Đồng ý',
     cancel: 'Hủy',

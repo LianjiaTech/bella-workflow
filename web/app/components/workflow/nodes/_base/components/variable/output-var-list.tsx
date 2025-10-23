@@ -96,10 +96,12 @@ const OutputVarList: FC<Props> = ({
             value={item.variable_type}
             onChange={handleVarTypeChange(index)}
           />
-          <RemoveButton
-            className='!p-2 !bg-gray-100 hover:!bg-gray-200'
-            onClick={handleVarRemove(index)}
-          />
+          {!readonly && (
+            <RemoveButton
+              className='!p-2 !bg-gray-100 hover:!bg-gray-200'
+              onClick={handleVarRemove(index)}
+            />
+          )}
         </div>
       ))}
     </div>

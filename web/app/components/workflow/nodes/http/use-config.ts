@@ -17,7 +17,8 @@ import {
 } from '@/app/components/workflow/hooks'
 
 const useConfig = (id: string, payload: HttpNodeType) => {
-  const { nodesReadOnly: readOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const readOnly = getNodesReadOnly(payload) as boolean
 
   const isChatMode = useIsChatMode()
   const defaultConfig = useStore(s => s.nodesDefaultConfigs)[payload.type]

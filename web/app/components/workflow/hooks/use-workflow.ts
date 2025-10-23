@@ -21,6 +21,7 @@ import {
   getLayoutByDagre,
 } from '../utils'
 import type {
+  CommonNodeType,
   Edge,
   Node, Role,
   ValueSelector,
@@ -588,7 +589,11 @@ export const useNodesReadOnly = () => {
   const appDetail = useAppStore(s => s.appDetail)
   const { ucid } = getUserInfo()
   const role = useStore(s => s.role)
-  const getNodesReadOnly = useCallback(() => {
+
+  const getNodesReadOnly = useCallback((nodeData?: CommonNodeType) => {
+    if (nodeData && nodeData.readOnly)
+      return nodeData.readOnly
+
     const {
       workflowRunningData,
       historyWorkflowData,

@@ -12,6 +12,7 @@ import { Theme } from '@/types/app'
 import type { ICurrentWorkspace, LangGeniusVersionResponse, UserProfileResponse } from '@/models/common'
 import MaintenanceNotice from '@/app/components/header/maintenance-notice'
 import { getSpaceCode, setSpaceCode } from '@/utils/getQueryParams'
+import type { TenantConfig } from '@/config/tenant'
 
 export type AppContextValue = {
   theme: Theme
@@ -29,6 +30,8 @@ export type AppContextValue = {
   pageContainerRef: React.RefObject<HTMLDivElement>
   langeniusVersionInfo: LangGeniusVersionResponse
   useSelector: typeof useSelector
+  tenantConfigFromStore: TenantConfig
+  setTenantConfigFromStore: React.Dispatch<React.SetStateAction<TenantConfig>>
 }
 
 const initialLangeniusVersionInfo = {
@@ -74,6 +77,21 @@ const AppContext = createContext<AppContextValue>({
   pageContainerRef: createRef(),
   langeniusVersionInfo: initialLangeniusVersionInfo,
   useSelector,
+  tenantConfigFromStore: {
+    brand: '',
+    displayName: '',
+    tenantId: '',
+    appConfig: {
+      features: {
+        workflow: {
+          initialization: {
+            showTitleDescModal: false,
+          },
+        },
+      },
+    },
+  },
+  setTenantConfigFromStore: () => { },
 })
 
 export function useSelector<T>(selector: (value: AppContextValue) => T): T {
@@ -107,6 +125,20 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
     last_login_at: '1721898072',
     last_login_ip: '0.0.0.0',
     created_at: '1721898071',
+  })
+  const [tenantConfig, setTenantConfig] = useState<TenantConfig>({
+    brand: '',
+    displayName: '',
+    tenantId: '',
+    appConfig: {
+      features: {
+        workflow: {
+          initialization: {
+            showTitleDescModal: false,
+          },
+        },
+      },
+    },
   })
   const [langeniusVersionInfo, setLangeniusVersionInfo] = useState<LangGeniusVersionResponse>(initialLangeniusVersionInfo)
   const [currentWorkspace, setCurrentWorkspace] = useState<ICurrentWorkspace>(initialWorkspaceInfo)
@@ -190,6 +222,8 @@ export const AppContextProvider: FC<AppContextProviderProps> = ({ children }) =>
       isCurrentWorkspaceOwner: true,
       isCurrentWorkspaceEditor: true,
       isCurrentWorkspaceDatasetOperator,
+      tenantConfigFromStore: tenantConfig,
+      setTenantConfigFromStore: setTenantConfig,
       // mutateCurrentWorkspace,
     }}>
       <div className='flex flex-col h-full overflow-y-auto'>

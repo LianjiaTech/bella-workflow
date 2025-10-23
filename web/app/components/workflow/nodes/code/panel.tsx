@@ -104,7 +104,7 @@ const Panel: FC<NodePanelProps<CodeNodeType>> = ({
         <Field
           title={t(`${i18nPrefix}.outputVars`)}
           operations={
-            <AddButton onClick={handleAddOutputVariable} />
+            !readOnly ? <AddButton onClick={handleAddOutputVariable} /> : undefined
           }
         >
 

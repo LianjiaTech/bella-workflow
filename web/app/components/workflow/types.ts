@@ -68,6 +68,7 @@ export type CommonNodeType<T = {}> = {
   height?: number
   error_strategy?: ErrorHandleTypeEnum
   default_value?: DefaultValueForm[]
+  readOnly?: boolean
 } & T & Partial<Pick<ToolDefaultValue, 'provider_id' | 'provider_type' | 'provider_name' | 'tool_name'>>
 
 export type CommonEdgeType = {

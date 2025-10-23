@@ -37,12 +37,15 @@ const VarReferencePicker: FC<Props> = ({
   return (
     <div className={cn(className, !readonly && 'cursor-pointer select-none')}>
       <PortalToFollowElem
-        open={open}
+        open={readonly ? false : open}
         onOpenChange={setOpen}
         placement='bottom-start'
         offset={4}
       >
-        <PortalToFollowElemTrigger onClick={() => setOpen(!open)} className='w-[120px] cursor-pointer'>
+        <PortalToFollowElemTrigger
+          onClick={() => setOpen(!open)}
+          className={cn('w-[120px]', readonly ? 'cursor-not-allowed opacity-50' : 'cursor-pointer')}
+        >
           <div className='flex items-center h-8 justify-between px-2.5 rounded-lg border-0 bg-gray-100 text-gray-900 text-[13px]'>
             <div className='capitalize grow w-0 truncate' title={value}>{value}</div>
             <RiArrowDownSLine className='shrink-0 w-3.5 h-3.5 text-gray-700' />

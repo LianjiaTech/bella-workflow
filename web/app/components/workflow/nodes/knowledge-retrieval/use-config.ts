@@ -30,7 +30,8 @@ import { ModelTypeEnum } from '@/app/components/header/account-setting/model-pro
 import type { RetrievalMode } from '@/app/components/workflow/nodes/rag/types'
 
 const useConfig = (id: string, payload: KnowledgeRetrievalNodeType) => {
-  const { nodesReadOnly: readOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const readOnly = getNodesReadOnly(payload) as boolean
   const isChatMode = useIsChatMode()
   const { getBeforeNodesInSameBranch } = useWorkflow()
   const startNode = getBeforeNodesInSameBranch(id).find(node => node.data.type === BlockEnum.Start)

@@ -16,7 +16,8 @@ import {
 } from '@/app/components/workflow/hooks'
 
 const useConfig = (id: string, payload: CodeNodeType) => {
-  const { nodesReadOnly: readOnly } = useNodesReadOnly()
+  const { getNodesReadOnly } = useNodesReadOnly()
+  const readOnly = getNodesReadOnly(payload) as boolean
 
   const appId = useAppStore.getState().appDetail?.id
 

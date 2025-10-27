@@ -40,6 +40,22 @@ const LayoutContent = ({ children }: { children: ReactNode }) => {
     setTenantId(finalTenantId)
   }, [isAppSection, pathname, router, setTenantConfigFromStore])
 
+  const receiveMessage = (event: MessageEvent) => {
+    const { payload } = event.data || {}
+    if (payload?.tenantConfig && payload.tenantConfig?.tenantId)
+      setTenantConfigFromStore(payload?.tenantConfig)
+  }
+
+  useEffect(() => {
+    if (isGlobalSection())
+      return
+    window.addEventListener('message', receiveMessage)
+
+    return () => {
+      window.removeEventListener('message', receiveMessage)
+    }
+  }, [isGlobalSection])
+
   // 根据配置确定是否展示模块
   useEffect(() => {
     const features = tenantConfigFromStore?.appConfig?.features
@@ -63,7 +79,7 @@ const LayoutContent = ({ children }: { children: ReactNode }) => {
 
     if (!enabled)
       router.replace('/404')
-  }, [pathname, tenantConfigFromStore, router, isGlobalSection, secondSeg])
+  }, [pathname, tenantConfigFromStore, router, isGlobalSection])
 
   return (
     <>

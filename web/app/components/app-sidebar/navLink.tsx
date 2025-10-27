@@ -2,14 +2,11 @@
 
 import { useSelectedLayoutSegment } from 'next/navigation'
 import Link from 'next/link'
+import type { ComponentType, SVGProps } from 'react'
+import type { RemixiconComponentType } from '@remixicon/react'
 import classNames from '@/utils/classnames'
 
-export type NavIcon = React.ComponentType<
-React.PropsWithoutRef<React.ComponentProps<'svg'>> & {
-  title?: string | undefined
-  titleId?: string | undefined
-}
->
+export type NavIcon = ComponentType<SVGProps<SVGSVGElement>> | RemixiconComponentType
 
 export type NavLinkProps = {
   name: string

@@ -36,7 +36,7 @@ export type WorkflowModule = {
   initialization: { // 目前主要用于处理bella 初始化时需要弹框填充基础进行，没有配置就不弹框
     showTitleDescModal: boolean // 默认false，根据配置的值在觉得是否弹框
     postMessage?: {
-      allowedOrigins: string[] // 白名单，必须显式声明，只配置线上即可
+      allowedOrigins: string // 指定postmessage通信域
     }
     autoPublish?: boolean // 默认false
   }

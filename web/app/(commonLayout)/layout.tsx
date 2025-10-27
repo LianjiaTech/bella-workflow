@@ -63,7 +63,23 @@ const LayoutContent = ({ children }: { children: ReactNode }) => {
 
     if (!enabled)
       router.replace('/404')
-  }, [pathname, tenantConfigFromStore, router, isGlobalSection, secondSeg])
+  }, [pathname, tenantConfigFromStore, router, isGlobalSection])
+
+  const receiveMessage = (event: MessageEvent) => {
+    const { payload } = event.data || {}
+    if (payload?.tenantConfig && payload.tenantConfig?.tenantId)
+      setTenantConfigFromStore(payload?.tenantConfig)
+  }
+
+  useEffect(() => {
+    if (isGlobalSection())
+      return
+    window.addEventListener('message', receiveMessage)
+
+    return () => {
+      window.removeEventListener('message', receiveMessage)
+    }
+  }, [isGlobalSection])
 
   return (
     <>

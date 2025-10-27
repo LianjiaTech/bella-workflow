@@ -150,11 +150,16 @@ const Workflow: FC<WorkflowProps> = memo(({
     handleCancelDebugAndPreviewPanel,
   } = useWorkflowInteractions()
 
+  const postMessageTargetOrigin = useMemo(() => {
+    const currentOrigin = tenantConfigFromStore?.appConfig?.features?.workflow?.initialization?.postMessage?.allowedOrigins
+    return currentOrigin || '*'
+  }, [tenantConfigFromStore])
+
   useEffect(() => {
     window.parent.postMessage({
       type: PostMessageType.init,
-    }, '*')
-  }, [])
+    }, postMessageTargetOrigin)
+  }, [postMessageTargetOrigin])
 
   useEffect(() => {
     if (!draftUpdatedAt)
@@ -162,16 +167,16 @@ const Workflow: FC<WorkflowProps> = memo(({
     window.parent.postMessage({
       type: PostMessageType.updateTime,
       payload: draftUpdatedAt,
-    }, '*')
-  }, [draftUpdatedAt])
+    }, postMessageTargetOrigin)
+  }, [draftUpdatedAt, postMessageTargetOrigin])
 
   useEffect(() => {
     if (!publishedAt)
       return
     window.parent.postMessage({
       type: PostMessageType.published,
-    }, '*')
-  }, [publishedAt])
+    }, postMessageTargetOrigin)
+  }, [publishedAt, postMessageTargetOrigin])
 
   const {
     setShowConfirm,

@@ -38,7 +38,7 @@ const LayoutContent = ({ children }: { children: ReactNode }) => {
       setTenantConfigFromStore(tenantDefaultConfig)
     }
     setTenantId(finalTenantId)
-  }, [isAppSection, pathname, router, setTenantConfigFromStore])
+  }, [pathname, setTenantConfigFromStore])
 
   // 根据配置确定是否展示模块
   useEffect(() => {

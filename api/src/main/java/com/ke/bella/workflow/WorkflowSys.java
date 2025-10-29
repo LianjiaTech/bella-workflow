@@ -1,5 +1,7 @@
 package com.ke.bella.workflow;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -201,5 +203,43 @@ public class WorkflowSys extends LinkedHashMap<String, Object> {
 
     public static long getMemoryUsage() {
         return Utils.getThreadAllocatedBytes(Thread.currentThread().getId());
+    }
+
+    /**
+     * 安全的URL编码方法，用于Groovy沙箱环境
+     * 使用UTF-8编码对字符串进行URL编码
+     *
+     * @param value 需要编码的字符串
+     *
+     * @return URL编码后的字符串
+     */
+    public String urlEncode(String value) {
+        if(value == null) {
+            return null;
+        }
+        try {
+            return URLEncoder.encode(value, "UTF-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new IllegalStateException("UTF-8 encoding not supported", e);
+        }
+    }
+
+    /**
+     * 安全的URL解码方法，用于Groovy沙箱环境
+     * 使用UTF-8编码对URL编码的字符串进行解码
+     *
+     * @param value 需要解码的字符串
+     *
+     * @return URL解码后的字符串
+     */
+    public String urlDecode(String value) {
+        if(value == null) {
+            return null;
+        }
+        try {
+            return URLDecoder.decode(value, "UTF-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new IllegalStateException("UTF-8 encoding not supported", e);
+        }
     }
 }

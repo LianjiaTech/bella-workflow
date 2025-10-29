@@ -1,0 +1,18 @@
+#!/bin/sh
+#
+# Pre-commit hook that performs security scanning and standard Git validations
+# This hook will run gitleaks.sh for security scanning and then perform
+# standard Git pre-commit checks.
+#
+
+# Get the project root directory
+PROJECT_ROOT=$(git rev-parse --show-toplevel)
+
+# Run gitleaks security scan first
+echo "Running security scan..."
+if ! "${PROJECT_ROOT}/gitleaks.sh"; then
+    echo "❌ Security scan failed. Commit blocked."
+    exit 1
+fi
+
+echo "✅ Security scan passed."

@@ -1,5 +1,6 @@
 'use client'
 
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   RiDatabase2Fill,
@@ -15,6 +16,10 @@ const DatasourceNav = () => {
   const firstSeg = pathname.split('/')[1] || ''
   const tenantId = firstSeg || getTenantId() || 'test'
 
+  const matchDatasourceActive = useCallback(({ pathname }: { pathname: string; segment: string | null; segments: string[] }) => {
+    return pathname.includes('/datasources')
+  }, [])
+
   return (
     <Nav
       isApp={false}
@@ -26,6 +31,7 @@ const DatasourceNav = () => {
       navs={[]}
       createText=""
       onCreate={() => {}}
+      activeMatcher={matchDatasourceActive}
     />
   )
 }

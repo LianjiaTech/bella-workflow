@@ -111,6 +111,21 @@ const AppNav = () => {
     }
   }, [appDetail, navItems])
 
+  const matchAppNavActive = useCallback(({ pathname }: { pathname: string; segment: string | null; segments: string[] }) => {
+    if (!pathname)
+      return false
+
+    const isDatasourcesRoute = pathname.includes('/datasources')
+
+    if (isDatasourcesRoute && pathname.startsWith('/apps'))
+      return false
+
+    return pathname === '/apps'
+      || pathname.startsWith('/apps/')
+      || pathname === '/app'
+      || pathname.startsWith('/app/')
+  }, [])
+
   return (
     <>
       <Nav
@@ -125,6 +140,7 @@ const AppNav = () => {
         createText={t('common.menus.newApp')}
         onCreate={openModal}
         onLoadmore={handleLoadmore}
+        activeMatcher={matchAppNavActive}
       />
       <CreateAppModal
         show={showNewAppDialog}

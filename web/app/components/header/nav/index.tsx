@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { useSelectedLayoutSegment } from 'next/navigation'
+import { usePathname, useSelectedLayoutSegment } from 'next/navigation'
 import type { INavSelectorProps } from './nav-selector'
 import NavSelector from './nav-selector'
 import classNames from '@/utils/classnames'
@@ -13,9 +13,10 @@ type INavProps = {
   icon: React.ReactNode
   activeIcon?: React.ReactNode
   text: string
-  activeSegment: string | string[]
+  activeSegment?: string | string[]
   link: string
   isApp: boolean
+  activeMatcher?: (payload: { pathname: string; segment: string | null; segments: string[] }) => boolean
 } & INavSelectorProps
 
 const Nav = ({
@@ -30,11 +31,28 @@ const Nav = ({
   onCreate,
   onLoadmore,
   isApp,
+  activeMatcher,
 }: INavProps) => {
   const setAppDetail = useAppStore(state => state.setAppDetail)
   const [hovered, setHovered] = useState(false)
   const segment = useSelectedLayoutSegment()
-  const isActived = Array.isArray(activeSegment) ? activeSegment.includes(segment!) : segment === activeSegment
+  const pathname = usePathname()
+
+  const checkActive = () => {
+    const segments = pathname.split('/').filter(Boolean)
+
+    if (activeMatcher)
+      return activeMatcher({ pathname, segment, segments })
+
+    const segmentsToMatch = (Array.isArray(activeSegment) ? activeSegment : activeSegment ? [activeSegment] : []).filter(Boolean) as string[]
+
+    if (segment && segmentsToMatch.includes(segment))
+      return true
+
+    return segmentsToMatch.some(seg => segments.includes(seg))
+  }
+
+  const isActived = checkActive()
 
   return (
     <div className={`

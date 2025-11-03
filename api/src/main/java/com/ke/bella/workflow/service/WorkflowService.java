@@ -357,6 +357,7 @@ public class WorkflowService {
                 .graph(graph)
                 .state(state)
                 .userInputs(op.getInputs())
+				.metadata(op.getMetadata())
                 .triggerFrom(wr.getTriggerFrom())
                 .triggerId(wr.getTriggerId())
                 .ctime(wr.getCtime())

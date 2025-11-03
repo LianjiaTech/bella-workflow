@@ -1,20 +1,5 @@
 package com.ke.bella.workflow;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.util.Assert;
-
 import com.ke.bella.workflow.WorkflowRunState.NodeRunResult;
 import com.ke.bella.workflow.WorkflowRunState.WorkflowRunStatus;
 import com.ke.bella.workflow.WorkflowSchema.Edge;
@@ -25,10 +10,16 @@ import com.ke.bella.workflow.node.End;
 import com.ke.bella.workflow.node.NodeType;
 import com.ke.bella.workflow.node.Start;
 import com.ke.bella.workflow.utils.Utils;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.util.Assert;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -39,11 +30,12 @@ public class WorkflowContext {
     private String workflowId;
     private String runId;
     private String triggerFrom;
-    private String triggerId;
+	private String triggerId;
     private String workflowMode;
     private WorkflowGraph graph;
     private WorkflowRunState state;
     private Map userInputs;
+	private Map metadata;
     private LocalDateTime ctime;
     private int flashMode;
     private boolean stateful;

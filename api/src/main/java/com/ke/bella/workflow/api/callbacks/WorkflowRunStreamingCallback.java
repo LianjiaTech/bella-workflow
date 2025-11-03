@@ -1,14 +1,13 @@
 package com.ke.bella.workflow.api.callbacks;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import com.ke.bella.workflow.WorkflowCallbackAdaptor;
 import com.ke.bella.workflow.WorkflowContext;
 import com.ke.bella.workflow.api.SseHelper;
 import com.ke.bella.workflow.service.WorkflowService;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class WorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
 
@@ -36,6 +35,7 @@ public class WorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         Map<String, Object> data = new LinkedHashMap<>();
         responseWorkflowInfo(context, data);
         responseWorkflowOutputs(context, data);
+		responseWorkflowMetaData(context, data);
 
         SseHelper.sendEvent(emitter, "onWorkflowRunSucceeded", data);
         emitter.complete();

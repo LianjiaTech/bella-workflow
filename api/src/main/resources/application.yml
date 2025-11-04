@@ -57,6 +57,7 @@ bella:
     trigger:
         callback-path: /v1/workflow/trigger/callback
     run-path: /v1/workflow/run
+    batch-llm-list: qwen3-32b-81ec-20250519
     sandbox:
       groovy: true
       rdbInterruptedIntervalRows: 1000
@@ -85,6 +86,7 @@ bella:
     cookie-context-path: /
   task:
     threadNums: 1000
+    batchThreadNums: 200
   api:
     tool:
       read-timeout-seconds: 60

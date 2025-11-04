@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.Maps;
 import com.ke.bella.workflow.api.WorkflowOps;
+import com.ke.bella.workflow.service.Configs;
 import com.theokanning.openai.completion.chat.*;
 import com.theokanning.openai.queue.Put;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +64,8 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             processData = fillProcessData(chatMessages);
             // if trigger from batch, then push to job-queue
             String triggerFrom = context.getTriggerFrom();
-            if(WorkflowOps.TriggerFrom.BATCH.name().equalsIgnoreCase(triggerFrom)) {
+            if(WorkflowOps.TriggerFrom.BATCH.name().equalsIgnoreCase(triggerFrom)
+                    && Configs.BATCH_LLM_LIST.contains(data.getModel().getName())) {
                 data.setWaitCallback(true);
                 return invokeLlmAsync(chatMessages, nodeInputs, context);
             }
@@ -158,7 +160,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
             }
             if(chunk.getUsage() != null) {
                 tokens = chunk.getUsage().getCompletionTokens();
-				usage = chunk.getUsage();
+                usage = chunk.getUsage();
             }
 
             if(chunk.getChoices() != null && !chunk.getChoices().isEmpty()
@@ -245,7 +247,6 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
                 .build();
     }
 
-
     @SuppressWarnings("rawtypes")
     private Map<String, Object> fetchJinjaInputs(Data data, Map variablePool) {
         HashMap<String, Object> result = new HashMap<>();
@@ -327,6 +328,7 @@ public class LlmNode extends BaseNode<LlmNode.Data> {
         private Timeout timeout = new Timeout();
         @Builder.Default
         private Authorization authorization = new Authorization();
+
         @lombok.Getter
         @lombok.Setter
         public static class Timeout {

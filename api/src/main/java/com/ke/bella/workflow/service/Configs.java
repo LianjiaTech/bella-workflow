@@ -5,6 +5,9 @@ import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 @Slf4j
 @Component
 public class Configs {
@@ -47,6 +50,8 @@ public class Configs {
     public static int INTERRUPTED_INTERVAL_ROWS = 1000;
 
     public static long HTTP_CLIENT_READ_TIMEOUT_SECONDS;
+
+    public static ArrayList BATCH_LLM_LIST = new ArrayList();
 
     @Value("${bella.toolApiEnabled}")
     public void setToolApiEnabled(boolean toolApiEnabled) {
@@ -103,6 +108,11 @@ public class Configs {
         TASK_THREAD_NUMS = taskThreadNums;
     }
 
+    @Value("${bella.task.batchThreadNums}")
+    public void setBatchTaskThreadNums(Integer batchTaskThreadNums) {
+        BATCH_TASK_THREAD_NUMS = batchTaskThreadNums;
+    }
+
     @Value("${bella.maxExeMemoryAlloc}")
     public void setMaxExeMemoryAlloc(long maxExeMemoryAlloc) {
         MAX_EXE_MEMORY_ALLOC = maxExeMemoryAlloc;
@@ -116,5 +126,14 @@ public class Configs {
     @Value("${bella.api.tool.read-timeout-seconds}")
     public void setHttpClientReadTimeoutSeconds(long httpClientReadTimeoutSeconds) {
         HTTP_CLIENT_READ_TIMEOUT_SECONDS = httpClientReadTimeoutSeconds;
+    }
+
+    @Value("${bella.workflow.batch-llm-list}")
+    public void setBatchLlmList(String batchLLMList) {
+        if(batchLLMList != null && !batchLLMList.trim().isEmpty()) {
+            BATCH_LLM_LIST = new ArrayList<>(Arrays.asList(batchLLMList.split(",")));
+        } else {
+            BATCH_LLM_LIST = new ArrayList<>();
+        }
     }
 }

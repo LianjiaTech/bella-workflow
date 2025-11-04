@@ -30,12 +30,12 @@ public class WorkflowContext {
     private String workflowId;
     private String runId;
     private String triggerFrom;
-	private String triggerId;
+    private String triggerId;
     private String workflowMode;
     private WorkflowGraph graph;
     private WorkflowRunState state;
     private Map userInputs;
-	private Map metadata;
+    private Map metadata;
     private LocalDateTime ctime;
     private int flashMode;
     private boolean stateful;

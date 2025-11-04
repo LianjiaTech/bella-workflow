@@ -2,6 +2,7 @@ import type { Viewport } from 'next'
 import I18nServer from './components/i18n-server'
 import BrowerInitor from './components/browser-initor'
 import SentryInitor from './components/sentry-initor'
+import TenantInitor from './components/tenant-initor'
 import Topbar from './components/base/topbar'
 import { getLocaleOnServer } from '@/i18n/server'
 import './styles/globals.css'
@@ -46,9 +47,11 @@ const LocaleLayout = ({
       >
         <Topbar />
         <BrowerInitor>
-          <SentryInitor>
-            <I18nServer>{children}</I18nServer>
-          </SentryInitor>
+          <TenantInitor>
+            <SentryInitor>
+              <I18nServer>{children}</I18nServer>
+            </SentryInitor>
+          </TenantInitor>
         </BrowerInitor>
       </body>
     </html>

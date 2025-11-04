@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import useSWRInfinite from 'swr/infinite'
 import { flatten } from 'lodash-es'
 import produce from 'immer'
@@ -19,6 +19,7 @@ import CreateFromDSLModal from '@/app/components/app/create-from-dsl-modal'
 import type { AppListResponse } from '@/models/app'
 import { useAppContext } from '@/context/app-context'
 import { useStore as useAppStore } from '@/app/components/app/store'
+import { extractTenantIdFromPath, getAppRoute, getAppsRoute } from '@/utils/tenant-routes'
 
 const getKey = (
   pageIndex: number,
@@ -42,6 +43,7 @@ const getKey = (
 const AppNav = () => {
   const { t } = useTranslation()
   const { appId } = useParams()
+  const pathname = usePathname()
   const { isCurrentWorkspaceEditor } = useAppContext()
   const appDetail = useAppStore(state => state.appDetail)
   const [showNewAppDialog, setShowNewAppDialog] = useState(false)
@@ -74,15 +76,16 @@ const AppNav = () => {
     if (appsData) {
       const appItems = flatten(appsData?.map(appData => appData.data))
       const navItems = appItems.map((app) => {
+        const tenantId = extractTenantIdFromPath(pathname)
         const link = ((isCurrentWorkspaceEditor, app) => {
           if (!isCurrentWorkspaceEditor) {
-            return `/app/${app.id}/overview`
+            return getAppRoute(app.id, 'overview', tenantId)
           }
           else {
             if (app.mode === 'workflow' || app.mode === 'advanced-chat')
-              return `/app/${app.id}/workflow`
+              return getAppRoute(app.id, 'workflow', tenantId)
             else
-              return `/app/${app.id}/configuration`
+              return getAppRoute(app.id, 'configuration', tenantId)
           }
         })(isCurrentWorkspaceEditor, app)
         return {
@@ -96,7 +99,7 @@ const AppNav = () => {
       })
       setNavItems(navItems)
     }
-  }, [appsData, isCurrentWorkspaceEditor, setNavItems])
+  }, [appsData, isCurrentWorkspaceEditor, pathname, setNavItems])
 
   // update current app name
   useEffect(() => {
@@ -119,7 +122,7 @@ const AppNav = () => {
         activeIcon={<RiRobot2Fill className='w-4 h-4' />}
         text={t('common.menus.apps')}
         activeSegment={['apps', 'app']}
-        link='/apps'
+        link={getAppsRoute()}
         curNav={appDetail}
         navs={navItems}
         createText={t('common.menus.newApp')}

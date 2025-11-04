@@ -50,3 +50,6 @@ package-lock.json
 pnpm-lock.yaml
 
 .favorites.json
+
+# Custom tenant configuration (private deployment only)
+config/tenant-custom.ts

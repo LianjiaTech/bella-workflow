@@ -35,9 +35,10 @@ import { fetchWorkflowDraft } from '@/service/workflow'
 export type AppCardProps = {
   app: App
   onRefresh?: () => void
+  tenantId: string
 }
 
-const AppCard = ({ app, onRefresh }: AppCardProps) => {
+const AppCard = ({ app, onRefresh, tenantId }: AppCardProps) => {
   const { t } = useTranslation()
   const { notify } = useContext(ToastContext)
   const { isCurrentWorkspaceEditor } = useAppContext()
@@ -71,7 +72,7 @@ const AppCard = ({ app, onRefresh }: AppCardProps) => {
       })
     }
     setShowConfirmDelete(false)
-  }, [app.id])
+  }, [app.id, mutateApps, notify, onPlanInfoChanged, onRefresh, t])
 
   const onEdit: CreateAppModalProps['onConfirm'] = useCallback(async ({
     name,
@@ -120,7 +121,7 @@ const AppCard = ({ app, onRefresh }: AppCardProps) => {
         onRefresh()
       mutateApps()
       onPlanInfoChanged()
-      getRedirection(isCurrentWorkspaceEditor, newApp, push)
+      getRedirection(isCurrentWorkspaceEditor, newApp, push, tenantId)
     }
     catch (e) {
       notify({ type: 'error', message: t('app.newApp.appCreateFailed') })
@@ -250,7 +251,7 @@ const AppCard = ({ app, onRefresh }: AppCardProps) => {
       <div
         onClick={(e) => {
           e.preventDefault()
-          getRedirection(isCurrentWorkspaceEditor, app, push)
+          getRedirection(isCurrentWorkspaceEditor, app, push, tenantId)
         }}
         className='group flex col-span-1 bg-white border-2 border-solid border-transparent rounded-xl shadow-sm min-h-[160px] flex flex-col transition-all duration-200 ease-in-out cursor-pointer hover:shadow-lg'
       >

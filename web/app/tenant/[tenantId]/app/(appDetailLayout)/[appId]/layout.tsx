@@ -28,6 +28,7 @@ import { fetchAppDetail } from '@/service/apps'
 import { useAppContext } from '@/context/app-context'
 import Loading from '@/app/components/base/loading'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
+import { getAppRoute, getAppsRoute } from '@/utils/tenant-routes'
 
 export type IAppDetailLayoutProps = {
   children: React.ReactNode
@@ -62,7 +63,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
       ...(isCurrentWorkspaceEditor
         ? [{
           name: t('common.appMenus.promptEng'),
-          href: `/app/${appId}/${(mode === 'workflow' || mode === 'advanced-chat') ? 'workflow' : 'configuration'}`,
+          href: getAppRoute(appId, (mode === 'workflow' || mode === 'advanced-chat') ? 'workflow' : 'configuration'),
           icon: RiTerminalWindowLine,
           selectedIcon: RiTerminalWindowFill,
         }]
@@ -70,7 +71,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
       ),
       {
         name: t('common.appMenus.apiAccess'),
-        href: `/app/${appId}/develop`,
+        href: getAppRoute(appId, 'develop'),
         icon: RiTerminalBoxLine,
         selectedIcon: RiTerminalBoxFill,
       },
@@ -79,14 +80,14 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         /* mode !== 'workflow'
           ? t('common.appMenus.logAndAnn')
           : t('common.appMenus.logs'), */
-        href: `/app/${appId}/logs`,
+        href: getAppRoute(appId, 'logs'),
         icon: RiFileList3Line,
         selectedIcon: RiFileList3Fill,
       },
       ...(mode === 'workflow'
         ? [{
           name: t('common.appMenus.trigger'),
-          href: `/app/${appId}/trigger`,
+          href: getAppRoute(appId, 'trigger'),
           icon: RiTimerFlashLine,
           selectedIcon: RiTimerFlashFill,
         }]
@@ -94,13 +95,13 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
       ),
       {
         name: t('common.appMenus.customApi'),
-        href: `/app/${appId}/customApi`,
+        href: getAppRoute(appId, 'customApi'),
         icon: RiTerminalLine,
         selectedIcon: RiTerminalFill,
       },
       {
         name: t('common.appMenus.overview'),
-        href: `/app/${appId}/overview`,
+        href: getAppRoute(appId, 'overview'),
         icon: RiDashboard2Line,
         selectedIcon: RiDashboard2Fill,
       },
@@ -125,10 +126,10 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
     fetchAppDetail({ url: '/apps', id: appId }).then((res) => {
       // redirections
       if ((res.mode === 'workflow' || res.mode === 'advanced-chat') && (pathname).endsWith('configuration')) {
-        router.replace(`/app/${appId}/workflow`)
+        router.replace(getAppRoute(appId, 'workflow'))
       }
       else if ((res.mode !== 'workflow' && res.mode !== 'advanced-chat') && (pathname).endsWith('workflow')) {
-        router.replace(`/app/${appId}/configuration`)
+        router.replace(getAppRoute(appId, 'configuration'))
       }
       else {
         setAppDetail(res)
@@ -136,7 +137,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
       }
     }).catch((e: any) => {
       if (e.status === 404)
-        router.replace('/apps')
+        router.replace(getAppsRoute())
     })
   }, [appId, isCurrentWorkspaceEditor])
 

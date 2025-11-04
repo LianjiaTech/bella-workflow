@@ -35,11 +35,16 @@ import ViewHistory from './view-history'
 import EnvButton from './env-button'
 import Button from '@/app/components/base/button'
 import { useStore as useAppStore } from '@/app/components/app/store'
-import { publishWorkflowWithReleaseDescription } from '@/service/workflow'
+import { fetchWorkflowDraft, publishWorkflowWithReleaseDescription } from '@/service/workflow'
 import { ArrowNarrowLeft } from '@/app/components/base/icons/src/vender/line/arrows'
 import { useFeatures } from '@/app/components/base/features/hooks'
 import ViewWorkflowVersionHistory from '@/app/components/workflow/header/view-workflow-version-history'
 import WorkflowVersionTitle from '@/app/components/workflow/header/workflow-version-title'
+import { useAppContext } from '@/context/app-context'
+import CreateFromDSLModal from '@/app/components/app/create-from-dsl-modal'
+import { exportAppConfig } from '@/service/apps'
+import DSLExportConfirmModal from '@/app/components/workflow/dsl-export-confirm-modal'
+import type { EnvironmentVariable } from '@/app/components/workflow/types'
 
 const Header: FC = () => {
   const { t } = useTranslation()
@@ -47,6 +52,7 @@ const Header: FC = () => {
   const showCopilotPanel = useStore(s => s.showCopilotPanel)
   const appDetail = useAppStore(s => s.appDetail)
   const appSidebarExpand = useAppStore(s => s.appSidebarExpand)
+  const { tenantConfigFromStore } = useAppContext()
   const appID = appDetail?.id
   const { getNodesReadOnly } = useNodesReadOnly()
   const publishedAt = useStore(s => s.publishedAt)
@@ -57,6 +63,9 @@ const Header: FC = () => {
   const startVariables = startNode?.data.variables
   const fileSettings = useFeatures(s => s.features.file)
   const [releaseDescription, setReleaseDescription] = useState('')
+  const [showImportDSLModal, setShowImportDSLModal] = useState(false)
+  const [showExportDSLModal, setShowExportDSLModal] = useState(false)
+  const [secretEnvList, setSecretEnvList] = useState<EnvironmentVariable[]>([])
 
   const variables = useMemo(() => {
     const data = startVariables || []
@@ -166,12 +175,195 @@ const Header: FC = () => {
     setReleaseDescription(desc)
   }, [setReleaseDescription])
 
+  const handleImportDSL = useCallback(() => {
+    setShowImportDSLModal(true)
+  }, [])
+
+  const onExportDSL = useCallback(async (includeSecrets = false) => {
+    try {
+      const { data } = await exportAppConfig({
+        appID: appID!,
+        include: includeSecrets,
+      })
+      const a = document.createElement('a')
+      const file = new Blob([data], { type: 'application/yaml' })
+      a.href = URL.createObjectURL(file)
+      a.download = `${appDetail?.name || 'workflow'}.yml`
+      a.click()
+    }
+    catch (e) {
+      notify({ type: 'error', message: t('app.exportFailed') })
+    }
+  }, [appID, appDetail?.name, notify, t])
+
+  const handleExportDSL = useCallback(async () => {
+    if (!appDetail?.mode || (appDetail.mode !== 'workflow' && appDetail.mode !== 'advanced-chat')) {
+      // 直接导出
+      await onExportDSL()
+      return
+    }
+    try {
+      const workflowDraft = await fetchWorkflowDraft(`/apps/${appID}/workflows/draft`)
+      const list = (workflowDraft.environment_variables || []).filter(env => env.value_type === 'secret')
+      if (list.length === 0) {
+        await onExportDSL()
+        return
+      }
+      setSecretEnvList(list)
+      setShowExportDSLModal(true)
+    }
+    catch (e) {
+      notify({ type: 'error', message: t('app.exportFailed') })
+    }
+  }, [appDetail?.mode, appID, notify, t, onExportDSL])
+
   const onVersionHistory = useCallback(() => {
     handleBackupDraft()
     handleNodesCancelSelected()
     handleCancelDebugAndPreviewPanel()
     workflowStore.setState({ isVersionHistory: true })
   }, [workflowStore, handleCancelDebugAndPreviewPanel, handleBackupDraft, handleNodesCancelSelected])
+
+  // 渲染租户配置的按钮
+  const renderTenantButtons = useCallback(() => {
+    const buttons = tenantConfigFromStore?.appConfig?.features?.workflow?.features?.header?.buttons || []
+
+    // 如果没有配置按钮，则使用默认按钮
+    if (buttons.length === 0) {
+      return (
+        <>
+          <EnvButton disabled={getWorkflowReadOnly()} />
+          <div className='w-[1px] h-3.5 bg-gray-200'></div>
+          <RunAndHistory />
+          <Button className='text-components-button-secondary-text px-2' onClick={handleShowCopilot}>
+            {showCopilotPanel && (
+              <RiMagicFill className='w-4 h-4 mr-1 text-components-button-secondary-text' />)
+            }
+            {!showCopilotPanel && (
+              <RiMagicLine className='w-4 h-4 mr-1 text-components-button-secondary-text' />)
+            }
+            {t('workflow.common.copilot')}
+          </Button>
+          <AppPublisher
+            {...{
+              publishedAt,
+              draftUpdatedAt,
+              disabled: Boolean(getNodesReadOnly()),
+              toolPublished,
+              inputs: variables,
+              onRefreshData: handleToolConfigureUpdate,
+              onPublish,
+              onRestore: onStartRestoring,
+              onToggle: onPublisherToggle,
+              crossAxisOffset: 4,
+              onVersionHistory,
+              releaseDescription,
+              handleDescription,
+            }}
+          />
+        </>
+      )
+    }
+
+    // 基于租户配置渲染按钮
+    const renderedButtons = []
+    let hasEnv = false
+
+    buttons.forEach((button, index) => {
+      const { id, labels, label } = button
+
+      if (id === 'env') {
+        hasEnv = true
+        renderedButtons.push(
+          <EnvButton key={id} disabled={getWorkflowReadOnly()} />,
+        )
+      }
+
+      if (id === 'runAndHistory') {
+        if (hasEnv)
+          renderedButtons.push(<div key={`divider-${index}`} className='w-[1px] h-3.5 bg-gray-200'></div>)
+
+        renderedButtons.push(
+          <RunAndHistory key={id} customLabels={labels} />,
+        )
+      }
+
+      if (id === 'copilot') {
+        renderedButtons.push(
+          <Button key={id} className='text-components-button-secondary-text px-2' onClick={handleShowCopilot}>
+            {showCopilotPanel && (
+              <RiMagicFill className='w-4 h-4 mr-1 text-components-button-secondary-text' />)
+            }
+            {!showCopilotPanel && (
+              <RiMagicLine className='w-4 h-4 mr-1 text-components-button-secondary-text' />)
+            }
+            {label || t('workflow.common.copilot')}
+          </Button>,
+        )
+      }
+
+      if (id === 'customImportDsl') {
+        renderedButtons.push(
+          <Button key={id} className='text-components-button-secondary-text px-2' onClick={handleImportDSL}>
+            {t('app.importFromDSL')}
+          </Button>,
+        )
+      }
+
+      if (id === 'customExportDsl') {
+        renderedButtons.push(
+          <Button key={id} className='text-components-button-secondary-text px-2' onClick={handleExportDSL}>
+            {t('app.export')}
+          </Button>,
+        )
+      }
+
+      if (id === 'publish') {
+        renderedButtons.push(
+          <AppPublisher
+            key={id}
+            {...{
+              publishedAt,
+              draftUpdatedAt,
+              disabled: Boolean(getNodesReadOnly()),
+              toolPublished,
+              inputs: variables,
+              onRefreshData: handleToolConfigureUpdate,
+              onPublish,
+              onRestore: onStartRestoring,
+              onToggle: onPublisherToggle,
+              crossAxisOffset: 4,
+              onVersionHistory,
+              releaseDescription,
+              handleDescription,
+            }}
+          />,
+        )
+      }
+    })
+
+    return renderedButtons
+  }, [
+    tenantConfigFromStore,
+    getWorkflowReadOnly,
+    showCopilotPanel,
+    handleShowCopilot,
+    handleImportDSL,
+    handleExportDSL,
+    publishedAt,
+    draftUpdatedAt,
+    getNodesReadOnly,
+    toolPublished,
+    variables,
+    handleToolConfigureUpdate,
+    onPublish,
+    onStartRestoring,
+    onPublisherToggle,
+    onVersionHistory,
+    releaseDescription,
+    handleDescription,
+    t,
+  ])
   return (
     <div
       className='absolute top-0 left-0 z-10 flex items-center justify-between w-full px-3 h-14'
@@ -201,39 +393,7 @@ const Header: FC = () => {
       {
         normal && (
           <div className='flex items-center gap-2'>
-            <EnvButton disabled={getWorkflowReadOnly()} />
-            <div className='w-[1px] h-3.5 bg-gray-200'></div>
-            <RunAndHistory />
-            {/* <Button className='text-components-button-secondary-text' onClick={handleShowFeatures}>
-              <RiApps2AddLine className='w-4 h-4 mr-1 text-components-button-secondary-text' />
-              {t('workflow.common.features')}
-            </Button> */}
-            <Button className='text-components-button-secondary-text px-2' onClick={handleShowCopilot}>
-              {showCopilotPanel && (
-                <RiMagicFill className='w-4 h-4 mr-1 text-components-button-secondary-text' />)
-              }
-              {!showCopilotPanel && (
-                <RiMagicLine className='w-4 h-4 mr-1 text-components-button-secondary-text' />)
-              }
-              {t('workflow.common.copilot')}
-            </Button>
-            <AppPublisher
-              {...{
-                publishedAt,
-                draftUpdatedAt,
-                disabled: Boolean(getNodesReadOnly()),
-                toolPublished,
-                inputs: variables,
-                onRefreshData: handleToolConfigureUpdate,
-                onPublish,
-                onRestore: onStartRestoring,
-                onToggle: onPublisherToggle,
-                crossAxisOffset: 4,
-                onVersionHistory,
-                releaseDescription,
-                handleDescription,
-              }}
-            />
+            {renderTenantButtons()}
           </div>
         )
       }
@@ -292,6 +452,26 @@ const Header: FC = () => {
           </div>
         )
       }
+      {showImportDSLModal && (
+        <CreateFromDSLModal
+          show={showImportDSLModal}
+          onClose={() => setShowImportDSLModal(false)}
+          onSuccess={() => {
+            setShowImportDSLModal(false)
+            // 刷新页面或应用列表
+          }}
+        />
+      )}
+      {showExportDSLModal && secretEnvList.length > 0 && (
+        <DSLExportConfirmModal
+          envList={secretEnvList}
+          onConfirm={onExportDSL}
+          onClose={() => {
+            setShowExportDSLModal(false)
+            setSecretEnvList([])
+          }}
+        />
+      )}
     </div>
   )
 }

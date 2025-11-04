@@ -68,11 +68,69 @@ export type WorkflowHeaderButtonId =
 
 export type OldWorkflowHeaderButtonId = 'exportDSL' | 'importDSL'
 
+// 动态加载自定义租户配置
+let customTenantConfigs: Record<string, TenantConfig> = {}
+let customTenantNameMappings: Record<string, string> = {}
+
+try {
+  // 尝试加载自定义配置（私有化部署时存在）
+  const customConfig = require('./tenant-custom')
+  customTenantConfigs = customConfig.CUSTOM_TENANT_CONFIGS || {}
+  customTenantNameMappings = customConfig.CUSTOM_TENANT_NAME_MAPPINGS || {}
+}
+catch (error) {
+  // 开源版本中，自定义配置文件可能不存在，这是正常的
+  console.info('Custom tenant configuration not found, using base configuration only')
+}
+
+// 基础租户配置（开源版本）
+const BASE_TENANT_CONFIGS: Record<string, TenantConfig> = {
+  // test 租户是开源版本的默认配置
+}
+
+// 合并基础配置和自定义配置
 export const TENANT_CONFIGS: Record<string, TenantConfig> = {
+  ...BASE_TENANT_CONFIGS,
+  ...customTenantConfigs,
+}
+
+// 租户名称映射（合并基础和自定义）
+export const TENANT_NAME_MAPPINGS: Record<string, string> = {
+  // 基础映射（开源版本）
+  ...customTenantNameMappings, // 自定义映射（私有化部署）
 }
 
 export class TenantConfigCenter {
   static getConfig(tenantId: string): TenantConfig {
+    // 如果是test租户，返回默认配置
+    if (tenantId === 'test') {
+      return {
+        brand: 'bella',
+        displayName: '默认租户',
+        tenantId: 'test',
+        appConfig: {
+          appHeader: {
+            showWorkspaceProvider: true,
+            showWorkroomButton: true,
+            showDataSourceButton: true,
+            showUserInfo: true,
+          },
+          appSidebar: false,
+          features: {
+            workflow: {
+              initialization: {
+                showTitleDescModal: false,
+              },
+            },
+            develop: 'default',
+            customApi: 'default',
+            logs: 'default',
+            trigger: 'default',
+          },
+        },
+      }
+    }
+
     return TENANT_CONFIGS[tenantId] || null
   }
 }

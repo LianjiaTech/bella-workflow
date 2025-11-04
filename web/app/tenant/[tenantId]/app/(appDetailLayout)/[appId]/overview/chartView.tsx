@@ -9,7 +9,7 @@ import type { Item } from '@/app/components/base/select'
 import { SimpleSelect } from '@/app/components/base/select'
 import { TIME_PERIOD_MAPPING } from '@/app/components/app/log/filter'
 import { useStore as useAppStore } from '@/app/components/app/store'
-import { useAppStatistics, useWorkflowStatistics } from '@/app/(commonLayout)/apps/hooks/useStatistics'
+import { useAppStatistics, useWorkflowStatistics } from '@/app/tenant/[tenantId]/apps/hooks/useStatistics'
 import Loading from '@/app/components/base/loading'
 
 dayjs.extend(quarterOfYear)

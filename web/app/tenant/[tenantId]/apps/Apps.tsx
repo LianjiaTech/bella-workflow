@@ -22,6 +22,7 @@ import SearchInput from '@/app/components/base/search-input'
 import { useStore as useTagStore } from '@/app/components/base/tag-management/store'
 import TagManagementModal from '@/app/components/base/tag-management'
 import TagFilter from '@/app/components/base/tag-management/filter'
+import { getDatasetsRoute } from '@/utils/tenant-routes'
 
 const getKey = (
   pageIndex: number,
@@ -46,7 +47,11 @@ const getKey = (
   return null
 }
 
-const Apps = () => {
+type AppsProps = {
+  tenantId: string
+}
+
+const Apps = ({ tenantId }: AppsProps) => {
   const { t } = useTranslation()
   const router = useRouter()
   const { isCurrentWorkspaceEditor, isCurrentWorkspaceDatasetOperator } = useAppContext()
@@ -84,12 +89,12 @@ const Apps = () => {
       localStorage.removeItem(NEED_REFRESH_APP_LIST_KEY)
       mutate()
     }
-  }, [])
+  }, [mutate, t])
 
   useEffect(() => {
     if (isCurrentWorkspaceDatasetOperator)
-      return router.replace('/datasets')
-  }, [isCurrentWorkspaceDatasetOperator])
+      return router.replace(getDatasetsRoute(undefined, tenantId))
+  }, [isCurrentWorkspaceDatasetOperator, router, tenantId])
 
   const hasMore = data?.at(-1)?.has_more ?? true
   useEffect(() => {
@@ -137,7 +142,7 @@ const Apps = () => {
         {isCurrentWorkspaceEditor
           && <NewAppCard onSuccess={mutate} />}
         {data?.map(({ data: apps }: any) => apps?.map((app: any) => (
-          <AppCard key={app.id} app={app} onRefresh={mutate} />
+          <AppCard key={app.id} app={app} onRefresh={mutate} tenantId={tenantId} />
         )))}
         <CheckModal />
       </nav>

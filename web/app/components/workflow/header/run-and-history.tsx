@@ -20,7 +20,13 @@ import {
   StopCircle,
 } from '@/app/components/base/icons/src/vender/line/mediaAndDevices'
 
-const RunMode = memo(() => {
+type CustomLabels = {
+  run?: string
+  running?: string
+  debugAndPreview?: string
+}
+
+const RunMode = memo(({ customLabels }: { customLabels?: CustomLabels }) => {
   const { t } = useTranslation()
   const { handleWorkflowStartRunInWorkflow } = useWorkflowStartRun()
   const { handleStopRun } = useWorkflowRun()
@@ -42,13 +48,13 @@ const RunMode = memo(() => {
             ? (
               <>
                 <RiLoader2Line className='mr-1 w-4 h-4 animate-spin' />
-                {t('workflow.common.running')}
+                {customLabels?.running || t('workflow.common.running')}
               </>
             )
             : (
               <>
                 <RiPlayLargeLine className='mr-1 w-4 h-4' />
-                {t('workflow.common.run')}
+                {customLabels?.run || t('workflow.common.run')}
               </>
             )
         }
@@ -68,7 +74,7 @@ const RunMode = memo(() => {
 })
 RunMode.displayName = 'RunMode'
 
-const PreviewMode = memo(() => {
+const PreviewMode = memo(({ customLabels }: { customLabels?: CustomLabels }) => {
   const { t } = useTranslation()
   const { handleWorkflowStartRunInChatflow } = useWorkflowStartRun()
 
@@ -81,23 +87,27 @@ const PreviewMode = memo(() => {
       onClick={() => handleWorkflowStartRunInChatflow()}
     >
       <RiPlayLargeLine className='mr-1 w-4 h-4' />
-      {t('workflow.common.debugAndPreview')}
+      {customLabels?.debugAndPreview || t('workflow.common.debugAndPreview')}
     </div>
   )
 })
 PreviewMode.displayName = 'PreviewMode'
 
-const RunAndHistory: FC = () => {
+type RunAndHistoryProps = {
+  customLabels?: CustomLabels
+}
+
+const RunAndHistory: FC<RunAndHistoryProps> = ({ customLabels }) => {
   const isChatMode = useIsChatMode()
   const { nodesReadOnly } = useNodesReadOnly()
 
   return (
     <div className='flex items-center px-0.5 h-8 rounded-lg border-[0.5px] border-components-button-secondary-border bg-components-button-secondary-bg shadow-xs'>
       {
-        !isChatMode && <RunMode />
+        !isChatMode && <RunMode customLabels={customLabels} />
       }
       {
-        isChatMode && <PreviewMode />
+        isChatMode && <PreviewMode customLabels={customLabels} />
       }
       <div className='mx-0.5 w-[1px] h-3.5 bg-divider-regular'></div>
       <ViewHistory />

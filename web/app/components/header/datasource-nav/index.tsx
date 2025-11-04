@@ -8,12 +8,16 @@ import {
 import { usePathname } from 'next/navigation'
 import Nav from '../nav'
 import { getTenantId } from '@/utils/getQueryParams'
+import { getDatasourcesRoute } from '@/utils/tenant-routes'
+import { TenantSessionManager } from '@/utils/tenant-session'
 
 const DatasourceNav = () => {
   const { t } = useTranslation()
   const pathname = usePathname()
-  const firstSeg = pathname.split('/')[1] || ''
-  const tenantId = firstSeg || getTenantId() || 'test'
+
+  // 从租户路径中提取tenantId
+  const tenantMatch = pathname.match(/^\/tenant\/([^\/]+)/)
+  const tenantId = tenantMatch ? tenantMatch[1] : (getTenantId() || TenantSessionManager.getCurrentTenant())
 
   return (
     <Nav
@@ -22,7 +26,7 @@ const DatasourceNav = () => {
       activeIcon={<RiDatabase2Fill className='w-4 h-4' />}
       text={t('common.menus.datasources')}
       activeSegment='datasources'
-      link={`/${tenantId}/datasources`}
+      link={getDatasourcesRoute(undefined, tenantId)}
       navs={[]}
       createText=""
       onCreate={() => {}}

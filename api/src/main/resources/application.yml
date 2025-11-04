@@ -57,7 +57,7 @@ bella:
     trigger:
         callback-path: /v1/workflow/trigger/callback
     run-path: /v1/workflow/run
-    batch-llm-list: qwen3-32b-81ec-20250519
+    batch-llm-list: your-llm-model
     sandbox:
       groovy: true
       rdbInterruptedIntervalRows: 1000

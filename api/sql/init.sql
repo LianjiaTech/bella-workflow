@@ -142,7 +142,7 @@ CREATE TABLE `workflow_run_sharding` (
   `key_time` datetime NOT NULL,
   `last_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `count` bigint unsigned NOT NULL DEFAULT '0' COMMENT '分表的记录数量',
-  `max_count` bigint unsigned NOT NULL DEFAULT '200000000' COMMENT '分表的最大记录数\n如果count>max_count， 创建新表',
+  `max_count` bigint unsigned NOT NULL DEFAULT '20000000' COMMENT '分表的最大记录数\n如果count>max_count， 创建新表',
   `ctime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `cu_name` varchar(64) NOT NULL DEFAULT '',
   `cuid` bigint NOT NULL DEFAULT '0',

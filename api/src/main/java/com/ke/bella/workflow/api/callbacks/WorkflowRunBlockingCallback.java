@@ -42,7 +42,7 @@ public class WorkflowRunBlockingCallback extends WorkflowCallbackAdaptor {
         synchronized(data) {
             responseWorkflowInfo(context, data);
             responseWorkflowOutputs(context, data);
-			responseWorkflowMetaData(context, data);
+            responseWorkflowMetaData(context, data);
         }
 
     }

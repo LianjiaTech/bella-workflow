@@ -16,9 +16,9 @@ public class WorkflowCallbackAdaptor implements IWorkflowCallback {
         data.put("meta", context.getGraph().getMeta());
     }
 
-	protected void responseWorkflowMetaData(WorkflowContext context, Map<String, Object> data) {
-		data.put("metadata", context.getMetadata());
-	}
+    protected void responseWorkflowMetaData(WorkflowContext context, Map<String, Object> data) {
+        data.put("metadata", context.getMetadata());
+    }
 
     protected void responseWorkflowOutputs(WorkflowContext context, Map<String, Object> data) {
         data.put("outputs", Optional.ofNullable(context.getWorkflowRunResult()).map(WorkflowRunState.NodeRunResult::getOutputs).orElse(null));

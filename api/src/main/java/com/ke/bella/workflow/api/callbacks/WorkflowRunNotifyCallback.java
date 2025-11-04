@@ -25,7 +25,7 @@ public class WorkflowRunNotifyCallback extends WorkflowCallbackAdaptor {
         synchronized(data) {
             responseWorkflowInfo(context, data);
             responseWorkflowOutputs(context, data);
-			responseWorkflowMetaData(context, data);
+            responseWorkflowMetaData(context, data);
         }
         TaskExecutor.submit(this::notifyClient);
 

@@ -26,7 +26,7 @@ type CustomLabels = {
   debugAndPreview?: string
 }
 
-const RunMode = memo(({ customLabels }: { customLabels?: CustomLabels }) => {
+const RunMode = memo(({ customLabels, showStopButton = true }: { customLabels?: CustomLabels; showStopButton?: boolean }) => {
   const { t } = useTranslation()
   const { handleWorkflowStartRunInWorkflow } = useWorkflowStartRun()
   const { handleStopRun } = useWorkflowRun()
@@ -60,7 +60,7 @@ const RunMode = memo(({ customLabels }: { customLabels?: CustomLabels }) => {
         }
       </div>
       {
-        isRunning && (
+        isRunning && showStopButton && (
           <div
             className='flex items-center justify-center ml-0.5 w-7 h-7 cursor-pointer hover:bg-black/5 rounded-md'
             onClick={() => handleStopRun(workflowRunningData?.task_id || '')}
@@ -94,20 +94,21 @@ const PreviewMode = memo(({ customLabels }: { customLabels?: CustomLabels }) => 
 PreviewMode.displayName = 'PreviewMode'
 
 type RunAndHistoryProps = {
-  customLabels?: CustomLabels
+  labels?: CustomLabels
+  showStopButton?: boolean
 }
 
-const RunAndHistory: FC<RunAndHistoryProps> = ({ customLabels }) => {
+const RunAndHistory: FC<RunAndHistoryProps> = ({ labels, showStopButton = true }) => {
   const isChatMode = useIsChatMode()
   const { nodesReadOnly } = useNodesReadOnly()
 
   return (
     <div className='flex items-center px-0.5 h-8 rounded-lg border-[0.5px] border-components-button-secondary-border bg-components-button-secondary-bg shadow-xs'>
       {
-        !isChatMode && <RunMode customLabels={customLabels} />
+        !isChatMode && <RunMode customLabels={labels} showStopButton={showStopButton} />
       }
       {
-        isChatMode && <PreviewMode customLabels={customLabels} />
+        isChatMode && <PreviewMode customLabels={labels} />
       }
       <div className='mx-0.5 w-[1px] h-3.5 bg-divider-regular'></div>
       <ViewHistory />

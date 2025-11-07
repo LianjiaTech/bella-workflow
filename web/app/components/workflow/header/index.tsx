@@ -2,7 +2,9 @@ import type { FC } from 'react'
 import {
   memo,
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 import { RiApps2AddLine, RiMagicFill, RiMagicLine } from '@remixicon/react'
@@ -15,14 +17,19 @@ import {
 } from '../store'
 import {
   BlockEnum,
+  HeaderButtonType,
   InputVarType,
+  WorkflowRunningStatus,
 } from '../types'
 import type { StartNodeType } from '../nodes/start/types'
 import {
-  useChecklistBeforePublish, useNodesInteractions,
+  useChecklistBeforePublish,
+  useNodesInteractions,
   useNodesReadOnly,
-  useNodesSyncDraft, useWorkflowInteractions,
-  useWorkflowMode, useWorkflowReadOnly,
+  useNodesSyncDraft,
+  useWorkflowInteractions,
+  useWorkflowMode,
+  useWorkflowReadOnly,
   useWorkflowRun,
 } from '../hooks'
 import AppPublisher from '../../app/app-publisher'
@@ -66,6 +73,8 @@ const Header: FC = () => {
   const [showImportDSLModal, setShowImportDSLModal] = useState(false)
   const [showExportDSLModal, setShowExportDSLModal] = useState(false)
   const [secretEnvList, setSecretEnvList] = useState<EnvironmentVariable[]>([])
+  const workflowRunningData = useStore(s => s.workflowRunningData)
+  const isExecutePublish = useRef<boolean>(false)
 
   const variables = useMemo(() => {
     const data = startVariables || []
@@ -137,13 +146,13 @@ const Header: FC = () => {
 
   const onPublish = useCallback(async () => {
     if (handleCheckBeforePublish()) {
-      const res = await publishWorkflowWithReleaseDescription(`/apps/${appID}/workflows/publish`, releaseDescription)
-      if (res.code === 200) {
+      const res = await publishWorkflowWithReleaseDescription(`/apps/${appID}/workflows/publish`, releaseDescription) as any
+      if (res?.code === 200) {
         notify({ type: 'success', message: t('common.api.actionSuccess') })
         workflowStore.getState().setPublishedAt(res.created_at)
       }
       else {
-        notify({ type: 'error', message: t(res.message) })
+        notify({ type: 'error', message: t(res?.message) })
       }
     }
     else {
@@ -161,6 +170,22 @@ const Header: FC = () => {
     if (state)
       handleSyncWorkflowDraft(true)
   }, [handleSyncWorkflowDraft])
+
+  // 自动发布逻辑
+  useEffect(() => {
+    if (!tenantConfigFromStore?.appConfig?.features?.workflow?.initialization?.autoPublish)
+      return
+
+    if (workflowRunningData?.result.status === WorkflowRunningStatus.Running)
+      isExecutePublish.current = true
+
+    if (workflowRunningData?.result.status === WorkflowRunningStatus.Succeeded && isExecutePublish.current) {
+      // 发布
+      onPublish()
+      // 每次运行后只执行1次发布
+      isExecutePublish.current = false
+    }
+  }, [workflowRunningData?.result.status, onPublish, tenantConfigFromStore])
 
   const handleGoBackToEdit = useCallback(() => {
     handleLoadBackupDraft()
@@ -224,6 +249,26 @@ const Header: FC = () => {
     workflowStore.setState({ isVersionHistory: true })
   }, [workflowStore, handleCancelDebugAndPreviewPanel, handleBackupDraft, handleNodesCancelSelected])
 
+  // 获取按钮权限
+  const getButtonPermissions = useCallback((targetButton: string) => {
+    const buttonsConfig = tenantConfigFromStore?.appConfig?.features?.workflow?.features?.header?.buttons || []
+    const index = buttonsConfig.findIndex(button => button.id === targetButton)
+    return index !== -1
+  }, [tenantConfigFromStore])
+
+  // 获取按钮标签
+  const getButtonLabel = useCallback((targetButton: string, type: 'label' | 'labels' = 'label') => {
+    const buttonsConfig = tenantConfigFromStore?.appConfig?.features?.workflow?.features?.header?.buttons || []
+    const index = buttonsConfig.findIndex(button => button.id === targetButton)
+    if (index !== -1) {
+      if (type === 'label')
+        return buttonsConfig[index]?.label || ''
+      else
+        return buttonsConfig[index]?.labels || {}
+    }
+    return type === 'label' ? '' : {}
+  }, [tenantConfigFromStore])
+
   // 渲染租户配置的按钮
   const renderTenantButtons = useCallback(() => {
     const buttons = tenantConfigFromStore?.appConfig?.features?.workflow?.features?.header?.buttons || []
@@ -272,23 +317,25 @@ const Header: FC = () => {
     buttons.forEach((button, index) => {
       const { id, labels, label } = button
 
-      if (id === 'env') {
+      if (id === HeaderButtonType.env) {
         hasEnv = true
         renderedButtons.push(
           <EnvButton key={id} disabled={getWorkflowReadOnly()} />,
         )
       }
 
-      if (id === 'runAndHistory') {
+      if (id === HeaderButtonType.runAndHistory) {
         if (hasEnv)
           renderedButtons.push(<div key={`divider-${index}`} className='w-[1px] h-3.5 bg-gray-200'></div>)
 
+        const showStopButton = button.showStopButton === undefined ? true : button.showStopButton
+
         renderedButtons.push(
-          <RunAndHistory key={id} customLabels={labels} />,
+          <RunAndHistory key={id} labels={labels} showStopButton={showStopButton} />,
         )
       }
 
-      if (id === 'copilot') {
+      if (id === HeaderButtonType.copilot) {
         renderedButtons.push(
           <Button key={id} className='text-components-button-secondary-text px-2' onClick={handleShowCopilot}>
             {showCopilotPanel && (
@@ -302,23 +349,23 @@ const Header: FC = () => {
         )
       }
 
-      if (id === 'customImportDsl') {
+      if (id === HeaderButtonType.customImportDsl) {
         renderedButtons.push(
-          <Button key={id} className='text-components-button-secondary-text px-2' onClick={handleImportDSL}>
-            {t('app.importFromDSL')}
+          <Button key={id} variant='secondary' className='pl-3 pr-2' onClick={handleImportDSL}>
+            {label || t('workflow.common.importDSL')}
           </Button>,
         )
       }
 
-      if (id === 'customExportDsl') {
+      if (id === HeaderButtonType.customExportDsl) {
         renderedButtons.push(
-          <Button key={id} className='text-components-button-secondary-text px-2' onClick={handleExportDSL}>
-            {t('app.export')}
+          <Button key={id} variant='secondary' className='pl-3 pr-2' onClick={handleExportDSL}>
+            {label || t('app.export')}
           </Button>,
         )
       }
 
-      if (id === 'publish') {
+      if (id === HeaderButtonType.publish) {
         renderedButtons.push(
           <AppPublisher
             key={id}
@@ -336,6 +383,7 @@ const Header: FC = () => {
               onVersionHistory,
               releaseDescription,
               handleDescription,
+              label: label as string,
             }}
           />,
         )
@@ -387,7 +435,7 @@ const Header: FC = () => {
           restoring && <RestoringTitle />
         }
         {
-          versionHistory && <WorkflowVersionTitle />
+          versionHistory && getButtonPermissions(HeaderButtonType.publish) && <WorkflowVersionTitle />
         }
       </div>
       {
@@ -437,7 +485,7 @@ const Header: FC = () => {
         )
       }
       {
-        versionHistory && (
+        (versionHistory && getButtonPermissions(HeaderButtonType.publish)) && (
           <div className='flex items-center'>
             <ViewWorkflowVersionHistory withText handleGoBackToEdit={handleGoBackToEdit} />
             <div className='mx-2 w-[1px] h-3.5 bg-gray-200'></div>

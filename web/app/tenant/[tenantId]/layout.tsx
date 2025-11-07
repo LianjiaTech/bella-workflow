@@ -78,7 +78,8 @@ const LayoutContent = ({ children, tenantId }: { children: ReactNode; tenantId: 
   }
 
   useEffect(() => {
-    if (isGlobalSection())
+    // 只有应用相关页面需要监听postMessage
+    if (!isAppSection())
       return
 
     window.addEventListener('message', receiveMessage)
@@ -86,11 +87,11 @@ const LayoutContent = ({ children, tenantId }: { children: ReactNode; tenantId: 
     return () => {
       window.removeEventListener('message', receiveMessage)
     }
-  }, [isGlobalSection])
+  }, [isAppSection, receiveMessage])
 
   return (
     <>
-      {(tenantConfigFromStore?.appConfig?.appHeader || isGlobalSection())
+      {tenantConfigFromStore?.appConfig?.appHeader
         && (
           <HeaderWrapper>
             <Header />

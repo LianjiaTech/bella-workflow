@@ -56,6 +56,7 @@ export type WorkflowHeaderButton = {
   labels?: {
     [state: string]: string
   }
+  showStopButton?: boolean // 是否显示停止按钮，仅对 runAndHistory 按钮生效
 }
 
 export type WorkflowHeaderButtonId =
@@ -115,7 +116,7 @@ export class TenantConfigCenter {
             showDataSourceButton: true,
             showUserInfo: true,
           },
-          appSidebar: false,
+          appSidebar: true,
           features: {
             workflow: {
               initialization: {

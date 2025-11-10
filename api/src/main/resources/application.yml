@@ -50,6 +50,7 @@ bella:
   openApiKey: ${BELLA_OPENAPI_KEY:}
   toolApiBase: ${BELLA_TOOL_API_BASE:http://localhost}
   datasetApiBase: ${BELLA_DATASET_API_BASE:http://localhost}
+  toolMcpBase: ${BELLA_MCP_API_BASE:http://localhost}
   codeSandboxApiBase: ${BELLA_CODE_SANDBOX_API_BASE:http://localhost:${CODE_SANDBOX_PORT:8090}}
   maxExeMemoryAlloc: ${BELLA_MAX_EX_MEMORY_ALLOC:209715200}
   workflow:

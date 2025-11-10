@@ -152,6 +152,8 @@ type Shape = {
   setShowImportDSLModal: (showImportDSLModal: boolean) => void
   conversationVariables: ConversationVariable[]
   setConversationVariables: (conversationVariables: ConversationVariable[]) => void
+  mcpTools: ToolWithProvider[]
+  setMcpTools: (tools: ToolWithProvider[]) => void
 }
 
 export const createWorkflowStore = () => {

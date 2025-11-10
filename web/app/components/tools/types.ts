@@ -28,6 +28,7 @@ export enum CollectionType {
   custom = 'api',
   model = 'model',
   workflow = 'workflow',
+  mcp = 'mcp',
 }
 
 export type Emoji = {

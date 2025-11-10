@@ -38,6 +38,7 @@ const useConfig = (id: string, payload: ToolNodeType) => {
   const buildInTools = useStore(s => s.buildInTools)
   const customTools = useStore(s => s.customTools)
   const workflowTools = useStore(s => s.workflowTools)
+  const mcpTools = useStore(s => s.mcpTools)
 
   const currentTools = (() => {
     switch (provider_type) {
@@ -47,6 +48,8 @@ const useConfig = (id: string, payload: ToolNodeType) => {
         return customTools
       case CollectionType.workflow:
         return workflowTools
+      case CollectionType.mcp:
+        return mcpTools || []
       default:
         return []
     }

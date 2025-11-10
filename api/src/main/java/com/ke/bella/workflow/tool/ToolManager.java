@@ -50,4 +50,12 @@ public class ToolManager {
         key = StringUtils.isEmpty(key) ? "Authorization" : key;
         return new Credentials(credential.getAuthType(), credential.getPrefix(), key, apiKey, secret);
     }
+
+	public static McpTool getMcpTool(String serverId, String toolName) {
+		BellaToolService.McpServerConfig serverConfig = BellaToolService.getMcpServerConfig(serverId);
+		if(null == serverConfig) {
+			throw new IllegalArgumentException("MCP Server not found: " + serverId);
+		}
+		return new McpTool(serverConfig, toolName);
+	}
 }

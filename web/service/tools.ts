@@ -116,6 +116,10 @@ export const fetchAllWorkflowTools = () => {
   return [] // get<ToolWithProvider[]>('/workspaces/current/tools/workflow')
 }
 
+export const fetchAllMcpTools = () => {
+  return get<ToolWithProvider[]>('/workspaces/current/tools/mcp')
+}
+
 export const fetchLabelList = () => {
   return get<Label[]>('/workspaces/current/tool-labels')
 }

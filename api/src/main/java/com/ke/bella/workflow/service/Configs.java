@@ -48,6 +48,8 @@ public class Configs {
 
     public static long HTTP_CLIENT_READ_TIMEOUT_SECONDS;
 
+	public static String BELLA_MCP_API_BASE;
+
     @Value("${bella.toolApiEnabled}")
     public void setToolApiEnabled(boolean toolApiEnabled) {
         TOOL_API_ENABLED = toolApiEnabled;
@@ -117,4 +119,9 @@ public class Configs {
     public void setHttpClientReadTimeoutSeconds(long httpClientReadTimeoutSeconds) {
         HTTP_CLIENT_READ_TIMEOUT_SECONDS = httpClientReadTimeoutSeconds;
     }
+
+	@Value("${bella.toolMcpBase}")
+	public void setToolMcpBase(String bellaToolApiBase) {
+		BELLA_MCP_API_BASE = bellaToolApiBase;
+	}
 }

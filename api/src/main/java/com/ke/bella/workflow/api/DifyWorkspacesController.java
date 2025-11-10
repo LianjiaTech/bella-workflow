@@ -1,12 +1,9 @@
 package com.ke.bella.workflow.api;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.ke.bella.workflow.tool.McpTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -117,6 +114,26 @@ public class DifyWorkspacesController {
         return allToolCollects.stream().map(this::transfer).collect(Collectors.toList());
     }
 
+	@GetMapping("/current/tools/mcp")
+	public List<DifyApiToolProvider> mcpTools() {
+		// currently scroll to search all bella api tools
+		List<BellaToolService.MCPToolProvider> allToolCollects = Lists.newArrayList();
+		int pageNo = 1;
+		int pageSize = 1000;
+		int totalPages = 1;
+		while (pageNo <= totalPages) {
+			BellaToolService.BellaToolMarketPage<BellaToolService.MCPToolProvider> page = BellaToolService.listMCPToolProviders(
+				pageNo, pageSize);
+			if(CollectionUtils.isEmpty(page.getList())) {
+				break;
+			}
+			allToolCollects.addAll(page.getList());
+			totalPages = (int) Math.ceil((double) page.getTotal() / pageSize);
+			pageNo++;
+		}
+		return allToolCollects.stream().map(this::transfer).collect(Collectors.toList());
+	}
+
     private DifyApiToolProvider transfer(ToolCollect toolCollect) {
         List<ApiTool.ToolBundle> toolBundles = OpenapiUtil.parseOpenapiToToolBundle(toolCollect.getToolSchema());
 
@@ -138,6 +155,7 @@ public class DifyWorkspacesController {
                 .label(DifyApiToolProvider.I18nObject.defaultI18nObject(toolCollect.getToolCollectName()))
                 .type(DifyApiToolProvider.ToolProviderType.api)
                 .tools(validTools)
+				.icon(new DifyApiToolProvider.Icon())
                 .build();
     }
 
@@ -171,6 +189,112 @@ public class DifyWorkspacesController {
                 .build();
     }
 
+	private DifyApiToolProvider transfer(BellaToolService.MCPToolProvider mcpToolProvider) {
+		List<DifyApiToolProvider.Tool> validTools = new ArrayList<>();
+		for (BellaToolService.BellaMcpTool tool : mcpToolProvider.getTools()) {
+			if (tool.getInputSchema() == null) {
+				continue;
+			}
+			try {
+
+				List<DifyApiToolProvider.Parameter> parameters = convertMcpSchemaToParameter(tool.getInputSchema());
+				DifyApiToolProvider.Tool transferdTool = DifyApiToolProvider.Tool.builder().
+					author(mcpToolProvider.getMaintainerName()).
+					name(tool.getName()).
+					label(DifyApiToolProvider.I18nObject.builder()
+						.zh_Hans(tool.getName()).build()).
+					description(DifyApiToolProvider.I18nObject.builder()
+						.zh_Hans(tool.getDescription()).build()).
+					parameters(parameters).build();
+				validTools.add(transferdTool);
+			} catch (IllegalArgumentException e) {
+				LOGGER.info("invalid tool, ignore tool: {}, e: {}", tool.getName(), Throwables.getStackTraceAsString(e));
+			}
+		}
+		return DifyApiToolProvider.builder()
+			.id(mcpToolProvider.getId())
+			.author(mcpToolProvider.getMaintainerName())
+			.name(mcpToolProvider.getServerName())
+			.description(DifyApiToolProvider.I18nObject.defaultI18nObject(mcpToolProvider.getDescription()))
+			.label(DifyApiToolProvider.I18nObject.defaultI18nObject(mcpToolProvider.getServerName()))
+			.type(DifyApiToolProvider.ToolProviderType.mcp)
+			.icon(mcpToolProvider.getIcon())
+			.tools(validTools)
+			.build();
+	}
+
+	public List<DifyApiToolProvider.Parameter> convertMcpSchemaToParameter(Map<String, Object> schema) {
+		if (schema == null) {
+			return Collections.emptyList();
+		}
+
+		if ("object".equals(schema.get("type")) && schema.containsKey("properties")) {
+			//noinspection unchecked
+			Map<String, Object> properties = (Map<String, Object>) schema.get("properties");
+			//noinspection unchecked
+			List<String> required = (List<String>) schema.getOrDefault("required", Collections.emptyList());
+			return processProperties(properties, required);
+		}
+
+		return Collections.emptyList();
+	}
+
+	private List<DifyApiToolProvider.Parameter> processProperties(Map<String, Object> props, List<String> required) {
+		Map<String, String> typeMapping = new HashMap<>();
+		typeMapping.put("integer", "number");
+		typeMapping.put("float", "number");
+
+		Set<String> complexTypes = new HashSet<>(Arrays.asList("array", "object"));
+
+		List<DifyApiToolProvider.Parameter> parameters = new ArrayList<>();
+
+		for (Map.Entry<String, Object> entry : props.entrySet()) {
+			String name = entry.getKey();
+			//noinspection unchecked
+			Map<String, Object> prop = (Map<String, Object>) entry.getValue();
+
+			String description = (String) prop.getOrDefault("description", "");
+//			Object typeObj = prop.get("type");
+			Object propType = prop.getOrDefault("type", "string");
+
+			if (propType instanceof List) {
+				propType = ((List<?>) propType).get(0).toString();
+			}
+			if (typeMapping.containsKey((String) propType)) {
+				propType = typeMapping.get((String) propType);
+			}
+
+			if (typeMapping.containsKey(propType)) {
+				propType = typeMapping.get(propType);
+			}
+
+			Map<String, Object> inputSchema = complexTypes.contains(propType) ? prop : null;
+			boolean isRequired = required.contains(name);
+
+			parameters.add(createParameter(name, description, (String) propType, isRequired, inputSchema));
+		}
+
+		return parameters;
+	}
+
+	private DifyApiToolProvider.Parameter createParameter(String name, String description, String paramType,
+										  boolean required, Map<String, Object> inputSchema) {
+		DifyApiToolProvider.Parameter parameter = new DifyApiToolProvider.Parameter();
+		parameter.setName(name);
+		parameter.setLlm_description(description);
+		parameter.setHuman_description(DifyApiToolProvider.I18nObject.defaultI18nObject(description));
+		parameter.setLabel(DifyApiToolProvider.I18nObject.defaultI18nObject(parameter.getName()));
+
+		parameter.setForm("llm");
+		parameter.setRequired(required);
+		parameter.setType(paramType);
+		if (inputSchema != null) {
+			parameter.setInput_schema(inputSchema);
+		}
+
+		return parameter;
+	}
+
     @AllArgsConstructor
     @NoArgsConstructor
     @SuperBuilder(toBuilder = true)
@@ -181,8 +305,7 @@ public class DifyWorkspacesController {
         private String author;
         private String name;
         private I18nObject description;
-        @Builder.Default
-        private Icon icon = new Icon();
+        private Object icon;
         private I18nObject label;
         private ToolProviderType type;
         private Map masked_credentials;
@@ -195,7 +318,8 @@ public class DifyWorkspacesController {
         private List<String> labels;
 
         public enum ToolProviderType {
-            api
+            api,
+			mcp
         }
 
         @Data
@@ -250,6 +374,7 @@ public class DifyWorkspacesController {
             private Object min;
             private Object max;
             private ParameterOption options;
+			private Map<String, Object> input_schema;
 
             @AllArgsConstructor
             @NoArgsConstructor

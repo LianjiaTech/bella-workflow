@@ -1,9 +1,6 @@
 package com.ke.bella.workflow.node;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.ke.bella.workflow.IWorkflowCallback;
@@ -13,6 +10,7 @@ import com.ke.bella.workflow.WorkflowRunState;
 import com.ke.bella.workflow.WorkflowSchema;
 import com.ke.bella.workflow.node.BaseNode.BaseNodeData;
 import com.ke.bella.workflow.tool.ApiTool;
+import com.ke.bella.workflow.tool.McpTool;
 import com.ke.bella.workflow.tool.ToolManager;
 import com.ke.bella.workflow.utils.JsonUtils;
 
@@ -33,8 +31,17 @@ public class ToolNode extends BaseNode<ToolNode.Data> {
         try {
             params = generateParameters(data.getToolParameters(), context.getState().getVariablePool());
 
-            ApiTool apiTool = ToolManager.getApiTool(data.getToolName());
-            String response = apiTool.execute(params);
+			String providerType = data.getProviderType();
+
+			String response = null;
+			if("mcp".equalsIgnoreCase(providerType)) {
+				McpTool mcpTool = ToolManager.getMcpTool(data.getProviderId(), data.getToolName());
+				response = mcpTool.execute(params);
+			} else {
+				ApiTool apiTool = ToolManager.getApiTool(data.getToolName());
+				response = apiTool.execute(params);
+			}
+
             Map outputs = new HashMap();
             // TODO: support files
             if(Objects.nonNull(data.getResult()) && "json".equals(data.getResult().getType())) {

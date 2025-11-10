@@ -58,6 +58,30 @@ public class BellaToolService {
                 });
     }
 
+	public static BellaToolMarketPage<MCPToolProvider> listMCPToolProviders(Integer pageNo, Integer pageSize) {
+		if(!Configs.TOOL_API_ENABLED) {
+			return new BellaToolMarketPage<>(0, pageSize, pageNo, Collections.emptyList());
+		}
+		Map<String, String> params = new HashMap<>();
+		params.put("pageNo", String.valueOf(pageNo));
+		params.put("pageSize", String.valueOf(pageSize));
+		params.put("spaceCode", "G540");
+
+		String toolListUrl = Configs.BELLA_MCP_API_BASE + "/external/api/workflow/server/list";
+		return get(
+			toolListUrl, params, new TypeReference<BellaToolMarketResp<BellaToolMarketPage<MCPToolProvider>>>() {
+			});
+	}
+
+	public static McpServerConfig getMcpServerConfig(String serverId) {
+		if (!Configs.TOOL_API_ENABLED) {
+			return null;
+		}
+		ImmutableMap<String, String> param = ImmutableMap.of("mcpServerId", serverId, "spaceCode", "G540");
+		return get(Configs.BELLA_MCP_API_BASE + "/external/api/workflow/server/link", param, new TypeReference<BellaToolMarketResp<McpServerConfig>>() {
+		});
+	}
+
     private static <T> T get(String url, Map<String, String> params, TypeReference<BellaToolMarketResp<T>> typeReference) {
         BellaToolMarketResp<T> resp = HttpUtils.get(url, params, typeReference);
         if(!resp.getErrno().equals(SUCCESS_ERROR_NO)) {
@@ -161,4 +185,39 @@ public class BellaToolService {
             }
         }
     }
+
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Builder
+	@Data
+	public static class MCPToolProvider {
+		private String id;
+		private String serverCode;
+		private String serverName;
+		private String description;
+		private String maintainerName;
+		private String maintainerCode;
+		private String icon;
+		private List<BellaMcpTool> tools;
+	}
+
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Builder
+	@Data
+	public static class BellaMcpTool {
+		private String name;
+		private String description;
+		private Map<String, Object> inputSchema;
+	}
+
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Builder
+	@Data
+	public static class McpServerConfig {
+		private String type;
+		private String url;
+		private Map<String, String> headers;
+	}
 }

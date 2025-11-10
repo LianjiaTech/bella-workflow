@@ -56,6 +56,7 @@ import type { FetchWorkflowDraftResponse } from '@/types/workflow'
 import {
   fetchAllBuiltInTools,
   fetchAllCustomTools,
+  fetchAllMcpTools,
   fetchAllWorkflowTools,
 } from '@/service/tools'
 import I18n from '@/context/i18n'
@@ -452,6 +453,14 @@ export const useFetchToolsData = () => {
         workflowTools: workflowTools || [],
       })
     }
+
+    if (type === 'mcp') {
+      const mcpTools = await fetchAllMcpTools()
+
+      workflowStore.setState({
+        mcpTools: mcpTools || [],
+      })
+    }
   }, [workflowStore])
 
   return {
@@ -541,6 +550,7 @@ export const useWorkflowInit = () => {
     handleFetchAllTools('builtin')
     handleFetchAllTools('custom')
     handleFetchAllTools('workflow')
+    handleFetchAllTools('mcp')
   }, [handleFetchPreloadData, handleFetchAllTools])
 
   useEffect(() => {
@@ -614,6 +624,7 @@ export const useToolIcon = (data: Node['data']) => {
   const buildInTools = useStore(s => s.buildInTools)
   const customTools = useStore(s => s.customTools)
   const workflowTools = useStore(s => s.workflowTools)
+  const mcpTools = useStore(s => s.mcpTools)
   const toolIcon = useMemo(() => {
     if (data.type === BlockEnum.Tool) {
       let targetTools = buildInTools
@@ -621,11 +632,13 @@ export const useToolIcon = (data: Node['data']) => {
         targetTools = buildInTools
       else if (data.provider_type === CollectionType.custom)
         targetTools = customTools
-      else
+      else if (data.provider_type === CollectionType.workflow)
         targetTools = workflowTools
+      else
+        targetTools = mcpTools || []
       return targetTools.find(toolWithProvider => toolWithProvider.id === data.provider_id)?.icon
     }
-  }, [data, buildInTools, customTools, workflowTools])
+  }, [data, buildInTools, customTools, workflowTools, mcpTools])
 
   return toolIcon
 }

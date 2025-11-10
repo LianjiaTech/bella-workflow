@@ -65,7 +65,7 @@ public class BellaToolService {
 		Map<String, String> params = new HashMap<>();
 		params.put("pageNo", String.valueOf(pageNo));
 		params.put("pageSize", String.valueOf(pageSize));
-		params.put("spaceCode", "G540");
+		params.put("spaceCode", BellaContext.getOperator().getSpaceCode());
 
 		String toolListUrl = Configs.BELLA_MCP_API_BASE + "/external/api/workflow/server/list";
 		return get(
@@ -77,7 +77,7 @@ public class BellaToolService {
 		if (!Configs.TOOL_API_ENABLED) {
 			return null;
 		}
-		ImmutableMap<String, String> param = ImmutableMap.of("mcpServerId", serverId, "spaceCode", "G540");
+		ImmutableMap<String, String> param = ImmutableMap.of("mcpServerId", serverId, "spaceCode", BellaContext.getOperator().getSpaceCode());
 		return get(Configs.BELLA_MCP_API_BASE + "/external/api/workflow/server/link", param, new TypeReference<BellaToolMarketResp<McpServerConfig>>() {
 		});
 	}

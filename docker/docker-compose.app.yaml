@@ -60,6 +60,7 @@ services:
       - BELLA_TOOL_API_BASE=${BELLA_TOOL_API_BASE:-http://localhost}
       - BELLA_DATASET_API_BASE=${BELLA_DATASET_API_BASE:-http://localhost}
       - BELLA_WORKFLOW_BACKEND_OUTER_URL=${BELLA_WORKFLOW_BACKEND_OUTER_URL:-http://localhost:${API_PORT:-8080}}
+      - BELLA_MCP_API_BASE=${BELLA_MCP_API_BASE:-http://localhost}
       
       # 应用配置
       - BELLA_WORKFLOW_DOMAIN=${BELLA_WORKFLOW_BACKEND_OUTER_URL:-http://localhost:${API_PORT:-8080}}

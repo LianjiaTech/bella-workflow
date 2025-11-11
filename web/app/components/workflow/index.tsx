@@ -35,7 +35,7 @@ import type {
   EnvironmentVariable,
   Node,
 } from './types'
-import { SupportUploadFileTypes } from './types'
+import { PostMessageType, ReceiveMessageType, SupportUploadFileTypes } from './types'
 import { WorkflowContextProvider } from './context'
 import {
   useDSL,
@@ -47,6 +47,7 @@ import {
   useSelectionInteractions,
   useWorkflow,
   useWorkflowInit,
+  useWorkflowInteractions,
   useWorkflowReadOnly,
   useWorkflowStartRun,
   useWorkflowUpdate,
@@ -84,6 +85,7 @@ import {
   WORKFLOW_DATA_UPDATE,
 } from './constants'
 import { WorkflowHistoryProvider, useWorkflowHistoryStore } from './workflow-history-store'
+import { hasEditPermission } from './hooks/use-workflow'
 import Loading from '@/app/components/base/loading'
 import { FeaturesProvider } from '@/app/components/base/features'
 import type { Features as FeaturesData } from '@/app/components/base/features/types'
@@ -92,6 +94,9 @@ import { useEventEmitterContextContext } from '@/context/event-emitter'
 import Confirm from '@/app/components/base/confirm/common'
 import { TransferMethod } from '@/types/app'
 import { fetchFileUploadConfig } from '@/service/common'
+import { useAppContext } from '@/context/app-context'
+import { getUserInfo } from '@/utils/getQueryParams'
+import { useStore as useAppStore } from '@/app/components/app/store'
 
 const nodeTypes = {
   [CUSTOM_NODE]: CustomNode,
@@ -122,6 +127,20 @@ const Workflow: FC<WorkflowProps> = memo(({
   const nodeAnimation = useStore(s => s.nodeAnimation)
   const showConfirm = useStore(s => s.showConfirm)
   const showImportDSLModal = useStore(s => s.showImportDSLModal)
+  const draftUpdatedAt = useStore(state => state.draftUpdatedAt)
+  const publishedAt = useStore(state => state.publishedAt)
+  const role = useStore(state => state.role)
+  const candidateNode = useStore(s => s.candidateNode)
+  const appDetail = useAppStore(state => state.appDetail)
+  const { ucid } = getUserInfo()
+  const { tenantConfigFromStore } = useAppContext()
+
+  const {
+    handleNodesCancelSelected,
+  } = useNodesInteractions()
+  const {
+    handleCancelDebugAndPreviewPanel,
+  } = useWorkflowInteractions()
 
   const {
     setShowConfirm,
@@ -160,7 +179,7 @@ const Workflow: FC<WorkflowProps> = memo(({
 
       setEnvironmentVariables(v.payload.environment_variables)
 
-      setTimeout(() => setControlPromptEditorRerenderKey(Date.now()))
+      setTimeout(() => setControlPromptEditorRerenderKey(Date.now()), 0)
     }
     if (v.type === DSL_EXPORT_CHECK)
       setSecretEnvList(v.payload.data as EnvironmentVariable[])
@@ -178,9 +197,80 @@ const Workflow: FC<WorkflowProps> = memo(({
     return () => {
       handleSyncWorkflowDraft(true, true)
     }
-  }, [])
+  }, [handleSyncWorkflowDraft])
 
   const { handleRefreshWorkflowDraft } = useWorkflowUpdate()
+
+  // PostMessage 目标域名配置
+  const postMessageTargetOrigin = useMemo(() => {
+    const currentOrigin = tenantConfigFromStore?.appConfig?.features?.workflow?.initialization?.postMessage?.allowedOrigins
+    return currentOrigin || '*'
+  }, [tenantConfigFromStore])
+
+  // 发送初始化消息
+  useEffect(() => {
+    window.parent.postMessage({
+      type: PostMessageType.init,
+    }, postMessageTargetOrigin)
+  }, [postMessageTargetOrigin])
+
+  // 发送更新时间消息
+  useEffect(() => {
+    if (!draftUpdatedAt)
+      return
+    window.parent.postMessage({
+      type: PostMessageType.updateTime,
+      payload: draftUpdatedAt,
+    }, postMessageTargetOrigin)
+  }, [draftUpdatedAt, postMessageTargetOrigin])
+
+  // 发送发布消息
+  useEffect(() => {
+    if (!publishedAt)
+      return
+    window.parent.postMessage({
+      type: PostMessageType.published,
+    }, postMessageTargetOrigin)
+  }, [publishedAt, postMessageTargetOrigin])
+
+  // 历史状态设置
+  const store = useStoreApi()
+  const handleSetGraphState = useCallback((workflow: any) => {
+    const { setEdges, setNodes } = store.getState()
+    workflowStore.setState({ historyWorkflowVersion: workflow })
+    if (!workflow)
+      return
+    setEdges(workflow.graph.edges)
+    setNodes(workflow.graph.nodes)
+  }, [store, workflowStore])
+
+  // 接收消息处理
+  const receiveMessage = useCallback((event: MessageEvent) => {
+    const { type, payload } = event.data || {}
+    console.log('workflow receiveMessage', event.data)
+
+    if (type === ReceiveMessageType.rollback)
+      handleRefreshWorkflowDraft()
+
+    if (type === ReceiveMessageType.viewHistory) {
+      handleNodesCancelSelected()
+      handleCancelDebugAndPreviewPanel()
+      workflowStore.setState({ isVersionHistory: payload?.isReadOnly })
+      handleSetGraphState(payload?.historyData)
+
+      if (!payload?.isReadOnly)
+        handleRefreshWorkflowDraft()
+    }
+  }, [handleRefreshWorkflowDraft, workflowStore, handleNodesCancelSelected, handleCancelDebugAndPreviewPanel, handleSetGraphState])
+
+  // 添加消息监听器
+  useEffect(() => {
+    window.addEventListener('message', receiveMessage)
+    return () => {
+      window.removeEventListener('message', receiveMessage)
+    }
+  }, [receiveMessage])
+
   const handleSyncWorkflowDraftWhenPageClose = useCallback(() => {
     if (document.visibilityState === 'hidden')
       syncWorkflowDraftWhenPageClose()
@@ -295,7 +385,6 @@ const Workflow: FC<WorkflowProps> = memo(({
     { exactMatch: true, useCapture: true },
   )
 
-  const store = useStoreApi()
   if (process.env.NODE_ENV === 'development') {
     store.getState().onError = (code, message) => {
       if (code === '002')
@@ -315,8 +404,12 @@ const Workflow: FC<WorkflowProps> = memo(({
       ref={workflowContainerRef}
     >
       <SyncingDataModal />
-      <CandidateNode />
-      <Header/>
+      {candidateNode && <CandidateNode />}
+      {
+        tenantConfigFromStore?.appConfig?.features?.workflow?.features?.header?.hasPermission
+          ? (hasEditPermission(ucid, appDetail, role) && < Header />)
+          : < Header />
+      }
       <Panel />
       <Operator handleRedo={handleHistoryForward} handleUndo={handleHistoryBack} />
       {
@@ -386,7 +479,7 @@ const Workflow: FC<WorkflowProps> = memo(({
         nodesConnectable={!nodesReadOnly}
         nodesFocusable={!nodesReadOnly}
         edgesFocusable={!nodesReadOnly}
-        panOnDrag={controlMode === 'hand' || workflowReadOnly }
+        panOnDrag={controlMode === 'hand' || workflowReadOnly}
         zoomOnPinch={true}
         zoomOnScroll={true}
         zoomOnDoubleClick={true}

@@ -39,6 +39,7 @@ public class WorkflowBatchRunCallback extends WorkflowCallbackAdaptor {
         synchronized(data) {
             responseWorkflowInfo(context, data);
             responseWorkflowError(context, data, error);
+            responseWorkflowMetaData(context, data);
         }
         String errorBody = MapUtils.getString(data, "error", StringUtils.EMPTY);
         Map<String, Object> result = new HashMap<>();

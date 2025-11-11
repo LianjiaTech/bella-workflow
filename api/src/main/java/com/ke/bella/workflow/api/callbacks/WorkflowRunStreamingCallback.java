@@ -67,6 +67,7 @@ public class WorkflowRunStreamingCallback extends WorkflowCallbackAdaptor {
         Map<String, Object> data = new LinkedHashMap<>();
         responseWorkflowInfo(context, data);
         responseWorkflowError(context, data, error);
+        responseWorkflowMetaData(context, data);
 
         SseHelper.sendEvent(emitter, "onWorkflowRunFailed", data);
         emitter.complete();

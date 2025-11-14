@@ -48,7 +48,7 @@ import { useFeatures } from '@/app/components/base/features/hooks'
 import ViewWorkflowVersionHistory from '@/app/components/workflow/header/view-workflow-version-history'
 import WorkflowVersionTitle from '@/app/components/workflow/header/workflow-version-title'
 import { useAppContext } from '@/context/app-context'
-import CreateFromDSLModal from '@/app/components/app/create-from-dsl-modal'
+import UpdateDSLModal from '@/app/components/workflow/update-dsl-modal'
 import { exportAppConfig } from '@/service/apps'
 import DSLExportConfirmModal from '@/app/components/workflow/dsl-export-confirm-modal'
 import type { EnvironmentVariable } from '@/app/components/workflow/types'
@@ -204,34 +204,37 @@ const Header: FC = () => {
     setShowImportDSLModal(true)
   }, [])
 
-  const onExportDSL = useCallback(async (includeSecrets = false) => {
+  const onExportDSL = useCallback(async (include = false) => {
+    if (!appDetail)
+      return
     try {
       const { data } = await exportAppConfig({
-        appID: appID!,
-        include: includeSecrets,
+        appID: appDetail.id,
+        include,
       })
       const a = document.createElement('a')
-      const file = new Blob([data], { type: 'application/yaml' })
+      const file = new Blob([data], { type: 'application/json' })
       a.href = URL.createObjectURL(file)
-      a.download = `${appDetail?.name || 'workflow'}.yml`
+      a.download = `${appDetail.id}.json`
       a.click()
     }
     catch (e) {
       notify({ type: 'error', message: t('app.exportFailed') })
     }
-  }, [appID, appDetail?.name, notify, t])
+  }, [appDetail, notify, t])
 
   const handleExportDSL = useCallback(async () => {
-    if (!appDetail?.mode || (appDetail.mode !== 'workflow' && appDetail.mode !== 'advanced-chat')) {
-      // 直接导出
-      await onExportDSL()
+    if (!appDetail)
+      return
+    if (appDetail.mode !== 'workflow' && appDetail.mode !== 'advanced-chat') {
+      onExportDSL()
       return
     }
     try {
-      const workflowDraft = await fetchWorkflowDraft(`/apps/${appID}/workflows/draft`)
+      const workflowDraft = await fetchWorkflowDraft(`/apps/${appDetail.id}/workflows/draft`)
       const list = (workflowDraft.environment_variables || []).filter(env => env.value_type === 'secret')
       if (list.length === 0) {
-        await onExportDSL()
+        onExportDSL()
         return
       }
       setSecretEnvList(list)
@@ -240,7 +243,7 @@ const Header: FC = () => {
     catch (e) {
       notify({ type: 'error', message: t('app.exportFailed') })
     }
-  }, [appDetail?.mode, appID, notify, t, onExportDSL])
+  }, [appDetail, notify, t, onExportDSL])
 
   const onVersionHistory = useCallback(() => {
     handleBackupDraft()
@@ -501,13 +504,9 @@ const Header: FC = () => {
         )
       }
       {showImportDSLModal && (
-        <CreateFromDSLModal
-          show={showImportDSLModal}
-          onClose={() => setShowImportDSLModal(false)}
-          onSuccess={() => {
-            setShowImportDSLModal(false)
-            // 刷新页面或应用列表
-          }}
+        <UpdateDSLModal
+          onCancel={() => setShowImportDSLModal(false)}
+          onBackup={() => onExportDSL()}
         />
       )}
       {showExportDSLModal && secretEnvList.length > 0 && (

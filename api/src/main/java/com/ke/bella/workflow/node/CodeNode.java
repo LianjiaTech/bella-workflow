@@ -149,27 +149,34 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
                 throw new IllegalArgumentException("output " + prefix + dot + outputName + " is missing.");
             }
 
+            Object outputValue = result.get(outputName);
+
+            if(outputValue == null) {
+                parametersValidated.put(outputName, true);
+                continue;
+            }
+
             switch (outputConfig.getType()) {
             case "object":
-                if(!(result.get(outputName) instanceof Map)) {
+                if(!(outputValue instanceof Map)) {
                     throw new IllegalArgumentException(
-                            "output " + prefix + dot + outputName + " is not an object, got " + result.get(outputName).getClass() + " instead.");
+                            "output " + prefix + dot + outputName + " is not an object, got " + outputValue.getClass().getSimpleName() + " instead.");
                 }
-                transformedResult.put(outputName, transformResult((Map<String, Object>) result.get(outputName), outputConfig.getChildren(),
+                transformedResult.put(outputName, transformResult((Map<String, Object>) outputValue, outputConfig.getChildren(),
                         prefix + dot + outputName, depth + 1));
                 break;
             case "number":
-                transformedResult.put(outputName, checkNumber(result.get(outputName), prefix + dot + outputName));
+                transformedResult.put(outputName, checkNumber(outputValue, prefix + dot + outputName));
                 break;
             case "string":
-                transformedResult.put(outputName, checkString(result.get(outputName), prefix + dot + outputName));
+                transformedResult.put(outputName, checkString(outputValue, prefix + dot + outputName));
                 break;
             case "array[number]":
-                if(!(result.get(outputName) instanceof List)) {
+                if(!(outputValue instanceof List)) {
                     throw new IllegalArgumentException(
-                            "output " + prefix + dot + outputName + " is not an array, got " + result.get(outputName).getClass() + " instead.");
+                            "output " + prefix + dot + outputName + " is not an array, got " + outputValue.getClass().getSimpleName() + " instead.");
                 }
-                List<?> numberList = (List<?>) result.get(outputName);
+                List<?> numberList = (List<?>) outputValue;
                 List<Object> checkedNumberList = new ArrayList<>();
                 for (int i = 0; i < numberList.size(); i++) {
                     checkedNumberList.add(checkNumber(numberList.get(i), prefix + dot + outputName + "[" + i + "]"));
@@ -177,11 +184,11 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
                 transformedResult.put(outputName, checkedNumberList);
                 break;
             case "array[string]":
-                if(!(result.get(outputName) instanceof List)) {
+                if(!(outputValue instanceof List)) {
                     throw new IllegalArgumentException(
-                            "output " + prefix + dot + outputName + " is not an array, got " + result.get(outputName).getClass() + " instead.");
+                            "output " + prefix + dot + outputName + " is not an array, got " + outputValue.getClass().getSimpleName() + " instead.");
                 }
-                List<?> stringList = (List<?>) result.get(outputName);
+                List<?> stringList = (List<?>) outputValue;
                 List<Object> checkedStringList = new ArrayList<>();
                 for (int i = 0; i < stringList.size(); i++) {
                     checkedStringList.add(checkString(stringList.get(i), prefix + dot + outputName + "[" + i + "]"));
@@ -189,11 +196,11 @@ public class CodeNode extends BaseNode<CodeNode.Data> {
                 transformedResult.put(outputName, checkedStringList);
                 break;
             case "array[object]":
-                if(!(result.get(outputName) instanceof List)) {
+                if(!(outputValue instanceof List)) {
                     throw new IllegalArgumentException(
-                            "output " + prefix + dot + outputName + " is not an array, got " + result.get(outputName).getClass() + " instead.");
+                            "output " + prefix + dot + outputName + " is not an array, got " + outputValue.getClass().getSimpleName() + " instead.");
                 }
-                List<?> objectList = (List<?>) result.get(outputName);
+                List<?> objectList = (List<?>) outputValue;
                 for (int i = 0; i < objectList.size(); i++) {
                     if(!(objectList.get(i) instanceof Map)) {
                         throw new IllegalArgumentException("output " + prefix + dot + outputName + "[" + i + "] is not an object, got "

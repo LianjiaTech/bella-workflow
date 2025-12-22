@@ -67,13 +67,13 @@ const InputItem: FC<Props> = ({
           />
         )
         : <div
-          className="pl-0.5 w-full h-[18px] leading-[18px]"
+          className={cn(className, 'hover:bg-gray-50 hover:cursor-text', 'relative flex h-full')}
         >
           {!hasValue && <div className='text-gray-300 text-xs font-normal'>{placeholder}</div>}
           {hasValue && (
             <Input
               instanceId={instanceId}
-              className={cn(isFocus ? 'shadow-xs bg-gray-50 border-gray-300' : 'bg-gray-100 border-gray-100', 'w-0 grow rounded-lg px-3 py-[6px] border')}
+              className={cn(isFocus ? 'bg-gray-100' : 'bg-width', 'w-0 grow px-3 py-1')}
               value={value}
               onChange={onChange}
               readOnly={readOnly}

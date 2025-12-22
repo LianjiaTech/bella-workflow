@@ -42,7 +42,7 @@ const KeyValueItem: FC<Props> = ({
         draft[key] = value
       })
       onChange(newPayload)
-      if (key === 'value' && isLastItem)
+      if (key === 'value' && isLastItem && !readonly)
         onAdd()
     }
   }, [onChange, onAdd, isLastItem, payload])
